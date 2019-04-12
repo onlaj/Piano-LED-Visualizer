@@ -1,0 +1,99 @@
+<data text="menu">
+	<menu text="LED Strip Settings">
+		<LED_Strip_Settings text="LED Color">
+			<LED_Color text="RGB">
+				<RGB text="Red"></RGB>
+				<RGB text="Green"></RGB>
+				<RGB text="Blue"></RGB>
+			</LED_Color>
+			<LED_Color text="Solid">
+				<Solid text="White"></Solid>
+				<Solid text="Red"></Solid>
+				<Solid text="Green"></Solid>
+				<Solid text="Blue"></Solid>
+				<Solid text="Aqua"></Solid>
+				<Solid text="Crimson"></Solid>
+				<Solid text="Cyan"></Solid>
+				<Solid text="Fuchsia"></Solid>
+				<Solid text="Lime"></Solid>
+				<Solid text="Olive"></Solid>
+				<Solid text="Purple"></Solid>
+				<Solid text="Yellow"></Solid>
+				<Solid text="Orange"></Solid>
+				<Solid text="DarkGreen"></Solid>
+				<Solid text="DeepPink"></Solid>
+			</LED_Color>
+		</LED_Strip_Settings>
+		<LED_Strip_Settings text="Light mode">
+			<Light_mode text="Normal"></Light_mode>
+			<Light_mode text="Fading">
+				<Fading text="Fast"></Fading>
+				<Fading text="Medium"></Fading>
+				<Fading text="Slow"></Fading>
+				<Fading text="Very slow"></Fading>
+			</Light_mode>
+		</LED_Strip_Settings>
+	</menu>
+	<menu text="Play MIDI">
+		<Play_MIDI text="Choose song"></Play_MIDI>
+		<Play_MIDI text="Start recording"></Play_MIDI>
+		<Play_MIDI text="Cancel recording"></Play_MIDI>
+		<Play_MIDI text="Save MIDI"></Play_MIDI>
+	</menu>
+	<menu text="Ports Settings">
+		<Ports_Settings text="Input"></Ports_Settings>
+		<Ports_Settings text="Output"></Ports_Settings>
+		<Ports_Settings text="Playback"></Ports_Settings>
+		<Ports_Settings text="Refresh ports"></Ports_Settings>
+		<Ports_Settings text="Reset Bluetooth service"></Ports_Settings>
+	</menu>
+	<menu text="LED animations">
+		<LED_animations text="Theater Chase"></LED_animations>
+		<LED_animations text="Color Wipe"></LED_animations>
+		<LED_animations text="Breathing">
+			<Breathing text="Fast"></Breathing>
+			<Breathing text="Medium"></Breathing>
+			<Breathing text="Slow"></Breathing>
+		</LED_animations>
+		<LED_animations text="Rainbow">
+			<Rainbow text="Fast"></Rainbow>
+			<Rainbow text="Medium"></Rainbow>
+			<Rainbow text="Slow"></Rainbow>
+		</LED_animations>
+		<LED_animations text="Rainbow Cycle">
+			<Rainbow_Cycle text="Fast"></Rainbow_Cycle>
+			<Rainbow_Cycle text="Medium"></Rainbow_Cycle>
+			<Rainbow_Cycle text="Slow"></Rainbow_Cycle>
+		</LED_animations>
+		<LED_animations text="Theater Chase Rainbow"></LED_animations>
+		<LED_animations text="Clear"></LED_animations>
+	</menu>
+	<menu text="Display Settings">
+		<Display_Settings text="Text Color">			
+			<Text_Color text="Black"></Text_Color>
+			<Text_Color text="White"></Text_Color>
+			<Text_Color text="Green"></Text_Color>
+			<Text_Color text="Red"></Text_Color>
+			<Text_Color text="Orange"></Text_Color>
+			<Text_Color text="Purple"></Text_Color>
+			<Text_Color text="Blue"></Text_Color>
+			<Text_Color text="Brown"></Text_Color>
+			<Text_Color text="Yellow"></Text_Color>
+			<Text_Color text="Olive"></Text_Color>
+			<Text_Color text="Lime"></Text_Color>
+			<Text_Color text="Gray"></Text_Color>
+			<Text_Color text="SteelBlue"></Text_Color>
+			<Text_Color text="Magenta"></Text_Color>
+			<Text_Color text="DarkViolet"></Text_Color>
+		</Display_Settings>
+		<Display_Settings text="Background Color">
+			<Background_Color text="White"></Background_Color>
+			<Background_Color text="Black"></Background_Color>
+			<Background_Color text="Grey"></Background_Color>			
+		</Display_Settings>
+	</menu>
+	<menu text="Other Settings">
+		<Other_Settings text="System Info">
+		</Other_Settings>
+	</menu>
+</data>
