@@ -20,7 +20,7 @@
   - DC 5.5x2.5mm socket with quick connection ([example](https://www.aliexpress.com/item/10PCS-dc-5-5-2-5MM-power-jack-socket-connector-5-5X2-5MM-FEMALE-PLUG-solderless/32900110313.html?spm=2114.search0104.3.1.30c64a6718uG3M&ws_ab_test=searchweb0_0,searchweb201602_9_10065_10068_10843_319_10059_10884_317_10887_10696_321_322_453_10084_454_10083_10103_10618_10304_10307_10820_10301_10821_537_536,searchweb201603_51,ppcSwitch_0&algo_expid=583fe5eb-d9b9-4772-8074-779dcf3f74c9-0&algo_pvid=583fe5eb-d9b9-4772-8074-779dcf3f74c9&transAbTest=ae803_5))
   - Braid for cables
   - Heat shrink bands
-  - Aluminium LED Profile with diffuser (*higly recommend to search for right one in local shops*)
+  - Aluminium LED Profile with diffuser (*highly recommend to search for right one in local shops*)
   - Double side tape to mount everything on piano
   - Windows 10 laptop/tablet with bluetooth to run Synthesia
 
