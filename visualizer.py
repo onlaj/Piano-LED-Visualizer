@@ -18,8 +18,6 @@ import sys
 import os
 import datetime
 import psutil
-sys.path.append("/home/pi/.local/lib/python2.7/site-packages/mido/")
-sys.path.append("/home/pi/.local/lib/python2.7/site-packages/rtmidi/")
 
 import mido
 from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
@@ -64,6 +62,7 @@ GPIO.setup(KEYDOWN,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEY1,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEY2,GPIO.IN,GPIO.PUD_UP)
 
+#LED animations
 def colorWipe(strip, color, wait_ms=50):
     """Wipe color across display a pixel at a time."""
     for i in range(strip.numPixels()):
@@ -158,8 +157,7 @@ class MenuLCD:
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), "GREEN")
         self.draw = ImageDraw.Draw(self.image)
         self.LCD.LCD_ShowImage(self.image,0,0)        
-        self.xml_file_name = xml_file_name
-        print("Filename: "+xml_file_name)
+        self.xml_file_name = xml_file_name        
         self.DOMTree = minidom.parse(xml_file_name)
         self.currentlocation = "menu";        
         self.scroll_hold = 0
@@ -169,7 +167,7 @@ class MenuLCD:
         self.text_color = "WHITE"
         self.update_songs()
         self.update_ports()
-        
+    
     def update_songs(self):
         songs_list = os.listdir("Songs")       
         self.DOMTree = minidom.parse(self.xml_file_name)
@@ -200,8 +198,7 @@ class MenuLCD:
             mc = self.DOMTree.getElementsByTagName("Ports_Settings")[2]
             mc.appendChild(element)                     
  
-    def show(self, position = "default", back_pointer_location = False):        
-        
+    def show(self, position = "default", back_pointer_location = False):     
         if(position == "default" and  self.currentlocation):
             position = self.currentlocation
             refresh = 1
@@ -215,7 +212,8 @@ class MenuLCD:
             
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)        
-        self.draw.text((2, 5), position.replace("_", " "), fill = self.text_color)        
+        self.draw.text((2, 5), position.replace("_", " "), fill = self.text_color) 
+        #getting list of items in current menu    
         staffs = self.DOMTree.getElementsByTagName(position)        
         text_margin_top = 15
         i = 0
@@ -227,12 +225,13 @@ class MenuLCD:
         else:
             self.menu_offset = -1;        
         
+        #looping through menu list
         for staff in staffs:
             if(self.pointer_position > list_count):
                 self.pointer_position = list_count
             elif(self.pointer_position < 0):
                 self.pointer_position = 0
-                        
+            #drawing little arrow to show there are more items above
             if(self.pointer_position > 9 and i < self.menu_offset):
                 self.draw.line([(119,20),(125,20)], fill = self.text_color,width = 2)
                 self.draw.line([(119,20),(122,17)], fill = self.text_color,width = 2)
@@ -251,8 +250,7 @@ class MenuLCD:
                     self.draw.rectangle([(0,text_margin_top),(128,text_margin_top + 11)],fill = "Crimson")
                     self.draw.text((3, text_margin_top), ">", fill = self.text_color)
                     self.current_choice =  sid                   
-            else:                
-                print(str(i)+" sid: "+str(sid)+" bpl: "+str(back_pointer_location))
+            else:             
                 if(sid == back_pointer_location):
                     try:
                         self.parent_menu = staff.parentNode.tagName
@@ -261,7 +259,7 @@ class MenuLCD:
                     self.draw.text((3, text_margin_top), ">", fill = self.text_color)
                     self.current_choice =  sid
                     self.pointer_position = i                    
-            
+            #drawing little arrow to show there are more items below
             if(i == 10 and self.pointer_position < list_count and list_count > 10):
                 self.draw.line([(119,120),(125,120)], fill = self.text_color,width = 2)
                 self.draw.line([(119,120),(122,123)], fill = self.text_color,width = 2)
@@ -305,17 +303,12 @@ class MenuLCD:
             self.draw.text((10, 70), str(ledsettings.get_colors()), fill = self.text_color)
             self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_colors())+")")                  
         self.LCD.LCD_ShowImage(self.image,0,0)          
-            
-    def location(self):
-        location_readable = self.currentlocation.replace("_", " ")
-        print ("Location: "+location_readable)
-        
+
     def change_pointer(self, direction):
         if(direction == 0):
             self.pointer_position -= 1
         elif(direction == 1):
             self.pointer_position += 1
-        print(self.pointer_position)
         menu.cut_count = -6
         menu.show()
         
@@ -363,7 +356,6 @@ class MenuLCD:
         self.draw.text((3, 95), "RAM usage: "+str(ram)+"%", fill = self.text_color, font=font)
         self.draw.text((3, 110), "Temp: "+str(temp)+" C", fill = self.text_color, font=font)
         self.LCD.LCD_ShowImage(self.image,0,0)
-
             
     def change_settings(self, choice, location):
         if(location == "Text_Color"):
@@ -380,7 +372,6 @@ class MenuLCD:
                 now = datetime.datetime.now()
                 current_date = now.strftime("%Y-%m-%d %H:%M")
                 menu.render_message("Recording stopped", "Saved as "+current_date, 2000)  
-                print ("Saving MIDI")
                 saving.save(current_date)
                 menu.update_songs()
             if(choice =="Start recording"):                
@@ -465,8 +456,7 @@ class MenuLCD:
         elif(value == "RIGHT"):
             value = 1
         if(self.currentlocation == "RGB"):
-            ledsettings.change_color(self.current_choice, value)
-            print("changing setting value: " +str(value))               
+            ledsettings.change_color(self.current_choice, value)              
     
 def play_midi(song_path, port):
     menu.render_message("Playing: ", song_path)
@@ -553,7 +543,6 @@ class SaveMIDI:
     def save(self, filename):
         self.isrecording = False
         self.mid.save('Songs/'+filename+'.mid')
-        print("Saving midi :)")
         menu.render_message("File saved", filename+".mid", 1500)
         
     def restart_time(self):
@@ -588,14 +577,10 @@ class LedSettings:
                     self.blue = 0
                 if(self.blue > 255):
                     self.blue = 255
-    def change_color_name(self, color): 
-        print(color)       
+    def change_color_name(self, color):       
         self.red = find_between(str(color), "red=", ",")
         self.green = find_between(str(color), "green=", ",")
         self.blue = find_between(str(color), "blue=", ")")
-        print(self.red)
-        print(self.green)
-        print(self.blue)
     def get_color(self, color):
         if(color == "Red"):
             return self.red
@@ -653,12 +638,10 @@ display_cycle = 0
 colorWipe(ledstrip.strip, Color(0,0,0), 1)
 
 last_activity = time.time()
-while True:
-    
+while True:    
     #screensaver
     if((time.time() - last_activity) > 600):
         screensaver()    
-    
     try:
             elapsed_time = time.time() - saving.start_time
     except:
@@ -707,7 +690,6 @@ while True:
     if(ledsettings.mode == "Fading"):
         n = 0
         for note in keylist:
-            #print(str(keylist))
             if(int(note) != 101):     
                 if(int(note) >= 0):
                     fading = note / float(100)
@@ -718,19 +700,23 @@ while True:
             n += 1
         ledstrip.strip.show()  
     
-    midipending = midiports.inport.iter_pending()    
+    midipending = midiports.inport.iter_pending()
+    #loop through incoming midi messages
     for msg in midipending:       
         last_activity = time.time()     
         note = find_between(str(msg), "note=", " ")
         original_note = note
         note = int(note)
         velocity = find_between(str(msg), "velocity=", " ") 
+        
+        #changing offset to adjust the distance between the LEDs to the key spacing
         if(note > 92):
             note_offset = 2
         elif(note > 55):
             note_offset = 1
         else:
             note_offset = 0
+            
         if(int(velocity) == 0 and int(note) > 0):
             if(ledsettings.mode == "Fading"):
                 keylist[(note - 20)*2 - note_offset] = 100                
