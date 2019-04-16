@@ -3,3 +3,4 @@ webcolors
 psutil
 mido
 Pillow
+python-rtmidi
