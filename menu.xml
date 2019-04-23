@@ -32,6 +32,12 @@
 				<Fading text="Slow"></Fading>
 				<Fading text="Very slow"></Fading>
 			</Light_mode>
+			<Light_mode text="Velocity">
+				<Velocity text="Fast"></Velocity>
+				<Velocity text="Medium"></Velocity>
+				<Velocity text="Slow"></Velocity>
+				<Velocity text="Very slow"></Velocity>
+			</Light_mode>
 		</LED_Strip_Settings>
 	</menu>
 	<menu text="Play MIDI">

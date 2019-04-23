@@ -387,13 +387,24 @@ class MenuLCD:
         if(location == "Fading"):
             ledsettings.mode = "Fading"
             if(choice == "Fast"):
+                ledsettings.fadingspeed = 125
+            elif(choice == "Medium"):
+                ledsettings.fadingspeed = 100
+            elif(choice == "Slow"):
+                ledsettings.fadingspeed = 50
+            elif(choice == "Very slow"):
+                ledsettings.fadingspeed = 10
+        
+        if(location == "Velocity"):
+            ledsettings.mode = "Velocity"
+            if(choice == "Fast"):
                 ledsettings.fadingspeed = 5
             elif(choice == "Medium"):
-                ledsettings.fadingspeed = 3
+                ledsettings.fadingspeed = 4
             elif(choice == "Slow"):
+                ledsettings.fadingspeed = 3
+            elif(choice == "Very slow"):
                 ledsettings.fadingspeed = 2
-            elif(choice == "Vey slow"):
-                ledsettings.fadingspeed = 1
                 
         if(location == "Light_mode"):
             ledsettings.mode = "Normal"
@@ -632,12 +643,16 @@ saving = SaveMIDI()
 ledsettings = LedSettings()
 
 keylist = [0] * 176
+keylist_status = [0] * 176
 
 z = 0
 display_cycle = 0
 colorWipe(ledstrip.strip, Color(0,0,0), 1)
 
 last_activity = time.time()
+
+last_control_change = 0
+pedal_deadzone = 10
 while True:    
     #screensaver
     if((time.time() - last_activity) > 600):
@@ -685,18 +700,25 @@ while True:
     
     red = ledsettings.get_color("Red")
     green = ledsettings.get_color("Green")
-    blue = ledsettings.get_color("Blue")
-    
-    if(ledsettings.mode == "Fading"):
+    blue = ledsettings.get_color("Blue")    
+      
+    if(ledsettings.mode == "Fading" or ledsettings.mode == "Velocity"):
         n = 0
-        for note in keylist:
-            if(int(note) != 101):     
+        for note in keylist:            
+            if(int(note) != 1001):                
                 if(int(note) >= 0):
-                    fading = note / float(100)
+                    fading = (note / float(100)) / 10
                     ledstrip.strip.setPixelColor((n), Color(int(int(green) * fading), int(int(red) * fading), int(int(blue) * fading)))
                     if(int(note) == 0):
                         ledstrip.strip.setPixelColor((0), Color(0, 0, 0))
-                    keylist[n] = keylist[n] - ledsettings.fadingspeed             
+                    keylist[n] = keylist[n] - ledsettings.fadingspeed
+                else:
+                    keylist[n] = 0
+            if(ledsettings.mode == "Velocity"):
+                if(int(last_control_change) < pedal_deadzone):
+                    if(int(keylist_status[n]) == 0):
+                        ledstrip.strip.setPixelColor((n), Color(0, 0, 0))
+                        keylist[n] = 0                    
             n += 1
         ledstrip.strip.show()  
     
@@ -707,8 +729,11 @@ while True:
         note = find_between(str(msg), "note=", " ")
         original_note = note
         note = int(note)
-        velocity = find_between(str(msg), "velocity=", " ") 
-        
+        velocity = find_between(str(msg), "velocity=", " ")
+        control_change = find_between(str(msg), "value=", " ")
+        if(control_change != False):
+            last_control_change = control_change
+
         #changing offset to adjust the distance between the LEDs to the key spacing
         if(note > 92):
             note_offset = 2
@@ -716,10 +741,13 @@ while True:
             note_offset = 1
         else:
             note_offset = 0
-            
         if(int(velocity) == 0 and int(note) > 0):
+            keylist_status[(note - 20)*2 - note_offset] = 0
             if(ledsettings.mode == "Fading"):
-                keylist[(note - 20)*2 - note_offset] = 100                
+                keylist[(note - 20)*2 - note_offset] = 1000
+            elif(ledsettings.mode == "Velocity"):
+                if(int(last_control_change) < pedal_deadzone):
+                    keylist[(note - 20)*2 - note_offset] = 0
             else:
                 ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(0, 0, 0))            
             elapsed_time = time.time() - saving.start_time
@@ -727,16 +755,22 @@ while True:
                 saving.add_track("note_off", original_note, velocity, elapsed_time*1000)
             saving.restart_time()
         elif(int(velocity) > 0 and int(note) > 0):
-            brightness = (100 / (float(velocity) / 127 ) )/ 100 
-            brightness = int(brightness) 
+            keylist_status[(note - 20)*2 - note_offset] = 1
+            if(ledsettings.mode == "Velocity"):
+                brightness = (100 / (float(velocity) / 127 ) )/ 100 
+                brightness = brightness
+            else:
+                brightness = 1
             if(ledsettings.mode == "Fading"):
-                keylist[(note - 20)*2 - note_offset] = 101
+                keylist[(note - 20)*2 - note_offset] = 1001
+            if(ledsettings.mode == "Velocity"):
+                keylist[(note - 20)*2 - note_offset] = 1000/float(brightness)
             if(find_between(str(msg), "channel=", " ") == "12"):
                 ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(255, 0, 0))
             elif(find_between(str(msg), "channel=", " ") == "11"):
                 ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(0, 0, 255))
             else:                        
-                ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(int(green), int(red), int(blue)))            
+                ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))            
             elapsed_time = time.time() - saving.start_time
             if(saving.isrecording == True):
                 saving.add_track("note_on", original_note, velocity, elapsed_time*1000)            
