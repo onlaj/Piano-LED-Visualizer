@@ -527,6 +527,7 @@ def screensaver():
         time.sleep(delay)
         i += 1
         if GPIO.input(KEY2) == 0:
+            midiports.inport.callback = None
             break
         
 class SaveMIDI:
@@ -720,7 +721,7 @@ while True:
                         ledstrip.strip.setPixelColor((n), Color(0, 0, 0))
                         keylist[n] = 0                    
             n += 1
-        ledstrip.strip.show()  
+        #ledstrip.strip.show()  
     
     midipending = midiports.inport.iter_pending()
     #loop through incoming midi messages
@@ -783,4 +784,4 @@ while True:
                 saving.add_control_change("control_change", 0, control, value, elapsed_time*1000)
             saving.restart_time()
             
-        ledstrip.strip.show()
+    ledstrip.strip.show()
