@@ -605,22 +605,28 @@ class LedSettings:
 
 class MidiPorts():
     def __init__(self):
+        ports = mido.get_input_names()
         try:
-            self.inport =  mido.open_input('mio:mio MIDI 1 20:0')
+            for port in ports:
+                if "Through" not in port and "RPi" not in port and "RtMidOut" not in port:
+                    self.inport =  mido.open_input(port)
+                    print("Inport set to "+port)
         except:
             print ("no input port")
         try:            
-            self.playport =  mido.open_output('mio:mio MIDI 1 20:0')
+            for port in ports:
+                if "Through" not in port and "RPi" not in port and "RtMidOut" not in port:
+                    self.playport =  mido.open_output(port)
+                    print("playport set to "+port)
         except:
             print("no playback port")
         try:
-            self.outport = mido.open_output('RPi-Bluetooth:RPi-Bluetooth 128:0')
+            for port in ports:
+                if "RPi" in port:
+                    self.outport =  mido.open_output(port)
+                    print("outport set to "+port)
         except:
             print("no output port")
-        try:
-            self.lightport = mido.open_input('RPi-Bluetooth:RPi-Bluetooth 128:0')
-        except:
-            print("no light port")
             
         self.portname = "inport"
             
