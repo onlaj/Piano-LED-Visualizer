@@ -34,7 +34,17 @@ class LedStrip:
         self.strip.begin()
 
 ledstrip = LedStrip()
-inport =  mido.open_input('mio:mio MIDI 1 20:0')
+
+ports = mido.get_input_names()
+
+for port in ports:
+	if "Through" not in port and "RPi" not in port and "RtMidOut" not in port:
+		try:
+			inport =  mido.open_input(port)
+			print("Inport set to "+port)
+		except:
+			print ("Failed to set "+port+" as inport")
+
 green = 255
 red = 255
 blue = 255
