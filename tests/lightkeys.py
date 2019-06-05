@@ -54,7 +54,10 @@ while True:
 		note = find_between(str(msg), "note=", " ")
 		original_note = note
 		note = int(note)
-		velocity = find_between(str(msg), "velocity=", " ")
+		if "note_off" in str(msg):
+			velocity = 0
+		else:
+			velocity = find_between(str(msg), "velocity=", " ")
 		#changing offset to adjust the distance between the LEDs to the key spacing
 		if(note > 92):
 			note_offset = 2
