@@ -365,8 +365,8 @@ class MenuLCD:
         if(self.text_color == self.background_color):
             self.text_color = "Red"
             
-        if(location == "Choose_song"):            
-            play_midi(choice, 'mio:mio MIDI 1 20:0')
+        if(location == "Choose_song"):
+            play_midi(choice)            
         if(location == "Play_MIDI"):
             if(choice == "Save MIDI"):
                 now = datetime.datetime.now()
@@ -469,13 +469,12 @@ class MenuLCD:
         if(self.currentlocation == "RGB"):
             ledsettings.change_color(self.current_choice, value)              
     
-def play_midi(song_path, port):
+def play_midi(song_path):
     menu.render_message("Playing: ", song_path)
     try:
-        mid = mido.MidiFile("Songs/"+song_path)
-        port = mido.open_output(port)
+        mid = mido.MidiFile("Songs/"+song_path)        
         for msg in mid.play():            
-            port.send(msg)            
+            midiports.playport.send(msg)            
             if GPIO.input(KEY2) == 0:
                 break
     except:
