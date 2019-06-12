@@ -734,8 +734,12 @@ while True:
         last_activity = time.time()     
         note = find_between(str(msg), "note=", " ")
         original_note = note
-        note = int(note)
-        velocity = find_between(str(msg), "velocity=", " ")
+        note = int(note)        
+        if "note_off" in str(msg):
+            velocity = 0
+        else:
+            velocity = find_between(str(msg), "velocity=", " ")
+                        
         control_change = find_between(str(msg), "value=", " ")
         if(control_change != False):
             last_control_change = control_change
