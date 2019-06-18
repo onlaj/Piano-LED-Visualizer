@@ -496,6 +496,7 @@ def screensaver():
     cpu_history = [None] * int(interval)
     cpu_chart = [0] * 28
     cpu_average = 0
+    midiports.inport.poll()
     while True:
         if((time.time() - saving.start_time) > 3600  and delay < 0.5):            
             delay = 0.9
@@ -525,8 +526,9 @@ def screensaver():
         menu.render_screensaver(hour, date, cpu_usage, round(cpu_average,1), ram_usage, temp, cpu_chart)
         time.sleep(delay)
         i += 1
-        if GPIO.input(KEY2) == 0:
-            midiports.inport.callback = None
+        if (midiports.inport.poll() != None):
+            break
+        if GPIO.input(KEY2) == 0:            
             break
         
 class SaveMIDI:
