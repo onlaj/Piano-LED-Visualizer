@@ -591,9 +591,9 @@ class LedSettings:
                 if(self.blue > 255):
                     self.blue = 255
     def change_color_name(self, color):       
-        self.red = find_between(str(color), "red=", ",")
-        self.green = find_between(str(color), "green=", ",")
-        self.blue = find_between(str(color), "blue=", ")")
+        self.red = int(find_between(str(color), "red=", ","))
+        self.green = int(find_between(str(color), "green=", ","))
+        self.blue = int(find_between(str(color), "blue=", ")"))
     def get_color(self, color):
         if(color == "Red"):
             return self.red
