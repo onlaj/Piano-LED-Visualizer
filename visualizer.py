@@ -671,7 +671,11 @@ while True:
             elapsed_time = 0
     if(display_cycle >= 60):
         display_cycle = 0
-        if(elapsed_time > 3):
+        if(saving.isrecording == True):
+            screen_hold_time = 12
+        else:
+            screen_hold_time = 3
+        if(elapsed_time > screen_hold_time):
             menu.show()        
     display_cycle += 1
     
@@ -753,6 +757,7 @@ while True:
             note_offset = 1
         else:
             note_offset = 0
+        elapsed_time = time.time() - saving.start_time
         if(int(velocity) == 0 and int(note) > 0):
             keylist_status[(note - 20)*2 - note_offset] = 0
             if(ledsettings.mode == "Fading"):
@@ -762,10 +767,8 @@ while True:
                     keylist[(note - 20)*2 - note_offset] = 0
             else:
                 ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(0, 0, 0))            
-            elapsed_time = time.time() - saving.start_time
             if(saving.isrecording == True):
                 saving.add_track("note_off", original_note, velocity, elapsed_time*1000)
-            saving.restart_time()
         elif(int(velocity) > 0 and int(note) > 0):
             keylist_status[(note - 20)*2 - note_offset] = 1
             if(ledsettings.mode == "Velocity"):
@@ -782,17 +785,14 @@ while True:
             elif(find_between(str(msg), "channel=", " ") == "11"):
                 ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(0, 0, 255))
             else:                        
-                ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))            
-            elapsed_time = time.time() - saving.start_time
+                ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
             if(saving.isrecording == True):
                 saving.add_track("note_on", original_note, velocity, elapsed_time*1000)            
-            saving.restart_time()
         else:
             control = find_between(str(msg), "control=", " ")
             value = find_between(str(msg), "value=", " ")
-            elapsed_time = time.time() - saving.start_time
             if(saving.isrecording == True):
                 saving.add_control_change("control_change", 0, control, value, elapsed_time*1000)
-            saving.restart_time()
+        saving.restart_time()
             
     ledstrip.strip.show()
