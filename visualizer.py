@@ -147,7 +147,33 @@ def breathing(strip, wait_ms=2, iterations = 1000):
             strip.setPixelColor(i, Color(green, red, blue))
         strip.show()
         if(wait_ms > 0):
-            time.sleep(wait_ms/1000.0)        
+            time.sleep(wait_ms/1000.0) 
+            
+def get_rainbow_colors(pos, color):
+    pos = int(pos)
+    if pos < 85:
+        if(color == "green"):
+            return pos * 3
+        elif(color == "red"):
+            return 255 - pos * 3
+        elif(color == "blue"):
+            return 0        
+    elif pos < 170:
+        pos -= 85
+        if(color == "green"):
+            return 255 - pos * 3
+        elif(color == "red"):
+            return 0
+        elif(color == "blue"):
+            return pos * 3        
+    else:
+        pos -= 170
+        if(color == "green"):
+            return 0
+        elif(color == "red"):
+            return pos * 3
+        elif(color == "blue"):
+            return 255 - pos * 3        
 
 class MenuLCD:    
     def __init__(self, xml_file_name):        
@@ -301,7 +327,17 @@ class MenuLCD:
         #displaying color example
         if(self.currentlocation == "RGB"):
             self.draw.text((10, 70), str(ledsettings.get_colors()), fill = self.text_color)
-            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_colors())+")")                  
+            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_colors())+")")
+            
+        #displaying rainbow offset value
+        if(self.current_choice == "Offset"):
+            self.draw.text((10, 70), str(ledsettings.rainbow_offset), fill = self.text_color)
+            
+        if(self.current_choice == "Scale"):
+            self.draw.text((10, 70), str(ledsettings.rainbow_scale)+"%", fill = self.text_color)
+            
+        if(self.current_choice == "Timeshift"):
+            self.draw.text((10, 70), str(ledsettings.rainbow_timeshift), fill = self.text_color)
         self.LCD.LCD_ShowImage(self.image,0,0)          
 
     def change_pointer(self, direction):
@@ -460,6 +496,9 @@ class MenuLCD:
         if(location == "Other_Settings"):
             if(choice == "System Info"):
                 screensaver()
+                
+        if(location == "Rainbow_Colors"):
+            ledsettings.color_mode = "Rainbow"
                             
     def change_value(self, value):
         if(value == "LEFT"):
@@ -467,7 +506,14 @@ class MenuLCD:
         elif(value == "RIGHT"):
             value = 1
         if(self.currentlocation == "RGB"):
-            ledsettings.change_color(self.current_choice, value)              
+            ledsettings.change_color(self.current_choice, value)
+        if(self.current_choice == "Offset"):
+            ledsettings.rainbow_offset = ledsettings.rainbow_offset + value * 10
+        if(self.current_choice == "Scale"):
+            ledsettings.rainbow_scale = ledsettings.rainbow_scale + value * 10
+        if(self.current_choice == "Timeshift"):
+            ledsettings.rainbow_timeshift = ledsettings.rainbow_timeshift + value
+        menu.show()
     
 def play_midi(song_path):
     menu.render_message("Playing: ", song_path)
@@ -568,7 +614,12 @@ class LedSettings:
         self.blue = 255
         self.mode = "Normal"
         self.fadingspeed = 1
+        self.color_mode = "Single"
+        self.rainbow_offset = 0
+        self.rainbow_scale = 100
+        self.rainbow_timeshift = 0
     def change_color(self, color, value):
+        self.color_mode = "Single"
         if(color == "Red"):
             if(self.red <= 255 and self.red >= 0):
                 self.red += int(value)*10
@@ -590,7 +641,8 @@ class LedSettings:
                     self.blue = 0
                 if(self.blue > 255):
                     self.blue = 255
-    def change_color_name(self, color):       
+    def change_color_name(self, color):
+        self.color_mode = "Single"      
         self.red = int(find_between(str(color), "red=", ","))
         self.green = int(find_between(str(color), "green=", ","))
         self.blue = int(find_between(str(color), "blue=", ")"))
@@ -661,6 +713,7 @@ last_activity = time.time()
 
 last_control_change = 0
 pedal_deadzone = 10
+timeshift_start = time.time()
 while True:    
     #screensaver
     if((time.time() - last_activity) > 600):
@@ -676,7 +729,8 @@ while True:
         else:
             screen_hold_time = 3
         if(elapsed_time > screen_hold_time):
-            menu.show()        
+            menu.show()
+            timeshift_start = time.time()     
     display_cycle += 1
     
     if GPIO.input(KEYUP) == 0:
@@ -709,14 +763,21 @@ while True:
         menu.change_value("RIGHT")
         while GPIO.input(KEYRIGHT) == 0:
             time.sleep(0.01)
-    
-    red = ledsettings.get_color("Red")
-    green = ledsettings.get_color("Green")
-    blue = ledsettings.get_color("Blue")    
+    if(ledsettings.color_mode == "Single"):
+        red = ledsettings.get_color("Red")
+        green = ledsettings.get_color("Green")
+        blue = ledsettings.get_color("Blue")
+        
+    timeshift = (time.time() - timeshift_start) * ledsettings.rainbow_timeshift
       
     if(ledsettings.mode == "Fading" or ledsettings.mode == "Velocity"):
         n = 0
-        for note in keylist:            
+        for note in keylist: 
+            if(ledsettings.color_mode == "Rainbow"):
+                red = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
+                green = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
+                blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue") 
+                     
             if(int(note) != 1001):                
                 if(int(note) >= 0):
                     fading = (note / float(100)) / 10
@@ -758,6 +819,12 @@ while True:
         else:
             note_offset = 0
         elapsed_time = time.time() - saving.start_time
+        
+        if(ledsettings.color_mode == "Rainbow"):
+            red = get_rainbow_colors(int((int(((note - 20)*2 - note_offset)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
+            green = get_rainbow_colors(int((int(((note - 20)*2 - note_offset)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
+            blue = get_rainbow_colors(int((int(((note - 20)*2 - note_offset)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue") 
+        
         if(int(velocity) == 0 and int(note) > 0):
             keylist_status[(note - 20)*2 - note_offset] = 0
             if(ledsettings.mode == "Fading"):
