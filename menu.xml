@@ -23,6 +23,11 @@
 				<Solid text="DarkGreen"></Solid>
 				<Solid text="DeepPink"></Solid>
 			</LED_Color>
+			<LED_Color text="Rainbow Colors">
+				<Rainbow_Colors text="Offset"></Rainbow_Colors>
+				<Rainbow_Colors text="Scale"></Rainbow_Colors>
+				<Rainbow_Colors text="Timeshift"></Rainbow_Colors>
+			</LED_Color>
 		</LED_Strip_Settings>
 		<LED_Strip_Settings text="Light mode">
 			<Light_mode text="Normal"></Light_mode>
