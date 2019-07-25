@@ -434,13 +434,13 @@ class MenuLCD:
         if(location == "Velocity"):
             ledsettings.mode = "Velocity"
             if(choice == "Fast"):
-                ledsettings.fadingspeed = 5
+                ledsettings.fadingspeed = 10
             elif(choice == "Medium"):
-                ledsettings.fadingspeed = 4
+                ledsettings.fadingspeed = 8
             elif(choice == "Slow"):
-                ledsettings.fadingspeed = 3
+                ledsettings.fadingspeed = 6
             elif(choice == "Very slow"):
-                ledsettings.fadingspeed = 2
+                ledsettings.fadingspeed = 3
                 
         if(location == "Light_mode"):
             ledsettings.mode = "Normal"
@@ -453,12 +453,13 @@ class MenuLCD:
             midiports.change_port("playport", choice)
             
         if(location == "Ports_Settings"):
-            menu.update_ports()
-            menu.render_message("Refreshing ports", "", 1500)
+            if(choice == "Refresh ports"):
+                menu.update_ports()
+                menu.render_message("Refreshing ports", "", 1500)
         
-        if(location == "Reset_Bluetooth_service"):
-            menu.render_message("Reseting BL service", "", 1000)
-            os.system("sudo systemctl restart btmidi.service")        
+            if(choice == "Reset Bluetooth service"):
+                menu.render_message("Reseting BL service", "", 1000)
+                os.system("sudo systemctl restart btmidi.service")        
             
         if(location == "LED_animations"):
             if(choice == "Theater Chase"):
@@ -756,13 +757,11 @@ while True:
     if GPIO.input(KEYLEFT) == 0:
         last_activity = time.time()
         menu.change_value("LEFT")
-        while GPIO.input(KEYLEFT) == 0:
-            time.sleep(0.01)
+        time.sleep(0.1)
     if GPIO.input(KEYRIGHT) == 0:
         last_activity = time.time()
         menu.change_value("RIGHT")
-        while GPIO.input(KEYRIGHT) == 0:
-            time.sleep(0.01)
+        time.sleep(0.1)
     if(ledsettings.color_mode == "Single"):
         red = ledsettings.get_color("Red")
         green = ledsettings.get_color("Green")
@@ -794,8 +793,10 @@ while True:
                         keylist[n] = 0                    
             n += 1
         #ledstrip.strip.show()  
-    
-    midipending = midiports.inport.iter_pending()
+    try:
+        midipending = midiports.inport.iter_pending()
+    except:
+        continue
     #loop through incoming midi messages
     for msg in midipending:       
         last_activity = time.time()     
