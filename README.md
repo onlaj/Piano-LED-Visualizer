@@ -28,11 +28,31 @@
 **Total cost (excluding piano and tablet) should be 75-100 USD**
 ***
 
-## Connecting LED Strip to Raspberry Pi
+## Connecting LED Strip to Raspberry Pi and enabling SPI
 There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/)
+
+If you are wondering how to connect wires to RPI if screen hat is taking all pins here is a [picture](https://i.imgur.com/7KhwM7r.jpg) of how I did it. There should be a gap between RPI and screen so you can solder your wires or just wrap cables around the pins and separate them with heat shrink bands.
+
+You also need to [enable SPI](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/)
 
 ## Setting Raspberry Pi as Bluetooth MIDI host
 Same as above, here is [instruction](https://neuma.studio/rpi-as-midi-host.html)
+Just do following parts and skip the others:
+- configuring automatic midi connection
+- midi bluetooth setup
+
+If you have problems with connecting your PC to RPI try to add 
+
+    DisablePlugins = pnat
+To */etc/bluetooth/main.conf* file. You will have to restart RPI after making this change.
+
+## Running Visualizer
+Download or clone this repository into your RPI.
+Using [PIP](https://pypi.org/project/pip/) install all libraries listed in [requirements.txt](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/requirements.txt "requirements.txt") file
+Run visualizer.py with command
+
+> sudo -E python visualizer.py
+
 
 ## Learning to play with Synthesia
 As of today Synthesia doesn't support MIDI via Bluetooth, it should be added in next update. There is official workaround, you have to replace dll file.
@@ -43,7 +63,7 @@ In Visualizer settings you have to change "input" to RPI Bluetooth. After that w
 
 ## Putting everything together
 After connecting all cables as described above everything should fit nicely to case.
-If you don't have a 3d printer (like me) try to find some company or private person who will print it for you. I payed 12USD for my print.
+If you don't have a 3d printer (like me) try to find some company or private person who will print it for you. I paid 12USD for my print.
 
 
 ![Image](https://i.imgur.com/9MgNUl5.jpg?1)
