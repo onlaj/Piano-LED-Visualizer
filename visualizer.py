@@ -52,6 +52,7 @@ KEYUP = 6
 KEYDOWN = 19
 KEY1 = 21
 KEY2 = 20
+JPRESS = 13
 # pin numbers are interpreted as BCM pin numbers.
 GPIO.setmode(GPIO.BCM)
 # Sets the pin as input and sets Pull-up mode for the pin.
@@ -61,6 +62,7 @@ GPIO.setup(KEYUP,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEYDOWN,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEY1,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEY2,GPIO.IN,GPIO.PUD_UP)
+GPIO.setup(JPRESS,GPIO.IN,GPIO.PUD_UP)
 
 #LED animations
 def colorWipe(strip, color, wait_ms=50):
@@ -193,6 +195,7 @@ class MenuLCD:
         self.text_color = "WHITE"
         self.update_songs()
         self.update_ports()
+        self.speed_multiplier = 1
     
     def update_songs(self):
         songs_list = os.listdir("Songs")       
@@ -222,7 +225,42 @@ class MenuLCD:
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text"  , port)
             mc = self.DOMTree.getElementsByTagName("Ports_Settings")[2]
-            mc.appendChild(element)                     
+            mc.appendChild(element)
+            
+    def update_multicolor(self, colors_list):
+        i = 0
+        self.update_ports()
+        rgb_names = []
+        rgb_names = ["Red", "Green", "Blue"]
+        #self.DOMTree = minidom.parse(self.xml_file_name)
+        for color in colors_list:
+            i = i + 1
+
+            element = self.DOMTree.createElement("Multicolor")        
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text"  , "Color"+str(i))     
+            mc = self.DOMTree.getElementsByTagName("LED_Color")[0]
+            mc.appendChild(element)
+            
+            element = self.DOMTree.createElement("Color"+str(i))        
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text"  , "RGB Color"+str(i))     
+            mc = self.DOMTree.getElementsByTagName("Multicolor")[0]
+            mc.appendChild(element)         
+            
+            element = self.DOMTree.createElement("Color"+str(i))        
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text"  , "Delete")     
+            mc = self.DOMTree.getElementsByTagName("Multicolor")[0]
+            mc.appendChild(element)
+            
+            for rgb_name in rgb_names:            
+                element = self.DOMTree.createElement("RGB_Color"+str(i))        
+                element.appendChild(self.DOMTree.createTextNode(""))
+                element.setAttribute("text"  , rgb_name)     
+                mc = self.DOMTree.getElementsByTagName("Color"+str(i))[0]
+                mc.appendChild(element)             
+
  
     def show(self, position = "default", back_pointer_location = False):     
         if(position == "default" and  self.currentlocation):
@@ -329,6 +367,15 @@ class MenuLCD:
             self.draw.text((10, 70), str(ledsettings.get_colors()), fill = self.text_color)
             self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_colors())+")")
             
+        if("RGB_Color" in self.currentlocation):            
+            self.draw.text((10, 70), str(ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color',''))), fill = self.text_color)
+            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color','')))+")")
+            
+        try:
+            self.draw.rectangle([(115,50),(128,80)],fill = "rgb("+str(ledsettings.get_multicolors(self.current_choice.replace('Color','')))+")")
+        except:
+            pass
+            
         #displaying rainbow offset value
         if(self.current_choice == "Offset"):
             self.draw.text((10, 70), str(ledsettings.rainbow_offset), fill = self.text_color)
@@ -419,6 +466,7 @@ class MenuLCD:
                 
         if(location == "Solid"):
             ledsettings.change_color_name(wc.name_to_rgb(choice))
+            ledsettings.color_mode = "Single"
             
         if(location == "Fading"):
             ledsettings.mode = "Fading"
@@ -500,6 +548,19 @@ class MenuLCD:
                 
         if(location == "Rainbow_Colors"):
             ledsettings.color_mode = "Rainbow"
+            
+        if(choice == "Add Color"):  
+            print("test")          
+            ledsettings.addcolor()
+            
+        if(choice == "Delete"):
+            print(location.replace('Color',''))
+            ledsettings.deletecolor(location.replace('Color',''))
+            
+        if(choice == "Confirm"):
+            ledsettings.color_mode = "Multicolor"
+            
+            
                             
     def change_value(self, value):
         if(value == "LEFT"):
@@ -507,14 +568,25 @@ class MenuLCD:
         elif(value == "RIGHT"):
             value = 1
         if(self.currentlocation == "RGB"):
-            ledsettings.change_color(self.current_choice, value)
+            ledsettings.change_color(self.current_choice, value*self.speed_multiplier)
+            ledsettings.color_mode = "Single"
+        
+        if("RGB_Color" in self.currentlocation):
+            ledsettings.change_multicolor(self.current_choice, self.currentlocation, value*self.speed_multiplier)
+        
         if(self.current_choice == "Offset"):
-            ledsettings.rainbow_offset = ledsettings.rainbow_offset + value * 10
+            ledsettings.rainbow_offset = ledsettings.rainbow_offset + value * 5 *self.speed_multiplier
         if(self.current_choice == "Scale"):
-            ledsettings.rainbow_scale = ledsettings.rainbow_scale + value * 10
+            ledsettings.rainbow_scale = ledsettings.rainbow_scale + value * 5 *self.speed_multiplier
         if(self.current_choice == "Timeshift"):
-            ledsettings.rainbow_timeshift = ledsettings.rainbow_timeshift + value
+            ledsettings.rainbow_timeshift = ledsettings.rainbow_timeshift + value *self.speed_multiplier
         menu.show()
+        
+    def speed_change(self):
+        if(self.speed_multiplier == 10):
+            self.speed_multiplier = 1
+        elif(self.speed_multiplier == 1):
+            self.speed_multiplier = 10
     
 def play_midi(song_path):
     menu.render_message("Playing: ", song_path)
@@ -619,25 +691,62 @@ class LedSettings:
         self.rainbow_offset = 0
         self.rainbow_scale = 100
         self.rainbow_timeshift = 0
+        
+        self.multicolor = []
+        self.multicolor.append([255, 255, 255])
+        self.multicolor.append([0, 0, 255])
+        self.multicolor.append([0, 255, 0])
+        
+        menu.update_multicolor(self.multicolor)
+        
+    def addcolor(self):       
+        self.multicolor.append([0, 255, 0])
+        menu.update_multicolor(self.multicolor)
+        
+    def deletecolor(self, key):
+        del self.multicolor[int(key) - 1]
+        menu.update_multicolor(self.multicolor)
+        menu.go_back()
+    
+    def change_multicolor(self, choice, location, value):
+        location = location.replace('RGB_Color','')
+        location = int(location) - 1
+        if(choice == "Red"):
+            choice = 0
+        elif(choice == "Green"):
+            choice = 1
+        else:
+            choice = 2        
+        self.multicolor[int(location)][choice] += int(value)
+        if(self.multicolor[int(location)][choice] < 0):
+            self.multicolor[int(location)][choice] = 0
+        elif(self.multicolor[int(location)][choice] > 255):
+            self.multicolor[int(location)][choice] = 255
+            
+    def get_multicolors(self, number):
+        number = int(number) - 1
+        return str(self.multicolor[int(number)][0])+", "+str(self.multicolor[int(number)][1])+", "+str(self.multicolor[int(number)][2])
+        
+        
     def change_color(self, color, value):
         self.color_mode = "Single"
         if(color == "Red"):
             if(self.red <= 255 and self.red >= 0):
-                self.red += int(value)*10
+                self.red += int(value)
                 if(self.red < 0):
                     self.red = 0
                 if(self.red > 255):
                     self.red = 255
         elif(color == "Green"):
             if(self.green <= 255 and self.green >= 0):
-                self.green += int(value)*10
+                self.green += int(value)
                 if(self.green < 0):
                     self.green = 0
                 if(self.green > 255):
                     self.green = 255
         elif(color == "Blue"):
             if(self.blue <= 255 and self.blue >= 0):
-                self.blue += int(value)*10
+                self.blue += int(value)
                 if(self.blue < 0):
                     self.blue = 0
                 if(self.blue > 255):
@@ -705,6 +814,7 @@ ledsettings = LedSettings()
 
 keylist = [0] * 176
 keylist_status = [0] * 176
+keylist_color = [0] * 176
 
 z = 0
 display_cycle = 0
@@ -757,21 +867,36 @@ while True:
     if GPIO.input(KEYLEFT) == 0:
         last_activity = time.time()
         menu.change_value("LEFT")
-        time.sleep(0.1)
+        time.sleep(0.02)
     if GPIO.input(KEYRIGHT) == 0:
         last_activity = time.time()
         menu.change_value("RIGHT")
-        time.sleep(0.1)
+        time.sleep(0.02)
+    if GPIO.input(JPRESS) == 0:
+        last_activity = time.time()
+        menu.speed_change()
+        while GPIO.input(JPRESS) == 0:
+            time.sleep(0.01)
+        
     if(ledsettings.color_mode == "Single"):
         red = ledsettings.get_color("Red")
         green = ledsettings.get_color("Green")
         blue = ledsettings.get_color("Blue")
-        
+                
     timeshift = (time.time() - timeshift_start) * ledsettings.rainbow_timeshift
       
     if(ledsettings.mode == "Fading" or ledsettings.mode == "Velocity"):
         n = 0
-        for note in keylist: 
+        for note in keylist:
+            
+            if(ledsettings.color_mode == "Multicolor"):
+                try:
+                    red = keylist_color[n][0]
+                    green = keylist_color[n][1]
+                    blue = keylist_color[n][2]
+                except:
+                    pass
+            
             if(ledsettings.color_mode == "Rainbow"):
                 red = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
                 green = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
@@ -820,7 +945,7 @@ while True:
         else:
             note_offset = 0
         elapsed_time = time.time() - saving.start_time
-        
+                
         if(ledsettings.color_mode == "Rainbow"):
             red = get_rainbow_colors(int((int(((note - 20)*2 - note_offset)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
             green = get_rainbow_colors(int((int(((note - 20)*2 - note_offset)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
@@ -838,6 +963,14 @@ while True:
             if(saving.isrecording == True):
                 saving.add_track("note_off", original_note, velocity, elapsed_time*1000)
         elif(int(velocity) > 0 and int(note) > 0):
+            
+            if(ledsettings.color_mode == "Multicolor"):
+                choosen_color = random.choice(ledsettings.multicolor)
+                red = choosen_color[0]
+                green = choosen_color[1]
+                blue = choosen_color[2]
+                keylist_color[(note - 20)*2 - note_offset] = [red, green, blue]
+            
             keylist_status[(note - 20)*2 - note_offset] = 1
             if(ledsettings.mode == "Velocity"):
                 brightness = (100 / (float(velocity) / 127 ) )/ 100 
