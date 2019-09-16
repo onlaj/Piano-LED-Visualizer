@@ -19,6 +19,8 @@ import os
 import datetime
 import psutil
 
+os.chdir(sys.path[0])
+
 import mido
 from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
 
@@ -52,6 +54,7 @@ KEYUP = 6
 KEYDOWN = 19
 KEY1 = 21
 KEY2 = 20
+KEY3 = 16
 JPRESS = 13
 # pin numbers are interpreted as BCM pin numbers.
 GPIO.setmode(GPIO.BCM)
@@ -62,6 +65,7 @@ GPIO.setup(KEYUP,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEYDOWN,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEY1,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEY2,GPIO.IN,GPIO.PUD_UP)
+GPIO.setup(KEY3,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(JPRESS,GPIO.IN,GPIO.PUD_UP)
 
 #LED animations
@@ -194,7 +198,7 @@ class MenuLCD:
         self.background_color = "BLACK"
         self.text_color = "WHITE"
         self.update_songs()
-        self.update_ports()
+        self.update_ports()        
         self.speed_multiplier = 1
     
     def update_songs(self):
@@ -207,9 +211,30 @@ class MenuLCD:
             mc = self.DOMTree.getElementsByTagName("Play_MIDI")[0]
             mc.appendChild(element)
             
+                    
+    def update_sequence_list(self):
+        try:      
+            sequences_tree = minidom.parse("sequences.xml")
+            self.update_songs()
+            i = 0
+            while(True):
+                try:                
+                    i += 1                
+                    sequence_name = sequences_tree.getElementsByTagName("sequence_"+str(i))[0].getElementsByTagName("sequence_name")[0].firstChild.nodeValue
+                    element = self.DOMTree.createElement("Sequences")        
+                    element.appendChild(self.DOMTree.createTextNode(""))
+                    element.setAttribute("text"  , str(sequence_name))       
+                    mc = self.DOMTree.getElementsByTagName("LED_Strip_Settings")[0]
+                    mc.appendChild(element)
+                    
+                except:                             
+                    break
+        except:
+            self.render_message("Something went wrong", "Check your sequences file", 1500)
+            
     def update_ports(self):
         ports = mido.get_input_names()
-        self.update_songs()
+        self.update_sequence_list()
         for port in ports:            
             element = self.DOMTree.createElement("Input")
             element.appendChild(self.DOMTree.createTextNode(""))
@@ -227,7 +252,7 @@ class MenuLCD:
             mc = self.DOMTree.getElementsByTagName("Ports_Settings")[2]
             mc.appendChild(element)
             
-    def update_multicolor(self, colors_list):
+    def update_multicolor(self, colors_list):        
         i = 0
         self.update_ports()
         rgb_names = []
@@ -259,8 +284,9 @@ class MenuLCD:
                 element.appendChild(self.DOMTree.createTextNode(""))
                 element.setAttribute("text"  , rgb_name)     
                 mc = self.DOMTree.getElementsByTagName("Color"+str(i))[0]
-                mc.appendChild(element)             
+                mc.appendChild(element)    
 
+        
  
     def show(self, position = "default", back_pointer_location = False):     
         if(position == "default" and  self.currentlocation):
@@ -370,11 +396,12 @@ class MenuLCD:
         if("RGB_Color" in self.currentlocation):            
             self.draw.text((10, 70), str(ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color',''))), fill = self.text_color)
             self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color','')))+")")
-            
-        try:
-            self.draw.rectangle([(115,50),(128,80)],fill = "rgb("+str(ledsettings.get_multicolors(self.current_choice.replace('Color','')))+")")
-        except:
-            pass
+        
+        if("Multicolor" in self.currentlocation):
+            try:
+                self.draw.rectangle([(115,50),(128,80)],fill = "rgb("+str(ledsettings.get_multicolors(self.current_choice.replace('Color','')))+")")
+            except:
+                pass
             
         #displaying rainbow offset value
         if(self.current_choice == "Offset"):
@@ -549,8 +576,8 @@ class MenuLCD:
         if(location == "Rainbow_Colors"):
             ledsettings.color_mode = "Rainbow"
             
-        if(choice == "Add Color"):  
-            print("test")          
+        if(choice == "Add Color"): 
+                    
             ledsettings.addcolor()
             
         if(choice == "Delete"):
@@ -560,6 +587,14 @@ class MenuLCD:
         if(choice == "Confirm"):
             ledsettings.color_mode = "Multicolor"
             
+        if(location == "Sequences"):
+            if(choice == "Update"):
+                refresh_result = menu.update_sequence_list()
+                if(refresh_result == False):
+                    menu.render_message("Something went wrong", "Make sure your sequence file is correct", 1500)
+                
+            else:
+                ledsettings.set_sequence(self.pointer_position, 0)            
             
                             
     def change_value(self, value):
@@ -699,7 +734,9 @@ class LedSettings:
         
         menu.update_multicolor(self.multicolor)
         
-    def addcolor(self):       
+        self.sequence_active = False
+        
+    def addcolor(self):  
         self.multicolor.append([0, 255, 0])
         menu.update_multicolor(self.multicolor)
         
@@ -709,6 +746,7 @@ class LedSettings:
         menu.go_back()
     
     def change_multicolor(self, choice, location, value):
+        self.sequence_active = False
         location = location.replace('RGB_Color','')
         location = int(location) - 1
         if(choice == "Red"):
@@ -729,6 +767,7 @@ class LedSettings:
         
         
     def change_color(self, color, value):
+        self.sequence_active = False
         self.color_mode = "Single"
         if(color == "Red"):
             if(self.red <= 255 and self.red >= 0):
@@ -752,6 +791,7 @@ class LedSettings:
                 if(self.blue > 255):
                     self.blue = 255
     def change_color_name(self, color):
+        self.sequence_active = False
         self.color_mode = "Single"      
         self.red = int(find_between(str(color), "red=", ","))
         self.green = int(find_between(str(color), "green=", ","))
@@ -765,6 +805,84 @@ class LedSettings:
             return self.blue
     def get_colors(self):
         return str(self.red)+", "+str(self.green)+", "+str(self.blue)
+        
+    def set_sequence(self, sequence, step):
+        try:
+            if(step != 1):
+                self.step_number = 1
+                self.sequences_tree = minidom.parse("sequences.xml")
+            
+                self.sequence_number = str(sequence + 1)        
+                
+                self.next_step = self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("next_step")[0].firstChild.nodeValue
+                self.control_number = self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("control_number")[0].firstChild.nodeValue
+                self.count_steps = 1
+                self.sequence_active = True
+                while(True):                
+                    try:
+                        temp_step = self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.count_steps))[0].getElementsByTagName("color")[0].firstChild.nodeValue
+                        self.count_steps += 1
+                    except:
+                        self.count_steps -= 1
+                        break
+                
+            else:
+                #print("step_number: "+str(self.step_number)+" count steps: "+str(self.count_steps))
+                self.step_number += 1
+                if(self.step_number > self.count_steps):
+                    self.step_number = 1
+
+            self.color_mode = self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("color")[0].firstChild.nodeValue
+            self.mode = self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("light_mode")[0].firstChild.nodeValue
+            
+            if(self.mode == "Velocity" or self.mode == "Fading"):
+                self.fadingspeed = self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed")[0].firstChild.nodeValue
+                if(self.mode == "Fading"):            
+                    if(self.fadingspeed == "Fast"):
+                        self.fadingspeed = 125
+                    elif(self.fadingspeed == "Medium"):
+                        self.fadingspeed = 100
+                    elif(self.fadingspeed == "Slow"):
+                        ledsetselftings.fadingspeed = 50
+                    elif(self.fadingspeed == "Very slow"):
+                        self.fadingspeed = 10
+            
+                if(self.mode == "Velocity"):                
+                    if(self.fadingspeed == "Fast"):
+                        self.fadingspeed = 10
+                    elif(self.fadingspeed == "Medium"):
+                        self.fadingspeed = 8
+                    elif(self.fadingspeed == "Slow"):
+                        self.fadingspeed = 6
+                    elif(self.fadingspeed == "Very slow"):
+                        self.fadingspeed = 3
+            if(self.color_mode == "RGB"):            
+                self.color_mode = "Single"
+                self.red = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("Red")[0].firstChild.nodeValue)
+                self.green = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("Green")[0].firstChild.nodeValue)
+                self.blue = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("Blue")[0].firstChild.nodeValue)
+                                        
+            if(self.color_mode == "Rainbow"):
+                self.rainbow_offset = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("Offset")[0].firstChild.nodeValue)
+                self.rainbow_scale = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("Scale")[0].firstChild.nodeValue)
+                self.rainbow_timeshift = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("Timeshift")[0].firstChild.nodeValue)
+            
+            if(self.color_mode == "Multicolor"):
+                self.multicolor = []
+                multicolor_number = 1
+                while(True):
+                    try:
+                        colors = self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("color_"+str(multicolor_number))[0].firstChild.nodeValue
+                        colors = colors.split(',')
+                        red = colors[0].replace(" ", "")
+                        green = colors[1].replace(" ", "")
+                        blue = colors[2].replace(" ", "")
+                        self.multicolor.append([int(red), int(green), int(blue)])                     
+                        multicolor_number += 1
+                    except:                    
+                        break            
+        except:                
+            return False    
 
 class MidiPorts():
     def __init__(self):
@@ -864,6 +982,12 @@ while True:
         menu.go_back()
         while GPIO.input(KEY2) == 0:
             time.sleep(0.01)
+    if GPIO.input(KEY3) == 0:
+        last_activity = time.time()
+        if(ledsettings.sequence_active == True):
+            ledsettings.set_sequence(0, 1)
+        while GPIO.input(KEY3) == 0:
+            time.sleep(0.01)
     if GPIO.input(KEYLEFT) == 0:
         last_activity = time.time()
         menu.change_value("LEFT")
@@ -887,8 +1011,7 @@ while True:
       
     if(ledsettings.mode == "Fading" or ledsettings.mode == "Velocity"):
         n = 0
-        for note in keylist:
-            
+        for note in keylist:            
             if(ledsettings.color_mode == "Multicolor"):
                 try:
                     red = keylist_color[n][0]
@@ -916,8 +1039,7 @@ while True:
                     if(int(keylist_status[n]) == 0):
                         ledstrip.strip.setPixelColor((n), Color(0, 0, 0))
                         keylist[n] = 0                    
-            n += 1
-        #ledstrip.strip.show()  
+            n += 1        
     try:
         midipending = midiports.inport.iter_pending()
     except:
@@ -936,6 +1058,20 @@ while True:
         control_change = find_between(str(msg), "value=", " ")
         if(control_change != False):
             last_control_change = control_change
+            
+            if(ledsettings.sequence_active == True):
+            
+                control = find_between(str(msg), "control=", " ")
+                value = find_between(str(msg), "value=", " ")            
+                try:
+                    if("+" in ledsettings.next_step):
+                        if(int(value) > int(ledsettings.next_step) and control == ledsettings.control_number):
+                            ledsettings.set_sequence(0, 1)                            
+                    else:
+                        if(int(value) < int(ledsettings.next_step) and control == ledsettings.control_number):
+                            ledsettings.set_sequence(0, 1)                            
+                except:
+                    pass        
 
         #changing offset to adjust the distance between the LEDs to the key spacing
         if(note > 92):

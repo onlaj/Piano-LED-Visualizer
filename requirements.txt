@@ -4,3 +4,4 @@ psutil
 mido
 Pillow
 python-rtmidi
+rpi-ws281x

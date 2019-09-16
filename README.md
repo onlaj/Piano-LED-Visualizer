@@ -46,6 +46,10 @@ If you have problems with connecting your PC to RPI try to add
     DisablePlugins = pnat
 To */etc/bluetooth/main.conf* file. You will have to restart RPI after making this change.
 
+If you still have problems with connecting your Windows tablet/pc try to install Blueman, graphical bluetooth manager
+
+    sudo apt-get install blueman
+
 ## Running Visualizer
 Download or clone this repository into your RPI.
 Using [PIP](https://pypi.org/project/pip/) install all libraries listed in [requirements.txt](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/requirements.txt "requirements.txt") file
@@ -64,6 +68,35 @@ In Visualizer settings you have to change "input" to RPI Bluetooth. After that w
 ## Putting everything together
 After connecting all cables as described above everything should fit nicely to case.
 If you don't have a 3d printer (like me) try to find some company or private person who will print it for you. I paid 12USD for my print.
+
+## Using the sequences
+In the visualizer menu you can find setting called "Sequences". It allows you to change led properties while playing using third key on Waveshare hat or your piano pedals.
+You can edit or create new sequences by editing "sequences.xml" file.
+The "control_number" defines which pedal is used to go to the next step.
+
+|Control number| Pedal name |
+|--|--|
+| 64 | Damper Pedal (Sustain/Hold) On/Off  |
+| 65 | Portamento On/Off |
+| 66 | Sostenuto On/Off |
+| 67 | Soft Pedal On/Off |
+
+The "next_step" value decide if next step is activated when you press or release the pedal. For example if you want to change settings after fully pressing Sostenuto pedal you should write it like:
+
+    <control_number>66</control_number> 
+    <next_step>126</next_step>
+   127 is the maximum value when pedal is fully pressed, so you are saying to script to change settings when value is bigger than 126.
+This is how it should look when you want to change settings when fully releasing pedal.
+
+      <control_number>66</control_number> 
+	  <next_step>-1</next_step>
+
+ (-) before the number means that next step will be activated when pedal value is below 1
+
+You can also use sequences as a way to save your presets under custom names.
+
+
+
 
 
 ![Image](https://i.imgur.com/9MgNUl5.jpg?1)
