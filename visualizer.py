@@ -29,22 +29,41 @@ import argparse
 
 class LedStrip:
     def __init__(self):
+        
+        self.brightness_percent = 50
+        self.brightness = 255 * self.brightness_percent / 100
+        
         # LED strip configuration:
-        LED_COUNT      = 176     # Number of LED pixels.
-        LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
+        self.LED_COUNT      = 176     # Number of LED pixels.
+        self.LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
         #LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
-        LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
-        LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
-        LED_BRIGHTNESS = 110     # Set to 0 for darkest and 255 for brightest
-        LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
-        LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
+        self.LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
+        self.LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
+        self.LED_BRIGHTNESS = int(self.brightness)    # Set to 0 for darkest and 255 for brightest
+        self.LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
+        self.LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
         parser = argparse.ArgumentParser()
         parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
         args = parser.parse_args()
 
         # Create NeoPixel object with appropriate configuration.
-        self.strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+        self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT, self.LED_BRIGHTNESS, self.LED_CHANNEL)
+        # Intialize the library (must be called once before other functions).
+        self.strip.begin()
+        
+    def change_brightness(self, value):
+        self.brightness_percent += value
+        if(self.brightness_percent <= 0):
+            self.brightness_percent = 1
+        elif(self.brightness_percent > 100):
+            self.brightness_percent = 100
+        self.brightness = 255 * self.brightness_percent / 100
+        
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
+        args = parser.parse_args()
+        self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT, int(self.brightness), self.LED_CHANNEL)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
 
@@ -73,6 +92,7 @@ def colorWipe(strip, color, wait_ms=50):
     """Wipe color across display a pixel at a time."""
     for i in range(strip.numPixels()):
         if GPIO.input(KEY2) == 0:
+            colorWipe(strip, Color(0,0,0), 0)
             break
         strip.setPixelColor(i, color)
         strip.show()
@@ -82,6 +102,7 @@ def theaterChase(strip, color, wait_ms=50, iterations=10):
     """Movie theater light style chaser animation."""
     for j in range(iterations):
         if GPIO.input(KEY2) == 0:
+            colorWipe(strip, Color(0,0,0), 0)
             break
         for q in range(3):
             for i in range(0, strip.numPixels(), 3):
@@ -106,6 +127,7 @@ def rainbow(strip, wait_ms=20, iterations=1000):
     """Draw rainbow that fades across all pixels at once."""
     for j in range(256*iterations):
         if GPIO.input(KEY2) == 0:
+            colorWipe(strip, Color(0,0,0), 0)
             break
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, wheel((j) & 255))
@@ -116,6 +138,7 @@ def rainbowCycle(strip, wait_ms=20, iterations=5000):
     """Draw rainbow that uniformly distributes itself across all pixels."""
     for j in range(256*iterations):
         if GPIO.input(KEY2) == 0:
+            colorWipe(strip, Color(0,0,0), 0)
             break
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255))
@@ -126,6 +149,7 @@ def theaterChaseRainbow(strip, wait_ms=50):
     """Rainbow movie theater light style chaser animation."""
     for j in range(256):
         if GPIO.input(KEY2) == 0:
+            colorWipe(strip, Color(0,0,0), 0)
             break
         for q in range(3):
             for i in range(0, strip.numPixels(), 3):
@@ -140,6 +164,7 @@ def breathing(strip, wait_ms=2, iterations = 1000):
     direction = 2
     for i in range(256*iterations):
         if GPIO.input(KEY2) == 0:
+            colorWipe(strip, Color(0,0,0), 0)
             break
         if(multiplier >= 98 or multiplier < 2):
             direction *= -1
@@ -345,7 +370,8 @@ class MenuLCD:
                     try:
                         self.parent_menu = staff.parentNode.tagName
                     except:
-                        self.parent_menu = "data"                    
+                        self.parent_menu = "data"
+                    self.draw.rectangle([(0,text_margin_top),(128,text_margin_top + 11)],fill = "Crimson")
                     self.draw.text((3, text_margin_top), ">", fill = self.text_color)
                     self.current_choice =  sid
                     self.pointer_position = i                    
@@ -411,8 +437,18 @@ class MenuLCD:
             self.draw.text((10, 70), str(ledsettings.rainbow_scale)+"%", fill = self.text_color)
             
         if(self.current_choice == "Timeshift"):
-            self.draw.text((10, 70), str(ledsettings.rainbow_timeshift), fill = self.text_color)
-        self.LCD.LCD_ShowImage(self.image,0,0)          
+            self.draw.text((10, 70), str(ledsettings.rainbow_timeshift), fill = self.text_color)        
+        
+        #displaying brightness value
+        if(self.currentlocation == "Brightness"):
+            self.draw.text((10, 35), str(ledstrip.brightness_percent)+"%", fill = self.text_color)
+            
+            miliamps = int(ledstrip.LED_COUNT) * (60 / (100 / float(ledstrip.brightness_percent)))
+            amps = round(float(miliamps) / float(1000),2)
+            
+            self.draw.text((10, 50), "Amps needed to "+"\n"+"power "+str(ledstrip.LED_COUNT)+" LEDS with "+"\n"+"white color: "+str(amps), fill = self.text_color)
+        
+        self.LCD.LCD_ShowImage(self.image,0,0)
 
     def change_pointer(self, direction):
         if(direction == 0):
@@ -591,17 +627,20 @@ class MenuLCD:
             if(choice == "Update"):
                 refresh_result = menu.update_sequence_list()
                 if(refresh_result == False):
-                    menu.render_message("Something went wrong", "Make sure your sequence file is correct", 1500)
-                
+                    menu.render_message("Something went wrong", "Make sure your sequence file is correct", 1500)                
             else:
-                ledsettings.set_sequence(self.pointer_position, 0)            
-            
+                ledsettings.set_sequence(self.pointer_position, 0)    
+                    
                             
     def change_value(self, value):
         if(value == "LEFT"):
             value = -1
         elif(value == "RIGHT"):
             value = 1
+            
+        if(self.currentlocation == "Brightness"):
+            ledstrip.change_brightness(value*self.speed_multiplier)            
+        
         if(self.currentlocation == "RGB"):
             ledsettings.change_color(self.current_choice, value*self.speed_multiplier)
             ledsettings.color_mode = "Single"

@@ -48,6 +48,9 @@
 				<Velocity text="Very slow"></Velocity>
 			</Light_mode>
 		</LED_Strip_Settings>
+		<LED_Strip_Settings text="Brightness">
+			<Brightness text="Power"></Brightness>
+		</LED_Strip_Settings>
 		<LED_Strip_Settings text="Sequences">
 			<Sequences text="Update"></Sequences>
 		</LED_Strip_Settings>
