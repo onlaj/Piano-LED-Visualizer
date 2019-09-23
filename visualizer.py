@@ -91,9 +91,6 @@ GPIO.setup(JPRESS,GPIO.IN,GPIO.PUD_UP)
 def colorWipe(strip, color, wait_ms=50):
     """Wipe color across display a pixel at a time."""
     for i in range(strip.numPixels()):
-        if GPIO.input(KEY2) == 0:
-            colorWipe(strip, Color(0,0,0), 0)
-            break
         strip.setPixelColor(i, color)
         strip.show()
         time.sleep(wait_ms/1000.0)
@@ -102,8 +99,8 @@ def theaterChase(strip, color, wait_ms=50, iterations=10):
     """Movie theater light style chaser animation."""
     for j in range(iterations):
         if GPIO.input(KEY2) == 0:
-            colorWipe(strip, Color(0,0,0), 0)
-            break
+            colorWipe(strip, Color(0,0,0), 1)
+            return
         for q in range(3):
             for i in range(0, strip.numPixels(), 3):
                 strip.setPixelColor(i+q, color)
@@ -127,8 +124,8 @@ def rainbow(strip, wait_ms=20, iterations=1000):
     """Draw rainbow that fades across all pixels at once."""
     for j in range(256*iterations):
         if GPIO.input(KEY2) == 0:
-            colorWipe(strip, Color(0,0,0), 0)
-            break
+            colorWipe(strip, Color(0,0,0), 1)
+            return
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, wheel((j) & 255))
         strip.show()
@@ -138,8 +135,8 @@ def rainbowCycle(strip, wait_ms=20, iterations=5000):
     """Draw rainbow that uniformly distributes itself across all pixels."""
     for j in range(256*iterations):
         if GPIO.input(KEY2) == 0:
-            colorWipe(strip, Color(0,0,0), 0)
-            break
+            colorWipe(strip, Color(0,0,0), 1)
+            return
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255))
         strip.show()
@@ -149,8 +146,8 @@ def theaterChaseRainbow(strip, wait_ms=50):
     """Rainbow movie theater light style chaser animation."""
     for j in range(256):
         if GPIO.input(KEY2) == 0:
-            colorWipe(strip, Color(0,0,0), 0)
-            break
+            colorWipe(strip, Color(0,0,0), 1)
+            return
         for q in range(3):
             for i in range(0, strip.numPixels(), 3):
                 strip.setPixelColor(i+q, wheel((i+j) % 255))
@@ -164,7 +161,7 @@ def breathing(strip, wait_ms=2, iterations = 1000):
     direction = 2
     for i in range(256*iterations):
         if GPIO.input(KEY2) == 0:
-            colorWipe(strip, Color(0,0,0), 0)
+            colorWipe(strip, Color(0,0,0), 1)
             break
         if(multiplier >= 98 or multiplier < 2):
             direction *= -1
