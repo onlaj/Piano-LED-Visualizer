@@ -51,6 +51,16 @@
 		<LED_Strip_Settings text="Brightness">
 			<Brightness text="Power"></Brightness>
 		</LED_Strip_Settings>
+		<LED_Strip_Settings text="Backlight">
+			<Backlight text="Backlight Color">
+				<Backlight_Color text="Red"></Backlight_Color>
+				<Backlight_Color text="Green"></Backlight_Color>
+				<Backlight_Color text="Blue"></Backlight_Color>
+			</Backlight>
+			<Backlight text="Backlight Brightness">
+					<Backlight_Brightness text="Power"></Backlight_Brightness>
+			</Backlight>
+		</LED_Strip_Settings>
 		<LED_Strip_Settings text="Sequences">
 			<Sequences text="Update"></Sequences>
 		</LED_Strip_Settings>

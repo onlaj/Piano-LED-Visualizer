@@ -66,6 +66,7 @@ class LedStrip:
         self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT, int(self.brightness), self.LED_CHANNEL)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
+        fastColorWipe(ledstrip.strip, True)
 
 KEYRIGHT = 26
 KEYLEFT = 5
@@ -88,9 +89,22 @@ GPIO.setup(KEY3,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(JPRESS,GPIO.IN,GPIO.PUD_UP)
 
 #LED animations
+def fastColorWipe(strip, update):
+    red = int(ledsettings.get_backlight_color("Red"))* (ledsettings.backlight_brightness_percent) / 100
+    green = int(ledsettings.get_backlight_color("Green")) * (ledsettings.backlight_brightness_percent) / 100
+    blue = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
+    color = Color(int(green),int(red),int(blue))
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, color)
+    if(update == True):
+        strip.show()        
+
 def colorWipe(strip, color, wait_ms=50):
     """Wipe color across display a pixel at a time."""
     for i in range(strip.numPixels()):
+        if GPIO.input(KEY2) == 0:
+            fastColorWipe(strip, True)
+            return
         strip.setPixelColor(i, color)
         strip.show()
         time.sleep(wait_ms/1000.0)
@@ -99,7 +113,7 @@ def theaterChase(strip, color, wait_ms=50, iterations=10):
     """Movie theater light style chaser animation."""
     for j in range(iterations):
         if GPIO.input(KEY2) == 0:
-            colorWipe(strip, Color(0,0,0), 1)
+            fastColorWipe(strip, True)
             return
         for q in range(3):
             for i in range(0, strip.numPixels(), 3):
@@ -124,7 +138,7 @@ def rainbow(strip, wait_ms=20, iterations=1000):
     """Draw rainbow that fades across all pixels at once."""
     for j in range(256*iterations):
         if GPIO.input(KEY2) == 0:
-            colorWipe(strip, Color(0,0,0), 1)
+            fastColorWipe(strip, True)
             return
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, wheel((j) & 255))
@@ -135,7 +149,7 @@ def rainbowCycle(strip, wait_ms=20, iterations=5000):
     """Draw rainbow that uniformly distributes itself across all pixels."""
     for j in range(256*iterations):
         if GPIO.input(KEY2) == 0:
-            colorWipe(strip, Color(0,0,0), 1)
+            fastColorWipe(strip, True)
             return
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255))
@@ -146,7 +160,7 @@ def theaterChaseRainbow(strip, wait_ms=50):
     """Rainbow movie theater light style chaser animation."""
     for j in range(256):
         if GPIO.input(KEY2) == 0:
-            colorWipe(strip, Color(0,0,0), 1)
+            fastColorWipe(strip, True)
             return
         for q in range(3):
             for i in range(0, strip.numPixels(), 3):
@@ -161,7 +175,7 @@ def breathing(strip, wait_ms=2, iterations = 1000):
     direction = 2
     for i in range(256*iterations):
         if GPIO.input(KEY2) == 0:
-            colorWipe(strip, Color(0,0,0), 1)
+            fastColorWipe(strip, True)
             break
         if(multiplier >= 98 or multiplier < 2):
             direction *= -1
@@ -419,6 +433,10 @@ class MenuLCD:
         if("RGB_Color" in self.currentlocation):            
             self.draw.text((10, 70), str(ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color',''))), fill = self.text_color)
             self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color','')))+")")
+            
+        if("Backlight_Color" in self.currentlocation):            
+            self.draw.text((10, 70), str(ledsettings.get_backlight_colors()), fill = self.text_color)
+            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_backlight_colors())+")")
         
         if("Multicolor" in self.currentlocation):
             try:
@@ -438,12 +456,14 @@ class MenuLCD:
         
         #displaying brightness value
         if(self.currentlocation == "Brightness"):
-            self.draw.text((10, 35), str(ledstrip.brightness_percent)+"%", fill = self.text_color)
-            
+            self.draw.text((10, 35), str(ledstrip.brightness_percent)+"%", fill = self.text_color)            
             miliamps = int(ledstrip.LED_COUNT) * (60 / (100 / float(ledstrip.brightness_percent)))
-            amps = round(float(miliamps) / float(1000),2)
-            
+            amps = round(float(miliamps) / float(1000),2)            
             self.draw.text((10, 50), "Amps needed to "+"\n"+"power "+str(ledstrip.LED_COUNT)+" LEDS with "+"\n"+"white color: "+str(amps), fill = self.text_color)
+        
+        if(self.currentlocation == "Backlight_Brightness"):
+            self.draw.text((10, 35), str(ledsettings.backlight_brightness_percent)+"%", fill = self.text_color)       
+            
         
         self.LCD.LCD_ShowImage(self.image,0,0)
 
@@ -531,13 +551,13 @@ class MenuLCD:
         if(location == "Fading"):
             ledsettings.mode = "Fading"
             if(choice == "Fast"):
-                ledsettings.fadingspeed = 125
+                ledsettings.fadingspeed = 40
             elif(choice == "Medium"):
-                ledsettings.fadingspeed = 100
+                ledsettings.fadingspeed = 20
             elif(choice == "Slow"):
-                ledsettings.fadingspeed = 50
-            elif(choice == "Very slow"):
                 ledsettings.fadingspeed = 10
+            elif(choice == "Very slow"):
+                ledsettings.fadingspeed = 2
         
         if(location == "Velocity"):
             ledsettings.mode = "Velocity"
@@ -552,6 +572,7 @@ class MenuLCD:
                 
         if(location == "Light_mode"):
             ledsettings.mode = "Normal"
+            fastColorWipe(ledstrip.strip, True)
             
         if(location == "Input"):
             midiports.change_port("inport", choice)
@@ -609,12 +630,10 @@ class MenuLCD:
         if(location == "Rainbow_Colors"):
             ledsettings.color_mode = "Rainbow"
             
-        if(choice == "Add Color"): 
-                    
+        if(choice == "Add Color"):                    
             ledsettings.addcolor()
             
-        if(choice == "Delete"):
-            print(location.replace('Color',''))
+        if(choice == "Delete"):            
             ledsettings.deletecolor(location.replace('Color',''))
             
         if(choice == "Confirm"):
@@ -636,7 +655,13 @@ class MenuLCD:
             value = 1
             
         if(self.currentlocation == "Brightness"):
-            ledstrip.change_brightness(value*self.speed_multiplier)            
+            ledstrip.change_brightness(value*self.speed_multiplier)  
+            
+        if(self.currentlocation == "Backlight_Brightness"):
+            if(self.current_choice == "Power"):
+                ledsettings.change_backlight_brightness(value*self.speed_multiplier)                
+        if(self.currentlocation == "Backlight_Color"):
+            ledsettings.change_backlight_color(self.current_choice, value*self.speed_multiplier)
         
         if(self.currentlocation == "RGB"):
             ledsettings.change_color(self.current_choice, value*self.speed_multiplier)
@@ -770,7 +795,14 @@ class LedSettings:
         
         menu.update_multicolor(self.multicolor)
         
-        self.sequence_active = False
+        self.sequence_active = False        
+        
+        self.backlight_brightness = 0
+        self.backlight_brightness_percent = 0
+        
+        self.backlight_red = 255
+        self.backlight_green = 255
+        self.backlight_blue = 255        
         
     def addcolor(self):  
         self.multicolor.append([0, 255, 0])
@@ -841,6 +873,16 @@ class LedSettings:
             return self.blue
     def get_colors(self):
         return str(self.red)+", "+str(self.green)+", "+str(self.blue)
+        
+    def get_backlight_color(self, color):
+        if(color == "Red"):
+            return self.backlight_red
+        elif(color == "Green"):
+            return self.backlight_green
+        elif(color == "Blue"):
+            return self.backlight_blue
+    def get_backlight_colors(self):
+        return str(self.backlight_red)+", "+str(self.backlight_green)+", "+str(self.backlight_blue)
         
     def set_sequence(self, sequence, step):
         try:
@@ -918,7 +960,39 @@ class LedSettings:
                     except:                    
                         break            
         except:                
-            return False    
+            return False  
+            
+    def change_backlight_brightness(self, value):        
+        self.backlight_brightness_percent += value
+        if(self.backlight_brightness_percent < 0):
+            self.backlight_brightness_percent = 0
+        elif(self.backlight_brightness_percent > 100):
+            self.backlight_brightness_percent = 100
+        self.backlight_brightness = 255 * self.backlight_brightness_percent / 100     
+        fastColorWipe(ledstrip.strip, True)
+    def change_backlight_color(self, color, value):
+        if(color == "Red"):
+            if(self.backlight_red <= 255 and self.backlight_red >= 0):
+                self.backlight_red += int(value)
+                if(self.backlight_red < 0):
+                    self.backlight_red = 0
+                if(self.backlight_red > 255):
+                    self.backlight_red = 255
+        elif(color == "Green"):
+            if(self.backlight_green <= 255 and self.backlight_green >= 0):
+                self.backlight_green += int(value)
+                if(self.backlight_green < 0):
+                    self.backlight_green = 0
+                if(self.backlight_green > 255):
+                    self.backlight_green = 255
+        elif(color == "Blue"):
+            if(self.backlight_blue <= 255 and self.backlight_blue >= 0):
+                self.backlight_blue += int(value)
+                if(self.backlight_blue < 0):
+                    self.backlight_blue = 0
+                if(self.backlight_blue > 255):
+                    self.backlight_blue = 255
+        fastColorWipe(ledstrip.strip, True)
 
 class MidiPorts():
     def __init__(self):
@@ -1038,14 +1112,14 @@ while True:
         while GPIO.input(JPRESS) == 0:
             time.sleep(0.01)
         
-    if(ledsettings.color_mode == "Single"):
-        red = ledsettings.get_color("Red")
-        green = ledsettings.get_color("Green")
-        blue = ledsettings.get_color("Blue")
+    #if(ledsettings.color_mode == "Single"):
+    red = ledsettings.get_color("Red")
+    green = ledsettings.get_color("Green")
+    blue = ledsettings.get_color("Blue")
                 
     timeshift = (time.time() - timeshift_start) * ledsettings.rainbow_timeshift
       
-    if(ledsettings.mode == "Fading" or ledsettings.mode == "Velocity"):
+    if(ledsettings.mode == "Fading" or ledsettings.mode == "Velocity"):                
         n = 0
         for note in keylist:            
             if(ledsettings.color_mode == "Multicolor"):
@@ -1059,21 +1133,31 @@ while True:
             if(ledsettings.color_mode == "Rainbow"):
                 red = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
                 green = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
-                blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue") 
-                     
+                blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue")  
+
             if(int(note) != 1001):                
-                if(int(note) >= 0):
+                if(int(note) > 0):                    
                     fading = (note / float(100)) / 10
                     ledstrip.strip.setPixelColor((n), Color(int(int(green) * fading), int(int(red) * fading), int(int(blue) * fading)))
-                    if(int(note) == 0):
-                        ledstrip.strip.setPixelColor((0), Color(0, 0, 0))
+ 
                     keylist[n] = keylist[n] - ledsettings.fadingspeed
-                else:
-                    keylist[n] = 0
+                    if(keylist[n] <= 0):
+                        red_fading = int(ledsettings.get_backlight_color("Red"))* float(ledsettings.backlight_brightness_percent) / 100
+                        green_fading = int(ledsettings.get_backlight_color("Green")) * float(ledsettings.backlight_brightness_percent) / 100
+                        blue_fading = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
+                        color = Color(int(green_fading),int(red_fading),int(blue_fading))                  
+                        ledstrip.strip.setPixelColor((n), color)  
+                else:                    
+                    keylist[n] = 0                   
+                    
             if(ledsettings.mode == "Velocity"):
                 if(int(last_control_change) < pedal_deadzone):
                     if(int(keylist_status[n]) == 0):
-                        ledstrip.strip.setPixelColor((n), Color(0, 0, 0))
+                        red_fading = int(ledsettings.get_backlight_color("Red"))* float(ledsettings.backlight_brightness_percent) / 100
+                        green_fading = int(ledsettings.get_backlight_color("Green")) * float(ledsettings.backlight_brightness_percent) / 100
+                        blue_fading = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
+                        color = Color(int(green_fading),int(red_fading),int(blue_fading))                  
+                        ledstrip.strip.setPixelColor((n), color) 
                         keylist[n] = 0                    
             n += 1        
     try:
@@ -1081,7 +1165,7 @@ while True:
     except:
         continue
     #loop through incoming midi messages
-    for msg in midipending:       
+    for msg in midipending: 
         last_activity = time.time()     
         note = find_between(str(msg), "note=", " ")
         original_note = note
@@ -1131,7 +1215,14 @@ while True:
                 if(int(last_control_change) < pedal_deadzone):
                     keylist[(note - 20)*2 - note_offset] = 0
             else:
-                ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(0, 0, 0))            
+                if(ledsettings.backlight_brightness > 0):
+                    red = int(ledsettings.get_backlight_color("Red"))* (ledsettings.backlight_brightness_percent) / 100
+                    green = int(ledsettings.get_backlight_color("Green")) * (ledsettings.backlight_brightness_percent) / 100
+                    blue = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
+                    color = Color(int(green),int(red),int(blue))
+                    ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), color)    
+                else:
+                    ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(0, 0, 0))            
             if(saving.isrecording == True):
                 saving.add_track("note_off", original_note, velocity, elapsed_time*1000)
         elif(int(velocity) > 0 and int(note) > 0):
@@ -1145,8 +1236,7 @@ while True:
             
             keylist_status[(note - 20)*2 - note_offset] = 1
             if(ledsettings.mode == "Velocity"):
-                brightness = (100 / (float(velocity) / 127 ) )/ 100 
-                brightness = brightness
+                brightness = (100 / (float(velocity) / 127 ) )/ 100                 
             else:
                 brightness = 1
             if(ledsettings.mode == "Fading"):
