@@ -27,6 +27,8 @@
   - Windows 10 laptop/tablet with bluetooth to run Synthesia
 
 **Total cost (excluding piano and tablet) should be 75-100 USD**
+Disclosure: All of the links above are affiliate links, meaning, at no additional cost to you, I will earn a commission if you click through and make a purchase.
+
 ***
 
 ## Connecting LED Strip to Raspberry Pi and enabling SPI

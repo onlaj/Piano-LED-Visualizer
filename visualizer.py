@@ -582,9 +582,8 @@ class MenuLCD:
             midiports.change_port("playport", choice)
             
         if(location == "Ports_Settings"):
-            if(choice == "Refresh ports"):
-                menu.update_ports()
-                menu.render_message("Refreshing ports", "", 1500)
+            if(choice == "Refresh ports" or choice == "Input" or choice == "Output" or choice == "Playback"):
+                menu.update_ports()                
         
             if(choice == "Reset Bluetooth service"):
                 menu.render_message("Reseting BL service", "", 1000)
