@@ -74,7 +74,8 @@
 	<menu text="Ports Settings">
 		<Ports_Settings text="Input"></Ports_Settings>
 		<Ports_Settings text="Output"></Ports_Settings>
-		<Ports_Settings text="Playback"></Ports_Settings>		
+		<Ports_Settings text="Playback"></Ports_Settings>
+		<Ports_Settings text="Refresh ports"></Ports_Settings>
 		<Ports_Settings text="Reset Bluetooth service"></Ports_Settings>
 	</menu>
 	<menu text="LED animations">

@@ -710,7 +710,10 @@ def screensaver():
     cpu_history = [None] * int(interval)
     cpu_chart = [0] * 28
     cpu_average = 0
-    midiports.inport.poll()
+    try:
+        midiports.inport.poll()
+    except:
+        pass
     while True:
         if((time.time() - saving.start_time) > 3600  and delay < 0.5):            
             delay = 0.9
