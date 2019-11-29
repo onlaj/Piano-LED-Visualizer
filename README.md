@@ -1,3 +1,4 @@
+
 # Piano LED Visualizer
 
 ## [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/onlaj)
@@ -8,7 +9,7 @@
 
   - Piano with MIDI or USB output
   - MIDI to USB interface (if your piano doesn't have USB output) ~~[Amazon US](https://amzn.to/2xZUipg) | [Aliexpress](http://s.click.aliexpress.com/e/b9mjFaIy)~~ (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use [iConnectivity mio](https://amzn.to/2nhsYBl) )
-  - Raspberry Pi Zero [Amazon US](https://amzn.to/2K8N7B1) | [Aliexpress](http://s.click.aliexpress.com/e/cSG376u0)
+  - Raspberry Pi Zero [Amazon US](https://amzn.to/2K8N7B1) | [Aliexpress](http://s.click.aliexpress.com/e/cSG376u0) | [Aliexpress #2](http://s.click.aliexpress.com/e/3r32Dass)
   - MicroSD card (16GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Aliexpress](http://s.click.aliexpress.com/e/mGNi7sl2)
   - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Aliexpress](http://s.click.aliexpress.com/e/dFyC7NO)
   - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/2JViZJ3) | [Aliexpress](http://s.click.aliexpress.com/e/hUgrv6s)
@@ -22,14 +23,20 @@
  
   - Braid for cables [Amazon US](https://amzn.to/2yd2Fhz) | [Aliexpress](http://s.click.aliexpress.com/e/cG7ur6Di)
   - Heat shrink bands [Amazon US](https://amzn.to/2SsSYok) | [Aliexpress](http://s.click.aliexpress.com/e/UwKVLo8)
-  - Aluminium LED Profile with diffuser (*highly recommend to search for right one in local shops*)
+  - Aluminium LED Profile with diffuser (*highly recommend to search for right one in local shops*) [pic#1](https://i.imgur.com/MF7dd1R.png) [pic#2](https://i.imgur.com/fFWOs3v.png)
   - Double side tape to mount everything on piano
   - Windows 10 laptop/tablet with bluetooth to run Synthesia
 
 **Total cost (excluding piano and tablet) should be 75-100 USD**
-Disclosure: All of the links above are affiliate links, meaning, at no additional cost to you, I will earn a commission if you click through and make a purchase.
+*Disclosure: All of the links above are affiliate links, meaning, at no additional cost to you, I will earn a commission if you click through and make a purchase.*
 
-***
+## Running Visualizer
+Install [Raspbian](https://www.raspberrypi.org/documentation/installation/installing-images/) on you Raspberry Pi.
+Download or clone this repository into your RPI.
+Using [PIP](https://pypi.org/project/pip/) install all libraries listed in [requirements.txt](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/requirements.txt "requirements.txt") file
+Run visualizer.py with command
+
+> sudo -E python visualizer.py
 
 ## Connecting LED Strip to Raspberry Pi and enabling SPI
 There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/)
@@ -53,13 +60,6 @@ If you still have problems with connecting your Windows tablet/pc try to install
 
     sudo apt-get install blueman
 
-## Running Visualizer
-Install [Raspbian](https://www.raspberrypi.org/documentation/installation/installing-images/) on you Raspberry Pi.
-Download or clone this repository into your RPI.
-Using [PIP](https://pypi.org/project/pip/) install all libraries listed in [requirements.txt](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/requirements.txt "requirements.txt") file
-Run visualizer.py with command
-
-> sudo -E python visualizer.py
 
 
 ## Learning to play with Synthesia
