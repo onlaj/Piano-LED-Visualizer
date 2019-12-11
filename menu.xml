@@ -61,6 +61,15 @@
 					<Backlight_Brightness text="Power"></Backlight_Brightness>
 			</Backlight>
 		</LED_Strip_Settings>
+		<LED_Strip_Settings text="Sides Color">
+			<Sides_Color text="Custom RGB">
+				<Custom_RGB text="Red"></Custom_RGB>
+				<Custom_RGB text="Green"></Custom_RGB>
+				<Custom_RGB text="Blue"></Custom_RGB>
+			</Sides_Color>
+			<Sides_Color text="Same as main"></Sides_Color>
+			<Sides_Color text="Off"></Sides_Color>
+		</LED_Strip_Settings>
 		<LED_Strip_Settings text="Sequences">
 			<Sequences text="Update"></Sequences>
 		</LED_Strip_Settings>

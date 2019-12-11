@@ -30,35 +30,32 @@
 **Total cost (excluding piano and tablet) should be 75-100 USD**
 *Disclosure: All of the links above are affiliate links, meaning, at no additional cost to you, I will earn a commission if you click through and make a purchase.*
 
-## Running Visualizer
+## Software preparations
 Install [Raspbian](https://www.raspberrypi.org/documentation/installation/installing-images/) on you Raspberry Pi.
-Download or clone this repository into your RPI.
-Using [PIP](https://pypi.org/project/pip/) install all libraries listed in [requirements.txt](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/requirements.txt "requirements.txt") file
-Run visualizer.py with command
+This step requires to connect monitor, keyboard and/or mouse to your RPi. If you can't do it I suggest you to follow this guide: [Raspberry Pi Setup Without a Monitor, Keyboard or a Mouse](https://www.terminalbytes.com/raspberry-pi-without-monitor-keyboard/)
 
-> sudo -E python visualizer.py
+## Automatic midi connection and setting Raspberry Pi as Bluetooth MIDI host
 
-## Connecting LED Strip to Raspberry Pi and enabling SPI
-There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/)
 
-If you are wondering how to connect wires to RPI if screen hat is taking all pins here is a [picture](https://i.imgur.com/7KhwM7r.jpg) of how I did it. There should be a gap between RPI and screen so you can solder your wires or just wrap cables around the pins and separate them with heat shrink bands.
-
-You also need to [enable SPI](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/)
-
-## Setting Raspberry Pi as Bluetooth MIDI host
-Same as above, here is [instruction](https://neuma.studio/rpi-as-midi-host.html)
+Here is [instruction](https://neuma.studio/rpi-as-midi-host.html)
 Just do following parts and skip the others:
-- configuring automatic midi connection
+- configuring automatic midi connection **(this is required even if you don't need Bluetooth feature)**
 - midi bluetooth setup
-
+ 
 If you have problems with connecting your PC to RPI try to add 
 
     DisablePlugins = pnat
-To */etc/bluetooth/main.conf* file. You will have to restart RPI after making this change.
+to */etc/bluetooth/main.conf* file. You will have to restart RPI after making this change.
 
 If you still have problems with connecting your Windows tablet/pc try to install Blueman, graphical bluetooth manager
 
     sudo apt-get install blueman
+***
+If you don't need BT connection you can skip "midi bluetooth setup" part, but you need to install few libraries anyway.
+
+    sudo apt-get install libjack0 
+    sudo apt-get install libjack-dev 
+    sudo apt-get install libasound2-dev
 
 
 
@@ -67,11 +64,31 @@ As of today Synthesia doesn't support MIDI via Bluetooth, it should be added in 
 [Instruction](http://www.synthesiagame.com/forum/viewtopic.php?f=6&t=8798&p=46920&hilit=bluetooth&sid=0ea574c5b0eaa07d4cedaeacc7b6b64b#p46920)
 You also have to enable light support in Synthesia.
 In Visualizer settings you have to change "input" to RPI Bluetooth. After that when learning new song next-to-play keys will be illuminated in corresponding colors, blue for left hand and green for right hand.
-***
+
+## Connecting LED Strip to Raspberry Pi and enabling SPI
+There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/)
+
+If you are wondering how to connect wires to RPI if screen hat is taking all pins here is a [picture](https://i.imgur.com/7KhwM7r.jpg) of how I did it. There should be a gap between RPI and screen so you can solder your wires or just wrap cables around the pins and separate them with heat shrink bands.
+
+You also need to [enable SPI](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/)
+
 
 ## Putting everything together
 After connecting all cables as described above everything should fit nicely to case.
-If you don't have a 3d printer (like me) try to find some company or private person who will print it for you. I paid 12USD for my print.
+If you don't have a 3d printer (like me) try to find some company or private person who will print it for you. I paid 12USD for my print. [RPICaseModel.stl](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/RPICaseModel.stl "RPICaseModel.stl")
+
+## Running Visualizer
+
+Download or clone this repository into your RPI.
+
+    git clone https://github.com/onlaj/Piano-LED-Visualizer
+
+Using [PIP](https://pypi.org/project/pip/) install all libraries listed in [requirements.txt](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/requirements.txt "requirements.txt") file
+Run visualizer.py with command
+
+> sudo -E python visualizer.py
+
+You can auto run Visualizer on RPi boot, just follow this tutorial: [How To Autorun A Python Script On Raspberry Pi Boot](https://www.raspberrypi-spy.co.uk/2015/02/how-to-autorun-a-python-script-on-raspberry-pi-boot/)
 
 ## Using the sequences
 In the visualizer menu you can find setting called "Sequences". It allows you to change led properties while playing using third key on Waveshare hat or your piano pedals.
