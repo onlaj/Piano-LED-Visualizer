@@ -285,11 +285,7 @@ class MenuLCD:
             element.setAttribute("text"  , port)
             mc = self.DOMTree.getElementsByTagName("Ports_Settings")[0]
             mc.appendChild(element)
-            element = self.DOMTree.createElement("Output")
-            element.appendChild(self.DOMTree.createTextNode(""))
-            element.setAttribute("text"  , port)
-            mc = self.DOMTree.getElementsByTagName("Ports_Settings")[1]
-            mc.appendChild(element)
+
             element = self.DOMTree.createElement("Playback")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text"  , port)
@@ -588,13 +584,11 @@ class MenuLCD:
             
         if(location == "Input"):
             midiports.change_port("inport", choice)
-        if(location == "Output"):
-            midiports.change_port("outport", choice)
         if(location == "Playback"):
             midiports.change_port("playport", choice)
             
         if(location == "Ports_Settings"):
-            if(choice == "Refresh ports" or choice == "Input" or choice == "Output" or choice == "Playback"):
+            if(choice == "Refresh ports" or choice == "Input" or choice == "Playback"):
                 menu.update_ports()                
         
             if(choice == "Reset Bluetooth service"):
@@ -1077,13 +1071,6 @@ class MidiPorts():
                     print("playport set to "+port)
         except:
             print("no playback port")
-        try:
-            for port in ports:
-                if "RPi" in port:
-                    self.outport =  mido.open_output(port)
-                    print("outport set to "+port)
-        except:
-            print("no output port")
             
         self.portname = "inport"
             
@@ -1093,8 +1080,6 @@ class MidiPorts():
                 self.inport =  mido.open_input(portname)
             elif(port == "playport"):
                 self.playport =  mido.open_output(portname)
-            elif(port == "outport"):
-                self.outport = mido.open_output(portname)
             menu.render_message("Changing "+port+" to:", portname, 1500)
         except:
             menu.render_message("Can't change "+port+" to:", portname, 1500)
