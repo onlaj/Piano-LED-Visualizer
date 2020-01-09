@@ -311,8 +311,28 @@ class MenuLCD:
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text"  , "RGB Color"+str(i))     
             mc = self.DOMTree.getElementsByTagName("Multicolor")[0]
-            mc.appendChild(element)         
+            mc.appendChild(element)
+			
+            #adding key range to menu
+            element = self.DOMTree.createElement("Color"+str(i))        
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text"  , "Key range"+str(i))     
+            mc = self.DOMTree.getElementsByTagName("Multicolor")[0]
+            mc.appendChild(element)	
+
+            element = self.DOMTree.createElement("Key_range"+str(i))        
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text"  , "Start")     
+            mc = self.DOMTree.getElementsByTagName("Color"+str(i))[0]
+            mc.appendChild(element)          
             
+            element = self.DOMTree.createElement("Key_range"+str(i))        
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text"  , "End")     
+            mc = self.DOMTree.getElementsByTagName("Color"+str(i))[0]
+            mc.appendChild(element)   
+            
+            #adding delete 
             element = self.DOMTree.createElement("Color"+str(i))        
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text"  , "Delete")     
@@ -471,7 +491,17 @@ class MenuLCD:
         
         if(self.currentlocation == "Backlight_Brightness"):
             self.draw.text((10, 35), str(ledsettings.backlight_brightness_percent)+"%", fill = self.text_color)       
-            
+        
+        
+        if("Key_range" in self.currentlocation):
+            if(self.current_choice == "Start"):                
+                try:
+                    self.draw.text((10, 50), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][0]), fill = self.text_color)
+                except: 
+                    pass
+            else:
+                self.draw.text((10, 50), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][1]), fill = self.text_color)
+        
         
         self.LCD.LCD_ShowImage(self.image,0,0)
 
@@ -686,6 +716,9 @@ class MenuLCD:
         
         if("RGB_Color" in self.currentlocation):
             ledsettings.change_multicolor(self.current_choice, self.currentlocation, value*self.speed_multiplier)
+            
+        if("Key_range" in self.currentlocation):
+            ledsettings.change_multicolor_range(self.current_choice, self.currentlocation, value*self.speed_multiplier)
         
         if(self.current_choice == "Offset"):
             ledsettings.rainbow_offset = ledsettings.rainbow_offset + value * 5 *self.speed_multiplier
@@ -809,9 +842,16 @@ class LedSettings:
         self.rainbow_timeshift = 0
         
         self.multicolor = []
+        self.multicolor_range = []
+        
         self.multicolor.append([255, 255, 255])
+        self.multicolor_range.append([4, 213])
+        
         self.multicolor.append([0, 0, 255])
+        self.multicolor_range.append([5, 214])
+        
         self.multicolor.append([0, 255, 0])
+        self.multicolor_range.append([6, 215])
         
         menu.update_multicolor(self.multicolor)
         
@@ -830,11 +870,14 @@ class LedSettings:
         self.adjacent_blue = 255      
         
     def addcolor(self):  
-        self.multicolor.append([0, 255, 0])
+        self.multicolor.append([0, 255, 0])        
+        self.multicolor_range.append([0, 255])
+        
         menu.update_multicolor(self.multicolor)
         
     def deletecolor(self, key):
         del self.multicolor[int(key) - 1]
+        del self.multicolor_range[int(key) - 1]
         menu.update_multicolor(self.multicolor)
         menu.go_back()
     
@@ -854,10 +897,32 @@ class LedSettings:
         elif(self.multicolor[int(location)][choice] > 255):
             self.multicolor[int(location)][choice] = 255
             
+    def change_multicolor_range(self, choice, location, value):
+        location = location.replace('Key_range','')
+        location = int(location) - 1      
+        if(choice == "Start"):
+            choice = 0        
+        else:
+            choice = 1   
+            
+        self.multicolor_range[int(location)][choice] += int(value)
+            
     def get_multicolors(self, number):
         number = int(number) - 1
         return str(self.multicolor[int(number)][0])+", "+str(self.multicolor[int(number)][1])+", "+str(self.multicolor[int(number)][2])
-        
+		
+    def get_random_multicolor_in_range(self, note):
+        temporary_multicolor = []
+        i = 0
+        for range in self.multicolor_range:
+            if(note >= range[0] and note <= range[1]):
+                temporary_multicolor.append(self.multicolor[i])
+            i += 1
+        try:
+            choosen_color = random.choice(temporary_multicolor)
+        except:
+            choosen_color = [0, 0, 0]
+        return choosen_color      
         
     def change_color(self, color, value):
         self.sequence_active = False
@@ -1283,7 +1348,8 @@ while True:
         elif(int(velocity) > 0 and int(note) > 0):
             
             if(ledsettings.color_mode == "Multicolor"):
-                choosen_color = random.choice(ledsettings.multicolor)
+               
+                choosen_color = ledsettings.get_random_multicolor_in_range(note)
                 red = choosen_color[0]
                 green = choosen_color[1]
                 blue = choosen_color[2]
