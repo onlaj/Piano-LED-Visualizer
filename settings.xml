@@ -1,0 +1,34 @@
+<settings>
+	<brightness_percent>50</brightness_percent>
+	<background_color>BLACK</background_color>
+	<text_color>WHITE</text_color>
+	
+	<mode>Normal</mode>
+	<red>255</red>
+	<green>255</green>
+	<blue>255</blue>
+	
+	<fadingspeed>1</fadingspeed>
+	<color_mode>Single</color_mode>
+	
+	<rainbow_offset>0</rainbow_offset>
+	<rainbow_scale>100</rainbow_scale>
+	<rainbow_timeshift>0</rainbow_timeshift>
+	
+	<multicolor>[[255, 255, 255], [0, 0, 255], [0, 255, 0]]</multicolor>	
+	<multicolor_range>[[4, 213], [5, 214], [6, 215]]</multicolor_range>	
+	
+	<sequence_active>False</sequence_active>	
+	
+	<backlight_brightness>0</backlight_brightness>	
+	<backlight_brightness_percent>0</backlight_brightness_percent>	
+	
+	<backlight_red>255</backlight_red>		
+	<backlight_green>255</backlight_green>		
+	<backlight_blue>255</backlight_blue>
+	
+	<adjacent_mode>Off</adjacent_mode>		
+	<adjacent_red>255</adjacent_red>		
+	<adjacent_green>255</adjacent_green>		
+	<adjacent_blue>255</adjacent_blue>		
+</settings>

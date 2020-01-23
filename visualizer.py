@@ -1,4 +1,6 @@
 from xml.dom import minidom
+import xml.etree.ElementTree as ET
+import ast
 
 import LCD_1in44
 import LCD_Config
@@ -27,10 +29,42 @@ from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
 from neopixel import *
 import argparse
 
+class UserSettings:
+    def __init__(self):
+        self.pending_changes = False
+    
+        self.tree = ET.parse("settings.xml") 
+        self.root = self.tree.getroot()    
+
+        self.pending_reset = False
+
+    def get_setting_value(self, name):
+        value = self.root.find(name).text
+        return value
+
+    def change_setting_value(self, name, value):        
+        self.root.find(str(name)).text = str(value)
+        self.pending_changes = True
+                
+    def save_changes(self):
+        if(self.pending_changes == True):
+            self.pending_changes = False
+            
+            self.tree.write("settings.xml")
+            self.tree = ET.parse("settings.xml") 
+            self.root = self.tree.getroot()
+            
+    def reset_to_default(self):
+        self.tree = ET.parse("default_settings.xml")
+        self.tree.write("settings.xml")        
+        self.root = self.tree.getroot()
+        self.pending_reset = True
+
 class LedStrip:
     def __init__(self):
         
-        self.brightness_percent = 50
+        self.brightness_percent = int(usersettings.get_setting_value("brightness_percent"))
+        
         self.brightness = 255 * self.brightness_percent / 100
         
         # LED strip configuration:
@@ -59,6 +93,8 @@ class LedStrip:
         elif(self.brightness_percent > 100):
             self.brightness_percent = 100
         self.brightness = 255 * self.brightness_percent / 100
+        
+        usersettings.change_setting_value("brightness_percent", self.brightness_percent)
         
         parser = argparse.ArgumentParser()
         parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
@@ -239,8 +275,8 @@ class MenuLCD:
         self.scroll_hold = 0
         self.cut_count = 0
         self.pointer_position = 0
-        self.background_color = "BLACK"
-        self.text_color = "WHITE"
+        self.background_color = usersettings.get_setting_value("background_color")
+        self.text_color = usersettings.get_setting_value("text_color")
         self.update_songs()
         self.update_ports()        
         self.speed_multiplier = 1
@@ -561,10 +597,13 @@ class MenuLCD:
     def change_settings(self, choice, location):
         if(location == "Text_Color"):
             self.text_color = choice
+            usersettings.change_setting_value("text_color", self.text_color)
         if(location == "Background_Color"):
             self.background_color = choice
+            usersettings.change_setting_value("background_color", self.background_color)
         if(self.text_color == self.background_color):
             self.text_color = "Red"
+            usersettings.change_setting_value("text_color", self.text_color)
             
         if(location == "Choose_song"):
             play_midi(choice)            
@@ -585,9 +624,11 @@ class MenuLCD:
         if(location == "Solid"):
             ledsettings.change_color_name(wc.name_to_rgb(choice))
             ledsettings.color_mode = "Single"
+            usersettings.change_setting_value("color_mode", ledsettings.color_mode)
             
         if(location == "Fading"):
             ledsettings.mode = "Fading"
+            usersettings.change_setting_value("mode", ledsettings.mode)
             if(choice == "Fast"):
                 ledsettings.fadingspeed = 40
             elif(choice == "Medium"):
@@ -596,9 +637,11 @@ class MenuLCD:
                 ledsettings.fadingspeed = 10
             elif(choice == "Very slow"):
                 ledsettings.fadingspeed = 2
+            usersettings.change_setting_value("fadingspeed", ledsettings.fadingspeed)
         
         if(location == "Velocity"):
             ledsettings.mode = "Velocity"
+            usersettings.change_setting_value("mode", ledsettings.mode)
             if(choice == "Fast"):
                 ledsettings.fadingspeed = 10
             elif(choice == "Medium"):
@@ -607,9 +650,11 @@ class MenuLCD:
                 ledsettings.fadingspeed = 6
             elif(choice == "Very slow"):
                 ledsettings.fadingspeed = 3
+            usersettings.change_setting_value("fadingspeed", ledsettings.fadingspeed)
                 
         if(location == "Light_mode"):
             ledsettings.mode = "Normal"
+            usersettings.change_setting_value("mode", ledsettings.mode)
             fastColorWipe(ledstrip.strip, True)
             
         if(location == "Input"):
@@ -664,6 +709,7 @@ class MenuLCD:
                 
         if(location == "Rainbow_Colors"):
             ledsettings.color_mode = "Rainbow"
+            usersettings.change_setting_value("color_mode", ledsettings.color_mode)
             
         if(choice == "Add Color"):                    
             ledsettings.addcolor()
@@ -673,6 +719,7 @@ class MenuLCD:
             
         if(choice == "Confirm"):
             ledsettings.color_mode = "Multicolor"
+            usersettings.change_setting_value("color_mode", ledsettings.color_mode)
             
         if(location == "Sequences"):
             if(choice == "Update"):
@@ -684,11 +731,18 @@ class MenuLCD:
                 
         if(location == "Sides_Color"):        
             if(choice == "Custom RGB"):
-                ledsettings.adjacent_mode = "RGB"
+                ledsettings.adjacent_mode = "RGB"                
             if(choice == "Same as main"):
                 ledsettings.adjacent_mode = "Main"
             if(choice == "Off"):
                 ledsettings.adjacent_mode = "Off"
+            usersettings.change_setting_value("adjacent_mode", ledsettings.adjacent_mode)
+            
+        if(location == "Reset_to_default_settings"):
+            if(choice == "Confirm"):
+                usersettings.reset_to_default()
+            else:
+                self.go_back()
                     
                             
     def change_value(self, value):
@@ -713,6 +767,7 @@ class MenuLCD:
         if(self.currentlocation == "RGB"):
             ledsettings.change_color(self.current_choice, value*self.speed_multiplier)
             ledsettings.color_mode = "Single"
+            usersettings.change_setting_value("color_mode", ledsettings.color_mode)
         
         if("RGB_Color" in self.currentlocation):
             ledsettings.change_multicolor(self.current_choice, self.currentlocation, value*self.speed_multiplier)
@@ -831,53 +886,51 @@ class SaveMIDI:
 
 class LedSettings:
     def __init__(self):
-        self.red = 255
-        self.green = 255
-        self.blue = 255
-        self.mode = "Normal"
-        self.fadingspeed = 1
-        self.color_mode = "Single"
-        self.rainbow_offset = 0
-        self.rainbow_scale = 100
-        self.rainbow_timeshift = 0
+        self.red = int(usersettings.get_setting_value("red"))
+        self.green = int(usersettings.get_setting_value("green"))
+        self.blue = int(usersettings.get_setting_value("blue"))
+        self.mode = usersettings.get_setting_value("mode")
+        self.fadingspeed = int(usersettings.get_setting_value("fadingspeed"))
+        self.color_mode = usersettings.get_setting_value("color_mode")
+        self.rainbow_offset = int(usersettings.get_setting_value("rainbow_offset"))
+        self.rainbow_scale = int(usersettings.get_setting_value("rainbow_scale"))
+        self.rainbow_timeshift = int(usersettings.get_setting_value("rainbow_timeshift"))
         
-        self.multicolor = []
-        self.multicolor_range = []
-        
-        self.multicolor.append([255, 255, 255])
-        self.multicolor_range.append([4, 213])
-        
-        self.multicolor.append([0, 0, 255])
-        self.multicolor_range.append([5, 214])
-        
-        self.multicolor.append([0, 255, 0])
-        self.multicolor_range.append([6, 215])
-        
+        self.multicolor = ast.literal_eval(usersettings.get_setting_value("multicolor"))
+        self.multicolor_range = ast.literal_eval(usersettings.get_setting_value("multicolor_range"))        
+                        
         menu.update_multicolor(self.multicolor)
         
-        self.sequence_active = False        
+        self.sequence_active = usersettings.get_setting_value("sequence_active")        
         
-        self.backlight_brightness = 0
-        self.backlight_brightness_percent = 0
+        self.backlight_brightness = int(usersettings.get_setting_value("backlight_brightness"))
+        self.backlight_brightness_percent = int(usersettings.get_setting_value("backlight_brightness_percent"))
         
-        self.backlight_red = 255
-        self.backlight_green = 255
-        self.backlight_blue = 255        
+        self.backlight_red = int(usersettings.get_setting_value("backlight_red"))
+        self.backlight_green = int(usersettings.get_setting_value("backlight_green"))
+        self.backlight_blue = int(usersettings.get_setting_value("backlight_blue"))        
         
-        self.adjacent_mode = "Off"
-        self.adjacent_red = 255
-        self.adjacent_green = 255
-        self.adjacent_blue = 255      
+        self.adjacent_mode = usersettings.get_setting_value("adjacent_mode")    
+        self.adjacent_red = int(usersettings.get_setting_value("adjacent_red"))
+        self.adjacent_green = int(usersettings.get_setting_value("adjacent_green"))
+        self.adjacent_blue = int(usersettings.get_setting_value("adjacent_blue"))      
         
     def addcolor(self):  
         self.multicolor.append([0, 255, 0])        
         self.multicolor_range.append([0, 255])
+        
+        usersettings.change_setting_value("multicolor", self.multicolor)
+        usersettings.change_setting_value("multicolor_range", self.multicolor_range)
         
         menu.update_multicolor(self.multicolor)
         
     def deletecolor(self, key):
         del self.multicolor[int(key) - 1]
         del self.multicolor_range[int(key) - 1]
+        
+        usersettings.change_setting_value("multicolor", self.multicolor)
+        usersettings.change_setting_value("multicolor_range", self.multicolor_range)
+        
         menu.update_multicolor(self.multicolor)
         menu.go_back()
     
@@ -897,6 +950,8 @@ class LedSettings:
         elif(self.multicolor[int(location)][choice] > 255):
             self.multicolor[int(location)][choice] = 255
             
+        usersettings.change_setting_value("multicolor", self.multicolor)        
+            
     def change_multicolor_range(self, choice, location, value):
         location = location.replace('Key_range','')
         location = int(location) - 1      
@@ -906,6 +961,7 @@ class LedSettings:
             choice = 1   
             
         self.multicolor_range[int(location)][choice] += int(value)
+        usersettings.change_setting_value("multicolor_range", self.multicolor_range)
             
     def get_multicolors(self, number):
         number = int(number) - 1
@@ -926,7 +982,9 @@ class LedSettings:
         
     def change_color(self, color, value):
         self.sequence_active = False
+        usersettings.change_setting_value("sequence_active", self.sequence_active)
         self.color_mode = "Single"
+        usersettings.change_setting_value("color_mode", self.color_mode)
         if(color == "Red"):
             if(self.red <= 255 and self.red >= 0):
                 self.red += int(value)
@@ -934,6 +992,7 @@ class LedSettings:
                     self.red = 0
                 if(self.red > 255):
                     self.red = 255
+                usersettings.change_setting_value("red", self.red)
         elif(color == "Green"):
             if(self.green <= 255 and self.green >= 0):
                 self.green += int(value)
@@ -941,6 +1000,7 @@ class LedSettings:
                     self.green = 0
                 if(self.green > 255):
                     self.green = 255
+                usersettings.change_setting_value("green", self.green)
         elif(color == "Blue"):
             if(self.blue <= 255 and self.blue >= 0):
                 self.blue += int(value)
@@ -948,12 +1008,19 @@ class LedSettings:
                     self.blue = 0
                 if(self.blue > 255):
                     self.blue = 255
+                usersettings.change_setting_value("blue", self.blue)
     def change_color_name(self, color):
         self.sequence_active = False
-        self.color_mode = "Single"      
+        usersettings.change_setting_value("sequence_active", self.sequence_active)
+        self.color_mode = "Single"
+        usersettings.change_setting_value("color_mode", self.color_mode)
         self.red = int(find_between(str(color), "red=", ","))
         self.green = int(find_between(str(color), "green=", ","))
         self.blue = int(find_between(str(color), "blue=", ")"))
+        
+        usersettings.change_setting_value("red", self.red)
+        usersettings.change_setting_value("green", self.green)
+        usersettings.change_setting_value("blue", self.blue)
     def get_color(self, color):
         if(color == "Red"):
             return self.red
@@ -1068,7 +1135,9 @@ class LedSettings:
             self.backlight_brightness_percent = 0
         elif(self.backlight_brightness_percent > 100):
             self.backlight_brightness_percent = 100
-        self.backlight_brightness = 255 * self.backlight_brightness_percent / 100     
+        self.backlight_brightness = 255 * self.backlight_brightness_percent / 100 
+        usersettings.change_setting_value("backlight_brightness", self.backlight_brightness)        
+        usersettings.change_setting_value("backlight_brightness_percent", self.backlight_brightness_percent)        
         fastColorWipe(ledstrip.strip, True)
     def change_backlight_color(self, color, value):
         if(color == "Red"):
@@ -1092,10 +1161,15 @@ class LedSettings:
                     self.backlight_blue = 0
                 if(self.backlight_blue > 255):
                     self.backlight_blue = 255
+        usersettings.change_setting_value("backlight_red", self.backlight_red)
+        usersettings.change_setting_value("backlight_green", self.backlight_green)
+        usersettings.change_setting_value("backlight_blue", self.backlight_blue)
+        
         fastColorWipe(ledstrip.strip, True)
         
     def change_adjacent_color(self, color, value):
         self.adjacent_mode = "RGB"
+        usersettings.change_setting_value("adjacent_mode", self.adjacent_mode)
         if(color == "Red"):
             if(self.adjacent_red <= 255 and self.adjacent_red >= 0):
                 self.adjacent_red += int(value)
@@ -1117,6 +1191,9 @@ class LedSettings:
                     self.adjacent_blue = 0
                 if(self.adjacent_blue > 255):
                     self.adjacent_blue = 255
+        usersettings.change_setting_value("adjacent_red", self.adjacent_red)
+        usersettings.change_setting_value("adjacent_green", self.adjacent_green)
+        usersettings.change_setting_value("adjacent_blue", self.adjacent_blue)
         fastColorWipe(ledstrip.strip, True)
 
 class MidiPorts():
@@ -1149,6 +1226,8 @@ class MidiPorts():
         except:
             menu.render_message("Can't change "+port+" to:", portname, 1500)
 
+usersettings = UserSettings()
+
 midiports = MidiPorts()
 ledstrip = LedStrip()
 menu = MenuLCD("menu.xml")
@@ -1169,6 +1248,9 @@ last_activity = time.time()
 last_control_change = 0
 pedal_deadzone = 10
 timeshift_start = time.time()
+
+fastColorWipe(ledstrip.strip, True)
+
 while True:    
     #screensaver
     if((time.time() - last_activity) > 600):
@@ -1187,6 +1269,16 @@ while True:
             menu.show()
             timeshift_start = time.time()     
     display_cycle += 1
+    
+    if((time.time() - last_activity) > 1):
+        usersettings.save_changes()        
+        if(usersettings.pending_reset == True):
+            usersettings.pending_reset = False
+            ledstrip = LedStrip()
+            menu = MenuLCD("menu.xml")
+            menu.show()            
+            ledsettings = LedSettings()
+            
     
     if GPIO.input(KEYUP) == 0:
         last_activity = time.time()

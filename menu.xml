@@ -132,7 +132,10 @@
 		</Display_Settings>
 	</menu>
 	<menu text="Other Settings">
-		<Other_Settings text="System Info">
+		<Other_Settings text="System Info"></Other_Settings>
+		<Other_Settings text="Reset to default settings">
+			<Reset_to_default_settings text="Confirm"></Reset_to_default_settings>
+			<Reset_to_default_settings text="Cancel"></Reset_to_default_settings>		
 		</Other_Settings>
 	</menu>
 </data>
