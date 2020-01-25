@@ -401,8 +401,10 @@ class MenuLCD:
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
 
+        # Do not draw the menu title when shutting down.
         if (position != "Shutdown"):
             self.draw.text((2, 5), position.replace("_", " "), fill = self.text_color) 
+
         #getting list of items in current menu    
         staffs = self.DOMTree.getElementsByTagName(position)        
         text_margin_top = 15
@@ -559,7 +561,7 @@ class MenuLCD:
 
         if(position == "Shutdown"):
             menu.show(self.current_choice)
-            # call("sudo shutdown -h now", shell=True)
+            call("sudo shutdown -h now", shell=True)
         elif(not self.DOMTree.getElementsByTagName(position)):
             menu.change_settings(self.current_choice, self.currentlocation)
         else:
