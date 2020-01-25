@@ -540,7 +540,7 @@ class MenuLCD:
                 self.draw.text((10, 50), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][1]), fill = self.text_color)
         
         if (self.currentlocation == "Shutdown"):
-            self.draw.text((10, 70), "Powering down...", fill = self.text_color)
+            self.draw.text((10, 64), "Powering down...", fill = self.text_color)
         
         self.LCD.LCD_ShowImage(self.image,0,0)
 
