@@ -539,7 +539,7 @@ class MenuLCD:
             else:
                 self.draw.text((10, 50), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][1]), fill = self.text_color)
         
-        if (self.currentlocation == "Shutdown"):
+        if (self.currentlocation == "Power_Off"):
             self.draw.text((72, 72), "Powering down...", fill = self.text_color)
         
         self.LCD.LCD_ShowImage(self.image,0,0)
@@ -555,7 +555,7 @@ class MenuLCD:
     def enter_menu(self): 
         position = self.current_choice.replace(" ", "_")
 
-        if(position == "Shutdown"):
+        if(position == "Power_Off"):
             call("sudo shutdown -h now", shell=True)
         elif(not self.DOMTree.getElementsByTagName(position)):
             menu.change_settings(self.current_choice, self.currentlocation)
