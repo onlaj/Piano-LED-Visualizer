@@ -555,9 +555,9 @@ class MenuLCD:
     def enter_menu(self): 
         position = self.current_choice.replace(" ", "_")
 
-        if (position == "Shutdown"):
+        if(position == "Shutdown"):
             call("sudo shutdown -h now", shell=True)
-        else if (not self.DOMTree.getElementsByTagName(position)):
+        elif(not self.DOMTree.getElementsByTagName(position)):
             menu.change_settings(self.current_choice, self.currentlocation)
         else:
             self.currentlocation = self.current_choice
