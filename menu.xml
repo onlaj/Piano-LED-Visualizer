@@ -138,6 +138,6 @@
 			<Reset_to_default_settings text="Cancel"></Reset_to_default_settings>		
 		</Other_Settings>
 	</menu>
-	<menu text="Power Off">
+	<menu text="Shutdown">
 	</menu>
 </data>
