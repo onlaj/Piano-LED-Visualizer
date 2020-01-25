@@ -557,7 +557,7 @@ class MenuLCD:
 
         if(position == "Shutdown"):
             menu.show(self.current_choice)
-            call("sudo shutdown -h now", shell=True)
+            # call("sudo shutdown -h now", shell=True)
         elif(not self.DOMTree.getElementsByTagName(position)):
             menu.change_settings(self.current_choice, self.currentlocation)
         else:
