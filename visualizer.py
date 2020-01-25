@@ -1,3 +1,5 @@
+from subprocess import call
+
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 import ast
@@ -290,8 +292,8 @@ class MenuLCD:
             element.setAttribute("text"  , song)       
             mc = self.DOMTree.getElementsByTagName("Play_MIDI")[0]
             mc.appendChild(element)
-            
-                    
+
+
     def update_sequence_list(self):
         try:      
             sequences_tree = minidom.parse("sequences.xml")
@@ -528,7 +530,6 @@ class MenuLCD:
         if(self.currentlocation == "Backlight_Brightness"):
             self.draw.text((10, 35), str(ledsettings.backlight_brightness_percent)+"%", fill = self.text_color)       
         
-        
         if("Key_range" in self.currentlocation):
             if(self.current_choice == "Start"):                
                 try:
@@ -538,6 +539,8 @@ class MenuLCD:
             else:
                 self.draw.text((10, 50), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][1]), fill = self.text_color)
         
+        if (self.currentlocation == "Shutdown"):
+            self.draw.text((72, 72), "Powering down...", fill = self.text_color)
         
         self.LCD.LCD_ShowImage(self.image,0,0)
 
@@ -551,7 +554,10 @@ class MenuLCD:
         
     def enter_menu(self): 
         position = self.current_choice.replace(" ", "_")
-        if(not self.DOMTree.getElementsByTagName(position) ):
+
+        if (position == "Shutdown"):
+            call("sudo shutdown -h now", shell=True)
+        else if (not self.DOMTree.getElementsByTagName(position)):
             menu.change_settings(self.current_choice, self.currentlocation)
         else:
             self.currentlocation = self.current_choice
