@@ -557,8 +557,8 @@ class MenuLCD:
 
         if(position == "Power_Off"):
             call("sudo shutdown -h now", shell=True)
-            menu.show(self.current_choice)
-        elif(not self.DOMTree.getElementsByTagName(position)):
+            
+        if(not self.DOMTree.getElementsByTagName(position)):
             menu.change_settings(self.current_choice, self.currentlocation)
         else:
             self.currentlocation = self.current_choice
