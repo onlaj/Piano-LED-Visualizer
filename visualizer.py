@@ -399,8 +399,10 @@ class MenuLCD:
             refresh = 0            
             
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
-        self.draw = ImageDraw.Draw(self.image)        
-        self.draw.text((2, 5), position.replace("_", " "), fill = self.text_color) 
+        self.draw = ImageDraw.Draw(self.image)
+
+        if (position != "Shutdown"):
+            self.draw.text((2, 5), position.replace("_", " "), fill = self.text_color) 
         #getting list of items in current menu    
         staffs = self.DOMTree.getElementsByTagName(position)        
         text_margin_top = 15
