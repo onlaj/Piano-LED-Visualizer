@@ -783,9 +783,9 @@ class MenuLCD:
         
         if (location == "Exit_Script"):
             if (choice == "Confirm"):
-                    sys.exit()
-                else:
-                    self.go_back()
+                sys.exit()
+            else:
+                self.go_back()
                     
                             
     def change_value(self, value):
