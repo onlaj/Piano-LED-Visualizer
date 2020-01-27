@@ -149,8 +149,8 @@
 		</Shutdown_Options>
 		<Shutdown_Options text="Restart Script"></Shutdown_Options>
 		<Shutdown_Options text="Exit Script">
-			<Exit_Script text="Confirm"></Exit>
-			<Exit_Script text="Cancel"></Exit>
+			<Exit_Script text="Confirm"></Exit_Script>
+			<Exit_Script text="Cancel"></Exit_Script>
 		</Shutdown_Options>
 	</menu>
 </data>
