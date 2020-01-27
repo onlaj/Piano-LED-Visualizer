@@ -1,4 +1,3 @@
-from tendo import singleton
 from subprocess import call
 
 from xml.dom import minidom
@@ -32,8 +31,16 @@ from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
 from neopixel import *
 import argparse
 
-# Ensure that there is only one instance of the visualizer.
-me = singleton.SingleInstance()
+fh=0
+def run_once():
+    global fh
+    fh=open(os.path.realpath(__file__),'r')
+    try:
+        fcntl.flock(fh,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    except:
+        os._exit(0)
+
+run_once()
 
 class UserSettings:
     def __init__(self):
