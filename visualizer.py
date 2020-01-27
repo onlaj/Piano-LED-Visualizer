@@ -778,10 +778,9 @@ class MenuLCD:
                 else:
                     self.go_back()
 
-        print(location + " " + choice)
-        
         if (choice == "Restart Script"):
-            os.execv(sys.executable, ['python'] + sys.argv)
+            print(location + " " + choice)
+            call("sudo -E python visualizer.py")
         
         if (location == "Exit_Script"):
             if (choice == "Confirm"):
