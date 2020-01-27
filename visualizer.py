@@ -774,13 +774,13 @@ class MenuLCD:
         if (location == "Reboot"):
                 if (choice == "Confirm"):
                     menu.render_message("", "Rebooting...", 5000)
-                    # call("sudo reboot now")
+                    # call("sudo reboot now", shell=True)
                 else:
                     self.go_back()
 
         if (choice == "Restart Script"):
             print(location + " " + choice)
-            os.execv(sys.executable, *sys.argv)
+            restart_script()
         
         if (location == "Exit_Script"):
             if (choice == "Confirm"):
