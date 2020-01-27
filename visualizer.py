@@ -766,14 +766,14 @@ class MenuLCD:
 
         if (location == "Shutdown"):
             if (choice == "Confirm"):
-                menu.render_message("Shutdown", "Shutting down...", 0)
+                menu.render_message("Shutdown", "Shutting down...", 5000)
                 # call("sudo shutdown -h now", shell=True)
             else: 
                 self.go_back()
         
         if (location == "Reboot"):
                 if (choice == "Confirm"):
-                    menu.render_message("Reboot", "Rebooting...", 0)
+                    menu.render_message("Reboot", "Rebooting...", 5000)
                     # call("sudo reboot now")
                 else:
                     self.go_back()
