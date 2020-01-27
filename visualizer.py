@@ -767,28 +767,17 @@ class MenuLCD:
         if (location == "Shutdown"):
             if (choice == "Confirm"):
                 menu.render_message("", "Shutting down...", 5000)
-                # call("sudo shutdown -h now", shell=True)
+                call("sudo shutdown -h now", shell=True)
             else: 
                 self.go_back()
         
         if (location == "Reboot"):
-                if (choice == "Confirm"):
-                    menu.render_message("", "Rebooting...", 5000)
-                    # call("sudo reboot now", shell=True)
-                else:
-                    self.go_back()
-
-        if (choice == "Restart Script"):
-            print(location + " " + choice)
-            restart_script()
-        
-        if (location == "Exit_Script"):
             if (choice == "Confirm"):
-                sys.exit()
+                menu.render_message("", "Rebooting...", 5000)
+                call("sudo reboot now", shell=True)
             else:
                 self.go_back()
-                    
-                            
+
     def change_value(self, value):
         if(value == "LEFT"):
             value = -1
