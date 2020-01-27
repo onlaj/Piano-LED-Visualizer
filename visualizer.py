@@ -649,7 +649,9 @@ class MenuLCD:
         if(location == "Fading"):
             ledsettings.mode = "Fading"
             usersettings.change_setting_value("mode", ledsettings.mode)
-            if(choice == "Fast"):
+            if (choice == "Very fast"):
+                ledsettings.fadingspeed = 50
+            elif(choice == "Fast"):
                 ledsettings.fadingspeed = 40
             elif(choice == "Medium"):
                 ledsettings.fadingspeed = 20
