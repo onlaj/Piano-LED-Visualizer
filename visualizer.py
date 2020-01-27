@@ -395,14 +395,15 @@ class MenuLCD:
             refresh = 1
         else:
             position = position.replace(" ", "_")
-            self.currentlocation = position;
+            self.currentlocation = position 
             refresh = 0            
             
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
 
-        # Do not draw the menu title when shutting down.
-        if (position != "Shutdown"):
+        # Do not draw the menu title when shutting down or rebooting.
+        isShuttingDown = position == "shutdown confirmed" and position == "reboot confirmed"
+        if (not isShuttingDown):
             self.draw.text((2, 5), position.replace("_", " "), fill = self.text_color) 
 
         #getting list of items in current menu    
@@ -543,9 +544,12 @@ class MenuLCD:
             else:
                 self.draw.text((10, 50), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][1]), fill = self.text_color)
         
-        if (self.currentlocation == "Shutdown"):
-            self.draw.text((10, 64), "Powering down...", fill = self.text_color)
-        
+        if (self.currentlocation == "shutdown confimred"):
+            self.draw.text((10, 64), "Shutting down...", fill = self.text_color)
+
+        if (self.currentlocation == "reboot confimred"):
+            self.draw.text((10, 64), "Rebooting...", fill = self.text_color)
+
         self.LCD.LCD_ShowImage(self.image,0,0)
 
     def change_pointer(self, direction):
@@ -559,10 +563,7 @@ class MenuLCD:
     def enter_menu(self): 
         position = self.current_choice.replace(" ", "_")
 
-        if(position == "Shutdown"):
-            menu.show(self.current_choice)
-            call("sudo shutdown -h now", shell=True)
-        elif(not self.DOMTree.getElementsByTagName(position)):
+        if(not self.DOMTree.getElementsByTagName(position)):
             menu.change_settings(self.current_choice, self.currentlocation)
         else:
             self.currentlocation = self.current_choice
@@ -754,6 +755,20 @@ class MenuLCD:
                 usersettings.reset_to_default()
             else:
                 self.go_back()
+
+        if (location == "Shutdown"):
+            if (choice == "Confirm"):
+                menu.show("shutdown confirmed")
+                call("sudo shutdown -h now", shell=True)
+            else: 
+                self.go_back()
+        
+        if (location == "Reboot"):
+                if (choice == "Confirm"):
+                    menu.show("reboot confirmed")
+                    call("sudo reboot now")
+                else:
+                    self.go_back()
                     
                             
     def change_value(self, value):

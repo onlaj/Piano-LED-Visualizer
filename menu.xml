@@ -138,6 +138,14 @@
 			<Reset_to_default_settings text="Cancel"></Reset_to_default_settings>		
 		</Other_Settings>
 	</menu>
-	<menu text="Shutdown">
+	<menu text="Shutdown Options">
+		<Shutdown_Options text="Shutdown">
+			<Shutdown text="Confirm"></Shutdown>
+			<Shutdown text="Cancel"></Shutdown>
+		</Shutdown_Options>
+		<Shutdown_Options text="Reboot">
+			<Reboot text="Confirm"></Reboot>
+			<Reboot text="Cancel"></Reboot>
+		</Shutdown_Options>
 	</menu>
 </data>
