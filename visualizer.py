@@ -778,7 +778,7 @@ class MenuLCD:
                 else:
                     self.go_back()
         
-        if (location == "Restart_Script"):
+        if (choice == "Restart_Script"):
             restart_script()
         
         if (location == "Exit_Script"):
