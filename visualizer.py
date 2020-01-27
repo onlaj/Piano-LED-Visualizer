@@ -32,6 +32,7 @@ from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
 from neopixel import *
 import argparse
 
+# Ensure that there is only one instance of the visualizer.
 me = singleton.SingleInstance()
 
 class UserSettings:
