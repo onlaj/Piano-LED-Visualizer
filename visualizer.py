@@ -43,8 +43,8 @@ def singleton():
         restart_script()
 
 def restart_script():
-    python = sys.executable
-    os.execl(python, python, *sys.argv)
+    script = sys.executable
+    os.execl(script, script, *sys.argv)
 
 singleton()
 
