@@ -147,5 +147,10 @@
 			<Reboot text="Confirm"></Reboot>
 			<Reboot text="Cancel"></Reboot>
 		</Shutdown_Options>
+		<Shutdown_Options text="Restart Script"></Shutdown_Options>
+		<Shutdown_Options text="Exit Script">
+			<Exit text="Confirm"></Exit>
+			<Exit text="Cancel"></Exit>
+		</Shutdown_Options>
 	</menu>
 </data>
