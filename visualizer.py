@@ -777,9 +777,10 @@ class MenuLCD:
                     # call("sudo reboot now")
                 else:
                     self.go_back()
+
+        print(location + " " + choice)
         
         if (choice == "Restart_Script"):
-            print("restart")
             restart_script()
         
         if (location == "Exit_Script"):
