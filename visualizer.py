@@ -32,16 +32,17 @@ from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
 from neopixel import *
 import argparse
 
+# Ensure there is only one instance of the script running.
 fh=0
-def run_once():
+def singleton():
     global fh
     fh=open(os.path.realpath(__file__),'r')
     try:
         fcntl.flock(fh,fcntl.LOCK_EX|fcntl.LOCK_NB)
     except:
-        os._exit(0)
+        os.exec*()
 
-run_once()
+singleton()
 
 class UserSettings:
     def __init__(self):
