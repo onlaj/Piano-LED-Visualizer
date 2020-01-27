@@ -1,3 +1,4 @@
+from tendo import singleton
 from subprocess import call
 
 from xml.dom import minidom
@@ -30,6 +31,8 @@ from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
 
 from neopixel import *
 import argparse
+
+me = singleton.SingleInstance()
 
 class UserSettings:
     def __init__(self):
