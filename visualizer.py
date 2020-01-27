@@ -22,6 +22,7 @@ import sys
 import os
 import datetime
 import psutil
+import fcntl
 
 os.chdir(sys.path[0])
 
