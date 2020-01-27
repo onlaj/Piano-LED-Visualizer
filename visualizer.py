@@ -781,7 +781,7 @@ class MenuLCD:
         print(location + " " + choice)
         
         if (choice == "Restart Script"):
-            restart_script()
+            os.execv(sys.executable, ['python'] + sys.argv)
         
         if (location == "Exit_Script"):
             if (choice == "Confirm"):
