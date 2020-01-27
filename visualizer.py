@@ -780,7 +780,7 @@ class MenuLCD:
 
         print(location + " " + choice)
         
-        if (choice == "Restart_Script"):
+        if (choice == "Restart Script"):
             restart_script()
         
         if (location == "Exit_Script"):
