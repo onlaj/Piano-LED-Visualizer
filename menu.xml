@@ -36,6 +36,7 @@
 		<LED_Strip_Settings text="Light mode">
 			<Light_mode text="Normal"></Light_mode>
 			<Light_mode text="Fading">
+				<Fading text="Very fast"></Fading>
 				<Fading text="Fast"></Fading>
 				<Fading text="Medium"></Fading>
 				<Fading text="Slow"></Fading>
@@ -137,5 +138,15 @@
 			<Reset_to_default_settings text="Confirm"></Reset_to_default_settings>
 			<Reset_to_default_settings text="Cancel"></Reset_to_default_settings>		
 		</Other_Settings>
+	</menu>
+	<menu text="Shutdown Options">
+		<Shutdown_Options text="Shutdown">
+			<Shutdown text="Confirm"></Shutdown>
+			<Shutdown text="Cancel"></Shutdown>
+		</Shutdown_Options>
+		<Shutdown_Options text="Reboot">
+			<Reboot text="Confirm"></Reboot>
+			<Reboot text="Cancel"></Reboot>
+		</Shutdown_Options>
 	</menu>
 </data>

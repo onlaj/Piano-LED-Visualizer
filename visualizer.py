@@ -1,3 +1,5 @@
+from subprocess import call
+
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 import ast
@@ -20,6 +22,7 @@ import sys
 import os
 import datetime
 import psutil
+import fcntl
 
 os.chdir(sys.path[0])
 
@@ -28,6 +31,22 @@ from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
 
 from neopixel import *
 import argparse
+
+# Ensure there is only one instance of the script running.
+fh=0
+def singleton():
+    global fh
+    fh=open(os.path.realpath(__file__),'r')
+    try:
+        fcntl.flock(fh,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    except:
+        restart_script()
+
+def restart_script():
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
+
+singleton()
 
 class UserSettings:
     def __init__(self):
@@ -290,8 +309,8 @@ class MenuLCD:
             element.setAttribute("text"  , song)       
             mc = self.DOMTree.getElementsByTagName("Play_MIDI")[0]
             mc.appendChild(element)
-            
-                    
+
+
     def update_sequence_list(self):
         try:      
             sequences_tree = minidom.parse("sequences.xml")
@@ -393,12 +412,14 @@ class MenuLCD:
             refresh = 1
         else:
             position = position.replace(" ", "_")
-            self.currentlocation = position;
+            self.currentlocation = position 
             refresh = 0            
             
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
-        self.draw = ImageDraw.Draw(self.image)        
+        self.draw = ImageDraw.Draw(self.image)
+
         self.draw.text((2, 5), position.replace("_", " "), fill = self.text_color) 
+
         #getting list of items in current menu    
         staffs = self.DOMTree.getElementsByTagName(position)        
         text_margin_top = 15
@@ -528,7 +549,6 @@ class MenuLCD:
         if(self.currentlocation == "Backlight_Brightness"):
             self.draw.text((10, 35), str(ledsettings.backlight_brightness_percent)+"%", fill = self.text_color)       
         
-        
         if("Key_range" in self.currentlocation):
             if(self.current_choice == "Start"):                
                 try:
@@ -537,7 +557,6 @@ class MenuLCD:
                     pass
             else:
                 self.draw.text((10, 50), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][1]), fill = self.text_color)
-        
         
         self.LCD.LCD_ShowImage(self.image,0,0)
 
@@ -551,7 +570,8 @@ class MenuLCD:
         
     def enter_menu(self): 
         position = self.current_choice.replace(" ", "_")
-        if(not self.DOMTree.getElementsByTagName(position) ):
+
+        if(not self.DOMTree.getElementsByTagName(position)):
             menu.change_settings(self.current_choice, self.currentlocation)
         else:
             self.currentlocation = self.current_choice
@@ -629,7 +649,9 @@ class MenuLCD:
         if(location == "Fading"):
             ledsettings.mode = "Fading"
             usersettings.change_setting_value("mode", ledsettings.mode)
-            if(choice == "Fast"):
+            if (choice == "Very fast"):
+                ledsettings.fadingspeed = 50
+            elif(choice == "Fast"):
                 ledsettings.fadingspeed = 40
             elif(choice == "Medium"):
                 ledsettings.fadingspeed = 20
@@ -743,8 +765,21 @@ class MenuLCD:
                 usersettings.reset_to_default()
             else:
                 self.go_back()
-                    
-                            
+
+        if (location == "Shutdown"):
+            if (choice == "Confirm"):
+                menu.render_message("", "Shutting down...", 5000)
+                call("sudo shutdown -h now", shell=True)
+            else: 
+                self.go_back()
+        
+        if (location == "Reboot"):
+            if (choice == "Confirm"):
+                menu.render_message("", "Rebooting...", 5000)
+                call("sudo reboot now", shell=True)
+            else:
+                self.go_back()
+
     def change_value(self, value):
         if(value == "LEFT"):
             value = -1
