@@ -3,7 +3,7 @@
     <settings>
       <control_number>64</control_number>
       <next_step>1</next_step>
-      <sequence_name>Custom Name</sequence_name>
+      <sequence_name>Example 1</sequence_name>
     </settings>
     <step_1>
       <color>RGB</color>
@@ -23,8 +23,11 @@
     <step_3>
       <color>Multicolor</color>
       <color_1>210, 40 , 40</color_1>
+	  <color_range_1>0, 255</color_range_1>
       <color_2>0, 255, 80</color_2>
+	  <color_range_2>0, 255</color_range_2>
       <color_3>120, 0, 255</color_3>
+	  <color_range_3>0, 255</color_range_3>
       <light_mode>Normal</light_mode>
     </step_3>
     <step_4>
@@ -37,45 +40,77 @@
     <step_5>
       <color>Multicolor</color>
       <color_1>210, 40 , 0</color_1>
+	  <color_range_1>0, 255</color_range_1>
       <color_2>0, 255, 0</color_2>
+	  <color_range_2>0, 255</color_range_2>
       <color_3>0, 0, 255</color_3>
+	  <color_range_3>0, 255</color_range_3>
       <light_mode>Normal</light_mode>
     </step_5>
   </sequence_1>
 
   <sequence_2>
     <settings>
-      <control_number>64</control_number>
-      <next_step>-1</next_step>
-      <sequence_name>Custom Name 2</sequence_name>
+      <control_number>0</control_number>
+      <next_step>1</next_step>
+      <sequence_name>Example 2</sequence_name>
     </settings>
     <step_1>
       <color>RGB</color>
-      <Red>25</Red>
-      <Green>255</Green>
-      <Blue>80</Blue>
+      <Red>230</Red>
+      <Green>230</Green>
+      <Blue>250</Blue>
       <light_mode>Normal</light_mode>
     </step_1>
     <step_2>
-      <color>Rainbow</color>
-      <Offset>0</Offset>
-      <Scale>100</Scale>
-      <Timeshift>0</Timeshift>
+      <color>RGB</color>
+      <Red>135</Red>
+      <Green>206</Green>
+      <Blue>250</Blue>
       <light_mode>Normal</light_mode>
     </step_2>
     <step_3>
       <color>Rainbow</color>
       <Offset>0</Offset>
-      <Scale>100</Scale>
+      <Scale>500</Scale>
       <Timeshift>10</Timeshift>
-      <light_mode>Fading</light_mode>
+      <light_mode>Normal</light_mode>
     </step_3>
     <step_4>
       <color>Multicolor</color>
-      <color_1>255, 0 , 0</color_1>
-      <color_2>0, 255, 0</color_2>
-      <color_3>0, 0, 255</color_3>
+      <color_1>129, 135 , 170</color_1>
+      <color_range_1>0, 255</color_range_1>
+      <color_2>185, 81, 92</color_2>
+	  <color_range_2>0, 255</color_range_2>
       <light_mode>Normal</light_mode>
     </step_4>
+    <step_5>
+      <color>RGB</color>
+      <Red>255</Red>
+      <Green>215</Green>
+      <Blue>0</Blue>
+      <light_mode>Normal</light_mode>
+    </step_5>
+    <step_6>
+      <color>RGB</color>
+      <Red>142</Red>
+      <Green>81</Green>
+      <Blue>73</Blue>
+      <light_mode>Normal</light_mode>
+    </step_6>
+    <step_7>
+      <color>RGB</color>
+      <Red>255</Red>
+      <Green>255</Green>
+      <Blue>0</Blue>
+      <light_mode>Normal</light_mode>
+    </step_7>
+    <step_8>
+      <color>RGB</color>
+      <Red>70</Red>
+      <Green>130</Green>
+      <Blue>180</Blue>
+      <light_mode>Normal</light_mode>
+    </step_8>    
   </sequence_2>
 </list>

@@ -1149,7 +1149,9 @@ class LedSettings:
             
             if(self.color_mode == "Multicolor"):
                 self.multicolor = []
+                self.multicolor_range = []
                 multicolor_number = 1
+                multicolor_range_number = 1
                 while(True):
                     try:
                         colors = self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("color_"+str(multicolor_number))[0].firstChild.nodeValue
@@ -1160,7 +1162,17 @@ class LedSettings:
                         self.multicolor.append([int(red), int(green), int(blue)])                     
                         multicolor_number += 1
                     except:                    
-                        break            
+                        break
+                while(True):
+                    try:
+                        colors_range = self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("color_range_"+str(multicolor_range_number))[0].firstChild.nodeValue
+                        colors_range = colors_range.split(',')
+                        start = colors_range[0].replace(" ", "")
+                        end = colors_range[1].replace(" ", "")                
+                        self.multicolor_range.append([int(start), int(end)])
+                        multicolor_range_number += 1
+                    except:                    
+                        break
         except:                
             return False  
             
