@@ -765,6 +765,24 @@ class MenuLCD:
                 usersettings.reset_to_default()
             else:
                 self.go_back()
+        
+        if (location == "Export_MIDI"):
+            if (choice == "Confirm"):
+                menu.render_message("", "Exporting MIDI files...", 5000)
+                call("sudo mount /dev/sda1 /media/import", shell=True)
+                call("cp /home/pi/Piano-LED-Visualizer/Songs/* /media/import/midi/", shell=True)
+                call("sudo umount /dev/sda1 /media/import", shell=True)
+            else:
+                self.go_back()
+
+        if (location == "Import_MIDI"):
+            if (choice == "Confirm"):
+                menu.render_message("", "Importing MIDI files...", 5000)
+                call("sudo mount /dev/sda1 /media/import", shell=True)
+                call("cp /media/import/midi/*.mid /home/pi/Piano-LED-Visualizer/Songs/", shell=True)
+                call("sudo umount /dev/sda1 /media/import", shell=True)
+            else:
+                self.go_back()
 
         if (location == "Shutdown"):
             if (choice == "Confirm"):
