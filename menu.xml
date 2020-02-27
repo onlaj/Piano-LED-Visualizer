@@ -81,6 +81,12 @@
 		<Play_MIDI text="Cancel recording"></Play_MIDI>
 		<Play_MIDI text="Save MIDI"></Play_MIDI>
 	</menu>
+        <menu text="Export MIDI">
+                <Export_MIDI text="Confirm"></Export_MIDI>
+        </menu>
+        <menu text="Import MIDI">
+                <Import_MIDI text="Confirm"></Import_MIDI>
+        </menu>
 	<menu text="Ports Settings">
 		<Ports_Settings text="Input"></Ports_Settings>
 		<Ports_Settings text="Playback"></Ports_Settings>
