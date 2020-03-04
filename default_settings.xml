@@ -30,5 +30,7 @@
 	<adjacent_mode>Off</adjacent_mode>		
 	<adjacent_red>255</adjacent_red>		
 	<adjacent_green>255</adjacent_green>		
-	<adjacent_blue>255</adjacent_blue>		
+	<adjacent_blue>255</adjacent_blue>
+
+	<skipped_notes>None</skipped_notes>
 </settings>

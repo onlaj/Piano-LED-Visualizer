@@ -74,6 +74,11 @@
 		<LED_Strip_Settings text="Sequences">
 			<Sequences text="Update"></Sequences>
 		</LED_Strip_Settings>
+		<LED_Strip_Settings text="Skipped notes">
+			<Skipped_notes text="None"></Skipped_notes>
+			<Skipped_notes text="Finger-based"></Skipped_notes>
+			<Skipped_notes text="Normal"></Skipped_notes>
+		</LED_Strip_Settings>
 	</menu>
 	<menu text="Play MIDI">
 		<Play_MIDI text="Choose song"></Play_MIDI>

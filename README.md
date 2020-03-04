@@ -8,13 +8,13 @@
 # What you need:
 
   - Piano with MIDI or USB output
-  - MIDI to USB interface (if your piano doesn't have USB output) ~~[Amazon US](https://amzn.to/2xZUipg) | [Aliexpress](http://s.click.aliexpress.com/e/b9mjFaIy)~~ (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use iConnectivity mio [Amazon US](https://amzn.to/2nhsYBl) | [Amazon DE](https://amzn.to/3aLyJLs) | [Amazon UK](https://amzn.to/36k72Wr) )
-  - Raspberry Pi Zero [Amazon US](https://amzn.to/2TPz3CQ) | [Amazon DE](https://amzn.to/2RjaRqA) | [Amazon UK](https://amzn.to/36jcyJ3) | [Aliexpress](http://s.click.aliexpress.com/e/cSG376u0) | [Aliexpress #2](http://s.click.aliexpress.com/e/3r32Dass)
-  - MicroSD card (16GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Amazon DE](https://amzn.to/37kTRWt) | [Amazon UK](https://amzn.to/2Ro2r1r) | [Aliexpress](http://s.click.aliexpress.com/e/mGNi7sl2)
-  - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Amazon DE](https://amzn.to/2NT4cS9) | [Amazon UK](https://amzn.to/2GdkHEl) | [Aliexpress](http://s.click.aliexpress.com/e/dFyC7NO)
+  - MIDI to USB interface (if your piano doesn't have USB output) ~~[Amazon US](https://amzn.to/2xZUipg) | [Aliexpress](http://s.click.aliexpress.com/e/b9mjFaIy)~~ (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use iConnectivity mio [Amazon US](https://amzn.to/2nhsYBl) )
+  - Raspberry Pi Zero [Amazon US](https://amzn.to/2TPz3CQ) | [Aliexpress](http://s.click.aliexpress.com/e/cSG376u0) | [Aliexpress #2](http://s.click.aliexpress.com/e/3r32Dass)
+  - MicroSD card (16GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Aliexpress](http://s.click.aliexpress.com/e/mGNi7sl2)
+  - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Aliexpress](http://s.click.aliexpress.com/e/dFyC7NO)
   - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/2JViZJ3) | [Aliexpress](http://s.click.aliexpress.com/e/hUgrv6s)
   - DC 5.5x2.5mm socket with quick connection [Amazon US](https://amzn.to/2YizYOC) | [Aliexpress](http://s.click.aliexpress.com/e/T8YSkbq)
-  - Waveshare LCD TFT 1,44'' 128x128px [Amazon US](https://amzn.to/2YkW5nC) | [Amazon DE](https://amzn.to/2Gfd1kR) | [Amazon UK](https://amzn.to/37gAWw9) | [Aliexpress](http://s.click.aliexpress.com/e/cpk00blQ)
+  - Waveshare LCD TFT 1,44'' 128x128px [Amazon US](https://amzn.to/2YkW5nC) | [Aliexpress](http://s.click.aliexpress.com/e/cpk00blQ)
   - Some wires
 
 **Not required but worth to have to make everything look neat:**

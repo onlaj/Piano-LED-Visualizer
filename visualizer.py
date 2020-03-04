@@ -779,6 +779,10 @@ class MenuLCD:
                 call("sudo reboot now", shell=True)
             else:
                 self.go_back()
+                
+        if (location == "Skipped_notes"):
+            ledsettings.skipped_notes = choice
+            usersettings.change_setting_value("skipped_notes", ledsettings.skipped_notes)
 
     def change_value(self, value):
         if(value == "LEFT"):
@@ -948,7 +952,9 @@ class LedSettings:
         self.adjacent_mode = usersettings.get_setting_value("adjacent_mode")    
         self.adjacent_red = int(usersettings.get_setting_value("adjacent_red"))
         self.adjacent_green = int(usersettings.get_setting_value("adjacent_green"))
-        self.adjacent_blue = int(usersettings.get_setting_value("adjacent_blue"))      
+        self.adjacent_blue = int(usersettings.get_setting_value("adjacent_blue"))
+
+        self.skipped_notes = usersettings.get_setting_value("skipped_notes")
         
     def addcolor(self):  
         self.multicolor.append([0, 255, 0])        
@@ -1504,12 +1510,15 @@ while True:
             if(ledsettings.mode == "Velocity"):
                 keylist[(note - 20)*2 - note_offset] = 1000/float(brightness)
             if(find_between(str(msg), "channel=", " ") == "12"):
-                ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(255, 0, 0))
+                if(ledsettings.skipped_notes != "Finger-based"):
+                    ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(255, 0, 0))
             elif(find_between(str(msg), "channel=", " ") == "11"):
-                ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(0, 0, 255))
-            else:                        
-                ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
-                ledstrip.set_adjacent_colors(((note - 20)*2 - note_offset), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
+                if(ledsettings.skipped_notes != "Finger-based"):
+                    ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(0, 0, 255))
+            else:
+                if(ledsettings.skipped_notes != "Normal"):
+                    ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
+                    ledstrip.set_adjacent_colors(((note - 20)*2 - note_offset), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
             if(saving.isrecording == True):
                 saving.add_track("note_on", original_note, velocity, elapsed_time*1000)            
         else:
