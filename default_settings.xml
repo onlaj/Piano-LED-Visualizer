@@ -16,7 +16,7 @@
 	<rainbow_timeshift>0</rainbow_timeshift>
 	
 	<multicolor>[[255, 255, 255], [0, 0, 255], [0, 255, 0]]</multicolor>	
-	<multicolor_range>[[4, 213], [5, 214], [6, 215]]</multicolor_range>	
+	<multicolor_range>[[20, 54], [54, 108], [35, 75]]</multicolor_range>	
 	
 	<sequence_active>False</sequence_active>	
 	

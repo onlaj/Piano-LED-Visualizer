@@ -812,7 +812,9 @@ class MenuLCD:
             ledsettings.change_multicolor(self.current_choice, self.currentlocation, value*self.speed_multiplier)
             
         if("Key_range" in self.currentlocation):
-            ledsettings.change_multicolor_range(self.current_choice, self.currentlocation, value*self.speed_multiplier)
+            ledsettings.change_multicolor_range(self.current_choice, self.currentlocation, value*self.speed_multiplier)            
+            ledsettings.light_keys_in_range(self.currentlocation)
+            
         
         if(self.current_choice == "Offset"):
             ledsettings.rainbow_offset = ledsettings.rainbow_offset + value * 5 *self.speed_multiplier
@@ -958,7 +960,7 @@ class LedSettings:
         
     def addcolor(self):  
         self.multicolor.append([0, 255, 0])        
-        self.multicolor_range.append([0, 255])
+        self.multicolor_range.append([20, 108])
         
         usersettings.change_setting_value("multicolor", self.multicolor)
         usersettings.change_setting_value("multicolor_range", self.multicolor_range)
@@ -1019,7 +1021,39 @@ class LedSettings:
             choosen_color = random.choice(temporary_multicolor)
         except:
             choosen_color = [0, 0, 0]
-        return choosen_color      
+        return choosen_color
+
+    def light_keys_in_range(self, location):
+        fastColorWipe(ledstrip.strip, True)
+        
+        color_counter = 0
+        for i in self.multicolor:
+            
+            start = self.multicolor_range[int(color_counter)][0]
+            end = self.multicolor_range[int(color_counter)][1]
+            
+            if(start > 92):
+                note_offset_start = 2
+            elif(start > 55):
+                note_offset_start = 1
+            else:
+                note_offset_start = 0
+                
+            if(end > 92):
+                note_offset_end = 2
+            elif(end > 55):
+                note_offset_end = 1
+            else:
+                note_offset_end = 0        
+            
+            red = self.multicolor[int(color_counter)][0]
+            green = self.multicolor[int(color_counter)][1]
+            blue = self.multicolor[int(color_counter)][2]
+            
+            ledstrip.strip.setPixelColor(int(((start - 20)*2 - note_offset_start)), Color(int(green), int(red), int(blue)))
+            ledstrip.strip.setPixelColor(int(((end - 20)*2 - note_offset_end)), Color(int(green), int(red), int(blue)))        
+        
+            color_counter += 1;
         
     def change_color(self, color, value):
         self.sequence_active = False
@@ -1351,6 +1385,7 @@ while True:
     if GPIO.input(KEY2) == 0:
         last_activity = time.time()
         menu.go_back()
+        fastColorWipe(ledstrip.strip, True)
         while GPIO.input(KEY2) == 0:
             time.sleep(0.01)
     if GPIO.input(KEY3) == 0:
