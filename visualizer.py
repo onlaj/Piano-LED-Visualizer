@@ -139,6 +139,7 @@ KEY1 = 21
 KEY2 = 20
 KEY3 = 16
 JPRESS = 13
+BACKLIGHT = 24
 # pin numbers are interpreted as BCM pin numbers.
 GPIO.setmode(GPIO.BCM)
 # Sets the pin as input and sets Pull-up mode for the pin.
@@ -150,6 +151,8 @@ GPIO.setup(KEY1,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEY2,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEY3,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(JPRESS,GPIO.IN,GPIO.PUD_UP)
+
+
 
 #LED animations
 def fastColorWipe(strip, update):
@@ -299,6 +302,31 @@ class MenuLCD:
         self.update_songs()
         self.update_ports()        
         self.speed_multiplier = 1
+        
+        self.screensaver_settings = dict()
+        self.screensaver_settings['time'] = usersettings.get_setting_value("time")
+        self.screensaver_settings['date'] = usersettings.get_setting_value("date")
+        self.screensaver_settings['cpu_chart'] = usersettings.get_setting_value("cpu_chart")
+        self.screensaver_settings['cpu'] = usersettings.get_setting_value("cpu")
+        self.screensaver_settings['ram'] = usersettings.get_setting_value("ram")
+        self.screensaver_settings['temp'] = usersettings.get_setting_value("temp")
+        self.screensaver_settings['network_usage'] = usersettings.get_setting_value("network_usage")
+        self.screensaver_settings['sd_card_space'] = usersettings.get_setting_value("sd_card_space")        
+        
+        self.screensaver_delay = usersettings.get_setting_value("screensaver_delay")
+        self.screen_off_delay = usersettings.get_setting_value("screen_off_delay")
+        
+        self.screen_status = 1
+        
+    def toggle_screensaver_settings(self, setting):
+        setting = setting.lower()
+        setting = setting.replace(" ", "_")
+        if(str(self.screensaver_settings[setting]) == "1"):
+            usersettings.change_setting_value(setting, "0")
+            self.screensaver_settings[setting] = "0"
+        else:
+            usersettings.change_setting_value(setting, "1")
+            self.screensaver_settings[setting] = "1"
     
     def update_songs(self):
         songs_list = os.listdir("Songs")       
@@ -503,7 +531,18 @@ class MenuLCD:
                 tobecontinued = ""                
                         
             i += 1
+            
+            #diplaying screensaver status
+            if(self.currentlocation == "Content"):                
+                sid_temp = sid.lower()
+                sid_temp = sid_temp.replace(" ", "_")               
+                if(str(menu.screensaver_settings[sid_temp]) == "1"):
+                    sid_temp = " +"
+                else:
+                    sid_temp = " -"
+                sid = sid+sid_temp
             self.draw.text((10, text_margin_top), sid[cut:(18 + cut)]+tobecontinued, fill = self.text_color)
+
             text_margin_top += 10
             
         #displaying color example
@@ -557,7 +596,14 @@ class MenuLCD:
                     pass
             else:
                 self.draw.text((10, 50), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][1]), fill = self.text_color)
-        
+                
+        #displaying screensaver settings
+        if(self.currentlocation == "Start_delay"):
+             self.draw.text((10, 70), str(self.screensaver_delay), fill = self.text_color)
+             
+        if(self.currentlocation == "Turn_off_screen_delay"):
+             self.draw.text((10, 70), str(self.screen_off_delay), fill = self.text_color)
+                
         self.LCD.LCD_ShowImage(self.image,0,0)
 
     def change_pointer(self, direction):
@@ -593,25 +639,82 @@ class MenuLCD:
         self.LCD.LCD_ShowImage(self.image,0,0)
         LCD_Config.Driver_Delay_ms(delay)  
         
-    def render_screensaver(self, hour, date, cpu, cpu_average, ram, temp, cpu_history = []):
+    def render_screensaver(self, hour, date, cpu, cpu_average, ram, temp, cpu_history = [], upload = 0, download = 0):
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
-        self.draw = ImageDraw.Draw(self.image)     
-        fonthour = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', 31)
-        font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', 13)
-        self.draw.text((4, 5), hour, fill = self.text_color, font=fonthour)
-        self.draw.text((34, 35), date, fill = self.text_color, font=font)
+        self.draw = ImageDraw.Draw(self.image)
         
-        previous_height = 0
-        c = -5
-        for cpu_chart in cpu_history:
-            height = ((100 - cpu_chart) * 35) / float(100)            
-            self.draw.line([(c,45+previous_height),(c+5,45+height)], fill = "Red",width = 1)            
-            previous_height = height
-            c += 5            
+        total_height = 1
+        info_count = 0
+        for key, value in menu.screensaver_settings.items():
+            if(str(key) == "time" and str(value) == "1"):
+                total_height += 31
+            elif(str(key) == "date" and str(value) == "1"):
+                total_height += 13
+            elif(str(key) == "cpu_chart" and str(value) == "1"):
+                total_height += 35
+            else:
+                if(str(value) == "1"):
+                    info_count += 1
+                
+            height_left = 128 - total_height
+            
+        if(info_count > 0):
+            info_height_font = height_left / info_count
+            
+        top_offset = 2
+         
+        if(menu.screensaver_settings["time"] == "1"):
+            fonthour = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', 31)  
+            self.draw.text((4, top_offset), hour, fill = self.text_color, font=fonthour)
+            top_offset += 31
+         
+
+        if(menu.screensaver_settings["date"] == "1"):
+            font_date = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', 13)        
+            self.draw.text((34, top_offset), date, fill = self.text_color, font=font_date)
+            top_offset += 13
+            
+        if(menu.screensaver_settings["cpu_chart"] == "1"):       
+            previous_height = 0
+            c = -5
+            for cpu_chart in cpu_history:
+                height = ((100 - cpu_chart) * 35) / float(100)            
+                self.draw.line([(c,top_offset+previous_height),(c+5,top_offset+height)], fill = "Red",width = 1)            
+                previous_height = height
+                c += 5
+            top_offset += 35
         
-        self.draw.text((3, 80), "CPU: "+str(cpu)+"% ("+str(cpu_average)+"%)", fill = self.text_color, font=font)
-        self.draw.text((3, 95), "RAM usage: "+str(ram)+"%", fill = self.text_color, font=font)
-        self.draw.text((3, 110), "Temp: "+str(temp)+" C", fill = self.text_color, font=font)
+        if(info_height_font > 12):
+            info_height_font = 12
+        
+        font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', info_height_font)
+        
+        if(menu.screensaver_settings["cpu"] == "1"):        
+            self.draw.text((1, top_offset), "CPU: "+str(cpu)+"% ("+str(cpu_average)+"%)", fill = self.text_color, font=font)
+            top_offset += info_height_font
+            
+        if(menu.screensaver_settings["ram"] == "1"): 
+            self.draw.text((1, top_offset), "RAM usage: "+str(ram)+"%", fill = self.text_color, font=font)
+            top_offset += info_height_font
+            
+        if(menu.screensaver_settings["temp"] == "1"): 
+            self.draw.text((1, top_offset), "Temp: "+str(temp)+" C", fill = self.text_color, font=font)
+            top_offset += info_height_font
+        
+        if(menu.screensaver_settings["network_usage"] == "1"):
+            if(info_height_font > 11):
+                info_height_font_network = 11
+            else:
+                info_height_font_network = info_height_font
+            font_network = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', info_height_font_network)
+            self.draw.text((1, top_offset), "D:"+str("{:.2f}".format(download))+"Mb/s U:"+str("{:.2f}".format(upload))+"Mb/s", fill = self.text_color, font=font_network)
+            top_offset += info_height_font_network    
+        
+        if(menu.screensaver_settings["sd_card_space"] == "1"):            
+            card_space = psutil.disk_usage('/')
+            self.draw.text((1, top_offset), "SD: "+str(round(card_space.used/(1024.0 ** 3), 1))+"/"+str(round(card_space.total/(1024.0 ** 3), 1))+"("+str(card_space.percent)+"%)", fill = self.text_color, font=font)
+            top_offset += info_height_font
+            
         self.LCD.LCD_ShowImage(self.image,0,0)
             
     def change_settings(self, choice, location):
@@ -783,6 +886,9 @@ class MenuLCD:
         if (location == "Skipped_notes"):
             ledsettings.skipped_notes = choice
             usersettings.change_setting_value("skipped_notes", ledsettings.skipped_notes)
+            
+        if (location == "Content"):
+            menu.toggle_screensaver_settings(choice)
 
     def change_value(self, value):
         if(value == "LEFT"):
@@ -822,6 +928,16 @@ class MenuLCD:
             ledsettings.rainbow_scale = ledsettings.rainbow_scale + value * 5 *self.speed_multiplier
         if(self.current_choice == "Timeshift"):
             ledsettings.rainbow_timeshift = ledsettings.rainbow_timeshift + value *self.speed_multiplier
+            
+        if(self.currentlocation == "Start_delay"):
+            self.screensaver_delay = int(self.screensaver_delay) + value
+            usersettings.change_setting_value("screensaver_delay", self.screensaver_delay)
+            
+        if(self.currentlocation == "Turn_off_screen_delay"):
+            self.screen_off_delay = int(self.screen_off_delay) + value
+            usersettings.change_setting_value("screen_off_delay", self.screen_off_delay) 
+            
+        
         menu.show()
         
     def speed_change(self):
@@ -857,6 +973,12 @@ def screensaver():
     cpu_history = [None] * int(interval)
     cpu_chart = [0] * 28
     cpu_average = 0
+    
+    upload = 0
+    download = 0
+    upload_start = 0
+    download_start = 0
+    
     try:
         midiports.inport.poll()
     except:
@@ -868,12 +990,18 @@ def screensaver():
             cpu_history = [None] * int(interval)
             cpu_average = 0
             i = 0
+            
+            
+        if(menu.screensaver_delay > 0 and ((time.time() - saving.start_time) > (menu.screen_off_delay * 60))):
+            menu.screen_status = 0
+            GPIO.output(24, 0)   
+            
         hour = datetime.datetime.now().strftime("%H:%M:%S")
         date = datetime.datetime.now().strftime("%d-%m-%Y")
         cpu_usage = psutil.cpu_percent()
         cpu_history[i] = cpu_usage             
         cpu_chart.append(cpu_chart.pop(0))
-        cpu_chart[27] = cpu_usage   
+        cpu_chart[27] = cpu_usage  
         
         if(i>=(int(interval) - 1)):
             i = 0
@@ -887,12 +1015,40 @@ def screensaver():
         temp = find_between(str(psutil.sensors_temperatures()["cpu-thermal"]), "current=", ",")
         temp = round(float(temp), 1)
         
-        menu.render_screensaver(hour, date, cpu_usage, round(cpu_average,1), ram_usage, temp, cpu_chart)
+        upload_end = psutil.net_io_counters().bytes_sent
+        download_end = psutil.net_io_counters().bytes_recv
+        
+        if upload_start:
+            upload = upload_end - upload_start
+            upload = upload*(1 / delay)
+            upload = upload/1000000
+            upload = round(upload, 2)
+            
+        if download_start:
+            download = download_end - download_start
+            download = download*(1 / delay)
+            download = download/1000000
+            download = round(download, 2)
+        
+        upload_start = upload_end
+        download_start = download_end
+        
+        
+        menu.render_screensaver(hour, date, cpu_usage, round(cpu_average,1), ram_usage, temp, cpu_chart, upload, download)
         time.sleep(delay)
         i += 1
-        if (midiports.inport.poll() != None):
-            break
-        if GPIO.input(KEY2) == 0:            
+        try:
+            if (midiports.inport.poll() != None):
+                saving.start_time = time.time()
+                menu.screen_status = 1
+                GPIO.output(24, 1)
+                break
+        except:
+            pass
+        if GPIO.input(KEY2) == 0:
+            saving.start_time = time.time()
+            menu.screen_status = 1
+            GPIO.output(24, 1)
             break
         
 class SaveMIDI:
@@ -1340,8 +1496,9 @@ fastColorWipe(ledstrip.strip, True)
 
 while True:    
     #screensaver
-    if((time.time() - last_activity) > 600):
-        screensaver()    
+    if(menu.screensaver_delay > 0):
+        if((time.time() - last_activity) > (menu.screensaver_delay * 60)):
+            screensaver()    
     try:
             elapsed_time = time.time() - saving.start_time
     except:

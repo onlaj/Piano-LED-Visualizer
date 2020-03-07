@@ -9,7 +9,7 @@
 
   - Piano with MIDI or USB output
   - MIDI to USB interface (if your piano doesn't have USB output) ~~[Amazon US](https://amzn.to/2xZUipg) | [Aliexpress](http://s.click.aliexpress.com/e/b9mjFaIy)~~ (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use iConnectivity mio [Amazon US](https://amzn.to/2nhsYBl) )
-  - Raspberry Pi Zero [Amazon US](https://amzn.to/2TPz3CQ) | [Aliexpress](http://s.click.aliexpress.com/e/cSG376u0) | [Aliexpress #2](http://s.click.aliexpress.com/e/3r32Dass)
+  - Raspberry Pi Zero WH [Amazon US](https://amzn.to/2TPz3CQ) | [Aliexpress](https://s.click.aliexpress.com/e/_dXc8jGl) | [Aliexpress #2](http://s.click.aliexpress.com/e/3r32Dass)
   - MicroSD card (16GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Aliexpress](http://s.click.aliexpress.com/e/mGNi7sl2)
   - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Aliexpress](http://s.click.aliexpress.com/e/dFyC7NO)
   - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/2JViZJ3) | [Aliexpress](http://s.click.aliexpress.com/e/hUgrv6s)
@@ -59,10 +59,24 @@ If you don't need BT connection you can skip "midi bluetooth setup" part, but yo
 
 
 ## Learning to play with Synthesia
-As of today Synthesia doesn't support MIDI via Bluetooth, it should be added in next update. There is official workaround, you have to replace dll file.
-[Instruction](http://www.synthesiagame.com/forum/viewtopic.php?f=6&t=8798&p=46920&hilit=bluetooth&sid=0ea574c5b0eaa07d4cedaeacc7b6b64b#p46920)
-You also have to enable light support in Synthesia.
+Official instruction:
+
+> First, make sure the "Midi.UseWinRtMidi" option is enabled:  
+> 1.  Hold your Shift key while launching Synthesia (to open the configuration window).
+> 2.  Find the "Midi.UseWinRTMidi" entry in the Setting drop-down box.
+> 3.  Add a check mark to the "Value" box.
+
+BT support on different devices:
+
+> -   BLE MIDI on macOS: completely automatic and supported
+> -   BLE MIDI on iOS: completely automatic and supported
+> -   BLE MIDI on Win10: enable the "Midi.UseWinRTMidi" advanced option to try and use Microsoft's  [complete mess](https://www.synthesiagame.com/forum/viewtopic.php?p=47530#p47530) of a UWP driver.
+> -   BLE MIDI on Android: if your device supports the "Android M MIDI" feature, just connect to the MIDI device using  [these instructions](https://synthesiagame.com/forum/viewtopic.php?p=47541#p47541)  and it should "work" fine, with all of Android's awful latency and dropped events
+
+You also have to enable light support in Synthesia by setting "Key Light" option to "Finger-based channel".
 In Visualizer settings you have to change "input" to RPI Bluetooth. After that when learning new song next-to-play keys will be illuminated in corresponding colors, blue for left hand and green for right hand.
+
+If you are getting mixed colors, meaning that leds are light up with your predefined and next-to-play colors at the same time, you can use "Skipped notes" option to disable one of them.
 
 ## Connecting LED Strip to Raspberry Pi and enabling SPI
 There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/)

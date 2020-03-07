@@ -139,6 +139,24 @@
 	</menu>
 	<menu text="Other Settings">
 		<Other_Settings text="System Info"></Other_Settings>
+		<Other_Settings text="Screensaver">
+			<Screensaver text="Content">
+				<Content text="Time"></Content>
+				<Content text="Date"></Content>
+				<Content text="CPU Chart"></Content>
+				<Content text="CPU"></Content>
+				<Content text="RAM"></Content>
+				<Content text="Temp"></Content>
+				<Content text="Network Usage"></Content>
+				<Content text="SD Card Space"></Content>
+			</Screensaver>
+			<Screensaver text="Start delay">
+				<Start_delay text="After minutes (0 - never)"></Start_delay>
+			</Screensaver>
+			<Screensaver text="Turn off screen delay">
+				<Turn_off_screen_delay text="After minutes (0 - never)"></Turn_off_screen_delay>
+			</Screensaver>	
+		</Other_Settings>
 		<Other_Settings text="Reset to default settings">
 			<Reset_to_default_settings text="Confirm"></Reset_to_default_settings>
 			<Reset_to_default_settings text="Cancel"></Reset_to_default_settings>		

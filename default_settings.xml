@@ -33,4 +33,16 @@
 	<adjacent_blue>255</adjacent_blue>
 
 	<skipped_notes>None</skipped_notes>
+	
+	<time>1</time>
+	<date>1</date>
+	<cpu_chart>1</cpu_chart>
+	<cpu>1</cpu>
+	<ram>1</ram>
+	<temp>1</temp>
+	<network_usage>0</network_usage>
+	<sd_card_space>0</sd_card_space>
+	
+	<screensaver_delay>10</screensaver_delay>
+	<screen_off_delay>0</screen_off_delay>
 </settings>
