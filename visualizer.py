@@ -1,34 +1,25 @@
 from subprocess import call
-
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 import ast
-
 import LCD_1in44
 import LCD_Config
-
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 from PIL import ImageColor
-
 import RPi.GPIO as GPIO
 import time
 import random
-
 import webcolors as wc
-
 import sys
 import os
 import datetime
 import psutil
 import fcntl
-
 os.chdir(sys.path[0])
-
 import mido
 from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
-
 from neopixel import *
 import argparse
 
@@ -128,8 +119,7 @@ class LedStrip:
             color = Color(int(ledsettings.adjacent_green), int(ledsettings.adjacent_red), int(ledsettings.adjacent_blue))
         if(ledsettings.adjacent_mode != "Off"):
             self.strip.setPixelColor(int(note)+1, color)
-            self.strip.setPixelColor(int(note)-1, color)
-        
+            self.strip.setPixelColor(int(note)-1, color)        
 
 KEYRIGHT = 26
 KEYLEFT = 5
@@ -151,8 +141,6 @@ GPIO.setup(KEY1,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEY2,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(KEY3,GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(JPRESS,GPIO.IN,GPIO.PUD_UP)
-
-
 
 #LED animations
 def fastColorWipe(strip, update):
@@ -338,7 +326,6 @@ class MenuLCD:
             mc = self.DOMTree.getElementsByTagName("Play_MIDI")[0]
             mc.appendChild(element)
 
-
     def update_sequence_list(self):
         try:      
             sequences_tree = minidom.parse("sequences.xml")
@@ -427,9 +414,7 @@ class MenuLCD:
                 element.appendChild(self.DOMTree.createTextNode(""))
                 element.setAttribute("text"  , rgb_name)     
                 mc = self.DOMTree.getElementsByTagName("Color"+str(i))[0]
-                mc.appendChild(element)    
-
-        
+                mc.appendChild(element)       
  
     def show(self, position = "default", back_pointer_location = False):     
         if(position == "default" and  self.currentlocation):
@@ -639,7 +624,7 @@ class MenuLCD:
         self.LCD.LCD_ShowImage(self.image,0,0)
         LCD_Config.Driver_Delay_ms(delay)  
         
-    def render_screensaver(self, hour, date, cpu, cpu_average, ram, temp, cpu_history = [], upload = 0, download = 0):
+    def render_screensaver(self, hour, date, cpu, cpu_average, ram, temp, cpu_history = [], upload = 0, download = 0, card_space = 0):
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
         
@@ -710,8 +695,7 @@ class MenuLCD:
             self.draw.text((1, top_offset), "D:"+str("{:.2f}".format(download))+"Mb/s U:"+str("{:.2f}".format(upload))+"Mb/s", fill = self.text_color, font=font_network)
             top_offset += info_height_font_network    
         
-        if(menu.screensaver_settings["sd_card_space"] == "1"):            
-            card_space = psutil.disk_usage('/')
+        if(menu.screensaver_settings["sd_card_space"] == "1"):          
             self.draw.text((1, top_offset), "SD: "+str(round(card_space.used/(1024.0 ** 3), 1))+"/"+str(round(card_space.total/(1024.0 ** 3), 1))+"("+str(card_space.percent)+"%)", fill = self.text_color, font=font)
             top_offset += info_height_font
             
@@ -906,8 +890,7 @@ class MenuLCD:
             ledsettings.change_backlight_color(self.current_choice, value*self.speed_multiplier)
         
         if(self.currentlocation == "Custom_RGB"):
-            ledsettings.change_adjacent_color(self.current_choice, value*self.speed_multiplier)
-            
+            ledsettings.change_adjacent_color(self.current_choice, value*self.speed_multiplier)            
         
         if(self.currentlocation == "RGB"):
             ledsettings.change_color(self.current_choice, value*self.speed_multiplier)
@@ -919,8 +902,7 @@ class MenuLCD:
             
         if("Key_range" in self.currentlocation):
             ledsettings.change_multicolor_range(self.current_choice, self.currentlocation, value*self.speed_multiplier)            
-            ledsettings.light_keys_in_range(self.currentlocation)
-            
+            ledsettings.light_keys_in_range(self.currentlocation)            
         
         if(self.current_choice == "Offset"):
             ledsettings.rainbow_offset = ledsettings.rainbow_offset + value * 5 *self.speed_multiplier
@@ -935,8 +917,7 @@ class MenuLCD:
             
         if(self.currentlocation == "Turn_off_screen_delay"):
             self.screen_off_delay = int(self.screen_off_delay) + value
-            usersettings.change_setting_value("screen_off_delay", self.screen_off_delay) 
-            
+            usersettings.change_setting_value("screen_off_delay", self.screen_off_delay)            
         
         menu.show()
         
@@ -989,10 +970,9 @@ def screensaver():
             interval  = 5 / float(delay)
             cpu_history = [None] * int(interval)
             cpu_average = 0
-            i = 0
+            i = 0            
             
-            
-        if(menu.screensaver_delay > 0 and ((time.time() - saving.start_time) > (menu.screen_off_delay * 60))):
+        if(int(menu.screensaver_delay) > 0 and ((time.time() - saving.start_time) > (int(menu.screen_off_delay) * 60))):
             menu.screen_status = 0
             GPIO.output(24, 0)   
             
@@ -1010,31 +990,45 @@ def screensaver():
                 last_cpu_average = cpu_average
             except:
                 cpu_average = last_cpu_average
-                     
-        ram_usage = psutil.virtual_memory()[2]        
-        temp = find_between(str(psutil.sensors_temperatures()["cpu-thermal"]), "current=", ",")
-        temp = round(float(temp), 1)
+                
+        if(menu.screensaver_settings["temp"] == "1"):          
+            ram_usage = psutil.virtual_memory()[2]
+        else:
+            ram_usage = 0
+
+        if(menu.screensaver_settings["temp"] == "1"):        
+            temp = find_between(str(psutil.sensors_temperatures()["cpu-thermal"]), "current=", ",")
+            temp = round(float(temp), 1)
+        else:
+            temp = 0
         
-        upload_end = psutil.net_io_counters().bytes_sent
-        download_end = psutil.net_io_counters().bytes_recv
-        
-        if upload_start:
-            upload = upload_end - upload_start
-            upload = upload*(1 / delay)
-            upload = upload/1000000
-            upload = round(upload, 2)
+        if(menu.screensaver_settings["network_usage"] == "1"):
+            upload_end = psutil.net_io_counters().bytes_sent
+            download_end = psutil.net_io_counters().bytes_recv
             
-        if download_start:
-            download = download_end - download_start
-            download = download*(1 / delay)
-            download = download/1000000
-            download = round(download, 2)
+            if upload_start:
+                upload = upload_end - upload_start
+                upload = upload*(1 / delay)
+                upload = upload/1000000
+                upload = round(upload, 2)
+                
+            if download_start:
+                download = download_end - download_start
+                download = download*(1 / delay)
+                download = download/1000000
+                download = round(download, 2)
+                
+            upload_start = upload_end
+            download_start = download_end
+        else:
+            upload = 0
+            download = 0
+        if(menu.screensaver_settings["sd_card_space"] == "1"):    
+            card_space = psutil.disk_usage('/')
+        else:
+            card_space = 0
         
-        upload_start = upload_end
-        download_start = download_end
-        
-        
-        menu.render_screensaver(hour, date, cpu_usage, round(cpu_average,1), ram_usage, temp, cpu_chart, upload, download)
+        menu.render_screensaver(hour, date, cpu_usage, round(cpu_average,1), ram_usage, temp, cpu_chart, upload, download, card_space)
         time.sleep(delay)
         i += 1
         try:
@@ -1042,6 +1036,7 @@ def screensaver():
                 saving.start_time = time.time()
                 menu.screen_status = 1
                 GPIO.output(24, 1)
+                menu.show()
                 break
         except:
             pass
@@ -1049,6 +1044,7 @@ def screensaver():
             saving.start_time = time.time()
             menu.screen_status = 1
             GPIO.output(24, 1)
+            menu.show()
             break
         
 class SaveMIDI:
@@ -1300,8 +1296,7 @@ class LedSettings:
                         self.count_steps += 1
                     except:
                         self.count_steps -= 1
-                        break
-                
+                        break                
             else:
                 #print("step_number: "+str(self.step_number)+" count steps: "+str(self.count_steps))
                 self.step_number += 1
@@ -1470,7 +1465,6 @@ class MidiPorts():
             menu.render_message("Can't change "+port+" to:", portname, 1500)
 
 usersettings = UserSettings()
-
 midiports = MidiPorts()
 ledstrip = LedStrip()
 menu = MenuLCD("menu.xml")
@@ -1496,8 +1490,8 @@ fastColorWipe(ledstrip.strip, True)
 
 while True:    
     #screensaver
-    if(menu.screensaver_delay > 0):
-        if((time.time() - last_activity) > (menu.screensaver_delay * 60)):
+    if(int(menu.screensaver_delay) > 0):
+        if((time.time() - last_activity) > (int(menu.screensaver_delay) * 60)):
             screensaver()    
     try:
             elapsed_time = time.time() - saving.start_time
@@ -1521,8 +1515,7 @@ while True:
             ledstrip = LedStrip()
             menu = MenuLCD("menu.xml")
             menu.show()            
-            ledsettings = LedSettings()
-            
+            ledsettings = LedSettings()            
     
     if GPIO.input(KEYUP) == 0:
         last_activity = time.time()
