@@ -991,7 +991,7 @@ def screensaver():
             except:
                 cpu_average = last_cpu_average
                 
-        if(menu.screensaver_settings["temp"] == "1"):          
+        if(menu.screensaver_settings["ram"] == "1"):          
             ram_usage = psutil.virtual_memory()[2]
         else:
             ram_usage = 0
