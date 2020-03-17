@@ -1,5 +1,5 @@
 <settings>
-	<brightness_percent>20</brightness_percent>
+	<brightness_percent>50</brightness_percent>
 	<background_color>BLACK</background_color>
 	<text_color>WHITE</text_color>
 	
@@ -43,9 +43,9 @@
 	<network_usage>0</network_usage>
 	<sd_card_space>0</sd_card_space>
 	
-	<screensaver_delay>1</screensaver_delay>
-	<screen_off_delay>3</screen_off_delay>
-	<led_animation_delay>5</led_animation_delay>
-	<led_animation>Breathing Slow</led_animation>
+	<screensaver_delay>10</screensaver_delay>
+	<screen_off_delay>0</screen_off_delay>
+	<led_animation_delay>0</led_animation_delay>
+	<led_animation>Scanner</led_animation>
 	
 </settings>
