@@ -22,6 +22,7 @@ import mido
 from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
 from neopixel import *
 import argparse
+import threading
 
 # Ensure there is only one instance of the script running.
 fh=0
@@ -106,6 +107,9 @@ class LedStrip:
         
         usersettings.change_setting_value("brightness_percent", self.brightness_percent)
         
+        if(menu.screensaver_is_running == True):
+            menu.screensaver_is_running = False
+        
         parser = argparse.ArgumentParser()
         parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
         args = parser.parse_args()
@@ -152,30 +156,34 @@ def fastColorWipe(strip, update):
         strip.setPixelColor(i, color)
     if(update == True):
         strip.show()        
-
-def colorWipe(strip, color, wait_ms=50):
-    """Wipe color across display a pixel at a time."""
-    for i in range(strip.numPixels()):
-        if GPIO.input(KEY2) == 0:
-            fastColorWipe(strip, True)
-            return
-        strip.setPixelColor(i, color)
-        strip.show()
-        time.sleep(wait_ms/1000.0)
  
-def theaterChase(strip, color, wait_ms=50, iterations=10):
+def theaterChase(strip, color, wait_ms=50):
     """Movie theater light style chaser animation."""
-    for j in range(iterations):
-        if GPIO.input(KEY2) == 0:
-            fastColorWipe(strip, True)
-            return
-        for q in range(3):
-            for i in range(0, strip.numPixels(), 3):
-                strip.setPixelColor(i+q, color)
+    if (menu.screensaver_is_running == True):
+        menu.screensaver_is_running = False
+        time.sleep(1)
+        fastColorWipe(ledstrip.strip, True)
+    menu.t = threading.currentThread()
+    j = 0
+    menu.screensaver_is_running = True
+    
+    while (menu.screensaver_is_running == True):
+        red = int(ledsettings.get_color("Red"))
+        green = int(ledsettings.get_color("Green"))
+        blue = int(ledsettings.get_color("Blue"))
+    
+        for q in range(5):
+            for i in range(0, strip.numPixels(), 5):
+                strip.setPixelColor(i+q, Color(green, red, blue))
             strip.show()
             time.sleep(wait_ms/1000.0)
-            for i in range(0, strip.numPixels(), 3):
+            for i in range(0, strip.numPixels(), 5):
                 strip.setPixelColor(i+q, 0)
+        j += 1
+        if(j > 256):
+            j = 0
+    menu.screensaver_is_running = False
+    fastColorWipe(ledstrip.strip, True)
  
 def wheel(pos):
     """Generate rainbow colors across 0-255 positions."""
@@ -188,50 +196,82 @@ def wheel(pos):
         pos -= 170
         return Color(0, pos * 3, 255 - pos * 3)
  
-def rainbow(strip, wait_ms=20, iterations=1000):
+def rainbow(strip, wait_ms=20):
     """Draw rainbow that fades across all pixels at once."""
-    for j in range(256*iterations):
-        if GPIO.input(KEY2) == 0:
-            fastColorWipe(strip, True)
-            return
+    if (menu.screensaver_is_running == True):
+        menu.screensaver_is_running = False
+        time.sleep(1)
+        fastColorWipe(ledstrip.strip, True)
+    menu.t = threading.currentThread()
+    j = 0
+    menu.screensaver_is_running = True
+    while (menu.screensaver_is_running == True):
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, wheel((j) & 255))
+        j += 1
+        if(j >= 256):
+            j = 0
         strip.show()
         time.sleep(wait_ms/1000.0)
+    menu.screensaver_is_running = False
+    fastColorWipe(ledstrip.strip, True)
  
-def rainbowCycle(strip, wait_ms=20, iterations=5000):
+def rainbowCycle(strip, wait_ms=20):
     """Draw rainbow that uniformly distributes itself across all pixels."""
-    for j in range(256*iterations):
-        if GPIO.input(KEY2) == 0:
-            fastColorWipe(strip, True)
-            return
+    if (menu.screensaver_is_running == True):
+        menu.screensaver_is_running = False
+        time.sleep(1)
+        fastColorWipe(ledstrip.strip, True)
+    menu.t = threading.currentThread()
+    j = 0
+    menu.screensaver_is_running = True
+    while (menu.screensaver_is_running == True):       
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255))
+        j += 1
+        if(j >= 256):
+            j = 0
         strip.show()
         time.sleep(wait_ms/1000.0)
+    menu.screensaver_is_running = False
+    fastColorWipe(ledstrip.strip, True)
  
-def theaterChaseRainbow(strip, wait_ms=50):
+def theaterChaseRainbow(strip, wait_ms=10):
     """Rainbow movie theater light style chaser animation."""
-    for j in range(256):
-        if GPIO.input(KEY2) == 0:
-            fastColorWipe(strip, True)
-            return
-        for q in range(3):
-            for i in range(0, strip.numPixels(), 3):
+    if (menu.screensaver_is_running == True):
+        menu.screensaver_is_running = False
+        time.sleep(1)
+        fastColorWipe(ledstrip.strip, True)
+    menu.t = threading.currentThread()
+    j = 0
+    menu.screensaver_is_running = True
+    while (menu.screensaver_is_running == True):
+        for q in range(5):
+            for i in range(0, strip.numPixels(), 5):
                 strip.setPixelColor(i+q, wheel((i+j) % 255))
             strip.show()
             time.sleep(wait_ms/1000.0)
-            for i in range(0, strip.numPixels(), 3):
+            for i in range(0, strip.numPixels(), 5):
                 strip.setPixelColor(i+q, 0)
+        j += 1
+        
+        if(j > 256):            
+            j = 0    
+    menu.screensaver_is_running = False
+    fastColorWipe(ledstrip.strip, True)
 
-def breathing(strip, wait_ms=2, iterations = 1000):    
-    multiplier = 2
+def breathing(strip, wait_ms=2):
+    if (menu.screensaver_is_running == True):
+        menu.screensaver_is_running = False
+        time.sleep(1)
+        fastColorWipe(ledstrip.strip, True)
+    menu.t = threading.currentThread()
+    menu.screensaver_is_running = True
+    
+    multiplier = 24
     direction = 2
-    for i in range(256*iterations):
-        if GPIO.input(KEY2) == 0:
-            fastColorWipe(strip, True)
-            break
-        if(multiplier >= 98 or multiplier < 2):
+    while (menu.screensaver_is_running == True):
+        if(multiplier >= 98 or multiplier < 24):
             direction *= -1
         multiplier += direction
         divide = multiplier / float(100)        
@@ -244,7 +284,78 @@ def breathing(strip, wait_ms=2, iterations = 1000):
         strip.show()
         if(wait_ms > 0):
             time.sleep(wait_ms/1000.0) 
+    menu.screensaver_is_running = False
+    fastColorWipe(ledstrip.strip, True)
+  
+def sound_of_da_police(strip, wait_ms=5):
+    if (menu.screensaver_is_running == True):
+        menu.screensaver_is_running = False
+        time.sleep(1)
+        fastColorWipe(ledstrip.strip, True)
+    menu.t = threading.currentThread()
+    menu.screensaver_is_running = True    
+    middle = strip.numPixels() / 2
+    r_start = 0
+    l_start = 196
+    while (menu.screensaver_is_running == True):
+        r_start += 14
+        l_start -= 14
+        for i in range(strip.numPixels()):
+            if((i > middle) and i > (r_start) and i < (r_start + 40)):
+                strip.setPixelColor(i, Color(0, 255, 0))
+            elif((i < middle) and i < (l_start) and i > (l_start - 40)):
+                strip.setPixelColor(i, Color(0, 0, 255))
+            else:
+                strip.setPixelColor(i, Color(0, 0, 0))                
+        if(r_start > 150):
+            r_start = 0
+            l_start = 175   
+        strip.show()    
+        time.sleep(wait_ms/1000.0)  
+    menu.screensaver_is_running = False
+    fastColorWipe(ledstrip.strip, True)
+
+def scanner(strip, wait_ms=1):
+    if (menu.screensaver_is_running == True):
+        menu.screensaver_is_running = False
+        time.sleep(1)
+        fastColorWipe(ledstrip.strip, True)
+    menu.t = threading.currentThread()
+    menu.screensaver_is_running = True
+    
+    position = 0
+    direction = 3    
+    scanner_length = 20  
+    
+    red_fixed = ledsettings.get_color("Red")
+    green_fixed = ledsettings.get_color("Green")
+    blue_fixed = ledsettings.get_color("Blue")    
+    while (menu.screensaver_is_running == True):       
+        position += direction        
+        for i in range(strip.numPixels()):            
+            if(i > (position - (scanner_length)) and i < (position + (scanner_length))):                
+                distance_from_position = position - i
+                if(distance_from_position < 0):
+                    distance_from_position *= -1
+                divide = ((scanner_length / 2) - distance_from_position) / float(scanner_length / 2)           
+                
+                red = int(float(red_fixed) * float(divide))
+                green = int(float(green_fixed) * float(divide))
+                blue = int(float(blue_fixed) * float(divide))
+                                
+                if(divide > 0):
+                    strip.setPixelColor(i, Color(green, red, blue))
+                else:
+                    strip.setPixelColor(i, Color(0, 0, 0)) 
             
+        if(position >= strip.numPixels() or position <= 1):
+            direction *= -1
+        strip.show()
+        time.sleep(wait_ms/1000.0)
+    
+    menu.screensaver_is_running = False
+    fastColorWipe(ledstrip.strip, True)
+          
 def get_rainbow_colors(pos, color):
     pos = int(pos)
     if pos < 85:
@@ -303,8 +414,13 @@ class MenuLCD:
         
         self.screensaver_delay = usersettings.get_setting_value("screensaver_delay")
         self.screen_off_delay = usersettings.get_setting_value("screen_off_delay")
+        self.led_animation_delay = usersettings.get_setting_value("led_animation_delay")
+        
+        self.led_animation = usersettings.get_setting_value("led_animation")
         
         self.screen_status = 1
+        
+        self.screensaver_is_running = False
         
     def toggle_screensaver_settings(self, setting):
         setting = setting.lower()
@@ -588,6 +704,9 @@ class MenuLCD:
              
         if(self.currentlocation == "Turn_off_screen_delay"):
              self.draw.text((10, 70), str(self.screen_off_delay), fill = self.text_color)
+             
+        if(self.currentlocation == "Led_animation_delay"):
+             self.draw.text((10, 70), str(self.led_animation_delay), fill = self.text_color)
                 
         self.LCD.LCD_ShowImage(self.image,0,0)
 
@@ -780,38 +899,55 @@ class MenuLCD:
                 os.system("sudo systemctl restart btmidi.service")        
             
         if(location == "LED_animations"):
-            if(choice == "Theater Chase"):
-                theaterChase(ledstrip.strip, Color(127, 127, 127))  # White theater chase
-                theaterChase(ledstrip.strip, Color(127,   0,   0))  # Red theater chase
-                theaterChase(ledstrip.strip, Color(  0,   0, 127))  # Blue theater chase
-            if(choice == "Theater Chase Rainbow"):
-                theaterChaseRainbow(ledstrip.strip)
-            if(choice == "Color Wipe"):
-                colorWipe(ledstrip.strip, Color(0, 0, 255))
+            if(choice == "Theater Chase"):               
+                self.t = threading.Thread(target=theaterChase, args=(ledstrip.strip, Color(127, 127, 127)))
+                self.t.start()                
+            if(choice == "Theater Chase Rainbow"):                
+                self.t = threading.Thread(target=theaterChaseRainbow, args=(ledstrip.strip, 5))
+                self.t.start()
+            if(choice == "Sound of da police"):                
+                self.t = threading.Thread(target=sound_of_da_police, args=(ledstrip.strip, 1))
+                self.t.start()
+            if(choice == "Scanner"):                
+                self.t = threading.Thread(target=scanner, args=(ledstrip.strip, 1))
+                self.t.start()
             if(choice == "Clear"):
-                colorWipe(ledstrip.strip, Color(0,0,0), 1)
+                fastColorWipe(ledstrip.strip, True)
         if(location == "Breathing"):
             if(choice == "Fast"):
-                breathing(ledstrip.strip, 5)
+                self.t = threading.Thread(target=breathing, args=(ledstrip.strip,5))
+                self.t.start()
             if(choice == "Medium"):
-                breathing(ledstrip.strip, 10)
+                self.t = threading.Thread(target=breathing, args=(ledstrip.strip,10))
+                self.t.start()
             if(choice == "Slow"):
-                breathing(ledstrip.strip, 25)
+                self.t = threading.Thread(target=breathing, args=(ledstrip.strip,25))
+                self.t.start()
         if(location == "Rainbow"):
             if(choice == "Fast"):
-                rainbow(ledstrip.strip, 2)
+                self.t = threading.Thread(target=rainbow, args=(ledstrip.strip,2))
+                self.t.start()
             if(choice == "Medium"):
-                rainbow(ledstrip.strip, 20)
+                self.t = threading.Thread(target=rainbow, args=(ledstrip.strip,20))
+                self.t.start()
             if(choice == "Slow"):
-                rainbow(ledstrip.strip, 50)
+                self.t = threading.Thread(target=rainbow, args=(ledstrip.strip,50))
+                self.t.start()
         if(location == "Rainbow_Cycle"):
             if(choice == "Fast"):
-                rainbowCycle(ledstrip.strip, 1)
+                self.t = threading.Thread(target=rainbowCycle, args=(ledstrip.strip,1))
+                self.t.start()                          
             if(choice == "Medium"):
-                rainbowCycle(ledstrip.strip, 20)
+                self.t = threading.Thread(target=rainbowCycle, args=(ledstrip.strip,20))
+                self.t.start()                
             if(choice == "Slow"):
-                rainbowCycle(ledstrip.strip, 50)
-                
+                self.t = threading.Thread(target=rainbowCycle, args=(ledstrip.strip,50))
+                self.t.start()               
+        
+        if(location == "LED_animations"):
+            if(choice == "Stop animation"):
+                self.screensaver_is_running = False
+        
         if(location == "Other_Settings"):
             if(choice == "System Info"):
                 screensaver()
@@ -873,13 +1009,16 @@ class MenuLCD:
             
         if (location == "Content"):
             menu.toggle_screensaver_settings(choice)
-
+            
+        if (location == "Led_animation"):                          
+            menu.led_animation = choice
+            usersettings.change_setting_value("led_animation", choice)
+            
     def change_value(self, value):
         if(value == "LEFT"):
             value = -1
         elif(value == "RIGHT"):
             value = 1
-            
         if(self.currentlocation == "Brightness"):
             ledstrip.change_brightness(value*self.speed_multiplier)  
             
@@ -912,12 +1051,22 @@ class MenuLCD:
             ledsettings.rainbow_timeshift = ledsettings.rainbow_timeshift + value *self.speed_multiplier
             
         if(self.currentlocation == "Start_delay"):
-            self.screensaver_delay = int(self.screensaver_delay) + value
+            self.screensaver_delay = int(self.screensaver_delay) + (value*self.speed_multiplier)
+            if(self.screensaver_delay < 0):
+                self.screensaver_delay = 0
             usersettings.change_setting_value("screensaver_delay", self.screensaver_delay)
             
         if(self.currentlocation == "Turn_off_screen_delay"):
-            self.screen_off_delay = int(self.screen_off_delay) + value
-            usersettings.change_setting_value("screen_off_delay", self.screen_off_delay)            
+            self.screen_off_delay = int(self.screen_off_delay) + (value*self.speed_multiplier)
+            if(self.screen_off_delay < 0):
+                self.screen_off_delay = 0
+            usersettings.change_setting_value("screen_off_delay", self.screen_off_delay)
+
+        if(self.currentlocation == "Led_animation_delay"):
+            self.led_animation_delay = int(self.led_animation_delay) + (value*self.speed_multiplier)
+            if(self.led_animation_delay < 0):
+                self.led_animation_delay = 0
+            usersettings.change_setting_value("led_animation_delay", self.led_animation_delay)  
         
         menu.show()
         
@@ -965,16 +1114,40 @@ def screensaver():
     except:
         pass
     while True:
-        if((time.time() - saving.start_time) > 3600  and delay < 0.5):            
+        if((time.time() - saving.start_time) > 3600  and delay < 0.5 and menu.screensaver_is_running == False):            
             delay = 0.9
             interval  = 5 / float(delay)
             cpu_history = [None] * int(interval)
             cpu_average = 0
             i = 0            
             
-        if(int(menu.screensaver_delay) > 0 and ((time.time() - saving.start_time) > (int(menu.screen_off_delay) * 60))):
+        if(int(menu.screen_off_delay) > 0 and ((time.time() - saving.start_time) > (int(menu.screen_off_delay) * 60))):
             menu.screen_status = 0
-            GPIO.output(24, 0)   
+            GPIO.output(24, 0)
+            
+        if(int(menu.led_animation_delay) > 0 and ((time.time() - saving.start_time) > (int(menu.led_animation_delay) * 60)) and menu.screensaver_is_running == False):
+            menu.screensaver_is_running == True
+            if(menu.led_animation == "Theater Chase"):               
+                menu.t = threading.Thread(target=theaterChase, args=(ledstrip.strip, 1))
+                menu.t.start()
+            if(menu.led_animation == "Breathing Slow"):
+                menu.t = threading.Thread(target=breathing, args=(ledstrip.strip, 25))
+                menu.t.start()                
+            if(menu.led_animation == "Rainbow Slow"):
+                menu.t = threading.Thread(target=rainbow, args=(ledstrip.strip, 10))
+                menu.t.start()
+            if(menu.led_animation == "Rainbow Cycle Slow"):
+                menu.t = threading.Thread(target=rainbowCycle, args=(ledstrip.strip, 10))
+                menu.t.start()
+            if(menu.led_animation == "Theater Chase Rainbow"):
+                menu.t = threading.Thread(target=theaterChaseRainbow, args=(ledstrip.strip, 5))
+                menu.t.start()
+            if(menu.led_animation == "Sound of da police"):
+                menu.t = threading.Thread(target=sound_of_da_police, args=(ledstrip.strip, 1))
+                menu.t.start()
+            if(menu.led_animation == "Scanner"):
+                menu.t = threading.Thread(target=scanner, args=(ledstrip.strip, 1))
+                menu.t.start()   
             
         hour = datetime.datetime.now().strftime("%H:%M:%S")
         date = datetime.datetime.now().strftime("%d-%m-%Y")
@@ -1033,6 +1206,7 @@ def screensaver():
         i += 1
         try:
             if (midiports.inport.poll() != None):
+                menu.screensaver_is_running = False
                 saving.start_time = time.time()
                 menu.screen_status = 1
                 GPIO.output(24, 1)
@@ -1041,6 +1215,7 @@ def screensaver():
         except:
             pass
         if GPIO.input(KEY2) == 0:
+            menu.screensaver_is_running = False
             saving.start_time = time.time()
             menu.screen_status = 1
             GPIO.output(24, 1)
@@ -1367,7 +1542,7 @@ class LedSettings:
         except:                
             return False  
             
-    def change_backlight_brightness(self, value):        
+    def change_backlight_brightness(self, value):
         self.backlight_brightness_percent += value
         if(self.backlight_brightness_percent < 0):
             self.backlight_brightness_percent = 0
@@ -1439,7 +1614,7 @@ class MidiPorts():
         ports = mido.get_input_names()
         try:
             for port in ports:
-                if "Through" not in port and "RPi" not in port and "RtMidOut" not in port:
+                if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
                     self.inport =  mido.open_input(port)
                     print("Inport set to "+port)
         except:
@@ -1478,7 +1653,6 @@ keylist_color = [0] * 176
 
 z = 0
 display_cycle = 0
-colorWipe(ledstrip.strip, Color(0,0,0), 1)
 
 last_activity = time.time()
 
@@ -1488,7 +1662,7 @@ timeshift_start = time.time()
 
 fastColorWipe(ledstrip.strip, True)
 
-while True:    
+while True:   
     #screensaver
     if(int(menu.screensaver_delay) > 0):
         if((time.time() - last_activity) > (int(menu.screensaver_delay) * 60)):
@@ -1521,21 +1695,22 @@ while True:
         last_activity = time.time()
         menu.change_pointer(0)
         while GPIO.input(KEYUP) == 0:
-            time.sleep(0.01)
+            time.sleep(0.001)
     if GPIO.input(KEYDOWN) == 0:
         last_activity = time.time()
         menu.change_pointer(1)
         while GPIO.input(KEYDOWN) == 0:
-            time.sleep(0.01)
+            time.sleep(0.001)
     if GPIO.input(KEY1) == 0:
         last_activity = time.time()
         menu.enter_menu()
         while GPIO.input(KEY1) == 0:
-            time.sleep(0.01)
+            time.sleep(0.001)
     if GPIO.input(KEY2) == 0:
         last_activity = time.time()
         menu.go_back()
-        fastColorWipe(ledstrip.strip, True)
+        if(menu.screensaver_is_running == False):
+            fastColorWipe(ledstrip.strip, True)
         while GPIO.input(KEY2) == 0:
             time.sleep(0.01)
     if GPIO.input(KEY3) == 0:
@@ -1557,7 +1732,7 @@ while True:
         menu.speed_change()
         while GPIO.input(JPRESS) == 0:
             time.sleep(0.01)
-        
+    
     #if(ledsettings.color_mode == "Single"):
     red = ledsettings.get_color("Red")
     green = ledsettings.get_color("Green")
@@ -1675,10 +1850,8 @@ while True:
                     ledstrip.set_adjacent_colors(((note - 20)*2 - note_offset), Color(0, 0, 0))          
             if(saving.isrecording == True):
                 saving.add_track("note_off", original_note, velocity, elapsed_time*1000)
-        elif(int(velocity) > 0 and int(note) > 0):
-            
-            if(ledsettings.color_mode == "Multicolor"):
-               
+        elif(int(velocity) > 0 and int(note) > 0):            
+            if(ledsettings.color_mode == "Multicolor"):               
                 choosen_color = ledsettings.get_random_multicolor_in_range(note)
                 red = choosen_color[0]
                 green = choosen_color[1]

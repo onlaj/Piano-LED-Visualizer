@@ -11,6 +11,7 @@
   - MIDI to USB interface (if your piano doesn't have USB output) ~~[Amazon US](https://amzn.to/2xZUipg) | [Aliexpress](http://s.click.aliexpress.com/e/b9mjFaIy)~~ (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use iConnectivity mio [Amazon US](https://amzn.to/2nhsYBl) )
   - Raspberry Pi Zero WH [Amazon US](https://amzn.to/2TPz3CQ) | [Aliexpress](https://s.click.aliexpress.com/e/_dXc8jGl) | [Aliexpress #2](http://s.click.aliexpress.com/e/3r32Dass)
   - MicroSD card (16GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Aliexpress](http://s.click.aliexpress.com/e/mGNi7sl2)
+  - USB OTG [Amazon US](https://amzn.to/3aYWVJj) | [Aliexpress](https://s.click.aliexpress.com/e/_d7FjmJD)
   - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Aliexpress](http://s.click.aliexpress.com/e/dFyC7NO)
   - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/2JViZJ3) | [Aliexpress](http://s.click.aliexpress.com/e/hUgrv6s)
   - DC 5.5x2.5mm socket with quick connection [Amazon US](https://amzn.to/2YizYOC) | [Aliexpress](http://s.click.aliexpress.com/e/T8YSkbq)
@@ -56,8 +57,6 @@ If you don't need BT connection you can skip "midi bluetooth setup" part, but yo
     sudo apt-get install libjack-dev 
     sudo apt-get install libasound2-dev
 
-
-
 ## Learning to play with Synthesia
 Official instruction:
 
@@ -77,6 +76,10 @@ You also have to enable light support in Synthesia by setting "Key Light" option
 In Visualizer settings you have to change "input" to RPI Bluetooth. After that when learning new song next-to-play keys will be illuminated in corresponding colors, blue for left hand and green for right hand.
 
 If you are getting mixed colors, meaning that leds are light up with your predefined and next-to-play colors at the same time, you can use "Skipped notes" option to disable one of them.
+
+## Using cable instead of Bluetooth
+If you can't get stable bluetooth connection there are alternative ways that requires the purchase of additional equipment.
+The optimal solution I found is this [device.](http://compasflamenco.com/midi-c-3/midi-usbusb-p-4.html) It allows you to connect your RPi with any equipment that supports midi through USB. It can also be useful if you want less delay and fewer missed notes. [Here](https://streamable.com/nec84) is some short comparison.
 
 ## Connecting LED Strip to Raspberry Pi and enabling SPI
 There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/)

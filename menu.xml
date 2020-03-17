@@ -94,7 +94,6 @@
 	</menu>
 	<menu text="LED animations">
 		<LED_animations text="Theater Chase"></LED_animations>
-		<LED_animations text="Color Wipe"></LED_animations>
 		<LED_animations text="Breathing">
 			<Breathing text="Fast"></Breathing>
 			<Breathing text="Medium"></Breathing>
@@ -111,6 +110,9 @@
 			<Rainbow_Cycle text="Slow"></Rainbow_Cycle>
 		</LED_animations>
 		<LED_animations text="Theater Chase Rainbow"></LED_animations>
+		<LED_animations text="Sound of da police"></LED_animations>
+		<LED_animations text="Scanner"></LED_animations>
+		<LED_animations text="Stop animation"></LED_animations>
 		<LED_animations text="Clear"></LED_animations>
 	</menu>
 	<menu text="Display Settings">
@@ -155,7 +157,19 @@
 			</Screensaver>
 			<Screensaver text="Turn off screen delay">
 				<Turn_off_screen_delay text="After minutes (0 - never)"></Turn_off_screen_delay>
-			</Screensaver>	
+			</Screensaver>
+			<Screensaver text="Led animation delay">
+				<Led_animation_delay text="After minutes (0 - never)"></Led_animation_delay>
+			</Screensaver>
+			<Screensaver text="Led animation">
+				<Led_animation text="Theater Chase"></Led_animation>
+				<Led_animation text="Breathing Slow"></Led_animation>				
+				<Led_animation text="Rainbow Slow"></Led_animation>				
+				<Led_animation text="Rainbow Cycle Slow"></Led_animation>				
+				<Led_animation text="Theater Chase Rainbow"></Led_animation>				
+				<Led_animation text="Sound of da police"></Led_animation>				
+				<Led_animation text="Scanner"></Led_animation>				
+			</Screensaver>
 		</Other_Settings>
 		<Other_Settings text="Reset to default settings">
 			<Reset_to_default_settings text="Confirm"></Reset_to_default_settings>

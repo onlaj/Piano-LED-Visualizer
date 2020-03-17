@@ -45,4 +45,7 @@
 	
 	<screensaver_delay>10</screensaver_delay>
 	<screen_off_delay>0</screen_off_delay>
+	<led_animation_delay>0</led_animation_delay>
+	<led_animation>Scanner</led_animation>
+	
 </settings>
