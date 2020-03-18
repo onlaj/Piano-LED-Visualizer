@@ -42,10 +42,13 @@ singleton()
 
 class UserSettings:
     def __init__(self):
-        self.pending_changes = False
-    
-        self.tree = ET.parse("settings.xml") 
-        self.root = self.tree.getroot()    
+        self.pending_changes = False        
+        try:
+            self.tree = ET.parse("settings.xml") 
+            self.root = self.tree.getroot()
+        except:
+            print("Can't load settings file, restoring defaults")
+            self.reset_to_default()
 
         self.pending_reset = False
 
