@@ -835,7 +835,9 @@ class MenuLCD:
             usersettings.change_setting_value("text_color", self.text_color)
             
         if(location == "Choose_song"):
-            play_midi(choice)            
+            #play_midi(choice)
+            saving.t = threading.Thread(target=play_midi, args=(choice,))
+            saving.t.start()
         if(location == "Play_MIDI"):
             if(choice == "Save MIDI"):
                 now = datetime.datetime.now()
@@ -849,6 +851,9 @@ class MenuLCD:
             if(choice == "Cancel recording"):
                 menu.render_message("Recording canceled", "", 2000) 
                 saving.cancel_recording()
+            if(choice == "Stop playing"):
+                saving.is_playing_midi = False
+                fastColorWipe(ledstrip.strip, True)
                 
         if(location == "Solid"):
             ledsettings.change_color_name(wc.name_to_rgb(choice))
@@ -1080,15 +1085,23 @@ class MenuLCD:
             self.speed_multiplier = 10
     
 def play_midi(song_path):
-    menu.render_message("Playing: ", song_path)
-    try:
-        mid = mido.MidiFile("Songs/"+song_path)        
-        for msg in mid.play():            
-            midiports.playport.send(msg)            
-            if GPIO.input(KEY2) == 0:
+    saving.is_playing_midi = False
+    menu.render_message("Playing: ", song_path, 2000)
+    saving.t = threading.currentThread()
+    saving.is_playing_midi = True    
+    try:                
+        mid = mido.MidiFile("Songs/"+song_path)
+        fastColorWipe(ledstrip.strip, True)
+        for msg in mid.play():
+            if(saving.is_playing_midi == True):                
+                midiports.playport.send(msg)
+                midiports.pending_queue.append(msg.copy(time=0))
+            else:                
                 break
+        saving.is_playing_midi = False
     except:
         menu.render_message("Can't play this file", "", 2000)
+        saving.is_playing_midi = False    
     
 def find_between(s, start, end):
     try:
@@ -1228,6 +1241,7 @@ def screensaver():
 class SaveMIDI:
     def __init__(self):
         self.isrecording = False
+        self.is_playing_midi = False
         self.start_time = time.time()
     def start_recording(self):
         self.mid = MidiFile()
@@ -1614,6 +1628,8 @@ class LedSettings:
 
 class MidiPorts():
     def __init__(self):
+        self.pending_queue = []
+    
         ports = mido.get_input_names()
         try:
             for port in ports:
@@ -1624,7 +1640,7 @@ class MidiPorts():
             print ("no input port")
         try:            
             for port in ports:
-                if "Through" not in port and "RPi" not in port and "RtMidOut" not in port:
+                if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
                     self.playport =  mido.open_output(port)
                     print("playport set to "+port)
         except:
@@ -1787,11 +1803,15 @@ while True:
                         keylist[n] = 0                    
             n += 1        
     try:
-        midipending = midiports.inport.iter_pending()
+        if(saving.is_playing_midi == False):
+            midiports.midipending = midiports.inport.iter_pending()
+        else:
+            midiports.midipending = midiports.pending_queue
+            #midiports.pending_queue = []
     except:
         continue
     #loop through incoming midi messages
-    for msg in midipending: 
+    for msg in midiports.midipending: 
         last_activity = time.time()     
         note = find_between(str(msg), "note=", " ")
         original_note = note
@@ -1888,5 +1908,6 @@ while True:
             if(saving.isrecording == True):
                 saving.add_control_change("control_change", 0, control, value, elapsed_time*1000)
         saving.restart_time()
-            
+        if(saving.is_playing_midi == True):
+            midiports.pending_queue.remove(msg)    
     ledstrip.strip.show()

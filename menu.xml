@@ -82,6 +82,7 @@
 	</menu>
 	<menu text="Play MIDI">
 		<Play_MIDI text="Choose song"></Play_MIDI>
+		<Play_MIDI text="Stop playing"></Play_MIDI>
 		<Play_MIDI text="Start recording"></Play_MIDI>
 		<Play_MIDI text="Cancel recording"></Play_MIDI>
 		<Play_MIDI text="Save MIDI"></Play_MIDI>
