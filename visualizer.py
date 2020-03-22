@@ -1088,16 +1088,39 @@ def play_midi(song_path):
     saving.is_playing_midi = False
     menu.render_message("Playing: ", song_path, 2000)
     saving.t = threading.currentThread()
-    saving.is_playing_midi = True    
-    try:                
+    saving.is_playing_midi = True
+
+    output_time_last = 0
+    delay_debt = 0;
+    try:   
         mid = mido.MidiFile("Songs/"+song_path)
         fastColorWipe(ledstrip.strip, True)
-        for msg in mid.play():
-            if(saving.is_playing_midi == True):                
-                midiports.playport.send(msg)
-                midiports.pending_queue.append(msg.copy(time=0))
+        #length = mid.length
+        
+        t0 = False
+        for message in mid:
+            if(saving.is_playing_midi == True):
+                if(t0 == False):
+                    t0 = time.time()
+                    output_time_start = time.time()            
+                output_time_last = time.time() - output_time_start
+                delay_temp = message.time - output_time_last
+                delay = message.time - output_time_last - float(0.003) + delay_debt
+                if(delay > 0):
+                    time.sleep(delay)
+                    delay_debt = 0
+                else:
+                    delay_debt += delay_temp
+                output_time_start = time.time()                   
+            
+                if not message.is_meta:
+                    midiports.playport.send(message)
+                    midiports.pending_queue.append(message.copy(time=0))
+                
             else:                
                 break
+        #print('play time: {:.2f} s (expected {:.2f})'.format(
+                #time.time() - t0, length))
         saving.is_playing_midi = False
     except:
         menu.render_message("Can't play this file", "", 2000)
