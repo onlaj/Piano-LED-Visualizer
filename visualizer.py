@@ -834,10 +834,10 @@ class MenuLCD:
             self.text_color = "Red"
             usersettings.change_setting_value("text_color", self.text_color)
             
-        if(location == "Choose_song"):
-            #play_midi(choice)
+        if(location == "Choose_song"):                        
             saving.t = threading.Thread(target=play_midi, args=(choice,))
             saving.t.start()
+
         if(location == "Play_MIDI"):
             if(choice == "Save MIDI"):
                 now = datetime.datetime.now()
@@ -852,7 +852,8 @@ class MenuLCD:
                 menu.render_message("Recording canceled", "", 2000) 
                 saving.cancel_recording()
             if(choice == "Stop playing"):
-                saving.is_playing_midi = False
+                saving.is_playing_midi.clear()
+                menu.render_message("Playing stopped", "", 2000) 
                 fastColorWipe(ledstrip.strip, True)
                 
         if(location == "Solid"):
@@ -1085,21 +1086,27 @@ class MenuLCD:
             self.speed_multiplier = 10
     
 def play_midi(song_path):
-    saving.is_playing_midi = False
+    midiports.pending_queue.append(mido.Message('note_on'))
+    
+    if song_path in  saving.is_playing_midi.keys():
+        menu.render_message(song_path, "Already playing", 2000)
+        return
+    
+    saving.is_playing_midi.clear()
+    
+    saving.is_playing_midi[song_path] = True
     menu.render_message("Playing: ", song_path, 2000)
-    saving.t = threading.currentThread()
-    saving.is_playing_midi = True
+    saving.t = threading.currentThread()    
 
     output_time_last = 0
     delay_debt = 0;
     try:   
         mid = mido.MidiFile("Songs/"+song_path)
         fastColorWipe(ledstrip.strip, True)
-        #length = mid.length
-        
-        t0 = False
+        #length = mid.length        
+        t0 = False        
         for message in mid:
-            if(saving.is_playing_midi == True):
+            if song_path in saving.is_playing_midi.keys():
                 if(t0 == False):
                     t0 = time.time()
                     output_time_start = time.time()            
@@ -1121,10 +1128,9 @@ def play_midi(song_path):
                 break
         #print('play time: {:.2f} s (expected {:.2f})'.format(
                 #time.time() - t0, length))
-        saving.is_playing_midi = False
+        #saving.is_playing_midi = False
     except:
-        menu.render_message("Can't play this file", "", 2000)
-        saving.is_playing_midi = False    
+        menu.render_message(song_path, "Can't play this file", 2000)   
     
 def find_between(s, start, end):
     try:
@@ -1264,7 +1270,7 @@ def screensaver():
 class SaveMIDI:
     def __init__(self):
         self.isrecording = False
-        self.is_playing_midi = False
+        self.is_playing_midi = {}
         self.start_time = time.time()
     def start_recording(self):
         self.mid = MidiFile()
@@ -1824,13 +1830,12 @@ while True:
                         ledstrip.strip.setPixelColor((n), color) 
                         ledstrip.set_adjacent_colors(n, color)  
                         keylist[n] = 0                    
-            n += 1        
+            n += 1 
     try:
-        if(saving.is_playing_midi == False):
+        if(len(saving.is_playing_midi) == 0):
             midiports.midipending = midiports.inport.iter_pending()
         else:
             midiports.midipending = midiports.pending_queue
-            #midiports.pending_queue = []
     except:
         continue
     #loop through incoming midi messages
@@ -1931,6 +1936,6 @@ while True:
             if(saving.isrecording == True):
                 saving.add_control_change("control_change", 0, control, value, elapsed_time*1000)
         saving.restart_time()
-        if(saving.is_playing_midi == True):
+        if(len(saving.is_playing_midi) > 0):
             midiports.pending_queue.remove(msg)    
     ledstrip.strip.show()
