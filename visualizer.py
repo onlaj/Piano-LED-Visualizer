@@ -486,7 +486,6 @@ class MenuLCD:
         self.update_ports()
         rgb_names = []
         rgb_names = ["Red", "Green", "Blue"]
-        #self.DOMTree = minidom.parse(self.xml_file_name)
         for color in colors_list:
             i = i + 1
 
@@ -671,7 +670,21 @@ class MenuLCD:
                 self.draw.rectangle([(115,50),(128,80)],fill = "rgb("+str(ledsettings.get_multicolors(self.current_choice.replace('Color','')))+")")
             except:
                 pass
+               
+        if("Color_for_slow_speed" in self.currentlocation):
+            red = ledsettings.speed_slowest["red"]
+            green = ledsettings.speed_slowest["green"]
+            blue = ledsettings.speed_slowest["blue"]
+            self.draw.text((10, 70), str(red)+", "+str(green)+", "+str(blue), fill = self.text_color)
+            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(red)+", "+str(green)+", "+str(blue)+")")
             
+        if("Color_for_fast_speed" in self.currentlocation):
+            red = ledsettings.speed_fastest["red"]
+            green = ledsettings.speed_fastest["green"]
+            blue = ledsettings.speed_fastest["blue"]
+            self.draw.text((10, 70), str(red)+", "+str(green)+", "+str(blue), fill = self.text_color)
+            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(red)+", "+str(green)+", "+str(blue)+")")
+                        
         #displaying rainbow offset value
         if(self.current_choice == "Offset"):
             self.draw.text((10, 70), str(ledsettings.rainbow_offset), fill = self.text_color)
@@ -710,6 +723,13 @@ class MenuLCD:
              
         if(self.currentlocation == "Led_animation_delay"):
              self.draw.text((10, 70), str(self.led_animation_delay), fill = self.text_color)
+             
+        #displaying speed values
+        if(self.currentlocation == "Period"):
+            self.draw.text((10, 70), str(ledsettings.speed_period_in_seconds), fill = self.text_color)
+            
+        if(self.currentlocation == "Max_notes_in_period"):
+            self.draw.text((10, 70), str(ledsettings.speed_max_notes), fill = self.text_color)
                 
         self.LCD.LCD_ShowImage(self.image,0,0)
 
@@ -971,8 +991,12 @@ class MenuLCD:
         if(choice == "Delete"):            
             ledsettings.deletecolor(location.replace('Color',''))
             
-        if(choice == "Confirm"):
+        if(location == "Multicolor" and choice == "Confirm"):
             ledsettings.color_mode = "Multicolor"
+            usersettings.change_setting_value("color_mode", ledsettings.color_mode)
+        
+        if(location == "Speed" and choice == "Confirm"):
+            ledsettings.color_mode = "Speed"
             usersettings.change_setting_value("color_mode", ledsettings.color_mode)
             
         if(location == "Sequences"):
@@ -1075,7 +1099,35 @@ class MenuLCD:
             self.led_animation_delay = int(self.led_animation_delay) + (value*self.speed_multiplier)
             if(self.led_animation_delay < 0):
                 self.led_animation_delay = 0
-            usersettings.change_setting_value("led_animation_delay", self.led_animation_delay)  
+            usersettings.change_setting_value("led_animation_delay", self.led_animation_delay)
+            
+        if(self.currentlocation == "Color_for_slow_speed"):
+            ledsettings.speed_slowest[self.current_choice.lower()] +=  value*self.speed_multiplier
+            if(ledsettings.speed_slowest[self.current_choice.lower()] > 255):
+                ledsettings.speed_slowest[self.current_choice.lower()] = 255
+            if(ledsettings.speed_slowest[self.current_choice.lower()] < 0):
+                ledsettings.speed_slowest[self.current_choice.lower()] = 0
+            usersettings.change_setting_value("speed_slowest_"+self.current_choice.lower(), ledsettings.speed_slowest[self.current_choice.lower()])
+        
+        if(self.currentlocation == "Color_for_fast_speed"):
+            ledsettings.speed_fastest[self.current_choice.lower()] +=  value*self.speed_multiplier
+            if(ledsettings.speed_fastest[self.current_choice.lower()] > 255):
+                ledsettings.speed_fastest[self.current_choice.lower()] = 255
+            if(ledsettings.speed_fastest[self.current_choice.lower()] < 0):
+                ledsettings.speed_fastest[self.current_choice.lower()] = 0
+            usersettings.change_setting_value("speed_fastest_"+self.current_choice.lower(), ledsettings.speed_fastest[self.current_choice.lower()])   
+        
+        if(self.currentlocation == "Period"):
+            ledsettings.speed_period_in_seconds +=  (value/float(10))*self.speed_multiplier
+            if(ledsettings.speed_period_in_seconds < 0.1):
+                ledsettings.speed_period_in_seconds = 0.1
+            usersettings.change_setting_value("speed_period_in_seconds", ledsettings.speed_period_in_seconds)
+        
+        if(self.currentlocation == "Max_notes_in_period"):
+            ledsettings.speed_max_notes +=  value*self.speed_multiplier
+            if(ledsettings.speed_max_notes < 2):
+                ledsettings.speed_max_notes = 2
+            usersettings.change_setting_value("speed_max_notes", ledsettings.speed_max_notes) 
         
         menu.show()
         
@@ -1331,6 +1383,22 @@ class LedSettings:
 
         self.skipped_notes = usersettings.get_setting_value("skipped_notes")
         
+        self.notes_in_last_period = []
+        self.speed_period_in_seconds = 0.8
+        
+        self.speed_slowest = {}
+        self.speed_slowest["red"] = int(usersettings.get_setting_value("speed_slowest_red"))
+        self.speed_slowest["green"] = int(usersettings.get_setting_value("speed_slowest_green"))
+        self.speed_slowest["blue"] = int(usersettings.get_setting_value("speed_slowest_blue"))
+        
+        self.speed_fastest = {}
+        self.speed_fastest["red"] = int(usersettings.get_setting_value("speed_fastest_red"))
+        self.speed_fastest["green"] = int(usersettings.get_setting_value("speed_fastest_green"))
+        self.speed_fastest["blue"] = int(usersettings.get_setting_value("speed_fastest_blue"))
+        
+        self.speed_period_in_seconds = float(usersettings.get_setting_value("speed_period_in_seconds"))
+        self.speed_max_notes = int(usersettings.get_setting_value("speed_max_notes"))
+        
     def addcolor(self):  
         self.multicolor.append([0, 255, 0])        
         self.multicolor_range.append([20, 108])
@@ -1529,15 +1597,17 @@ class LedSettings:
             
             if(self.mode == "Velocity" or self.mode == "Fading"):
                 self.fadingspeed = self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed")[0].firstChild.nodeValue
-                if(self.mode == "Fading"):            
-                    if(self.fadingspeed == "Fast"):
-                        self.fadingspeed = 125
+                if(self.mode == "Fading"): 
+                    if(self.fadingspeed == "Very fast"):
+                        self.fadingspeed = 50
+                    elif(self.fadingspeed == "Fast"):
+                        self.fadingspeed = 40
                     elif(self.fadingspeed == "Medium"):
-                        self.fadingspeed = 100
+                        self.fadingspeed = 20
                     elif(self.fadingspeed == "Slow"):
-                        ledsetselftings.fadingspeed = 50
-                    elif(self.fadingspeed == "Very slow"):
                         self.fadingspeed = 10
+                    elif(self.fadingspeed == "Very slow"):
+                        self.fadingspeed = 2
             
                 if(self.mode == "Velocity"):                
                     if(self.fadingspeed == "Fast"):
@@ -1558,6 +1628,18 @@ class LedSettings:
                 self.rainbow_offset = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("Offset")[0].firstChild.nodeValue)
                 self.rainbow_scale = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("Scale")[0].firstChild.nodeValue)
                 self.rainbow_timeshift = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("Timeshift")[0].firstChild.nodeValue)
+            
+            if(self.color_mode == "Speed"):
+                self.speed_slowest["red"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed_slowest_red")[0].firstChild.nodeValue)
+                self.speed_slowest["green"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed_slowest_green")[0].firstChild.nodeValue)
+                self.speed_slowest["blue"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed_slowest_blue")[0].firstChild.nodeValue)
+                
+                self.speed_fastest["red"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed_fastest_red")[0].firstChild.nodeValue)
+                self.speed_fastest["green"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed_fastest_green")[0].firstChild.nodeValue)
+                self.speed_fastest["blue"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed_fastest_blue")[0].firstChild.nodeValue)
+                
+                self.speed_period_in_seconds = float(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed_period_in_seconds")[0].firstChild.nodeValue)
+                self.speed_max_notes = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed_max_notes")[0].firstChild.nodeValue)
             
             if(self.color_mode == "Multicolor"):
                 self.multicolor = []
@@ -1654,6 +1736,29 @@ class LedSettings:
         usersettings.change_setting_value("adjacent_green", self.adjacent_green)
         usersettings.change_setting_value("adjacent_blue", self.adjacent_blue)
         fastColorWipe(ledstrip.strip, True)
+        
+    def speed_add_note(self):
+        current_time = time.time()
+        self.notes_in_last_period.append(current_time)
+        
+    def speed_get_colors(self):
+        for note_time in self.notes_in_last_period[:]:
+            if ((time.time() - self.speed_period_in_seconds) > note_time):
+                self.notes_in_last_period.remove(note_time)
+        
+        notes_count = len(self.notes_in_last_period)  
+        max_notes = self.speed_max_notes        
+        speed_percent = notes_count / float(max_notes)
+        
+        if(notes_count > max_notes):
+            red = self.speed_fastest["red"]
+            green = self.speed_fastest["green"]
+            blue = self.speed_fastest["blue"]
+        else:
+            red = ((self.speed_fastest["red"]- self.speed_slowest["red"]) * float(speed_percent)) + self.speed_slowest["red"]
+            green = ((self.speed_fastest["green"] - self.speed_slowest["green"]) * float(speed_percent)) + self.speed_slowest["green"]
+            blue = ((self.speed_fastest["blue"] - self.speed_slowest["blue"]) * float(speed_percent)) + self.speed_slowest["blue"]
+        return[round(red), round(green), round(blue)]
 
 class MidiPorts():
     def __init__(self):
@@ -1802,7 +1907,13 @@ while True:
             if(ledsettings.color_mode == "Rainbow"):
                 red = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
                 green = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
-                blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue")  
+                blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue")
+                
+            if(ledsettings.color_mode == "Speed"):
+                speed_colors = ledsettings.speed_get_colors()
+                red = speed_colors[0]
+                green = speed_colors[1]
+                blue = speed_colors[2]
 
             if(int(note) != 1001):                
                 if(int(note) > 0):                    
@@ -1881,6 +1992,12 @@ while True:
             green = get_rainbow_colors(int((int(((note - 20)*2 - note_offset)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
             blue = get_rainbow_colors(int((int(((note - 20)*2 - note_offset)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue") 
         
+        if(ledsettings.color_mode == "Speed"):
+            speed_colors = ledsettings.speed_get_colors()
+            red = speed_colors[0]
+            green = speed_colors[1]
+            blue = speed_colors[2]
+        
         if(int(velocity) == 0 and int(note) > 0):
             keylist_status[(note - 20)*2 - note_offset] = 0
             if(ledsettings.mode == "Fading"):
@@ -1901,7 +2018,9 @@ while True:
                     ledstrip.set_adjacent_colors(((note - 20)*2 - note_offset), Color(0, 0, 0))          
             if(saving.isrecording == True):
                 saving.add_track("note_off", original_note, velocity, elapsed_time*1000)
-        elif(int(velocity) > 0 and int(note) > 0):            
+        elif(int(velocity) > 0 and int(note) > 0):
+
+            ledsettings.speed_add_note()
             if(ledsettings.color_mode == "Multicolor"):               
                 choosen_color = ledsettings.get_random_multicolor_in_range(note)
                 red = choosen_color[0]

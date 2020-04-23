@@ -32,6 +32,25 @@
 				<Rainbow_Colors text="Scale"></Rainbow_Colors>
 				<Rainbow_Colors text="Timeshift"></Rainbow_Colors>
 			</LED_Color>
+			<LED_Color text="Speed">
+				<Speed text="Color for slow speed">
+					<Color_for_slow_speed text="Red"></Color_for_slow_speed>
+					<Color_for_slow_speed text="Green"></Color_for_slow_speed>
+					<Color_for_slow_speed text="Blue"></Color_for_slow_speed>
+				</Speed>
+				<Speed text="Color for fast speed">
+					<Color_for_fast_speed text="Red"></Color_for_fast_speed>
+					<Color_for_fast_speed text="Green"></Color_for_fast_speed>
+					<Color_for_fast_speed text="Blue"></Color_for_fast_speed>
+				</Speed>
+				<Speed text="Period">
+						<Period text="Seconds"></Period>
+				</Speed>
+				<Speed text="Max notes in period">
+						<Max_notes_in_period text="Notes"></Max_notes_in_period>
+				</Speed>
+				<Speed text="Confirm"></Speed>
+			</LED_Color>
 		</LED_Strip_Settings>
 		<LED_Strip_Settings text="Light mode">
 			<Light_mode text="Normal"></Light_mode>

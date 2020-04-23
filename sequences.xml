@@ -63,10 +63,18 @@
       <light_mode>Normal</light_mode>
     </step_1>
     <step_2>
-      <color>RGB</color>
-      <Red>135</Red>
-      <Green>206</Green>
-      <Blue>250</Blue>
+      <color>Speed</color>
+	  <speed_slowest_red>255</speed_slowest_red>		
+	  <speed_slowest_green>255</speed_slowest_green>		
+	  <speed_slowest_blue>255</speed_slowest_blue>	
+	  
+	  <speed_fastest_red>255</speed_fastest_red>		
+	  <speed_fastest_green>0</speed_fastest_green>		
+	  <speed_fastest_blue>0</speed_fastest_blue>
+	  
+	  <speed_max_notes>18</speed_max_notes>
+	  <speed_period_in_seconds>0.8</speed_period_in_seconds>	  
+	  
       <light_mode>Normal</light_mode>
     </step_2>
     <step_3>
