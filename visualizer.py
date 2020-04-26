@@ -1323,28 +1323,44 @@ class SaveMIDI:
     def __init__(self):
         self.isrecording = False
         self.is_playing_midi = {}
-        self.start_time = time.time()
-    def start_recording(self):
-        self.mid = MidiFile()
-        self.track = MidiTrack()
-        self.mid.tracks.append(self.track)
-        self.isrecording = True
-        menu.render_message("Recording started", "", 1500)
-        self.restart_time()
+        self.start_time = time.time()              
         
+    def start_recording(self):
+        self.mid = MidiFile(None, None, 0, 10000) #10000 is a ticks_per_beat value
+        self.track = MidiTrack()
+        self.mid.tracks.append(self.track)                
+        self.isrecording = True
+        menu.render_message("Recording started", "", 1000)
+        self.restart_time()        
+        self.messages_to_save = []  
+                
     def cancel_recording(self):
         self.isrecording = False
         menu.render_message("Recording canceled", "", 1500)
         
-    def add_track(self, status, note, velocity, time):
-        self.track.append(Message(status, note=int(note), velocity=int(velocity), time=int(time)))
-        
-    def add_control_change(self, status, channel, control, value, time):
-            self.track.append(Message(status, channel=int(channel), control=int(control),  value=int(value), time=int(time)))
-      
+    def add_track(self, status, note, velocity, time_value):
+        self.messages_to_save.append(["note", time_value, status, note, velocity]) 
+  
+    def add_control_change(self, status, channel, control, value, time_value):
+        self.messages_to_save.append(["control_change", time_value, status, channel, control, value])        
+
     def save(self, filename):
+        for message in self.messages_to_save:            
+            try:
+                time_delay = message[1] - previous_message_time                
+            except:
+                time_delay = 0
+            previous_message_time = message[1]
+
+            if(message[0] == "note"):
+                self.track.append(Message(message[2], note=int(message[3]), velocity=int(message[4]), time=int(time_delay*20000)))
+            else:                
+                self.track.append(Message(message[2], channel=int(message[3]), control=int(message[4]),  value=int(message[5]), time=int(time_delay*20000)))
+            self.last_note_time = message[1]
+
+        self.messages_to_save = []    
         self.isrecording = False
-        self.mid.save('Songs/'+filename+'.mid')
+        self.mid.save('Songs/'+filename+'.mid')        
         menu.render_message("File saved", filename+".mid", 1500)
         
     def restart_time(self):
@@ -1885,8 +1901,7 @@ while True:
         menu.speed_change()
         while GPIO.input(JPRESS) == 0:
             time.sleep(0.01)
-    
-    #if(ledsettings.color_mode == "Single"):
+
     red = ledsettings.get_color("Red")
     green = ledsettings.get_color("Green")
     blue = ledsettings.get_color("Blue")
@@ -1950,7 +1965,8 @@ while True:
     except:
         continue
     #loop through incoming midi messages
-    for msg in midiports.midipending: 
+    for msg in midiports.midipending:
+    
         last_activity = time.time()     
         note = find_between(str(msg), "note=", " ")
         original_note = note
@@ -2017,7 +2033,7 @@ while True:
                     ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(0, 0, 0))  
                     ledstrip.set_adjacent_colors(((note - 20)*2 - note_offset), Color(0, 0, 0))          
             if(saving.isrecording == True):
-                saving.add_track("note_off", original_note, velocity, elapsed_time*1000)
+                saving.add_track("note_off", original_note, velocity, last_activity)
         elif(int(velocity) > 0 and int(note) > 0):
 
             ledsettings.speed_add_note()
@@ -2048,13 +2064,13 @@ while True:
                     ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
                     ledstrip.set_adjacent_colors(((note - 20)*2 - note_offset), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
             if(saving.isrecording == True):
-                saving.add_track("note_on", original_note, velocity, elapsed_time*1000)            
+                saving.add_track("note_on", original_note, velocity, last_activity)            
         else:
             control = find_between(str(msg), "control=", " ")
             value = find_between(str(msg), "value=", " ")
             if(saving.isrecording == True):
-                saving.add_control_change("control_change", 0, control, value, elapsed_time*1000)
+                saving.add_control_change("control_change", 0, control, value, last_activity)
         saving.restart_time()
         if(len(saving.is_playing_midi) > 0):
-            midiports.pending_queue.remove(msg)    
+            midiports.pending_queue.remove(msg)        
     ledstrip.strip.show()
