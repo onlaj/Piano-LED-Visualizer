@@ -59,4 +59,8 @@
 	<led_animation_delay>0</led_animation_delay>
 	<led_animation>Scanner</led_animation>
 	
+	<led_count>176</led_count>
+	<shift>0</shift>
+	
+	
 </settings>

@@ -98,6 +98,12 @@
 			<Skipped_notes text="Finger-based"></Skipped_notes>
 			<Skipped_notes text="Normal"></Skipped_notes>
 		</LED_Strip_Settings>
+		<LED_Strip_Settings text="Led count">
+			<Led_count text="Number"></Led_count>
+		</LED_Strip_Settings>
+		<LED_Strip_Settings text="Shift">
+			<Shift text="Number"></Shift>
+		</LED_Strip_Settings>
 	</menu>
 	<menu text="Play MIDI">
 		<Play_MIDI text="Choose song"></Play_MIDI>

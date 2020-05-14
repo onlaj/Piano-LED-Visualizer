@@ -78,11 +78,17 @@ class LedStrip:
     def __init__(self):
         
         self.brightness_percent = int(usersettings.get_setting_value("brightness_percent"))
+        self.led_number = int(usersettings.get_setting_value("led_count"))
+        self.shift = int(usersettings.get_setting_value("shift"))
         
-        self.brightness = 255 * self.brightness_percent / 100
+        self.brightness = 255 * self.brightness_percent / 100    
+        
+        self.keylist = [0] * self.led_number
+        self.keylist_status = [0] * self.led_number
+        self.keylist_color = [0] * self.led_number
         
         # LED strip configuration:
-        self.LED_COUNT      = 176     # Number of LED pixels.
+        self.LED_COUNT      = int(self.led_number)     # Number of LED pixels.
         self.LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
         #LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
         self.LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
@@ -121,12 +127,36 @@ class LedStrip:
         self.strip.begin()
         fastColorWipe(ledstrip.strip, True)
         
+    def change_led_count(self, value):
+        self.led_number += value
+        if(self.led_number <= 0):
+            self.led_number = 1
+            
+        usersettings.change_setting_value("led_count", self.led_number)
+        
+        self.keylist = [0] * self.led_number
+        self.keylist_status = [0] * self.led_number
+        self.keylist_color = [0] * self.led_number
+        
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
+        args = parser.parse_args()
+        self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT, int(self.brightness), self.LED_CHANNEL)
+        # Intialize the library (must be called once before other functions).
+        self.strip.begin()
+        fastColorWipe(ledstrip.strip, True)
+    
+    def change_shift(self, value):
+        self.shift += value
+        usersettings.change_setting_value("shift", self.shift)
+        fastColorWipe(ledstrip.strip, True)
+        
     def set_adjacent_colors(self, note, color):
         if(ledsettings.adjacent_mode == "RGB" and color != 0):
             color = Color(int(ledsettings.adjacent_green), int(ledsettings.adjacent_red), int(ledsettings.adjacent_blue))
         if(ledsettings.adjacent_mode != "Off"):
             self.strip.setPixelColor(int(note)+1, color)
-            self.strip.setPixelColor(int(note)-1, color)        
+            self.strip.setPixelColor(int(note)-1, color)            
 
 KEYRIGHT = 26
 KEYLEFT = 5
@@ -701,9 +731,17 @@ class MenuLCD:
             miliamps = int(ledstrip.LED_COUNT) * (60 / (100 / float(ledstrip.brightness_percent)))
             amps = round(float(miliamps) / float(1000),2)            
             self.draw.text((10, 50), "Amps needed to "+"\n"+"power "+str(ledstrip.LED_COUNT)+" LEDS with "+"\n"+"white color: "+str(amps), fill = self.text_color)
-        
+                    
         if(self.currentlocation == "Backlight_Brightness"):
-            self.draw.text((10, 35), str(ledsettings.backlight_brightness_percent)+"%", fill = self.text_color)       
+            self.draw.text((10, 35), str(ledsettings.backlight_brightness_percent)+"%", fill = self.text_color) 
+
+        #displaying led count
+        if(self.currentlocation == "Led_count"):
+            self.draw.text((10, 35), str(ledstrip.led_number), fill = self.text_color) 
+            
+        #displaying shift   
+        if(self.currentlocation == "Shift"):
+            self.draw.text((10, 35), str(ledstrip.shift), fill = self.text_color) 
         
         if("Key_range" in self.currentlocation):
             if(self.current_choice == "Start"):                
@@ -1053,7 +1091,13 @@ class MenuLCD:
         elif(value == "RIGHT"):
             value = 1
         if(self.currentlocation == "Brightness"):
-            ledstrip.change_brightness(value*self.speed_multiplier)  
+            ledstrip.change_brightness(value*self.speed_multiplier) 
+            
+        if(self.currentlocation == "Led_count"):
+            ledstrip.change_led_count(value)
+        
+        if(self.currentlocation == "Shift"):
+            ledstrip.change_shift(value)
             
         if(self.currentlocation == "Backlight_Brightness"):
             if(self.current_choice == "Power"):
@@ -1326,7 +1370,7 @@ class SaveMIDI:
         self.start_time = time.time()              
         
     def start_recording(self):
-        self.mid = MidiFile(None, None, 0, 10000) #10000 is a ticks_per_beat value
+        self.mid = MidiFile(None, None, 0, 20000) #10000 is a ticks_per_beat value
         self.track = MidiTrack()
         self.mid.tracks.append(self.track)                
         self.isrecording = True
@@ -1353,9 +1397,9 @@ class SaveMIDI:
             previous_message_time = message[1]
 
             if(message[0] == "note"):
-                self.track.append(Message(message[2], note=int(message[3]), velocity=int(message[4]), time=int(time_delay*20000)))
+                self.track.append(Message(message[2], note=int(message[3]), velocity=int(message[4]), time=int(time_delay*40000)))
             else:                
-                self.track.append(Message(message[2], channel=int(message[3]), control=int(message[4]),  value=int(message[5]), time=int(time_delay*20000)))
+                self.track.append(Message(message[2], channel=int(message[3]), control=int(message[4]),  value=int(message[5]), time=int(time_delay*40000)))
             self.last_note_time = message[1]
 
         self.messages_to_save = []    
@@ -1816,10 +1860,6 @@ menu.show()
 saving = SaveMIDI()
 ledsettings = LedSettings()
 
-keylist = [0] * 176
-keylist_status = [0] * 176
-keylist_color = [0] * 176
-
 z = 0
 display_cycle = 0
 
@@ -1910,12 +1950,12 @@ while True:
       
     if(ledsettings.mode == "Fading" or ledsettings.mode == "Velocity"):                
         n = 0
-        for note in keylist:            
+        for note in ledstrip.keylist:            
             if(ledsettings.color_mode == "Multicolor"):
                 try:
-                    red = keylist_color[n][0]
-                    green = keylist_color[n][1]
-                    blue = keylist_color[n][2]
+                    red = ledstrip.keylist_color[n][0]
+                    green = ledstrip.keylist_color[n][1]
+                    blue = ledstrip.keylist_color[n][2]
                 except:
                     pass
             
@@ -1935,8 +1975,8 @@ while True:
                     fading = (note / float(100)) / 10
                     ledstrip.strip.setPixelColor((n), Color(int(int(green) * fading), int(int(red) * fading), int(int(blue) * fading)))
                     ledstrip.set_adjacent_colors(n, Color(int(int(green) * fading), int(int(red) * fading), int(int(blue) * fading)))  
-                    keylist[n] = keylist[n] - ledsettings.fadingspeed
-                    if(keylist[n] <= 0):
+                    ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
+                    if(ledstrip.keylist[n] <= 0):
                         red_fading = int(ledsettings.get_backlight_color("Red"))* float(ledsettings.backlight_brightness_percent) / 100
                         green_fading = int(ledsettings.get_backlight_color("Green")) * float(ledsettings.backlight_brightness_percent) / 100
                         blue_fading = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
@@ -1944,18 +1984,18 @@ while True:
                         ledstrip.strip.setPixelColor((n), color)
                         ledstrip.set_adjacent_colors(n, color)   
                 else:                    
-                    keylist[n] = 0                   
+                    ledstrip.keylist[n] = 0                   
                     
             if(ledsettings.mode == "Velocity"):
                 if(int(last_control_change) < pedal_deadzone):
-                    if(int(keylist_status[n]) == 0):
+                    if(int(ledstrip.keylist_status[n]) == 0):
                         red_fading = int(ledsettings.get_backlight_color("Red"))* float(ledsettings.backlight_brightness_percent) / 100
                         green_fading = int(ledsettings.get_backlight_color("Green")) * float(ledsettings.backlight_brightness_percent) / 100
                         blue_fading = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
                         color = Color(int(green_fading),int(red_fading),int(blue_fading))                  
                         ledstrip.strip.setPixelColor((n), color) 
                         ledstrip.set_adjacent_colors(n, color)  
-                        keylist[n] = 0                    
+                        ledstrip.keylist[n] = 0                    
             n += 1 
     try:
         if(len(saving.is_playing_midi) == 0):
@@ -2001,12 +2041,19 @@ while True:
             note_offset = 1
         else:
             note_offset = 0
+        note_offset -= ledstrip.shift
+        
+        note_position = (note - 20)*2 - note_offset
+        
+        if(note_position > ledstrip.led_number or note_position < 0):
+            continue
+        
         elapsed_time = time.time() - saving.start_time
                 
         if(ledsettings.color_mode == "Rainbow"):
-            red = get_rainbow_colors(int((int(((note - 20)*2 - note_offset)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
-            green = get_rainbow_colors(int((int(((note - 20)*2 - note_offset)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
-            blue = get_rainbow_colors(int((int(((note - 20)*2 - note_offset)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue") 
+            red = get_rainbow_colors(int((int((note_position)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
+            green = get_rainbow_colors(int((int((note_position)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
+            blue = get_rainbow_colors(int((int((note_position)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue") 
         
         if(ledsettings.color_mode == "Speed"):
             speed_colors = ledsettings.speed_get_colors()
@@ -2015,23 +2062,23 @@ while True:
             blue = speed_colors[2]
         
         if(int(velocity) == 0 and int(note) > 0):
-            keylist_status[(note - 20)*2 - note_offset] = 0
+            ledstrip.keylist_status[note_position] = 0
             if(ledsettings.mode == "Fading"):
-                keylist[(note - 20)*2 - note_offset] = 1000
+                ledstrip.keylist[note_position] = 1000
             elif(ledsettings.mode == "Velocity"):
                 if(int(last_control_change) < pedal_deadzone):
-                    keylist[(note - 20)*2 - note_offset] = 0
+                    ledstrip.keylist[note_position] = 0
             else:
                 if(ledsettings.backlight_brightness > 0):
                     red = int(ledsettings.get_backlight_color("Red"))* (ledsettings.backlight_brightness_percent) / 100
                     green = int(ledsettings.get_backlight_color("Green")) * (ledsettings.backlight_brightness_percent) / 100
                     blue = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
                     color = Color(int(green),int(red),int(blue))
-                    ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), color)
-                    ledstrip.set_adjacent_colors(((note - 20)*2 - note_offset), color)
+                    ledstrip.strip.setPixelColor((note_position), color)
+                    ledstrip.set_adjacent_colors((note_position), color)
                 else:
-                    ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(0, 0, 0))  
-                    ledstrip.set_adjacent_colors(((note - 20)*2 - note_offset), Color(0, 0, 0))          
+                    ledstrip.strip.setPixelColor((note_position), Color(0, 0, 0))  
+                    ledstrip.set_adjacent_colors((note_position), Color(0, 0, 0))          
             if(saving.isrecording == True):
                 saving.add_track("note_off", original_note, velocity, last_activity)
         elif(int(velocity) > 0 and int(note) > 0):
@@ -2042,27 +2089,27 @@ while True:
                 red = choosen_color[0]
                 green = choosen_color[1]
                 blue = choosen_color[2]
-                keylist_color[(note - 20)*2 - note_offset] = [red, green, blue]
+                ledstrip.keylist_color[note_position] = [red, green, blue]
             
-            keylist_status[(note - 20)*2 - note_offset] = 1
+            ledstrip.keylist_status[note_position] = 1
             if(ledsettings.mode == "Velocity"):
                 brightness = (100 / (float(velocity) / 127 ) )/ 100                 
             else:
                 brightness = 1
             if(ledsettings.mode == "Fading"):
-                keylist[(note - 20)*2 - note_offset] = 1001
+                ledstrip.keylist[note_position] = 1001
             if(ledsettings.mode == "Velocity"):
-                keylist[(note - 20)*2 - note_offset] = 1000/float(brightness)
+                ledstrip.keylist[note_position] = 1000/float(brightness)
             if(find_between(str(msg), "channel=", " ") == "12"):
                 if(ledsettings.skipped_notes != "Finger-based"):
-                    ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(255, 0, 0))
+                    ledstrip.strip.setPixelColor((note_position), Color(255, 0, 0))
             elif(find_between(str(msg), "channel=", " ") == "11"):
                 if(ledsettings.skipped_notes != "Finger-based"):
-                    ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(0, 0, 255))
+                    ledstrip.strip.setPixelColor((note_position), Color(0, 0, 255))
             else:
                 if(ledsettings.skipped_notes != "Normal"):
-                    ledstrip.strip.setPixelColor(((note - 20)*2 - note_offset), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
-                    ledstrip.set_adjacent_colors(((note - 20)*2 - note_offset), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
+                    ledstrip.strip.setPixelColor((note_position), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
+                    ledstrip.set_adjacent_colors((note_position), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
             if(saving.isrecording == True):
                 saving.add_track("note_on", original_note, velocity, last_activity)            
         else:
