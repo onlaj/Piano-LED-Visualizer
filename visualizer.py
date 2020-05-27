@@ -151,8 +151,8 @@ class LedStrip:
         usersettings.change_setting_value("shift", self.shift)
         fastColorWipe(ledstrip.strip, True)
         
-    def set_adjacent_colors(self, note, color):
-        if(ledsettings.adjacent_mode == "RGB" and color != 0):
+    def set_adjacent_colors(self, note, color, led_turn_off):
+        if(ledsettings.adjacent_mode == "RGB" and color != 0 and led_turn_off != True):
             color = Color(int(ledsettings.adjacent_green), int(ledsettings.adjacent_red), int(ledsettings.adjacent_blue))
         if(ledsettings.adjacent_mode != "Off"):
             self.strip.setPixelColor(int(note)+1, color)
@@ -1974,7 +1974,7 @@ while True:
                 if(int(note) > 0):                    
                     fading = (note / float(100)) / 10
                     ledstrip.strip.setPixelColor((n), Color(int(int(green) * fading), int(int(red) * fading), int(int(blue) * fading)))
-                    ledstrip.set_adjacent_colors(n, Color(int(int(green) * fading), int(int(red) * fading), int(int(blue) * fading)))  
+                    ledstrip.set_adjacent_colors(n, Color(int(int(green) * fading), int(int(red) * fading), int(int(blue) * fading)), False)  
                     ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
                     if(ledstrip.keylist[n] <= 0):
                         red_fading = int(ledsettings.get_backlight_color("Red"))* float(ledsettings.backlight_brightness_percent) / 100
@@ -1982,7 +1982,7 @@ while True:
                         blue_fading = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
                         color = Color(int(green_fading),int(red_fading),int(blue_fading))                  
                         ledstrip.strip.setPixelColor((n), color)
-                        ledstrip.set_adjacent_colors(n, color)   
+                        ledstrip.set_adjacent_colors(n, color, False)   
                 else:                    
                     ledstrip.keylist[n] = 0                   
                     
@@ -1994,7 +1994,7 @@ while True:
                         blue_fading = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
                         color = Color(int(green_fading),int(red_fading),int(blue_fading))                  
                         ledstrip.strip.setPixelColor((n), color) 
-                        ledstrip.set_adjacent_colors(n, color)  
+                        ledstrip.set_adjacent_colors(n, color, False)  
                         ledstrip.keylist[n] = 0                    
             n += 1 
     try:
@@ -2075,10 +2075,10 @@ while True:
                     blue = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
                     color = Color(int(green),int(red),int(blue))
                     ledstrip.strip.setPixelColor((note_position), color)
-                    ledstrip.set_adjacent_colors((note_position), color)
+                    ledstrip.set_adjacent_colors((note_position), color, True)
                 else:
                     ledstrip.strip.setPixelColor((note_position), Color(0, 0, 0))  
-                    ledstrip.set_adjacent_colors((note_position), Color(0, 0, 0))          
+                    ledstrip.set_adjacent_colors((note_position), Color(0, 0, 0), False)          
             if(saving.isrecording == True):
                 saving.add_track("note_off", original_note, velocity, last_activity)
         elif(int(velocity) > 0 and int(note) > 0):
@@ -2109,7 +2109,7 @@ while True:
             else:
                 if(ledsettings.skipped_notes != "Normal"):
                     ledstrip.strip.setPixelColor((note_position), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
-                    ledstrip.set_adjacent_colors((note_position), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
+                    ledstrip.set_adjacent_colors((note_position), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))), False)
             if(saving.isrecording == True):
                 saving.add_track("note_on", original_note, velocity, last_activity)            
         else:
