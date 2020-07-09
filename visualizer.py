@@ -2070,18 +2070,19 @@ while True:
                     ledstrip.keylist[note_position] = 0
             else:
                 if(ledsettings.backlight_brightness > 0):
-                    red_backlight = int(ledsettings.get_backlight_color("Red"))* (ledsettings.backlight_brightness_percent) / 100
-                    green_backlight = int(ledsettings.get_backlight_color("Green")) * (ledsettings.backlight_brightness_percent) / 100
-                    blue_backlight = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
-                    color_backlight = Color(int(green_backlight),int(red_backlight),int(blue_backlight))
-                    ledstrip.strip.setPixelColor((note_position), color_backlight)
-                    ledstrip.set_adjacent_colors((note_position), color_backlight, True)
+                    red = int(ledsettings.get_backlight_color("Red"))* (ledsettings.backlight_brightness_percent) / 100
+                    green = int(ledsettings.get_backlight_color("Green")) * (ledsettings.backlight_brightness_percent) / 100
+                    blue = int(ledsettings.get_backlight_color("Blue")) * float(ledsettings.backlight_brightness_percent) / 100
+                    color = Color(int(green),int(red),int(blue))
+                    ledstrip.strip.setPixelColor((note_position), color)
+                    ledstrip.set_adjacent_colors((note_position), color, True)
                 else:
                     ledstrip.strip.setPixelColor((note_position), Color(0, 0, 0))  
                     ledstrip.set_adjacent_colors((note_position), Color(0, 0, 0), False)          
             if(saving.isrecording == True):
                 saving.add_track("note_off", original_note, velocity, last_activity)
         elif(int(velocity) > 0 and int(note) > 0):
+
             ledsettings.speed_add_note()
             if(ledsettings.color_mode == "Multicolor"):               
                 choosen_color = ledsettings.get_random_multicolor_in_range(note)
