@@ -43,7 +43,7 @@ singleton()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-parser.add_argument('-d', '--display', type='string', help="choose type of display: '1in44' (default) | '1in3'")
+parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
 args = parser.parse_args()
 
 class UserSettings:
