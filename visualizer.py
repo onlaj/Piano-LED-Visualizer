@@ -41,6 +41,11 @@ def restart_script():
 
 singleton()
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
+parser.add_argument('-d', '--display', action='store_true', help="choose type of display: '1in44' (default) | '1in3'")
+args = parser.parse_args()
+
 class UserSettings:
     def __init__(self):
         self.pending_changes = False        
@@ -98,10 +103,6 @@ class LedStrip:
         self.LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
         self.LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-        args = parser.parse_args()
-
         # Create NeoPixel object with appropriate configuration.
         self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT, self.LED_BRIGHTNESS, self.LED_CHANNEL)
         # Intialize the library (must be called once before other functions).
@@ -119,10 +120,7 @@ class LedStrip:
         
         if(menu.screensaver_is_running == True):
             menu.screensaver_is_running = False
-        
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-        args = parser.parse_args()
+
         self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT, int(self.brightness), self.LED_CHANNEL)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
@@ -138,10 +136,7 @@ class LedStrip:
         self.keylist = [0] * self.led_number
         self.keylist_status = [0] * self.led_number
         self.keylist_color = [0] * self.led_number
-        
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-        args = parser.parse_args()
+
         self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT, int(self.brightness), self.LED_CHANNEL)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
@@ -417,9 +412,11 @@ def get_rainbow_colors(pos, color):
             return 255 - pos * 3        
 
 class MenuLCD:    
-    def __init__(self, xml_file_name):        
-        # self.LCD = LCD_1in44.LCD()
-        self.LCD = LCD_1in3.LCD()
+    def __init__(self, xml_file_name):
+        if args.display == '1in3':
+            self.LCD = LCD_1in3.LCD()
+        else:
+            self.LCD = LCD_1in44.LCD()
         self.LCD.LCD_Init()
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), "GREEN")
         self.draw = ImageDraw.Draw(self.image)
