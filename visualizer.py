@@ -566,7 +566,7 @@ class MenuLCD:
                 mc.appendChild(element)       
 
     def scale(self, size):
-        return round(size * self.LCD.font_scale)
+        return int(round(size * self.LCD.font_scale))
 
     def show(self, position = "default", back_pointer_location = False):
         font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', self.scale(10))
