@@ -3,6 +3,7 @@ from xml.dom import minidom
 import xml.etree.ElementTree as ET
 import ast
 import LCD_1in44
+import LCD_1in3
 import LCD_Config
 from PIL import Image
 from PIL import ImageDraw
@@ -39,6 +40,11 @@ def restart_script():
     os.execl(python, python, *sys.argv)
 
 singleton()
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
+parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
+args = parser.parse_args()
 
 class UserSettings:
     def __init__(self):
@@ -97,10 +103,6 @@ class LedStrip:
         self.LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
         self.LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-        args = parser.parse_args()
-
         # Create NeoPixel object with appropriate configuration.
         self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT, self.LED_BRIGHTNESS, self.LED_CHANNEL)
         # Intialize the library (must be called once before other functions).
@@ -118,10 +120,7 @@ class LedStrip:
         
         if(menu.screensaver_is_running == True):
             menu.screensaver_is_running = False
-        
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-        args = parser.parse_args()
+
         self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT, int(self.brightness), self.LED_CHANNEL)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
@@ -137,10 +136,7 @@ class LedStrip:
         self.keylist = [0] * self.led_number
         self.keylist_status = [0] * self.led_number
         self.keylist_color = [0] * self.led_number
-        
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-        args = parser.parse_args()
+
         self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT, int(self.brightness), self.LED_CHANNEL)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
@@ -416,10 +412,14 @@ def get_rainbow_colors(pos, color):
             return 255 - pos * 3        
 
 class MenuLCD:    
-    def __init__(self, xml_file_name):        
-        self.LCD = LCD_1in44.LCD()
-        self.Lcd_ScanDir = LCD_1in44.SCAN_DIR_DFT
-        self.LCD.LCD_Init(self.Lcd_ScanDir)
+    def __init__(self, xml_file_name):
+        if args.display == '1in3':
+            self.LCD = LCD_1in3.LCD()
+            self.font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', self.scale(10))
+        else:
+            self.LCD = LCD_1in44.LCD()
+            self.font = ImageFont.load_default()
+        self.LCD.LCD_Init()
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), "GREEN")
         self.draw = ImageDraw.Draw(self.image)
         self.LCD.LCD_ShowImage(self.image,0,0)        
@@ -494,7 +494,7 @@ class MenuLCD:
                     break
         except:
             self.render_message("Something went wrong", "Check your sequences file", 1500)
-            
+
     def update_ports(self):
         ports = mido.get_input_names()
         self.update_sequence_list()
@@ -563,8 +563,11 @@ class MenuLCD:
                 element.setAttribute("text"  , rgb_name)     
                 mc = self.DOMTree.getElementsByTagName("Color"+str(i))[0]
                 mc.appendChild(element)       
- 
-    def show(self, position = "default", back_pointer_location = False):     
+
+    def scale(self, size):
+        return int(round(size * self.LCD.font_scale))
+
+    def show(self, position = "default", back_pointer_location=False):
         if(position == "default" and  self.currentlocation):
             position = self.currentlocation
             refresh = 1
@@ -578,12 +581,11 @@ class MenuLCD:
             
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
-
-        self.draw.text((2, 5), position.replace("_", " "), fill = self.text_color) 
+        self.draw.text((self.scale(2), self.scale(5)), position.replace("_", " "), fill=self.text_color, font=self.font)
 
         #getting list of items in current menu    
         staffs = self.DOMTree.getElementsByTagName(position)        
-        text_margin_top = 15
+        text_margin_top = self.scale(15)
         i = 0
         list_count = len(staffs)
         list_count -= 1    
@@ -601,9 +603,30 @@ class MenuLCD:
                 self.pointer_position = 0
             #drawing little arrow to show there are more items above
             if(self.pointer_position > 9 and i < self.menu_offset):
-                self.draw.line([(119,20),(125,20)], fill = self.text_color,width = 2)
-                self.draw.line([(119,20),(122,17)], fill = self.text_color,width = 2)
-                self.draw.line([(119,20),(122, 17)], fill = self.text_color,width = 2)
+                self.draw.line(
+                    [
+                        (self.scale(119), self.scale(20)),
+                        (self.scale(125), self.scale(20))
+                    ],
+                    fill=self.text_color,
+                    width=(self.scale(2))
+                )
+                self.draw.line(
+                    [
+                        (self.scale(119), self.scale(20)),
+                        (self.scale(122), self.scale(17))
+                    ],
+                    fill=self.text_color,
+                    width=(self.scale(2))
+                )
+                self.draw.line(
+                    [
+                        (self.scale(119), self.scale(20)),
+                        (self.scale(122), self.scale(17))
+                    ],
+                    fill=self.text_color,
+                    width=(self.scale(2))
+                )
                 i += 1                
                 continue
                            
@@ -615,24 +638,51 @@ class MenuLCD:
                         self.parent_menu = staff.parentNode.tagName
                     except:
                         self.parent_menu = "end"             
-                    self.draw.rectangle([(0,text_margin_top),(128,text_margin_top + 11)],fill = "Crimson")
-                    self.draw.text((3, text_margin_top), ">", fill = self.text_color)
-                    self.current_choice =  sid                   
+                    self.draw.rectangle(
+                        [
+                            (0, text_margin_top),
+                            (self.LCD.width, text_margin_top + self.scale(11))
+                        ],
+                        fill="Crimson"
+                    )
+                    self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
+                    self.current_choice = sid
             else:             
                 if(sid == back_pointer_location):
                     try:
                         self.parent_menu = staff.parentNode.tagName
                     except:
                         self.parent_menu = "data"
-                    self.draw.rectangle([(0,text_margin_top),(128,text_margin_top + 11)],fill = "Crimson")
-                    self.draw.text((3, text_margin_top), ">", fill = self.text_color)
-                    self.current_choice =  sid
+                    self.draw.rectangle([(0, text_margin_top), (self.LCD.width, text_margin_top + self.scale(11))], fill="Crimson")
+                    self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
+                    self.current_choice = sid
                     self.pointer_position = i                    
             #drawing little arrow to show there are more items below
             if(i == 10 and self.pointer_position < list_count and list_count > 10):
-                self.draw.line([(119,120),(125,120)], fill = self.text_color,width = 2)
-                self.draw.line([(119,120),(122,123)], fill = self.text_color,width = 2)
-                self.draw.line([(122,123),(125,120)], fill = self.text_color,width = 2)
+                self.draw.line(
+                    [
+                        (self.scale(119), self.scale(120)),
+                        (self.scale(125), self.scale(120))
+                    ],
+                    fill=self.text_color,
+                    width=(self.scale(2))
+                )
+                self.draw.line(
+                    [
+                        (self.scale(119), self.scale(120)),
+                        (self.scale(122), self.scale(123))
+                    ],
+                    fill=self.text_color,
+                    width=(self.scale(2))
+                )
+                self.draw.line(
+                    [
+                        (self.scale(122), self.scale(123)),
+                        (self.scale(125), self.scale(120))
+                    ],
+                    fill=self.text_color,
+                    width=(self.scale(2))
+                )
                 
             #scrolling text if too long
             if(self.pointer_position == i and len(sid) > 18):                
@@ -674,30 +724,30 @@ class MenuLCD:
                 else:
                     sid_temp = " -"
                 sid = sid+sid_temp
-            self.draw.text((10, text_margin_top), sid[cut:(18 + cut)]+tobecontinued, fill = self.text_color)
+            self.draw.text((self.scale(10), text_margin_top), sid[cut:(18 + cut)]+tobecontinued, fill=self.text_color, font=self.font)
 
-            text_margin_top += 10
+            text_margin_top += self.scale(10)
             
         #displaying color example
         if(self.currentlocation == "RGB"):
-            self.draw.text((10, 70), str(ledsettings.get_colors()), fill = self.text_color)
-            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_colors())+")")
+            self.draw.text((self.scale(10), self.scale(70)), str(ledsettings.get_colors()), fill=self.text_color, font=self.font)
+            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width,self.LCD.height)],fill="rgb("+str(ledsettings.get_colors())+")")
             
         if("RGB_Color" in self.currentlocation):            
-            self.draw.text((10, 70), str(ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color',''))), fill = self.text_color)
-            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color','')))+")")
+            self.draw.text((self.scale(10), self.scale(70)), str(ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color',''))), fill = self.text_color, font=self.font)
+            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width,self.LCD.height)], fill="rgb("+str(ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color','')))+")")
             
         if("Backlight_Color" in self.currentlocation):            
-            self.draw.text((10, 70), str(ledsettings.get_backlight_colors()), fill = self.text_color)
-            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_backlight_colors())+")")
+            self.draw.text((self.scale(10), self.scale(70)), str(ledsettings.get_backlight_colors()), fill=self.text_color, font=self.font)
+            self.draw.rectangle([(self.scale(0),self.scale(80)),(self.LCD.width,self.LCD.height)], fill="rgb("+str(ledsettings.get_backlight_colors())+")")
             
         if("Custom_RGB" in self.currentlocation):            
-            self.draw.text((10, 70), str(ledsettings.get_adjacent_colors()), fill = self.text_color)
-            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(ledsettings.get_adjacent_colors())+")")
+            self.draw.text((self.scale(10), self.scale(70)), str(ledsettings.get_adjacent_colors()), fill=self.text_color, font=self.font)
+            self.draw.rectangle([(self.scale(0), self.scale(80)),(self.LCD.width,self.LCD.height)], fill="rgb("+str(ledsettings.get_adjacent_colors())+")")
         
         if("Multicolor" in self.currentlocation):
             try:
-                self.draw.rectangle([(115,50),(128,80)],fill = "rgb("+str(ledsettings.get_multicolors(self.current_choice.replace('Color','')))+")")
+                self.draw.rectangle([(self.scale(115), self.scale(50)), (self.LCD.width, self.scale(80))], fill="rgb("+str(ledsettings.get_multicolors(self.current_choice.replace('Color','')))+")")
             except:
                 pass
                
@@ -705,69 +755,69 @@ class MenuLCD:
             red = ledsettings.speed_slowest["red"]
             green = ledsettings.speed_slowest["green"]
             blue = ledsettings.speed_slowest["blue"]
-            self.draw.text((10, 70), str(red)+", "+str(green)+", "+str(blue), fill = self.text_color)
-            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(red)+", "+str(green)+", "+str(blue)+")")
+            self.draw.text((self.scale(10), self.scale(70)), str(red)+", "+str(green)+", "+str(blue), fill=self.text_color, font=self.font)
+            self.draw.rectangle([(self.scale(0), self.scale(80)),(self.LCD.width,self.LCD.height)], fill="rgb("+str(red)+", "+str(green)+", "+str(blue)+")")
             
         if("Color_for_fast_speed" in self.currentlocation):
             red = ledsettings.speed_fastest["red"]
             green = ledsettings.speed_fastest["green"]
             blue = ledsettings.speed_fastest["blue"]
-            self.draw.text((10, 70), str(red)+", "+str(green)+", "+str(blue), fill = self.text_color)
-            self.draw.rectangle([(0,80),(128,128)],fill = "rgb("+str(red)+", "+str(green)+", "+str(blue)+")")
+            self.draw.text((self.scale(10), self.scale(70)), str(red)+", "+str(green)+", "+str(blue), fill=self.text_color, font=self.font)
+            self.draw.rectangle([(self.scale(0), self.scale(80)),(self.LCD.width,self.LCD.height)], fill="rgb("+str(red)+", "+str(green)+", "+str(blue)+")")
                         
         #displaying rainbow offset value
         if(self.current_choice == "Offset"):
-            self.draw.text((10, 70), str(ledsettings.rainbow_offset), fill = self.text_color)
+            self.draw.text((self.scale(10), self.scale(70)), str(ledsettings.rainbow_offset), fill=self.text_color, font=self.font)
             
         if(self.current_choice == "Scale"):
-            self.draw.text((10, 70), str(ledsettings.rainbow_scale)+"%", fill = self.text_color)
+            self.draw.text((self.scale(10), self.scale(70)), str(ledsettings.rainbow_scale)+"%", fill=self.text_color, font=self.font)
             
         if(self.current_choice == "Timeshift"):
-            self.draw.text((10, 70), str(ledsettings.rainbow_timeshift), fill = self.text_color)        
+            self.draw.text((self.scale(10), self.scale(70)), str(ledsettings.rainbow_timeshift), fill=self.text_color, font=self.font)
         
         #displaying brightness value
         if(self.currentlocation == "Brightness"):
-            self.draw.text((10, 35), str(ledstrip.brightness_percent)+"%", fill = self.text_color)            
+            self.draw.text((self.scale(10), self.scale(35)), str(ledstrip.brightness_percent)+"%", fill=self.text_color, font=self.font)
             miliamps = int(ledstrip.LED_COUNT) * (60 / (100 / float(ledstrip.brightness_percent)))
             amps = round(float(miliamps) / float(1000),2)            
-            self.draw.text((10, 50), "Amps needed to "+"\n"+"power "+str(ledstrip.LED_COUNT)+" LEDS with "+"\n"+"white color: "+str(amps), fill = self.text_color)
+            self.draw.text((self.scale(10), self.scale(50)), "Amps needed to "+"\n"+"power "+str(ledstrip.LED_COUNT)+" LEDS with "+"\n"+"white color: "+str(amps), fill=self.text_color, font=self.font)
                     
         if(self.currentlocation == "Backlight_Brightness"):
-            self.draw.text((10, 35), str(ledsettings.backlight_brightness_percent)+"%", fill = self.text_color) 
+            self.draw.text((self.scale(10), self.scale(35)), str(ledsettings.backlight_brightness_percent)+"%", fill=self.text_color, font=self.font)
 
         #displaying led count
         if(self.currentlocation == "Led_count"):
-            self.draw.text((10, 35), str(ledstrip.led_number), fill = self.text_color) 
+            self.draw.text((self.scale(10), self.scale(35)), str(ledstrip.led_number), fill=self.text_color, font=self.font)
             
         #displaying shift   
         if(self.currentlocation == "Shift"):
-            self.draw.text((10, 35), str(ledstrip.shift), fill = self.text_color) 
+            self.draw.text((self.scale(10), self.scale(35)), str(ledstrip.shift), fill=self.text_color, font=self.font)
         
         if("Key_range" in self.currentlocation):
             if(self.current_choice == "Start"):                
                 try:
-                    self.draw.text((10, 50), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][0]), fill = self.text_color)
+                    self.draw.text((self.scale(10), self.scale(50)), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][0]), fill = self.text_color, font=self.font)
                 except: 
                     pass
             else:
-                self.draw.text((10, 50), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][1]), fill = self.text_color)
+                self.draw.text((self.scale(10), self.scale(50)), str(ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range',''))-1][1]), fill = self.text_color, font=self.font)
                 
         #displaying screensaver settings
         if(self.currentlocation == "Start_delay"):
-             self.draw.text((10, 70), str(self.screensaver_delay), fill = self.text_color)
+             self.draw.text((self.scale(10), self.scale(70)), str(self.screensaver_delay), fill=self.text_color, font=self.font)
              
         if(self.currentlocation == "Turn_off_screen_delay"):
-             self.draw.text((10, 70), str(self.screen_off_delay), fill = self.text_color)
+             self.draw.text((self.scale(10), self.scale(70)), str(self.screen_off_delay), fill = self.text_color, font=self.font)
              
         if(self.currentlocation == "Led_animation_delay"):
-             self.draw.text((10, 70), str(self.led_animation_delay), fill = self.text_color)
+             self.draw.text((self.scale(10), self.scale(70)), str(self.led_animation_delay), fill = self.text_color, font=self.font)
              
         #displaying speed values
         if(self.currentlocation == "Period"):
-            self.draw.text((10, 70), str(ledsettings.speed_period_in_seconds), fill = self.text_color)
+            self.draw.text((self.scale(10), self.scale(70)), str(ledsettings.speed_period_in_seconds), fill = self.text_color, font=self.font)
             
         if(self.currentlocation == "Max_notes_in_period"):
-            self.draw.text((10, 70), str(ledsettings.speed_max_notes), fill = self.text_color)
+            self.draw.text((self.scale(10), self.scale(70)), str(ledsettings.speed_max_notes), fill = self.text_color, font=self.font)
                 
         self.LCD.LCD_ShowImage(self.image,0,0)
 
@@ -799,8 +849,8 @@ class MenuLCD:
     def render_message(self, title, message, delay = 500):
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
-        self.draw.text((3, 55), title, fill = self.text_color)
-        self.draw.text((3, 65), message, fill = self.text_color)
+        self.draw.text((self.scale(3), self.scale(55)), title, fill=self.text_color, font=self.font)
+        self.draw.text((self.scale(3), self.scale(65)), message, fill=self.text_color, font=self.font)
         self.LCD.LCD_ShowImage(self.image,0,0)
         LCD_Config.Driver_Delay_ms(delay)  
         
@@ -808,75 +858,75 @@ class MenuLCD:
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
         
-        total_height = 1
+        total_height = self.scale(1)
         info_count = 0
         for key, value in menu.screensaver_settings.items():
             if(str(key) == "time" and str(value) == "1"):
-                total_height += 31
+                total_height += self.scale(31)
             elif(str(key) == "date" and str(value) == "1"):
-                total_height += 13
+                total_height += self.scale(13)
             elif(str(key) == "cpu_chart" and str(value) == "1"):
-                total_height += 35
+                total_height += self.scale(35)
             else:
                 if(str(value) == "1"):
                     info_count += 1
                 
-            height_left = 128 - total_height
+            height_left = self.LCD.height - total_height
             
         if(info_count > 0):
             info_height_font = height_left / info_count
             
-        top_offset = 2
+        top_offset = self.scale(2)
          
         if(menu.screensaver_settings["time"] == "1"):
-            fonthour = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', 31)  
-            self.draw.text((4, top_offset), hour, fill = self.text_color, font=fonthour)
-            top_offset += 31
+            fonthour = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', self.scale(31))
+            self.draw.text((self.scale(4), top_offset), hour, fill=self.text_color, font=fonthour)
+            top_offset += self.scale(31)
          
 
         if(menu.screensaver_settings["date"] == "1"):
-            font_date = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', 13)        
-            self.draw.text((34, top_offset), date, fill = self.text_color, font=font_date)
-            top_offset += 13
+            font_date = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', self.scale(13))
+            self.draw.text((self.scale(34), top_offset), date, fill=self.text_color, font=font_date)
+            top_offset += self.scale(13)
             
         if(menu.screensaver_settings["cpu_chart"] == "1"):       
             previous_height = 0
-            c = -5
+            c = self.scale(-5)
             for cpu_chart in cpu_history:
-                height = ((100 - cpu_chart) * 35) / float(100)            
-                self.draw.line([(c,top_offset+previous_height),(c+5,top_offset+height)], fill = "Red",width = 1)            
+                height = self.scale(((100 - cpu_chart) * 35) / float(100))
+                self.draw.line([(c, top_offset+previous_height), (c+self.scale(5), top_offset+height)], fill="Red", width=self.scale(1))
                 previous_height = height
-                c += 5
-            top_offset += 35
+                c += self.scale(5)
+            top_offset += self.scale(35)
         
-        if(info_height_font > 12):
-            info_height_font = 12
+        if(info_height_font > self.scale(12)):
+            info_height_font = self.scale(12)
         
         font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', info_height_font)
         
         if(menu.screensaver_settings["cpu"] == "1"):        
-            self.draw.text((1, top_offset), "CPU: "+str(cpu)+"% ("+str(cpu_average)+"%)", fill = self.text_color, font=font)
+            self.draw.text((self.scale(1), top_offset), "CPU: "+str(cpu)+"% ("+str(cpu_average)+"%)", fill = self.text_color, font=font)
             top_offset += info_height_font
             
         if(menu.screensaver_settings["ram"] == "1"): 
-            self.draw.text((1, top_offset), "RAM usage: "+str(ram)+"%", fill = self.text_color, font=font)
+            self.draw.text((self.scale(1), top_offset), "RAM usage: "+str(ram)+"%", fill = self.text_color, font=font)
             top_offset += info_height_font
             
         if(menu.screensaver_settings["temp"] == "1"): 
-            self.draw.text((1, top_offset), "Temp: "+str(temp)+" C", fill = self.text_color, font=font)
+            self.draw.text((self.scale(1), top_offset), "Temp: "+str(temp)+" C", fill = self.text_color, font=font)
             top_offset += info_height_font
         
         if(menu.screensaver_settings["network_usage"] == "1"):
-            if(info_height_font > 11):
-                info_height_font_network = 11
+            if(info_height_font > self.scale(11)):
+                info_height_font_network = self.scale(11)
             else:
                 info_height_font_network = info_height_font
             font_network = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', info_height_font_network)
-            self.draw.text((1, top_offset), "D:"+str("{:.2f}".format(download))+"Mb/s U:"+str("{:.2f}".format(upload))+"Mb/s", fill = self.text_color, font=font_network)
+            self.draw.text((self.scale(1), top_offset), "D:"+str("{:.2f}".format(download))+"Mb/s U:"+str("{:.2f}".format(upload))+"Mb/s", fill = self.text_color, font=font_network)
             top_offset += info_height_font_network    
         
         if(menu.screensaver_settings["sd_card_space"] == "1"):          
-            self.draw.text((1, top_offset), "SD: "+str(round(card_space.used/(1024.0 ** 3), 1))+"/"+str(round(card_space.total/(1024.0 ** 3), 1))+"("+str(card_space.percent)+"%)", fill = self.text_color, font=font)
+            self.draw.text((self.scale(1), top_offset), "SD: "+str(round(card_space.used/(1024.0 ** 3), 1))+"/"+str(round(card_space.total/(1024.0 ** 3), 1))+"("+str(card_space.percent)+"%)", fill = self.text_color, font=font)
             top_offset += info_height_font
             
         self.LCD.LCD_ShowImage(self.image,0,0)

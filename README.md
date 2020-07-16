@@ -106,6 +106,10 @@ Run visualizer.py with command
 
 You can auto run Visualizer on RPi boot, just follow this tutorial: [How To Autorun A Python Script On Raspberry Pi Boot](https://www.raspberrypi-spy.co.uk/2015/02/how-to-autorun-a-python-script-on-raspberry-pi-boot/)
 
+If you are using WaveShare 1.3inch 240x240 LED Hat instead of 1.44inch 128x128, add this argument:
+
+> sudo -E python visualizer.py --display 1in3
+
 ## Using the sequences
 In the visualizer menu you can find setting called "Sequences". It allows you to change led properties while playing using third key on Waveshare hat or your piano pedals.
 You can edit or create new sequences by editing "sequences.xml" file.

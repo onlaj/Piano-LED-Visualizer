@@ -65,6 +65,7 @@ class LCD:
 		self.LCD_Scan_Dir = SCAN_DIR_DFT
 		self.LCD_X_Adjust = LCD_X
 		self.LCD_Y_Adjust = LCD_Y
+		self.font_scale = 1
 
 	"""    Hardware reset     """
 	def  LCD_Reset(self):
@@ -239,7 +240,7 @@ class LCD:
 	#function:	
 	#			initialization
 	#********************************************************************************/
-	def LCD_Init(self, Lcd_ScanDir):
+	def LCD_Init(self, Lcd_ScanDir=SCAN_DIR_DFT):
 		if (LCD_Config.GPIO_Init() != 0):
 			return -1
 		
