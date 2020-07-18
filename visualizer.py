@@ -2045,7 +2045,7 @@ while True:
         
         note_position = (note - 20)*2 - note_offset
         
-        if(note_position > ledstrip.led_number or note_position < 0):
+        if((note_position > ledstrip.led_number or note_position < 0) and control_change == False):
             continue
         
         elapsed_time = time.time() - saving.start_time
