@@ -875,6 +875,8 @@ class MenuLCD:
             
         if(info_count > 0):
             info_height_font = height_left / info_count
+	else:
+	    info_height_font = 0
             
         top_offset = self.scale(2)
          
