@@ -545,7 +545,7 @@ class MenuLCD:
             element.setAttribute("text"  , "RGB Color"+str(i))     
             mc = self.DOMTree.getElementsByTagName("Multicolor")[0]
             mc.appendChild(element)
-			
+
             #adding key range to menu
             element = self.DOMTree.createElement("Color"+str(i))        
             element.appendChild(self.DOMTree.createTextNode(""))
@@ -608,7 +608,7 @@ class MenuLCD:
         if(self.pointer_position > 9):
             self.menu_offset = self.pointer_position - 9
         else:
-            self.menu_offset = -1;        
+            self.menu_offset = -1
         
         #looping through menu list
         for staff in staffs:
@@ -894,7 +894,7 @@ class MenuLCD:
             info_height_font = 0
             
         top_offset = self.scale(2)
-         
+
         if(menu.screensaver_settings["time"] == "1"):
             fonthour = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', self.scale(31))
             self.draw.text((self.scale(4), top_offset), hour, fill=self.text_color, font=fonthour)
@@ -971,7 +971,7 @@ class MenuLCD:
                 saving.save(current_date)
                 menu.update_songs()
             if(choice =="Start recording"):                
-                menu.render_message("Recording started", "", 2000)             
+                menu.render_message("Recording started", "", 2000)
                 saving.start_recording()
             if(choice == "Cancel recording"):
                 menu.render_message("Recording canceled", "", 2000) 
@@ -1262,7 +1262,7 @@ def play_midi(song_path):
     saving.t = threading.currentThread()    
 
     output_time_last = 0
-    delay_debt = 0;
+    delay_debt = 0
     try:   
         mid = mido.MidiFile("Songs/"+song_path)
         fastColorWipe(ledstrip.strip, True)
@@ -1437,41 +1437,54 @@ class SaveMIDI:
         self.start_time = time.time()              
         
     def start_recording(self):
-        self.mid = MidiFile(None, None, 0, 20000) #10000 is a ticks_per_beat value
-        self.track = MidiTrack()
-        self.mid.tracks.append(self.track)                
         self.isrecording = True
-        menu.render_message("Recording started", "", 1000)
-        self.restart_time()        
-        self.messages_to_save = []  
-                
+        menu.render_message("Recording started", "", 500)
+        self.messages_to_save = dict()
+        self.messages_to_save["main"] = []
+        self.restart_time()
+
     def cancel_recording(self):
         self.isrecording = False
         menu.render_message("Recording canceled", "", 1500)
         
-    def add_track(self, status, note, velocity, time_value):
-        self.messages_to_save.append(["note", time_value, status, note, velocity]) 
-  
+    def add_track(self, status, note, velocity, time_value, hex_color="main"):
+        if(hex_color not in self.messages_to_save):
+            self.messages_to_save[str(hex_color)] = []
+
+        if(status == "note_off"):
+            for key, note_off_message in self.messages_to_save.items():
+                self.messages_to_save[key].append(["note", time_value, status, note, velocity])
+        else:
+            self.messages_to_save[str(hex_color)].append(["note", time_value, status, note, velocity])
+            if(str(hex_color) != "main"):
+                self.messages_to_save["main"].append(["note", time_value, status, note, velocity])
+
     def add_control_change(self, status, channel, control, value, time_value):
-        self.messages_to_save.append(["control_change", time_value, status, channel, control, value])        
+        self.messages_to_save["main"].append(["control_change", time_value, status, channel, control, value])
 
     def save(self, filename):
-        for message in self.messages_to_save:            
-            try:
-                time_delay = message[1] - previous_message_time                
-            except:
-                time_delay = 0
-            previous_message_time = message[1]
+        for key, multicolor_track in self.messages_to_save.items():
+            self.mid = MidiFile(None, None, 0, 20000)  # 20000 is a ticks_per_beat value
+            self.track = MidiTrack()
+            self.mid.tracks.append(self.track)
+            for message in multicolor_track:
+                try:
+                    time_delay = message[1] - previous_message_time
+                except:
+                    time_delay = 0
+                previous_message_time = message[1]
+                if(time_delay < 0 ):
+                    time_delay = 0
+                if(message[0] == "note"):
+                    self.track.append(Message(message[2], note=int(message[3]), velocity=int(message[4]), time=int(time_delay*40000)))
+                else:
+                    self.track.append(Message(message[2], channel=int(message[3]), control=int(message[4]),  value=int(message[5]), time=int(time_delay*40000)))
+                self.last_note_time = message[1]
 
-            if(message[0] == "note"):
-                self.track.append(Message(message[2], note=int(message[3]), velocity=int(message[4]), time=int(time_delay*40000)))
-            else:                
-                self.track.append(Message(message[2], channel=int(message[3]), control=int(message[4]),  value=int(message[5]), time=int(time_delay*40000)))
-            self.last_note_time = message[1]
+            self.mid.save('Songs/'+filename+'_'+str(key)+'.mid')
 
-        self.messages_to_save = []    
+        self.messages_to_save = []
         self.isrecording = False
-        self.mid.save('Songs/'+filename+'.mid')        
         menu.render_message("File saved", filename+".mid", 1500)
         
     def restart_time(self):
@@ -1577,7 +1590,7 @@ class LedSettings:
     def get_multicolors(self, number):
         number = int(number) - 1
         return str(self.multicolor[int(number)][0])+", "+str(self.multicolor[int(number)][1])+", "+str(self.multicolor[int(number)][2])
-		
+
     def get_random_multicolor_in_range(self, note):
         temporary_multicolor = []
         i = 0
@@ -1621,7 +1634,7 @@ class LedSettings:
             ledstrip.strip.setPixelColor(int(((start - 20)*2 - note_offset_start)), Color(int(green), int(red), int(blue)))
             ledstrip.strip.setPixelColor(int(((end - 20)*2 - note_offset_end)), Color(int(green), int(red), int(blue)))        
         
-            color_counter += 1;
+            color_counter += 1
         
     def change_color(self, color, value):
         self.sequence_active = False
@@ -2177,7 +2190,10 @@ while True:
                     ledstrip.strip.setPixelColor((note_position), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))))
                     ledstrip.set_adjacent_colors((note_position), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))), False)
             if(saving.isrecording == True):
-                saving.add_track("note_on", original_note, velocity, last_activity)            
+                if (ledsettings.color_mode == "Multicolor"):
+                    saving.add_track("note_on", original_note, velocity, last_activity, wc.rgb_to_hex((red,green,blue)))
+                else:
+                    saving.add_track("note_on", original_note, velocity, last_activity)
         else:
             control = find_between(str(msg), "control=", " ")
             value = find_between(str(msg), "value=", " ")
