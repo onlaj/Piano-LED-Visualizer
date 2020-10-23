@@ -1029,7 +1029,7 @@ class MenuLCD:
                 menu.update_ports()                
         
             if(choice == "Reset Bluetooth service"):
-                menu.render_message("Reseting BL service", "", 1000)
+                menu.render_message("Resetting BL service", "", 1000)
                 os.system("sudo systemctl restart btmidi.service")        
             
         if(location == "LED_animations"):
