@@ -55,6 +55,7 @@
 		<LED_Strip_Settings text="Light mode">
 			<Light_mode text="Normal"></Light_mode>
 			<Light_mode text="Fading">
+				<Fading text="Instant"></Fading>
 				<Fading text="Very fast"></Fading>
 				<Fading text="Fast"></Fading>
 				<Fading text="Medium"></Fading>

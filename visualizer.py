@@ -999,6 +999,8 @@ class MenuLCD:
                 ledsettings.fadingspeed = 10
             elif(choice == "Very slow"):
                 ledsettings.fadingspeed = 2
+            elif (choice == "Instant"):
+                ledsettings.fadingspeed = 1000
             usersettings.change_setting_value("fadingspeed", ledsettings.fadingspeed)
         
         if(location == "Velocity"):
@@ -1748,6 +1750,8 @@ class LedSettings:
                         self.fadingspeed = 10
                     elif(self.fadingspeed == "Very slow"):
                         self.fadingspeed = 2
+                    elif (self.fadingspeed == "Instant"):
+                        self.fadingspeed = 1000
             
                 if(self.mode == "Velocity"):                
                     if(self.fadingspeed == "Fast"):
@@ -1817,7 +1821,7 @@ class LedSettings:
         elif(self.backlight_brightness_percent > 100):
             self.backlight_brightness_percent = 100
         self.backlight_brightness = 255 * self.backlight_brightness_percent / 100 
-        usersettings.change_setting_value("backlight_brightness", self.backlight_brightness)        
+        usersettings.change_setting_value("backlight_brightness", int(self.backlight_brightness))
         usersettings.change_setting_value("backlight_brightness_percent", self.backlight_brightness_percent)        
         fastColorWipe(ledstrip.strip, True)
     def change_backlight_color(self, color, value):
@@ -1942,6 +1946,7 @@ ledsettings = LedSettings()
 
 z = 0
 display_cycle = 0
+screen_hold_time = 16
 
 last_activity = time.time()
 
@@ -1960,12 +1965,9 @@ while True:
             elapsed_time = time.time() - saving.start_time
     except:
             elapsed_time = 0
-    if(display_cycle >= 60):
+    if(display_cycle >= 3):
         display_cycle = 0
-        if(saving.isrecording == True):
-            screen_hold_time = 12
-        else:
-            screen_hold_time = 3
+
         if(elapsed_time > screen_hold_time):
             menu.show()
             timeshift_start = time.time()     
@@ -2043,7 +2045,12 @@ while True:
                 red = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
                 green = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
                 blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue")
-                
+
+                if (int(note) == 1001):
+                    if (int(note) > 0):
+                        ledstrip.strip.setPixelColor((n), Color(int(green), int(red), int(blue)))
+                        ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
+
             if(ledsettings.color_mode == "Speed"):
                 speed_colors = ledsettings.speed_get_colors()
                 red = speed_colors[0]
@@ -2086,7 +2093,7 @@ while True:
         continue
     #loop through incoming midi messages
     for msg in midiports.midipending:
-    
+
         last_activity = time.time()     
         note = find_between(str(msg), "note=", " ")
         original_note = note
