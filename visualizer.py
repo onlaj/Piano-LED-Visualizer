@@ -919,7 +919,7 @@ class MenuLCD:
         if(info_height_font > self.scale(12)):
             info_height_font = self.scale(12)
         
-        font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', info_height_font)
+        font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', int(info_height_font))
         
         if(menu.screensaver_settings["cpu"] == "1"):        
             self.draw.text((self.scale(1), top_offset), "CPU: "+str(cpu)+"% ("+str(cpu_average)+"%)", fill = self.text_color, font=font)
@@ -937,10 +937,10 @@ class MenuLCD:
             if(info_height_font > self.scale(11)):
                 info_height_font_network = self.scale(11)
             else:
-                info_height_font_network = info_height_font
-            font_network = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', info_height_font_network)
+                info_height_font_network = int(info_height_font)
+            font_network = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', int(info_height_font_network))
             self.draw.text((self.scale(1), top_offset), "D:"+str("{:.2f}".format(download))+"Mb/s U:"+str("{:.2f}".format(upload))+"Mb/s", fill = self.text_color, font=font_network)
-            top_offset += info_height_font_network    
+            top_offset += info_height_font_network
         
         if(menu.screensaver_settings["sd_card_space"] == "1"):          
             self.draw.text((self.scale(1), top_offset), "SD: "+str(round(card_space.used/(1024.0 ** 3), 1))+"/"+str(round(card_space.total/(1024.0 ** 3), 1))+"("+str(card_space.percent)+"%)", fill = self.text_color, font=font)
