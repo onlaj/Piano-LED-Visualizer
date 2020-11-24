@@ -1379,8 +1379,11 @@ def screensaver():
         else:
             ram_usage = 0
 
-        if(menu.screensaver_settings["temp"] == "1"):        
-            temp = find_between(str(psutil.sensors_temperatures()["cpu-thermal"]), "current=", ",")
+        if(menu.screensaver_settings["temp"] == "1"):
+            try:
+                temp = find_between(str(psutil.sensors_temperatures()["cpu_thermal"]), "current=", ",")
+            except:
+                temp = find_between(str(psutil.sensors_temperatures()["cpu-thermal"]), "current=", ",")
             temp = round(float(temp), 1)
         else:
             temp = 0
