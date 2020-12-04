@@ -1,4 +1,5 @@
 
+
 # Piano LED Visualizer
 
 ## [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/onlaj)
@@ -18,97 +19,160 @@
   - Waveshare LCD TFT 1,44'' 128x128px [Amazon US](https://amzn.to/2YkW5nC) | [Aliexpress](http://s.click.aliexpress.com/e/cpk00blQ)
   - Some wires
 
-**Not required but worth to have to make everything look neat:**
+**Not required but worth having, to make everything look neat:**
 
   - Custom 3d printed case (*I attached STL file with modified 3d model, there is additional space and holes for power socket and wires, [here](https://www.thingiverse.com/thing:3393553) is original model*) 
   - Braid for cables [Amazon US](https://amzn.to/2yd2Fhz) | [Aliexpress](http://s.click.aliexpress.com/e/cG7ur6Di)
   - Heat shrink bands [Amazon US](https://amzn.to/2SsSYok) | [Aliexpress](http://s.click.aliexpress.com/e/UwKVLo8)
-  - Aluminium LED Profile with diffuser (*highly recommend to search for right one in local shops*) [pic#1](https://i.imgur.com/MF7dd1R.png) [pic#2](https://i.imgur.com/fFWOs3v.png)
-  - Double side tape to mount everything on piano
+  - Aluminium LED Profile with diffuser (*highly recommend to search for the right one in local shops*) [pic#1](https://i.imgur.com/MF7dd1R.png) [pic#2](https://i.imgur.com/fFWOs3v.png) 
+  [Aliexpress](https://s.click.aliexpress.com/e/_A0HNfF)  *(choose T0515 for 12mm 2 meters, credits to [vzoltan](https://github.com/vzoltan) for finding this)*
+  - Double side tape to stick everything on the piano
   - Windows 10 laptop/tablet with bluetooth to run Synthesia
 
 **Total cost (excluding piano and tablet) should be 75-100 USD**
-*Disclosure: All of the links above are affiliate links, meaning, at no additional cost to you, I will earn a commission if you click through and make a purchase.*
+*Disclosure: All of the links above are affiliate links, which means that without additional costs for you, I will earn a commission if you make a purchase by clicking through it.*
 
 ## Software preparations
-Install [Raspbian](https://www.raspberrypi.org/documentation/installation/installing-images/) on you Raspberry Pi.
-This step requires to connect monitor, keyboard and/or mouse to your RPi. If you can't do it I suggest you to follow this guide: [Raspberry Pi Setup Without a Monitor, Keyboard or a Mouse](https://www.terminalbytes.com/raspberry-pi-without-monitor-keyboard/)
+There are two ways, you can use preconfigured system image or install everything manually.
 
-## Automatic midi connection and setting Raspberry Pi as Bluetooth MIDI host
+### 1. **System image**
+- Download latest zip file from releases.
+- Unzip the file.
+- Use program like [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager/) or [Etcher](https://www.balena.io/etcher/) to save system image to your SD card (4GB is a minimum).
 
+If you don't need to connect your RPi to Wi-Fi you can eject SD card from your PC and put it in Raspberry Pi. After 3-8 minutes *(depending on how fast your SD card is)* you should see Visualizer menu on RPi screen.
 
-Here is [instruction](https://neuma.studio/rpi-as-midi-host.html)
-Just do following parts and skip the others:
-- configuring automatic midi connection **(this is required even if you don't need Bluetooth feature)**
-- midi bluetooth setup
- 
-If you have problems with connecting your PC to RPI try to add 
+If you want to make your RPi autoconnect to Wi-Fi you need to follow [this guide](https://www.terminalbytes.com/raspberry-pi-without-monitor-keyboard/) *(starting from step 3)*
 
-    DisablePlugins = pnat
-to */etc/bluetooth/main.conf* file. You will have to restart RPI after making this change.
+*Note: replace `“` with `"` when editing `wpa_supplicant.conf` file.*
 
-If you still have problems with connecting your Windows tablet/pc try to install Blueman, graphical bluetooth manager
-
-    sudo apt-get install blueman
-***
-If you don't need BT connection you can skip "midi bluetooth setup" part, but you need to install few libraries anyway.
-
-    sudo apt-get install libjack0 
-    sudo apt-get install libjack-dev 
-    sudo apt-get install libasound2-dev
+### 2. **Manual installation**
+[Instruction](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/manual_installation.md)
 
 ## Learning to play with Synthesia
-Official instruction:
 
-> First, make sure the "Midi.UseWinRtMidi" option is enabled:  
-> 1.  Hold your Shift key while launching Synthesia (to open the configuration window).
-> 2.  Find the "Midi.UseWinRTMidi" entry in the Setting drop-down box.
-> 3.  Add a check mark to the "Value" box.
+### We need to make a connection between your PC/MAC/Android. There are at least 3 ways of doing that: ###
 
-BT support on different devices:
+**1. Sevilla's Soft MIDI USB-USB device**
+This is, in my opinion, the best way to make connection between RPi and PC. It works with any device that support MIDI over USB, offers the lowest latency and no lost packets. The only downside is that it cost €39.00 (~48 USD) + shipping. You connect your Piano and PC to USB HUB connected to RPi and that's it, everything just works.
+[Link to store](http://compasflamenco.com/midi-c-3/midi-usbusb-p-4.html)
 
-> -   BLE MIDI on macOS: completely automatic and supported
-> -   BLE MIDI on iOS: completely automatic and supported
-> -   BLE MIDI on Win10: enable the "Midi.UseWinRTMidi" advanced option to try and use Microsoft's  [complete mess](https://www.synthesiagame.com/forum/viewtopic.php?p=47530#p47530) of a UWP driver.
-> -   BLE MIDI on Android: if your device supports the "Android M MIDI" feature, just connect to the MIDI device using  [these instructions](https://synthesiagame.com/forum/viewtopic.php?p=47541#p47541)  and it should "work" fine, with all of Android's awful latency and dropped events
+**2. RTP MIDI** (MIDI by ethernet)
+For this method you need to use some software on your Synthesia's device and both devices must be connected to the same local network.
 
-You also have to enable light support in Synthesia by setting "Key Light" option to "Finger-based channel".
-In Visualizer settings you have to change "input" to RPI Bluetooth. After that when learning new song next-to-play keys will be illuminated in corresponding colors, blue for left hand and green for right hand.
+- Windows: [rtpMIDI](https://www.tobias-erichsen.de/software/rtpmidi.html) by [Tobias Erichsen](https://www.tobias-erichsen.de/ "Tobias Erichsen") | [tutorial](http://www.tobias-erichsen.de/software/rtpmidi/rtpmidi-tutorial.html)
 
-If you are getting mixed colors, meaning that leds are light up with your predefined and next-to-play colors at the same time, you can use "Skipped notes" option to disable one of them.
+- MAC: [Tutorial](https://www.wiksnet.com/Home/Help)
+- Android [touchdaw](https://xmmc.de/touchdaw/)
 
-## Using cable instead of Bluetooth
-If you can't get stable bluetooth connection there are alternative ways that requires the purchase of additional equipment.
-The optimal solution I found is this [device.](http://compasflamenco.com/midi-c-3/midi-usbusb-p-4.html) It allows you to connect your RPi with any equipment that supports midi through USB. It can also be useful if you want less delay and fewer missed notes. [Here](https://streamable.com/nec84) is some short comparison.
+Default port is 5004.
+
+- Connect RTP MIDI server with your piano, type:
+`aconnect -i -l`
+You should see something like:
+
+```bash
+
+pi@raspberrypi:~ $ aconnect -i -l
+client 0: 'System' [type=kernel]
+    0 'Timer           '
+    1 'Announce        '
+client 14: 'Midi Through' [type=kernel]
+    0 'Midi Through Port-0'
+client 20: 'mio' [type=kernel,card=1]
+    0 'mio MIDI 1      '
+client 128: 'rtpmidi raspberrypi' [type=user,pid=475]
+    0 'Network         '
+    1 'DESKTOP-VMRSF66 '
+client 133: 'RtMidiOut Client' [type=user,pid=583]
+    0 'RtMidi output   '
+client 134: 'RtMidiOut Client' [type=user,pid=583]
+    0 'RtMidi output   '
+        Connecting To: 128:0[real:0]
+```
+Look for your piano name and RTP midi ports, in my case it's `mio MIDI 1` and `rtpmidi raspberrypi`.
+- Connect them accordingly with:
+
+`aconnect 20:0 128:1`
+
+`aconnect 128:1 20:0`
+
+In case of any problems those commands might be helpful:
+
+`sudo systemctl restart rtpmidid` *restarting RTP midi service*
+
+`aconnect --removeall` *removing all connections between ports*
+
+**3. Bluetooth**
+This method is not recommended due to problems with establishing the first connection, especially on devices other than those with Windows 10.
+If you still want to try, follow [this link](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/btconnection.md) for instructions.
+
+
+### Configuring Synthesia
+
+You have to enable light support in Synthesia by setting "Key Light" option to "Finger-based channel".
+In Visualizer settings you have to change "input" to either *RPI Bluetooth* (for bluetooth connection), *rtpmidi raspberrypi* (for RTP connections) or *MIDI USB-USB* (for cable connection).
+After that when learning new song next-to-play keys will be illuminated in corresponding colors, blue for left hand and green for right hand.
+
+If you are getting mixed colors, meaning that leds are lighting up with your predefined and next-to-play colors at the same time, you can use "Skipped notes" option in Visualizer to disable one of them.
 
 ## Connecting LED Strip to Raspberry Pi and enabling SPI
-There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/)
+There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*
 
 If you are wondering how to connect wires to RPI if screen hat is taking all pins here is a [picture](https://i.imgur.com/7KhwM7r.jpg) of how I did it. There should be a gap between RPI and screen so you can solder your wires or just wrap cables around the pins and separate them with heat shrink bands.
 
-You also need to [enable SPI](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/)
-
-
-## Putting everything together
-After connecting all cables as described above everything should fit nicely to case.
+After connecting all cables as described above everything should fit nicely to case. Scroll down to see some photos of the setup I made
 If you don't have a 3d printer (like me) try to find some company or private person who will print it for you. I paid 12USD for my print. [RPICaseModel.stl](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/RPICaseModel.stl "RPICaseModel.stl")
 
-## Running Visualizer
+## FAQ ##
+**Q - Can I use Raspberry Pi 1/2/3/4 instead of Zero?**
 
-Download or clone this repository into your RPI.
+- In theory, yes. In practice many users reported problems with huge delay between key presses and lights reacting to it on Raspberrys other than Zero.
 
-    git clone https://github.com/onlaj/Piano-LED-Visualizer
+**Q - What about Raspberry Pi Zero without Wi-Fi and bluetooth?**
 
-Using [PIP](https://pypi.org/project/pip/) install all libraries listed in [requirements.txt](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/requirements.txt "requirements.txt") file
-Run visualizer.py with command
+- If you are going only for the visuals and do not plan to use it with Synthesia you can save some bucks and buy cheaper, non-WH version of Zero.
 
-> sudo -E python visualizer.py
+**Q - Can I use other screens or no screen at all?**
 
-You can auto run Visualizer on RPi boot, just follow this tutorial: [How To Autorun A Python Script On Raspberry Pi Boot](https://www.raspberrypi-spy.co.uk/2015/02/how-to-autorun-a-python-script-on-raspberry-pi-boot/)
+- Currently the only other supported screen is Waveshare LCD TFT 1,3". As for no screen, you need it for changing LED settings. If you don't mind changing it manually by editing settings file you can go without screen.
 
-If you are using WaveShare 1.3inch 240x240 LED Hat instead of 1.44inch 128x128, add this argument:
+**Q - Does the color of LED strip PCB matter?**
 
-> sudo -E python visualizer.py --display 1in3
+- No, it's only visuals.
+
+**Q - Can I use other led strip?**
+
+- Only WS281X led strips are supported
+
+**Q - Do I need power supply for LED strip?**
+
+- RPi alone should be fine powering up to 10 LEDs at the same time, although I do not recommend it.
+
+**Q - Do I need soldering skills to make it?**
+
+- Users reported that LED strips bought on Amazon are shipped in one meter strips, in that case you would need to solder them. I bought mine on Aliexpress and it was 2 meters long strip in one piece. As for connecting wires to RPi, I just wrapped them around pins and tightened it with heat shrink bands.
+
+**Q - How do I access recorded files?**
+
+- If you connected your RPi to Wi-Fi you can use SFTP to transfer files. In any FTP program like Filezilla connect to your RPi local address (for example: sftp://192.168.1.10 ) and navigate to /home/Piano-LED-Visualizer/Songs.
+
+**Q - How do I update visualizer?**
+
+- **A** - Connect to your console using SSH and type:
+
+`cd /home/Piano-LED-Visualizer`
+and then 
+
+`git pull origin master`
+
+If for some reasons it does not work try to remove whole project and clone it again.
+
+`cd /home`
+
+`sudo rm -rf Piano-LED-Visualizer`
+
+`sudo git clone https://github.com/onlaj/Piano-LED-Visualizer`
 
 ## Using the sequences
 In the visualizer menu you can find setting called "Sequences". It allows you to change led properties while playing using third key on Waveshare hat or your piano pedals.
@@ -122,7 +186,7 @@ The "control_number" defines which pedal is used to go to the next step.
 | 66 | Sostenuto On/Off |
 | 67 | Soft Pedal On/Off |
 
-The "next_step" value decide if next step is activated when you press or release the pedal. For example if you want to change settings after fully pressing Sostenuto pedal you should write it like:
+The "next_step" value decides if next step is activated when you press or release the pedal. For example if you want to change settings after fully pressing Sostenuto pedal you should write it like:
 
     <control_number>66</control_number> 
     <next_step>126</next_step>
@@ -132,7 +196,7 @@ This is how it should look when you want to change settings when fully releasing
       <control_number>66</control_number> 
 	  <next_step>-1</next_step>
 
- (-) before the number means that next step will be activated when pedal value is below 1
+ (-) before the number means that next step will be activated when pedal value is below 1.
 
 You can also use sequences as a way to save your presets under custom names.
 
