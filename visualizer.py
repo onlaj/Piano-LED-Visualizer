@@ -1418,7 +1418,7 @@ def screensaver():
         time.sleep(delay)
         i += 1
         try:
-            if (midiports.inport.poll() != None):
+            if (str(midiports.inport.poll()) != "None"):
                 menu.screensaver_is_running = False
                 saving.start_time = time.time()
                 menu.screen_status = 1
@@ -1426,7 +1426,7 @@ def screensaver():
                 menu.show()
                 break
         except:
-            pass
+           pass
         if GPIO.input(KEY2) == 0:
             menu.screensaver_is_running = False
             saving.start_time = time.time()
