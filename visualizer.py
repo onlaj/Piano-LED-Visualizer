@@ -1910,15 +1910,27 @@ class LedSettings:
 class MidiPorts():
     def __init__(self):
         self.pending_queue = []
-    
-        ports = mido.get_input_names()
-        try:
-            for port in ports:
-                if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
-                    self.inport =  mido.open_input(port)
-                    print("Inport set to "+port)
-        except:
-            print ("no input port")
+
+        # checking if the input port was previously set by the user
+        port = usersettings.get_setting_value("input_port")
+        if (port != "default"):
+            try:
+                self.inport = mido.open_input(port)
+                print("Inport loaded and set to " + port)
+            except:
+                print("Can't load input port: " + port);
+        else :
+            # if not, try to find the new midi port
+            ports = mido.get_input_names()
+            try:
+                for port in ports:
+                    if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
+                        self.inport =  mido.open_input(port)
+                        usersettings.change_setting_value("input_port", port)
+                        print("Inport set to "+port)
+            except:
+                print ("no input port")
+
         try:            
             for port in ports:
                 if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
@@ -1926,13 +1938,14 @@ class MidiPorts():
                     print("playport set to "+port)
         except:
             print("no playback port")
-            
+
         self.portname = "inport"
             
     def change_port(self, port, portname):
         try:
             if(port == "inport"):                
                 self.inport =  mido.open_input(portname)
+                usersettings.change_setting_value("input_port", portname)
             elif(port == "playport"):
                 self.playport =  mido.open_output(portname)
             menu.render_message("Changing "+port+" to:", portname, 1500)

@@ -62,5 +62,6 @@
 	<led_count>176</led_count>
 	<shift>0</shift>
 	
-	
+	<input_port>default</input_port>
+
 </settings>
