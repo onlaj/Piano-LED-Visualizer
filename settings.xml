@@ -40,11 +40,11 @@
 
 	<key_in_scale_red>0</key_in_scale_red>
 	<key_in_scale_green>255</key_in_scale_green>
-	<key_in_scale_blue>50</key_in_scale_blue>
+	<key_in_scale_blue>0</key_in_scale_blue>
 
-	<key_not_in_scale_red>0</key_not_in_scale_red>
+	<key_not_in_scale_red>255</key_not_in_scale_red>
 	<key_not_in_scale_green>0</key_not_in_scale_green>
-	<key_not_in_scale_blue>255</key_not_in_scale_blue>
+	<key_not_in_scale_blue>0</key_not_in_scale_blue>
 
 	<scale_key>0</scale_key>
 	
