@@ -426,6 +426,17 @@ def get_rainbow_colors(pos, color):
         elif(color == "blue"):
             return 255 - pos * 3        
 
+# scale: 1 means in C, scale: 2 means in C#, scale: 3 means in D, etc...
+def get_scale_color(scale, note_position):
+    notes_in_scale = [0,2,4,5,7,9,11]
+    scale = int(scale)
+    note_position = (note_position - scale)  % 12
+
+    if note_position in notes_in_scale:
+        return list(ledsettings.key_in_scale.values())
+    else:
+        return list(ledsettings.key_not_in_scale.values())
+
 class MenuLCD:    
     def __init__(self, xml_file_name):
         if args.display == '1in3':
@@ -779,7 +790,21 @@ class MenuLCD:
             blue = ledsettings.speed_fastest["blue"]
             self.draw.text((self.scale(10), self.scale(70)), str(red)+", "+str(green)+", "+str(blue), fill=self.text_color, font=self.font)
             self.draw.rectangle([(self.scale(0), self.scale(80)),(self.LCD.width,self.LCD.height)], fill="rgb("+str(red)+", "+str(green)+", "+str(blue)+")")
-                        
+
+        if("Color_in_scale" in self.currentlocation):
+            red = ledsettings.key_in_scale["red"]
+            green = ledsettings.key_in_scale["green"]
+            blue = ledsettings.key_in_scale["blue"]
+            self.draw.text((self.scale(10), self.scale(70)), str(red)+", "+str(green)+", "+str(blue), fill=self.text_color, font=self.font)
+            self.draw.rectangle([(self.scale(0), self.scale(80)),(self.LCD.width,self.LCD.height)], fill="rgb("+str(red)+", "+str(green)+", "+str(blue)+")")
+
+        if("Color_not_in_scale" in self.currentlocation):
+            red = ledsettings.key_not_in_scale["red"]
+            green = ledsettings.key_not_in_scale["green"]
+            blue = ledsettings.key_not_in_scale["blue"]
+            self.draw.text((self.scale(10), self.scale(70)), str(red)+", "+str(green)+", "+str(blue), fill=self.text_color, font=self.font)
+            self.draw.rectangle([(self.scale(0), self.scale(80)),(self.LCD.width,self.LCD.height)], fill="rgb("+str(red)+", "+str(green)+", "+str(blue)+")")
+
         #displaying rainbow offset value
         if(self.current_choice == "Offset"):
             self.draw.text((self.scale(10), self.scale(70)), str(ledsettings.rainbow_offset), fill=self.text_color, font=self.font)
@@ -833,7 +858,11 @@ class MenuLCD:
             
         if(self.currentlocation == "Max_notes_in_period"):
             self.draw.text((self.scale(10), self.scale(70)), str(ledsettings.speed_max_notes), fill = self.text_color, font=self.font)
-                
+        
+        #displaying scale key
+        if(self.currentlocation == "Scale_Coloring"):
+            self.draw.text((self.scale(10), self.scale(70)), "scale: " + str(ledsettings.scales[ledsettings.scale_key]), fill = self.text_color, font=self.font)
+
         self.LCD.LCD_ShowImage(self.image,0,0)
 
     def change_pointer(self, direction):
@@ -1105,6 +1134,16 @@ class MenuLCD:
         if(location == "Speed" and choice == "Confirm"):
             ledsettings.color_mode = "Speed"
             usersettings.change_setting_value("color_mode", ledsettings.color_mode)
+
+        if(location == "Scale_Coloring" and choice == "Confirm"):
+            ledsettings.color_mode = "Scale"
+            usersettings.change_setting_value("color_mode", ledsettings.color_mode)
+            print("color mode set to Scale")
+
+        if (location == "Scale_key"):
+            ledsettings.scale_key = ledsettings.scales.index(choice)
+            usersettings.change_setting_value("scale_key", ledsettings.scale_key)
+
             
         if(location == "Sequences"):
             if(choice == "Update"):
@@ -1229,7 +1268,7 @@ class MenuLCD:
             if(ledsettings.speed_fastest[self.current_choice.lower()] < 0):
                 ledsettings.speed_fastest[self.current_choice.lower()] = 0
             usersettings.change_setting_value("speed_fastest_"+self.current_choice.lower(), ledsettings.speed_fastest[self.current_choice.lower()])   
-        
+
         if(self.currentlocation == "Period"):
             ledsettings.speed_period_in_seconds +=  (value/float(10))*self.speed_multiplier
             if(ledsettings.speed_period_in_seconds < 0.1):
@@ -1241,6 +1280,22 @@ class MenuLCD:
             if(ledsettings.speed_max_notes < 2):
                 ledsettings.speed_max_notes = 2
             usersettings.change_setting_value("speed_max_notes", ledsettings.speed_max_notes) 
+        
+        if(self.currentlocation == "Color_in_scale"):
+            ledsettings.key_in_scale[self.current_choice.lower()] +=  value*self.speed_multiplier
+            if(ledsettings.key_in_scale[self.current_choice.lower()] > 255):
+                ledsettings.key_in_scale[self.current_choice.lower()] = 255
+            if(ledsettings.key_in_scale[self.current_choice.lower()] < 0):
+                ledsettings.key_in_scale[self.current_choice.lower()] = 0
+            usersettings.change_setting_value("key_in_scale_"+self.current_choice.lower(), ledsettings.key_in_scale[self.current_choice.lower()])   
+
+        if(self.currentlocation == "Color_not_in_scale"):
+            ledsettings.key_not_in_scale[self.current_choice.lower()] +=  value*self.speed_multiplier
+            if(ledsettings.key_not_in_scale[self.current_choice.lower()] > 255):
+                ledsettings.key_not_in_scale[self.current_choice.lower()] = 255
+            if(ledsettings.key_not_in_scale[self.current_choice.lower()] < 0):
+                ledsettings.key_not_in_scale[self.current_choice.lower()] = 0
+            usersettings.change_setting_value("key_not_in_scale_"+self.current_choice.lower(), ledsettings.key_not_in_scale[self.current_choice.lower()])   
         
         menu.show()
         
@@ -1544,6 +1599,19 @@ class LedSettings:
         self.speed_period_in_seconds = float(usersettings.get_setting_value("speed_period_in_seconds"))
         self.speed_max_notes = int(usersettings.get_setting_value("speed_max_notes"))
         
+        self.key_in_scale = {}
+        self.key_in_scale["red"] = int(usersettings.get_setting_value("key_in_scale_red"))
+        self.key_in_scale["green"] = int(usersettings.get_setting_value("key_in_scale_green"))
+        self.key_in_scale["blue"] = int(usersettings.get_setting_value("key_in_scale_blue"))
+
+        self.key_not_in_scale = {}
+        self.key_not_in_scale["red"] = int(usersettings.get_setting_value("key_not_in_scale_red"))
+        self.key_not_in_scale["green"] = int(usersettings.get_setting_value("key_not_in_scale_green"))
+        self.key_not_in_scale["blue"] = int(usersettings.get_setting_value("key_not_in_scale_blue"))
+
+        self.scales = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B" ]
+        self.scale_key = int(usersettings.get_setting_value("scale_key"))
+
     def addcolor(self):  
         self.multicolor.append([0, 255, 0])        
         self.multicolor_range.append([20, 108])
@@ -2063,15 +2131,22 @@ while True:
                 blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue")
 
                 if (int(note) == 1001):
-                    if (int(note) > 0):
-                        ledstrip.strip.setPixelColor((n), Color(int(green), int(red), int(blue)))
-                        ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
+                    ledstrip.strip.setPixelColor((n), Color(int(green), int(red), int(blue)))
+                    ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
 
             if(ledsettings.color_mode == "Speed"):
                 speed_colors = ledsettings.speed_get_colors()
                 red = speed_colors[0]
                 green = speed_colors[1]
                 blue = speed_colors[2]
+
+            if(ledsettings.color_mode == "Scale"):
+                try:
+                    red = ledstrip.keylist_color[n][0]
+                    green = ledstrip.keylist_color[n][1]
+                    blue = ledstrip.keylist_color[n][2]
+                except:
+                    pass
 
             if(int(note) != 1001):                
                 if(int(note) > 0):                    
@@ -2109,7 +2184,6 @@ while True:
         continue
     #loop through incoming midi messages
     for msg in midiports.midipending:
-
         last_activity = time.time()     
         note = find_between(str(msg), "note=", " ")
         original_note = note
@@ -2157,14 +2231,21 @@ while True:
             red = get_rainbow_colors(int((int((note_position)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
             green = get_rainbow_colors(int((int((note_position)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
             blue = get_rainbow_colors(int((int((note_position)) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue") 
-        
+
         if(ledsettings.color_mode == "Speed"):
             speed_colors = ledsettings.speed_get_colors()
             red = speed_colors[0]
             green = speed_colors[1]
             blue = speed_colors[2]
+
+        if (ledsettings.color_mode == "Scale"):
+            scale_colors = get_scale_color(ledsettings.scale_key, note)
+            red = scale_colors[0]
+            green = scale_colors[1]
+            blue = scale_colors[2]
+            ledstrip.keylist_color[note_position] = scale_colors
         
-        if(int(velocity) == 0 and int(note) > 0):
+        if(int(velocity) == 0 and int(note) > 0):                   # when a note is lifted (off)
             ledstrip.keylist_status[note_position] = 0
             if(ledsettings.mode == "Fading"):
                 ledstrip.keylist[note_position] = 1000
@@ -2184,7 +2265,7 @@ while True:
                     ledstrip.set_adjacent_colors((note_position), Color(0, 0, 0), False)          
             if(saving.isrecording == True):
                 saving.add_track("note_off", original_note, velocity, last_activity)
-        elif(int(velocity) > 0 and int(note) > 0):
+        elif(int(velocity) > 0 and int(note) > 0):                  # when a note is pressed
             ledsettings.speed_add_note()
             if(ledsettings.color_mode == "Multicolor"):               
                 choosen_color = ledsettings.get_random_multicolor_in_range(note)

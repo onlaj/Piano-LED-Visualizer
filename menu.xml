@@ -51,6 +51,33 @@
 				</Speed>
 				<Speed text="Confirm"></Speed>
 			</LED_Color>
+			<LED_Color text="Scale Coloring">
+				<Scale_Coloring text="Color in scale">
+					<Color_in_scale text="Red"></Color_in_scale>
+					<Color_in_scale text="Green"></Color_in_scale>
+					<Color_in_scale text="Blue"></Color_in_scale>
+				</Scale_Coloring>
+				<Scale_Coloring text="Color not in scale">
+					<Color_not_in_scale text="Red"></Color_not_in_scale>
+					<Color_not_in_scale text="Green"></Color_not_in_scale>
+					<Color_not_in_scale text="Blue"></Color_not_in_scale>
+				</Scale_Coloring>
+				<Scale_Coloring text="Scale key">
+					<Scale_key text="C"></Scale_key>
+					<Scale_key text="C#"></Scale_key>
+					<Scale_key text="D"></Scale_key>
+					<Scale_key text="Eb"></Scale_key>
+					<Scale_key text="E"></Scale_key>
+					<Scale_key text="F"></Scale_key>
+					<Scale_key text="F#"></Scale_key>
+					<Scale_key text="G"></Scale_key>
+					<Scale_key text="Ab"></Scale_key>
+					<Scale_key text="A"></Scale_key>
+					<Scale_key text="Bb"></Scale_key>
+					<Scale_key text="B"></Scale_key>
+				</Scale_Coloring>
+				<Scale_Coloring text="Confirm"></Scale_Coloring>
+			</LED_Color>
 		</LED_Strip_Settings>
 		<LED_Strip_Settings text="Light mode">
 			<Light_mode text="Normal"></Light_mode>
