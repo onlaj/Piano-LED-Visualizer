@@ -1989,21 +1989,22 @@ class MidiPorts():
                 print("Can't load input port: " + port);
         else :
             # if not, try to find the new midi port
-            ports = mido.get_input_names()
             try:
-                for port in ports:
+                for port in mido.get_input_names():
                     if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
                         self.inport =  mido.open_input(port)
                         usersettings.change_setting_value("input_port", port)
                         print("Inport set to "+port)
+                        break
             except:
                 print ("no input port")
 
         try:            
-            for port in ports:
+            for port in mido.get_output_names():
                 if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
                     self.playport =  mido.open_output(port)
                     print("playport set to "+port)
+                    break
         except:
             print("no playback port")
 
