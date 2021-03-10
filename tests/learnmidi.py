@@ -44,8 +44,8 @@ class LearnMIDI:
         self.hand_colorL        = 1
 
         self.loadingList        = ['', 'Load..', 'Proces', 'Merge', 'Done', 'Error!']
-        self.startedList        = ['', '<-']
-        self.practiceList       = ['Melody', 'Rythm', 'Listen']
+        self.learningList       = ['Start', 'Stop']
+        self.practiceList       = ['Melody', 'Rhythm', 'Listen']
         self.handsList          = ['Both', 'Right', 'Left']
         self.mute_handList      = ['Off', 'Right', 'Left']
 
@@ -54,12 +54,17 @@ class LearnMIDI:
         self.ticks_per_beat     = 240
         self.is_loaded_midi     = {}
         self.is_started_midi    = False
+        self.t                  = 0
 
 # Assign Tracks to different channels before merging to know the message origin
+if len(mid.tracks) == 2:    # check if the midi file has only 2 Tracks
+    offset = 1
+else:
+    offset = 0
 for k in range(len(mid.tracks)):
     for msg in mid.tracks[k]:
         if not msg.is_meta:
-            msg.channel = k + 1
+            msg.channel = k + offset
             if (msg.type == 'note_off'):
                 msg.velocity = 0
 
@@ -75,7 +80,7 @@ learning.ticks_per_beat = mid.ticks_per_beat
 
 # Input
 learning.practice       = 0
-learning.hands          = 1
+learning.hands          = 0
 learning.mute_handList  = 0
 learning.set_tempo      = 100
 

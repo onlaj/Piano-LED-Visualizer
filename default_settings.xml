@@ -79,6 +79,7 @@
 	<hands>0</hands>
 	<mute_hand>0</mute_hand>
 	<start_point>0</start_point>
+	<end_point>100</end_point>
 	<set_tempo>100</set_tempo>
 	<!-- Hand color palette: Green, Blue, Orange, Yellow, Cyan, Magenta, Red, White, None -->
 	<hand_colorList>[[0, 255, 0], [0, 0, 255], [255, 128, 0], [255, 255, 0], [0, 255, 255], [255, 0, 255], [255, 0, 0], [255, 255, 255], [0, 0, 0]]</hand_colorList>

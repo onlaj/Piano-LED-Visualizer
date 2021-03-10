@@ -121,14 +121,14 @@ If you are getting mixed colors, meaning that leds are lighting up with your pre
 
 The Visualizer supports learning to play MIDI files without the need of Synthesia or additional external devices.
 
-<img src="/Docs/pics/learnmidi_pic.png" width="300"/>
+![learnmidi_pic](/Docs/pics/learnmidi_pic.png)
 
 For practicing, the following 3 modes can be used:
 - **Melody**: The song will wait for you to hit the correct notes. Take your time and try to avoid mistakes. Holding notes to their full duration is also important, otherwise you might develop muscle memory with the mistakes included.
-- **Rythm**: Adjust the speed using `Set tempo` option until you can play without mistakes. Play as fast as you can comfortably. Work your way up to `100%` speed. Practice the `Melody` first to make this step easier.
+- **Rhythm**: Adjust the speed using `Set tempo` option until you can play without mistakes. Play as fast as you can comfortably. Work your way up to `100%` speed. Practice the `Melody` first to make this step easier.
 - **Listen**: In this mode the song will play in listen only mode at the `Set tempo` speed.
 
-Different combinations of practicing modes be realized using the `Hands` and `Mute Hand` options. To practice a song at a different starting point change the `Start point` value.
+Different combinations of practicing modes be realized using the `Hands` and `Mute Hand` options. To practice only a section of the song, adjust the `Start point` and the `End point` values.
 
 Recommended way of practicing is by following the song music sheet (see below how to print the music sheet from a midi file), while the Visualizer indicates the notes to press on the piano.
 
@@ -237,7 +237,7 @@ You can also use sequences as a way to save your presets under custom names.
 
 ![Image](https://i.imgur.com/9MgNUl5.jpg?1)
 ![Image](https://i.imgur.com/WGxGdNM.jpg?2)
-![enter image description here](https://i.imgur.com/J1wA1rU.jpg)
+![Image](https://i.imgur.com/J1wA1rU.jpg)
 ![Image](https://i.imgur.com/5riJs9k.jpg?1)
 ![Image](https://i.imgur.com/LLzeff2.jpg?1)
 ![Image](https://i.imgur.com/ZnYBxTp.jpg)

@@ -868,18 +868,18 @@ class MenuLCD:
         if(self.currentlocation == "Learn_MIDI"):
             #  Position 1: display Load song
             self.draw.text((self.scale(90), self.scale(5+10)), str(learning.loadingList[learning.loading]), fill = self.text_color, font=self.font)
-            #  Position 2: display Start learn
-            self.draw.text((self.scale(90), self.scale(5+20)), str(learning.startedList[learning.is_started_midi]), fill = self.text_color, font=self.font)
-            #  Position 3: display Stop learn
-            self.draw.text((self.scale(90), self.scale(5+30)), str(learning.startedList[not learning.is_started_midi]), fill = self.text_color, font=self.font)
-            #  Position 4: display Practice
-            self.draw.text((self.scale(90), self.scale(5+40)), str(learning.practiceList[learning.practice]), fill = self.text_color, font=self.font)
-            #  Position 5: display Hands
-            self.draw.text((self.scale(90), self.scale(5+50)), str(learning.handsList[learning.hands]), fill = self.text_color, font=self.font)
-            #  Position 6: display Mute hand
-            self.draw.text((self.scale(90), self.scale(5+60)), str(learning.mute_handList[learning.mute_hand]), fill = self.text_color, font=self.font)
-            #  Position 7: display Start point
-            self.draw.text((self.scale(90), self.scale(5+70)), str(learning.start_point)+"%", fill = self.text_color, font=self.font)
+            #  Position 2: display Learning Start/Stop
+            self.draw.text((self.scale(90), self.scale(5+20)), str(learning.learningList[learning.is_started_midi]), fill = self.text_color, font=self.font)
+            #  Position 3: display Practice
+            self.draw.text((self.scale(90), self.scale(5+30)), str(learning.practiceList[learning.practice]), fill = self.text_color, font=self.font)
+            #  Position 4: display Hands
+            self.draw.text((self.scale(90), self.scale(5+40)), str(learning.handsList[learning.hands]), fill = self.text_color, font=self.font)
+            #  Position 5: display Mute hand
+            self.draw.text((self.scale(90), self.scale(5+50)), str(learning.mute_handList[learning.mute_hand]), fill = self.text_color, font=self.font)
+            #  Position 6: display Start point
+            self.draw.text((self.scale(90), self.scale(5+60)), str(learning.start_point)+"%", fill = self.text_color, font=self.font)
+            #  Position 7: display End point
+            self.draw.text((self.scale(90), self.scale(5+70)), str(learning.end_point)+"%", fill = self.text_color, font=self.font)
             #  Position 8: display Set tempo
             self.draw.text((self.scale(90), self.scale(5+80)), str(learning.set_tempo)+"%", fill = self.text_color, font=self.font)
             #  Position 9,10: display Hands colors
@@ -1040,13 +1040,14 @@ class MenuLCD:
             learning.t.start()
             menu.go_back()
         if (location == "Learn_MIDI"):
-            if (choice == "Start learn"):
-                learning.t = threading.Thread(target=learn_midi)
-                learning.t.start()
-            if (choice == "Stop learn"):
-                learning.is_started_midi = False
-                fastColorWipe(ledstrip.strip, True)
-                menu.show()
+            if (choice == "Learning"):
+                if (not learning.is_started_midi):
+                    learning.t = threading.Thread(target=learn_midi)
+                    learning.t.start()
+                else:
+                    learning.is_started_midi = False
+                    fastColorWipe(ledstrip.strip, True)
+                    menu.show(location)
 
         if(location == "Solid"):
             ledsettings.change_color_name(wc.name_to_rgb(choice))
@@ -1344,6 +1345,8 @@ class MenuLCD:
                 learning.change_mute_hand(value)
             if (self.current_choice == "Start point"):
                 learning.change_start_point(value)
+            if (self.current_choice == "End point"):
+                learning.change_end_point(value)
             if (self.current_choice == "Set tempo"):
                 learning.change_set_tempo(value)
             if(self.current_choice == "Hand color R"):
@@ -1413,13 +1416,14 @@ class LearnMIDI:
         self.hands              = int(usersettings.get_setting_value("hands"))
         self.mute_hand          = int(usersettings.get_setting_value("mute_hand"))
         self.start_point        = int(usersettings.get_setting_value("start_point"))
+        self.end_point          = int(usersettings.get_setting_value("end_point"))
         self.set_tempo          = int(usersettings.get_setting_value("set_tempo"))
         self.hand_colorR        = int(usersettings.get_setting_value("hand_colorR"))
         self.hand_colorL        = int(usersettings.get_setting_value("hand_colorL"))
 
         self.loadingList        = ['', 'Load..', 'Proces', 'Merge', 'Done', 'Error!']
-        self.startedList        = ['', '<-']
-        self.practiceList       = ['Melody', 'Rythm', 'Listen']
+        self.learningList       = ['Start', 'Stop']
+        self.practiceList       = ['Melody', 'Rhythm', 'Listen']
         self.handsList          = ['Both', 'Right', 'Left']
         self.mute_handList      = ['Off', 'Right', 'Left']
         self.hand_colorList     = ast.literal_eval(usersettings.get_setting_value("hand_colorList"))
@@ -1429,6 +1433,7 @@ class LearnMIDI:
         self.ticks_per_beat     = 240
         self.is_loaded_midi     = {}
         self.is_started_midi    = False
+        self.t                  = 0
 
     def change_practice(self, value):
         self.practice += value
@@ -1445,10 +1450,24 @@ class LearnMIDI:
         self.mute_hand = clamp(self.mute_hand, 0, len(self.mute_handList)-1)
         usersettings.change_setting_value("mute_hand", self.mute_hand)
 
+    def restart_learning(self):
+        if (self.is_started_midi):
+            self.is_started_midi = False
+            self.t.join()
+            self.t = threading.Thread(target=learn_midi)
+            self.t.start()
+
     def change_start_point(self, value):
         self.start_point += 5*value
-        self.start_point = clamp(self.start_point, 0, 90)
+        self.start_point = clamp(self.start_point, 0, self.end_point-10)
         usersettings.change_setting_value("start_point", self.start_point)
+        self.restart_learning()
+
+    def change_end_point(self, value):
+        self.end_point += 5*value
+        self.end_point = clamp(self.end_point, self.start_point+10, 100)
+        usersettings.change_setting_value("end_point", self.end_point)
+        self.restart_learning()
 
     def change_set_tempo(self, value):
         self.set_tempo += 5*value
@@ -1478,8 +1497,8 @@ def load_midi(song_path):
 
     learning.is_loaded_midi.clear()
     learning.is_loaded_midi[song_path] = True
-    learning.loading = 1            # 1 = Load..
-    learning.is_started_midi = 0    # Stop current learning song
+    learning.loading = 1                # 1 = Load..
+    learning.is_started_midi = False    # Stop current learning song
     learning.t = threading.currentThread()
 
     try:
@@ -1491,21 +1510,25 @@ def load_midi(song_path):
         learning.ticks_per_beat = mid.ticks_per_beat
 
         # Assign Tracks to different channels before merging to know the message origin
-        learning.loading = 2        # 2 = Proces
+        learning.loading = 2            # 2 = Proces
+        if len(mid.tracks) == 2:        # check if the midi file has only 2 Tracks
+            offset = 1
+        else:
+            offset = 0
         for k in range(len(mid.tracks)):
             for msg in mid.tracks[k]:
                 if not msg.is_meta:
-                    msg.channel = k + 1
+                    msg.channel = k + offset
                     if (msg.type == 'note_off'):
                         msg.velocity = 0
 
         # Merge tracks
-        learning.loading = 3        # 3 = Merge
+        learning.loading = 3            # 3 = Merge
         learning.song_tracks = mido.merge_tracks(mid.tracks)
         fastColorWipe(ledstrip.strip, True)
-        learning.loading = 4        # 4 = Done
+        learning.loading = 4            # 4 = Done
     except:
-        learning.loading = 5        # 5 = Error!
+        learning.loading = 5            # 5 = Error!
         learning.is_loaded_midi.clear()
 
 def learn_midi():
@@ -1517,17 +1540,14 @@ def learn_midi():
         return
     elif learning.loading > 0 and learning.loading < 4:
         learning.is_started_midi = True     # Prevent restarting the Thread
-        menu.show()
         while (learning.loading > 0 and learning.loading < 4):
             time.sleep(0.1)
     if learning.loading == 4:
         learning.is_started_midi = True     # Prevent restarting the Thread
-        menu.show()
     elif learning.loading == 5:
         learning.is_started_midi = False    # Allow restarting the Thread
-        menu.show()
         return
-    
+
     learning.t = threading.currentThread()
 
     try:
@@ -1535,7 +1555,9 @@ def learn_midi():
         time_prev = time.time()
         notes_to_press = []
 
-        for msg in learning.song_tracks[int(learning.start_point * len(learning.song_tracks) / 100):]:
+        start_idx   = int(learning.start_point * len(learning.song_tracks) / 100)
+        end_idx     = int(learning.end_point   * len(learning.song_tracks) / 100)
+        for msg in learning.song_tracks[start_idx:end_idx]:
             # Exit thread if learning is stopped
             if not learning.is_started_midi:
                 break
