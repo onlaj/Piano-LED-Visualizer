@@ -1047,7 +1047,7 @@ class MenuLCD:
                 else:
                     learning.is_started_midi = False
                     fastColorWipe(ledstrip.strip, True)
-                    menu.show(location)
+                menu.show(location)
 
         if(location == "Solid"):
             ledsettings.change_color_name(wc.name_to_rgb(choice))
