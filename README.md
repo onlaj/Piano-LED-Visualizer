@@ -116,6 +116,37 @@ After that when learning new song next-to-play keys will be illuminated in corre
 
 If you are getting mixed colors, meaning that leds are lighting up with your predefined and next-to-play colors at the same time, you can use "Skipped notes" option in Visualizer to disable one of them.
 
+
+## Learning to play MIDI files
+
+The Visualizer supports learning to play MIDI files without the need of Synthesia or additional external devices.
+
+![learnmidi_pic](/Docs/pics/learnmidi_pic.png)
+
+For practicing, the following 3 modes can be used:
+- **Melody**: The song will wait for you to hit the correct notes. Take your time and try to avoid mistakes. Holding notes to their full duration is also important, otherwise you might develop muscle memory with the mistakes included.
+- **Rhythm**: Adjust the speed using `Set tempo` option until you can play without mistakes. Play as fast as you can comfortably. Work your way up to `100%` speed. Practice the `Melody` first to make this step easier.
+- **Listen**: In this mode the song will play in listen only mode at the `Set tempo` speed.
+
+Different combinations of practicing modes be realized using the `Hands` and `Mute Hand` options. To practice only a section of the song, adjust the `Start point` and the `End point` values.
+
+Recommended way of practicing is by following the song music sheet (see below how to print the music sheet from a midi file), while the Visualizer indicates the notes to press on the piano.
+
+### Handling MIDI files
+
+- **Generating music sheet**: To generate a printable music sheet from a MIDI file use the [Midi Sheet Music](http://midisheetmusic.com/) app. The app already contains a library of MIDI files that can be played.
+- **Editing MIDI files**: To visualize and edit MIDI files use the [MidiEditor](https://www.midieditor.org/). Only type 1 of midi files have been tested. Other types of midi files might need to be adjusted in order to work with the Visualizer.
+- **Uploading MIDI files**: Two ways are proposed here to upload MIDI files to Raspberry Pi Zero 
+  - From PC: [WinSCP](https://winscp.net/eng/index.php)
+  - From Smartphone: [RaspController](https://play.google.com/store/apps/details?id=it.Ettore.raspcontroller&hl=en&gl=US)
+
+In case of upload errors, use [Putty](https://www.putty.org/) to change the access permissions for the `Songs` folder:
+```
+cd /home/Piano-LED-Visualizer/
+sudo chmod a+rwxX -R Songs/
+```
+
+
 ## Connecting LED Strip to Raspberry Pi and enabling SPI
 There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*
 
@@ -206,7 +237,7 @@ You can also use sequences as a way to save your presets under custom names.
 
 ![Image](https://i.imgur.com/9MgNUl5.jpg?1)
 ![Image](https://i.imgur.com/WGxGdNM.jpg?2)
-![enter image description here](https://i.imgur.com/J1wA1rU.jpg)
+![Image](https://i.imgur.com/J1wA1rU.jpg)
 ![Image](https://i.imgur.com/5riJs9k.jpg?1)
 ![Image](https://i.imgur.com/LLzeff2.jpg?1)
 ![Image](https://i.imgur.com/ZnYBxTp.jpg)

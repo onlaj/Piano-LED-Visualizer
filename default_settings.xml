@@ -2,37 +2,37 @@
 	<brightness_percent>50</brightness_percent>
 	<background_color>BLACK</background_color>
 	<text_color>WHITE</text_color>
-	
+
 	<mode>Normal</mode>
 	<red>255</red>
 	<green>255</green>
 	<blue>255</blue>
-	
+
 	<fadingspeed>1</fadingspeed>
 	<color_mode>Single</color_mode>
-	
+
 	<rainbow_offset>0</rainbow_offset>
 	<rainbow_scale>100</rainbow_scale>
 	<rainbow_timeshift>0</rainbow_timeshift>
+
+	<multicolor>[[255, 255, 255], [0, 0, 255], [0, 255, 0]]</multicolor>
+	<multicolor_range>[[20, 54], [54, 108], [35, 75]]</multicolor_range>
 	
-	<multicolor>[[255, 255, 255], [0, 0, 255], [0, 255, 0]]</multicolor>	
-	<multicolor_range>[[20, 54], [54, 108], [35, 75]]</multicolor_range>	
-	
-	<sequence_active>False</sequence_active>	
-	
-	<backlight_brightness>0</backlight_brightness>	
-	<backlight_brightness_percent>0</backlight_brightness_percent>	
-	
-	<backlight_red>255</backlight_red>		
-	<backlight_green>255</backlight_green>		
+	<sequence_active>False</sequence_active>
+
+	<backlight_brightness>0</backlight_brightness>
+	<backlight_brightness_percent>0</backlight_brightness_percent>
+
+	<backlight_red>255</backlight_red>
+	<backlight_green>255</backlight_green>
 	<backlight_blue>255</backlight_blue>
-	
-	<speed_slowest_red>255</speed_slowest_red>		
-	<speed_slowest_green>255</speed_slowest_green>		
+
+	<speed_slowest_red>255</speed_slowest_red>
+	<speed_slowest_green>255</speed_slowest_green>
 	<speed_slowest_blue>255</speed_slowest_blue>
-	
-	<speed_fastest_red>255</speed_fastest_red>		
-	<speed_fastest_green>0</speed_fastest_green>		
+
+	<speed_fastest_red>255</speed_fastest_red>
+	<speed_fastest_green>0</speed_fastest_green>
 	<speed_fastest_blue>0</speed_fastest_blue>
 	
 	<speed_max_notes>18</speed_max_notes>
@@ -45,16 +45,16 @@
 	<key_not_in_scale_red>255</key_not_in_scale_red>
 	<key_not_in_scale_green>0</key_not_in_scale_green>
 	<key_not_in_scale_blue>0</key_not_in_scale_blue>
-	
+
 	<scale_key>0</scale_key>
 	
-	<adjacent_mode>Off</adjacent_mode>		
-	<adjacent_red>255</adjacent_red>		
-	<adjacent_green>255</adjacent_green>		
+	<adjacent_mode>Off</adjacent_mode>
+	<adjacent_red>255</adjacent_red>
+	<adjacent_green>255</adjacent_green>
 	<adjacent_blue>255</adjacent_blue>
 
 	<skipped_notes>None</skipped_notes>
-	
+
 	<time>1</time>
 	<date>1</date>
 	<cpu_chart>1</cpu_chart>
@@ -63,15 +63,28 @@
 	<temp>1</temp>
 	<network_usage>0</network_usage>
 	<sd_card_space>0</sd_card_space>
-	
+
 	<screensaver_delay>10</screensaver_delay>
 	<screen_off_delay>0</screen_off_delay>
 	<led_animation_delay>0</led_animation_delay>
 	<led_animation>Scanner</led_animation>
-	
+
 	<led_count>176</led_count>
 	<shift>0</shift>
-	
+
 	<input_port>default</input_port>
+
+	<!-- Learn MIDI -->
+	<practice>0</practice>
+	<hands>0</hands>
+	<mute_hand>0</mute_hand>
+	<start_point>0</start_point>
+	<end_point>100</end_point>
+	<set_tempo>100</set_tempo>
+	<!-- Hand color palette: Green, Blue, Orange, Yellow, Cyan, Magenta, Red, White, None -->
+	<hand_colorList>[[0, 255, 0], [0, 0, 255], [255, 128, 0], [255, 255, 0], [0, 255, 255], [255, 0, 255], [255, 0, 0], [255, 255, 255], [0, 0, 0]]</hand_colorList>
+	<hand_colorR>0</hand_colorR>
+	<hand_colorL>1</hand_colorL>
+
 
 </settings>

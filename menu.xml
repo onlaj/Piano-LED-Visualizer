@@ -140,6 +140,18 @@
 		<Play_MIDI text="Cancel recording"></Play_MIDI>
 		<Play_MIDI text="Save MIDI"></Play_MIDI>
 	</menu>
+	<menu text="Learn MIDI">
+		<Learn_MIDI text="Load song"></Learn_MIDI>
+		<Learn_MIDI text="Learning"></Learn_MIDI>
+		<Learn_MIDI text="Practice"></Learn_MIDI>
+		<Learn_MIDI text="Hands"></Learn_MIDI>
+		<Learn_MIDI text="Mute hand"></Learn_MIDI>
+		<Learn_MIDI text="Start point"></Learn_MIDI>
+		<Learn_MIDI text="End point"></Learn_MIDI>
+		<Learn_MIDI text="Set tempo"></Learn_MIDI>
+		<Learn_MIDI text="Hand color R"> </Learn_MIDI>
+		<Learn_MIDI text="Hand color L"> </Learn_MIDI>
+	</menu>
 	<menu text="Ports Settings">
 		<Ports_Settings text="Input"></Ports_Settings>
 		<Ports_Settings text="Playback"></Ports_Settings>
