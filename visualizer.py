@@ -84,8 +84,9 @@ class LedStrip:
     def __init__(self):
 
         self.brightness_percent = int(usersettings.get_setting_value("brightness_percent"))
-        self.led_number = int(usersettings.get_setting_value("led_count"))
-        self.shift = int(usersettings.get_setting_value("shift"))
+        self.led_number         = int(usersettings.get_setting_value("led_count"))
+        self.shift              = int(usersettings.get_setting_value("shift"))
+        self.reverse            = int(usersettings.get_setting_value("reverse"))
 
         self.brightness = 255 * self.brightness_percent / 100
 
@@ -152,12 +153,18 @@ class LedStrip:
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
         fastColorWipe(ledstrip.strip, True)
-    
+
     def change_shift(self, value):
         self.shift += value
         usersettings.change_setting_value("shift", self.shift)
         fastColorWipe(ledstrip.strip, True)
-        
+
+    def change_reverse(self, value):
+        self.reverse += value
+        self.reverse = clamp(self.reverse, 0, 1)
+        usersettings.change_setting_value("reverse", self.reverse)
+        fastColorWipe(ledstrip.strip, True)
+
     def set_adjacent_colors(self, note, color, led_turn_off):
         if(ledsettings.adjacent_mode == "RGB" and color != 0 and led_turn_off != True):
             color = Color(int(ledsettings.adjacent_green), int(ledsettings.adjacent_red), int(ledsettings.adjacent_blue))
@@ -834,6 +841,10 @@ class MenuLCD:
         if(self.currentlocation == "Shift"):
             self.draw.text((self.scale(10), self.scale(35)), str(ledstrip.shift), fill=self.text_color, font=self.font)
 
+        #displaying reverse
+        if(self.currentlocation == "Reverse"):
+            self.draw.text((self.scale(10), self.scale(35)), str(ledstrip.reverse), fill=self.text_color, font=self.font)
+
         if("Key_range" in self.currentlocation):
             if(self.current_choice == "Start"):
                 try:
@@ -1245,6 +1256,9 @@ class MenuLCD:
         if(self.currentlocation == "Shift"):
             ledstrip.change_shift(value)
 
+        if(self.currentlocation == "Reverse"):
+            ledstrip.change_reverse(value)
+
         if(self.currentlocation == "Backlight_Brightness"):
             if(self.current_choice == "Power"):
                 ledsettings.change_backlight_brightness(value*self.speed_multiplier)
@@ -1644,7 +1658,11 @@ def get_note_position(note):
     else:
         note_offset = 0
     note_offset -= ledstrip.shift
-    return  2*(note - 20) - note_offset
+    note_pos_raw = 2*(note - 20) - note_offset
+    if (ledstrip.reverse):
+        return max(0, ledstrip.led_number - note_pos_raw)
+    else:
+        return max(0, note_pos_raw)
 
 def screensaver():
     delay = 0.1

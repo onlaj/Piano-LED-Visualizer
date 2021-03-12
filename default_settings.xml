@@ -71,6 +71,7 @@
 
 	<led_count>176</led_count>
 	<shift>0</shift>
+	<reverse>0</reverse>
 
 	<input_port>default</input_port>
 
