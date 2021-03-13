@@ -132,6 +132,9 @@
 		<LED_Strip_Settings text="Shift">
 			<Shift text="Number"></Shift>
 		</LED_Strip_Settings>
+		<LED_Strip_Settings text="Reverse">
+			<Reverse text="Number"></Reverse>
+		</LED_Strip_Settings>
 	</menu>
 	<menu text="Play MIDI">
 		<Play_MIDI text="Choose song"></Play_MIDI>
