@@ -1220,6 +1220,11 @@ class MenuLCD:
         if (location == "Update_visualizer"):
             if (choice == "Confirm"):
                 menu.render_message("Updating...", "reboot is required", 5000)
+                call("sudo git config user.name \"name\"", shell=True)
+                call("sudo git config user.email \"email@email.com\"", shell=True)
+                call("sudo git reset", shell=True)
+                call("sudo git checkout .", shell=True)
+                call("sudo git clean -fdx", shell=True)
                 call("sudo git pull origin master", shell=True)
             self.go_back()
 
