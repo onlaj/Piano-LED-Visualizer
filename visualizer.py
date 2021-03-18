@@ -1217,6 +1217,15 @@ class MenuLCD:
             else:
                 self.go_back()
 
+        if (location == "Update_visualizer"):
+            if (choice == "Confirm"):
+                menu.render_message("Updating...", "reboot is required", 5000)
+                call("sudo git reset --hard HEAD", shell=True)
+                call("sudo git checkout .", shell=True)
+                call("sudo git clean -fdx", shell=True)
+                call("sudo git pull origin master", shell=True)
+            self.go_back()
+
         if (location == "Shutdown"):
             if (choice == "Confirm"):
                 menu.render_message("", "Shutting down...", 5000)
@@ -1230,7 +1239,7 @@ class MenuLCD:
                 call("sudo reboot now", shell=True)
             else:
                 self.go_back()
-  
+
         if (location == "Skipped_notes"):
             ledsettings.skipped_notes = choice
             usersettings.change_setting_value("skipped_notes", ledsettings.skipped_notes)

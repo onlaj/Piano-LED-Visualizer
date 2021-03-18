@@ -185,7 +185,7 @@
 		<LED_animations text="Clear"></LED_animations>
 	</menu>
 	<menu text="Display Settings">
-		<Display_Settings text="Text Color">			
+		<Display_Settings text="Text Color">
 			<Text_Color text="Black"></Text_Color>
 			<Text_Color text="White"></Text_Color>
 			<Text_Color text="Green"></Text_Color>
@@ -205,7 +205,7 @@
 		<Display_Settings text="Background Color">
 			<Background_Color text="White"></Background_Color>
 			<Background_Color text="Black"></Background_Color>
-			<Background_Color text="Grey"></Background_Color>			
+			<Background_Color text="Grey"></Background_Color>
 		</Display_Settings>
 	</menu>
 	<menu text="Other Settings">
@@ -232,17 +232,21 @@
 			</Screensaver>
 			<Screensaver text="Led animation">
 				<Led_animation text="Theater Chase"></Led_animation>
-				<Led_animation text="Breathing Slow"></Led_animation>				
-				<Led_animation text="Rainbow Slow"></Led_animation>				
-				<Led_animation text="Rainbow Cycle Slow"></Led_animation>				
-				<Led_animation text="Theater Chase Rainbow"></Led_animation>				
-				<Led_animation text="Sound of da police"></Led_animation>				
-				<Led_animation text="Scanner"></Led_animation>				
+				<Led_animation text="Breathing Slow"></Led_animation>
+				<Led_animation text="Rainbow Slow"></Led_animation>
+				<Led_animation text="Rainbow Cycle Slow"></Led_animation>
+				<Led_animation text="Theater Chase Rainbow"></Led_animation>
+				<Led_animation text="Sound of da police"></Led_animation>
+				<Led_animation text="Scanner"></Led_animation>
 			</Screensaver>
 		</Other_Settings>
 		<Other_Settings text="Reset to default settings">
 			<Reset_to_default_settings text="Confirm"></Reset_to_default_settings>
-			<Reset_to_default_settings text="Cancel"></Reset_to_default_settings>		
+			<Reset_to_default_settings text="Cancel"></Reset_to_default_settings>
+		</Other_Settings>
+		<Other_Settings text="Update visualizer">
+			<Update_visualizer text="Confirm"></Update_visualizer>
+			<Update_visualizer text="Cancel"></Update_visualizer>
 		</Other_Settings>
 	</menu>
 	<menu text="Shutdown Options">

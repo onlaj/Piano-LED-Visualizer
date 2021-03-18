@@ -190,7 +190,9 @@ If you don't have a 3d printer (like me) try to find some company or private per
 
 **Q - How do I update visualizer?**
 
-- **A** - Connect to your console using SSH and type:
+- **A** - From the Visualiser menu `Other Settings > Update visualizer > Confirm`. After the update, a reboot is required. Warning: The update will revert all customizations to the default values!
+
+- **B** - Connect to your console using SSH and type:
 
 `cd /home/Piano-LED-Visualizer`
 and then 
