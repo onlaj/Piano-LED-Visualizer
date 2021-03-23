@@ -74,6 +74,7 @@
 	<reverse>0</reverse>
 
 	<input_port>default</input_port>
+	<play_port>default</play_port>
 
 	<!-- Learn MIDI -->
 	<practice>0</practice>

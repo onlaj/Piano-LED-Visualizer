@@ -2278,15 +2278,25 @@ class MidiPorts():
                         break
             except:
                 print ("no input port")
-
-        try:
-            for port in mido.get_output_names():
-                if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
-                    self.playport =  mido.open_output(port)
-                    print("playport set to "+port)
-                    break
-        except:
-            print("no playback port")
+        # checking if the play port was previously set by the user
+        port = usersettings.get_setting_value("play_port")
+        if (port != "default"):
+            try:
+                self.playport = mido.open_input(port)
+                print("Playport loaded and set to " + port)
+            except:
+                print("Can't load input port: " + port)
+        else:
+            # if not, try to find the new midi port
+            try:
+                for port in mido.get_output_names():
+                    if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
+                        self.playport = mido.open_output(port)
+                        usersettings.change_setting_value("play_port", port)
+                        print("Playport set to " + port)
+                        break
+            except:
+                print("no play port")
 
         self.portname = "inport"
 
@@ -2297,6 +2307,7 @@ class MidiPorts():
                 usersettings.change_setting_value("input_port", portname)
             elif(port == "playport"):
                 self.playport =  mido.open_output(portname)
+                usersettings.change_setting_value("play_port", portname)
             menu.render_message("Changing "+port+" to:", portname, 1500)
         except:
             menu.render_message("Can't change "+port+" to:", portname, 1500)
