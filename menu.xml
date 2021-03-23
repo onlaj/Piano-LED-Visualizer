@@ -220,6 +220,7 @@
 				<Content text="Temp"></Content>
 				<Content text="Network Usage"></Content>
 				<Content text="SD Card Space"></Content>
+				<Content text="Local IP"></Content>
 			</Screensaver>
 			<Screensaver text="Start delay">
 				<Start_delay text="After minutes (0 - never)"></Start_delay>

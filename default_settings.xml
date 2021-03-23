@@ -63,6 +63,7 @@
 	<temp>1</temp>
 	<network_usage>0</network_usage>
 	<sd_card_space>0</sd_card_space>
+	<local_ip>0</local_ip>
 
 	<screensaver_delay>10</screensaver_delay>
 	<screen_off_delay>0</screen_off_delay>

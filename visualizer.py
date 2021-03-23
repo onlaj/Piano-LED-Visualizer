@@ -18,6 +18,7 @@ import os
 import datetime
 import psutil
 import fcntl
+import socket
 os.chdir(sys.path[0])
 import mido
 from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
@@ -441,6 +442,13 @@ def get_scale_color(scale, note_position):
     else:
         return list(ledsettings.key_not_in_scale.values())
 
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    local_ip = s.getsockname()[0]
+    s.close()
+    return local_ip
+
 class MenuLCD:
     def __init__(self, xml_file_name):
         if args.display == '1in3':
@@ -474,6 +482,7 @@ class MenuLCD:
         self.screensaver_settings['temp'] = usersettings.get_setting_value("temp")
         self.screensaver_settings['network_usage'] = usersettings.get_setting_value("network_usage")
         self.screensaver_settings['sd_card_space'] = usersettings.get_setting_value("sd_card_space")
+        self.screensaver_settings['local_ip'] = usersettings.get_setting_value("local_ip")
 
         self.screensaver_delay = usersettings.get_setting_value("screensaver_delay")
         self.screen_off_delay = usersettings.get_setting_value("screen_off_delay")
@@ -934,7 +943,7 @@ class MenuLCD:
         self.LCD.LCD_ShowImage(self.image,0,0)
         LCD_Config.Driver_Delay_ms(delay)  
 
-    def render_screensaver(self, hour, date, cpu, cpu_average, ram, temp, cpu_history = [], upload = 0, download = 0, card_space = 0):
+    def render_screensaver(self, hour, date, cpu, cpu_average, ram, temp, cpu_history = [], upload = 0, download = 0, card_space = 0, local_ip = "0.0.0.0"):
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
 
@@ -1008,6 +1017,10 @@ class MenuLCD:
 
         if(menu.screensaver_settings["sd_card_space"] == "1"):
             self.draw.text((self.scale(1), top_offset), "SD: "+str(round(card_space.used/(1024.0 ** 3), 1))+"/"+str(round(card_space.total/(1024.0 ** 3), 1))+"("+str(card_space.percent)+"%)", fill = self.text_color, font=font)
+            top_offset += info_height_font
+
+        if (menu.screensaver_settings["local_ip"] == "1"):
+            self.draw.text((self.scale(1), top_offset), "IP: " + str(local_ip), fill=self.text_color, font=font)
             top_offset += info_height_font
 
         self.LCD.LCD_ShowImage(self.image,0,0)
@@ -1685,6 +1698,9 @@ def screensaver():
     download = 0
     upload_start = 0
     download_start = 0
+
+    if (menu.screensaver_settings["local_ip"] == "1"):
+        local_ip = get_ip_address()
     
     try:
         midiports.inport.poll()
@@ -1781,7 +1797,7 @@ def screensaver():
         else:
             card_space = 0
 
-        menu.render_screensaver(hour, date, cpu_usage, round(cpu_average,1), ram_usage, temp, cpu_chart, upload, download, card_space)
+        menu.render_screensaver(hour, date, cpu_usage, round(cpu_average,1), ram_usage, temp, cpu_chart, upload, download, card_space, local_ip)
         time.sleep(delay)
         i += 1
         try:
