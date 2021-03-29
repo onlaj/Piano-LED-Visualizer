@@ -1807,6 +1807,7 @@ def screensaver():
                 menu.screen_status = 1
                 GPIO.output(24, 1)
                 menu.show()
+                midiports.reconnect_ports()
                 break
         except:
            pass
@@ -1816,6 +1817,7 @@ def screensaver():
             menu.screen_status = 1
             GPIO.output(24, 1)
             menu.show()
+            midiports.reconnect_ports()
             break
 
 class SaveMIDI:
@@ -2298,7 +2300,7 @@ class MidiPorts():
         port = usersettings.get_setting_value("play_port")
         if (port != "default"):
             try:
-                self.playport = mido.open_input(port)
+                self.playport = mido.open_output(port)
                 print("Playport loaded and set to " + port)
             except:
                 print("Can't load input port: " + port)
@@ -2327,6 +2329,13 @@ class MidiPorts():
             menu.render_message("Changing "+port+" to:", portname, 1500)
         except:
             menu.render_message("Can't change "+port+" to:", portname, 1500)
+
+    def reconnect_ports(self):
+        port = usersettings.get_setting_value("input_port")
+        self.inport = mido.open_input(port)
+        port = usersettings.get_setting_value("play_port")
+        self.playport = mido.open_output(port)
+
 
 usersettings    = UserSettings()
 midiports       = MidiPorts()
