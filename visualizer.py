@@ -1698,6 +1698,7 @@ def screensaver():
     download = 0
     upload_start = 0
     download_start = 0
+    local_ip = 0
 
     if (menu.screensaver_settings["local_ip"] == "1"):
         local_ip = get_ip_address()
