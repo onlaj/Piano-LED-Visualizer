@@ -1698,6 +1698,7 @@ def screensaver():
     download = 0
     upload_start = 0
     download_start = 0
+    local_ip = 0
 
     if (menu.screensaver_settings["local_ip"] == "1"):
         local_ip = get_ip_address()
@@ -2331,10 +2332,16 @@ class MidiPorts():
             menu.render_message("Can't change "+port+" to:", portname, 1500)
 
     def reconnect_ports(self):
-        port = usersettings.get_setting_value("input_port")
-        self.inport = mido.open_input(port)
-        port = usersettings.get_setting_value("play_port")
-        self.playport = mido.open_output(port)
+        try:
+            port = usersettings.get_setting_value("input_port")
+            self.inport = mido.open_input(port)
+        except:
+            print("Can't reconnect input port: " + port)
+        try:
+            port = usersettings.get_setting_value("play_port")
+            self.playport = mido.open_output(port)
+        except:
+            print("Can't reconnect play port: " + port)
 
 
 usersettings    = UserSettings()
