@@ -1698,6 +1698,7 @@ def screensaver():
     download = 0
     upload_start = 0
     download_start = 0
+    local_ip = 0
 
     if (menu.screensaver_settings["local_ip"] == "1"):
         local_ip = get_ip_address()
@@ -1807,6 +1808,7 @@ def screensaver():
                 menu.screen_status = 1
                 GPIO.output(24, 1)
                 menu.show()
+                midiports.reconnect_ports()
                 break
         except:
            pass
@@ -1816,6 +1818,7 @@ def screensaver():
             menu.screen_status = 1
             GPIO.output(24, 1)
             menu.show()
+            midiports.reconnect_ports()
             break
 
 class SaveMIDI:
@@ -2298,7 +2301,7 @@ class MidiPorts():
         port = usersettings.get_setting_value("play_port")
         if (port != "default"):
             try:
-                self.playport = mido.open_input(port)
+                self.playport = mido.open_output(port)
                 print("Playport loaded and set to " + port)
             except:
                 print("Can't load input port: " + port)
@@ -2327,6 +2330,19 @@ class MidiPorts():
             menu.render_message("Changing "+port+" to:", portname, 1500)
         except:
             menu.render_message("Can't change "+port+" to:", portname, 1500)
+
+    def reconnect_ports(self):
+        try:
+            port = usersettings.get_setting_value("input_port")
+            self.inport = mido.open_input(port)
+        except:
+            print("Can't reconnect input port: " + port)
+        try:
+            port = usersettings.get_setting_value("play_port")
+            self.playport = mido.open_output(port)
+        except:
+            print("Can't reconnect play port: " + port)
+
 
 usersettings    = UserSettings()
 midiports       = MidiPorts()
