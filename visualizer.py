@@ -463,7 +463,7 @@ class MenuLCD:
         self.LCD.LCD_ShowImage(self.image,0,0)
         self.xml_file_name = xml_file_name
         self.DOMTree = minidom.parse(xml_file_name)
-        self.currentlocation = "menu";
+        self.currentlocation = "menu"
         self.scroll_hold = 0
         self.cut_count = 0
         self.pointer_position = 0
@@ -1809,6 +1809,7 @@ def screensaver():
                 GPIO.output(24, 1)
                 menu.show()
                 midiports.reconnect_ports()
+                midiports.last_activity = time.time()
                 break
         except:
            pass
@@ -2277,6 +2278,7 @@ class LedSettings:
 class MidiPorts():
     def __init__(self):
         self.pending_queue = []
+        self.last_activity = 0
 
         # checking if the input port was previously set by the user
         port = usersettings.get_setting_value("input_port")
@@ -2357,7 +2359,7 @@ z = 0
 display_cycle = 0
 screen_hold_time = 16
 
-last_activity = time.time()
+midiports.last_activity = time.time()
 
 last_control_change = 0
 pedal_deadzone = 10
@@ -2368,7 +2370,7 @@ fastColorWipe(ledstrip.strip, True)
 while True:
     #screensaver
     if(int(menu.screensaver_delay) > 0):
-        if((time.time() - last_activity) > (int(menu.screensaver_delay) * 60)):
+        if((time.time() - midiports.last_activity) > (int(menu.screensaver_delay) * 60)):
             screensaver()
     try:
             elapsed_time = time.time() - saving.start_time
@@ -2382,7 +2384,7 @@ while True:
             timeshift_start = time.time()
     display_cycle += 1
     
-    if((time.time() - last_activity) > 1):
+    if((time.time() - midiports.last_activity) > 1):
         usersettings.save_changes()
         if(usersettings.pending_reset == True):
             usersettings.pending_reset = False
@@ -2392,43 +2394,43 @@ while True:
             ledsettings = LedSettings()
 
     if GPIO.input(KEYUP) == 0:
-        last_activity = time.time()
+        midiports.last_activity = time.time()
         menu.change_pointer(0)
         while GPIO.input(KEYUP) == 0:
             time.sleep(0.001)
     if GPIO.input(KEYDOWN) == 0:
-        last_activity = time.time()
+        midiports.last_activity = time.time()
         menu.change_pointer(1)
         while GPIO.input(KEYDOWN) == 0:
             time.sleep(0.001)
     if GPIO.input(KEY1) == 0:
-        last_activity = time.time()
+        midiports.last_activity = time.time()
         menu.enter_menu()
         while GPIO.input(KEY1) == 0:
             time.sleep(0.001)
     if GPIO.input(KEY2) == 0:
-        last_activity = time.time()
+        midiports.last_activity = time.time()
         menu.go_back()
         if(menu.screensaver_is_running == False):
             fastColorWipe(ledstrip.strip, True)
         while GPIO.input(KEY2) == 0:
             time.sleep(0.01)
     if GPIO.input(KEY3) == 0:
-        last_activity = time.time()
+        midiports.last_activity = time.time()
         if(ledsettings.sequence_active == True):
             ledsettings.set_sequence(0, 1)
         while GPIO.input(KEY3) == 0:
             time.sleep(0.01)
     if GPIO.input(KEYLEFT) == 0:
-        last_activity = time.time()
+        midiports.last_activity = time.time()
         menu.change_value("LEFT")
         time.sleep(0.1)
     if GPIO.input(KEYRIGHT) == 0:
-        last_activity = time.time()
+        midiports.last_activity = time.time()
         menu.change_value("RIGHT")
         time.sleep(0.1)
     if GPIO.input(JPRESS) == 0:
-        last_activity = time.time()
+        midiports.last_activity = time.time()
         menu.speed_change()
         while GPIO.input(JPRESS) == 0:
             time.sleep(0.01)
@@ -2509,7 +2511,7 @@ while True:
         continue
     #loop through incoming midi messages
     for msg in midiports.midipending:
-        last_activity = time.time()
+        midiports.last_activity = time.time()
         note = find_between(str(msg), "note=", " ")
         original_note = note
         note = int(note)
@@ -2581,7 +2583,7 @@ while True:
                     ledstrip.strip.setPixelColor((note_position), Color(0, 0, 0))
                     ledstrip.set_adjacent_colors((note_position), Color(0, 0, 0), False)
             if(saving.isrecording == True):
-                saving.add_track("note_off", original_note, velocity, last_activity)
+                saving.add_track("note_off", original_note, velocity, midiports.last_activity)
         elif(int(velocity) > 0 and int(note) > 0):                  # when a note is pressed
             ledsettings.speed_add_note()
             if(ledsettings.color_mode == "Multicolor"):
@@ -2612,14 +2614,14 @@ while True:
                     ledstrip.set_adjacent_colors((note_position), Color(int(int(green)/float(brightness)), int(int(red)/float(brightness)), int(int(blue)/float(brightness))), False)
             if(saving.isrecording == True):
                 if (ledsettings.color_mode == "Multicolor"):
-                    saving.add_track("note_on", original_note, velocity, last_activity, wc.rgb_to_hex((red,green,blue)))
+                    saving.add_track("note_on", original_note, velocity, midiports.last_activity, wc.rgb_to_hex((red,green,blue)))
                 else:
-                    saving.add_track("note_on", original_note, velocity, last_activity)
+                    saving.add_track("note_on", original_note, velocity, midiports.last_activity)
         else:
             control = find_between(str(msg), "control=", " ")
             value = find_between(str(msg), "value=", " ")
             if(saving.isrecording == True):
-                saving.add_control_change("control_change", 0, control, value, last_activity)
+                saving.add_control_change("control_change", 0, control, value, midiports.last_activity)
         saving.restart_time()
         if(len(saving.is_playing_midi) > 0):
             midiports.pending_queue.remove(msg)
