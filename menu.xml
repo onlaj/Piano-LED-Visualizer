@@ -51,6 +51,19 @@
 				</Speed>
 				<Speed text="Confirm"></Speed>
 			</LED_Color>
+			<LED_Color text="Gradient">
+				<Gradient text="Gradient start">
+					<Gradient_start text="Red"></Gradient_start>
+					<Gradient_start text="Green"></Gradient_start>
+					<Gradient_start text="Blue"></Gradient_start>
+				</Gradient>
+				<Gradient text="Gradient end">
+					<Gradient_end text="Red"></Gradient_end>
+					<Gradient_end text="Green"></Gradient_end>
+					<Gradient_end text="Blue"></Gradient_end>
+				</Gradient>
+				<Gradient text="Confirm"></Gradient>
+			</LED_Color>
 			<LED_Color text="Scale Coloring">
 				<Scale_Coloring text="Color in scale">
 					<Color_in_scale text="Red"></Color_in_scale>

@@ -20,23 +20,32 @@ After succesfully booting RPi (and connecting to it by SSH if necessary) we need
 - paste the script:
 ```ruby
 #!/usr/bin/ruby
-#
 
 t = `aconnect -i -l`
-ports = []
+$devices = {}
+$device = 0
 t.lines.each do |l|
-  /client (\d*)\:/=~l
-  port = $1
+  match = /client (\d*)\:((?:(?!client).)*)?/.match(l)
   # we skip empty lines and the "Through" port
-  unless $1.nil? || $1 == '0' || /Through/=~l
-    ports << port
-  end  
+  unless match.nil? || match[1] == '0' || /Through/=~l
+    $device = match[1]
+    $devices[$device] = []
+  end
+  match = /^\s+(\d+)\s/.match(l)
+  if !match.nil? && !$devices[$device].nil?
+    $devices[$device] << match[1]
+  end
 end
 
-ports.each do |p1|
-  ports.each do |p2|
-    unless p1 == p2 # probably not a good idea to connect a port to itself
-      system  "aconnect #{p1}:0 #{p2}:0"
+$devices.each do |device1, ports1|
+  ports1.each do |port1|
+    $devices.each do |device2, ports2|
+      ports2.each do |port2|
+        # probably not a good idea to connect a port to itself
+        unless device1 == device2 && port1 == port2 
+          system "aconnect #{device1}:#{port1} #{device2}:#{port2}"
+        end
+      end
     end
   end
 end

@@ -38,13 +38,15 @@
       <light_mode>Normal</light_mode>
     </step_4>
     <step_5>
-      <color>Multicolor</color>
-      <color_1>210, 40 , 0</color_1>
-	  <color_range_1>0, 255</color_range_1>
-      <color_2>0, 255, 0</color_2>
-	  <color_range_2>0, 255</color_range_2>
-      <color_3>0, 0, 255</color_3>
-	  <color_range_3>0, 255</color_range_3>
+      <color>Gradient</color>
+      <gradient_start_red>255</gradient_start_red>
+	  <gradient_start_green>0</gradient_start_green>
+	  <gradient_start_blue>0</gradient_start_blue>
+
+	  <gradient_end_red>0</gradient_end_red>
+	  <gradient_end_green>255</gradient_end_green>
+	  <gradient_end_blue>0</gradient_end_blue>
+
       <light_mode>Normal</light_mode>
     </step_5>
   </sequence_1>

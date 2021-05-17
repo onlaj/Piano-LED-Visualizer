@@ -38,6 +38,14 @@
 	<speed_max_notes>18</speed_max_notes>
 	<speed_period_in_seconds>0.8</speed_period_in_seconds>
 
+	<gradient_start_red>255</gradient_start_red>
+	<gradient_start_green>0</gradient_start_green>
+	<gradient_start_blue>0</gradient_start_blue>
+
+	<gradient_end_red>0</gradient_end_red>
+	<gradient_end_green>0</gradient_end_green>
+	<gradient_end_blue>255</gradient_end_blue>
+
 	<key_in_scale_red>0</key_in_scale_red>
 	<key_in_scale_green>255</key_in_scale_green>
 	<key_in_scale_blue>0</key_in_scale_blue>

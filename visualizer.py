@@ -808,6 +808,24 @@ class MenuLCD:
             self.draw.text((self.scale(10), self.scale(70)), str(red)+", "+str(green)+", "+str(blue), fill=self.text_color, font=self.font)
             self.draw.rectangle([(self.scale(0), self.scale(80)),(self.LCD.width,self.LCD.height)], fill="rgb("+str(red)+", "+str(green)+", "+str(blue)+")")
 
+        if ("Gradient_start" in self.currentlocation):
+            red = ledsettings.gradient_start["red"]
+            green = ledsettings.gradient_start["green"]
+            blue = ledsettings.gradient_start["blue"]
+            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
+                           fill=self.text_color, font=self.font)
+            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
+                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+
+        if ("Gradient_end" in self.currentlocation):
+            red = ledsettings.gradient_end["red"]
+            green = ledsettings.gradient_end["green"]
+            blue = ledsettings.gradient_end["blue"]
+            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
+                           fill=self.text_color, font=self.font)
+            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
+                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+
         if("Color_in_scale" in self.currentlocation):
             red = ledsettings.key_in_scale["red"]
             green = ledsettings.key_in_scale["green"]
@@ -1198,6 +1216,10 @@ class MenuLCD:
             ledsettings.color_mode = "Speed"
             usersettings.change_setting_value("color_mode", ledsettings.color_mode)
 
+        if (location == "Gradient" and choice == "Confirm"):
+            ledsettings.color_mode = "Gradient"
+            usersettings.change_setting_value("color_mode", ledsettings.color_mode)
+
         if(location == "Scale_Coloring" and choice == "Confirm"):
             ledsettings.color_mode = "Scale"
             usersettings.change_setting_value("color_mode", ledsettings.color_mode)
@@ -1354,6 +1376,24 @@ class MenuLCD:
             if(ledsettings.speed_max_notes < 2):
                 ledsettings.speed_max_notes = 2
             usersettings.change_setting_value("speed_max_notes", ledsettings.speed_max_notes)
+
+        if (self.currentlocation == "Gradient_start"):
+            ledsettings.gradient_start[self.current_choice.lower()] += value * self.speed_multiplier
+            if (ledsettings.gradient_start[self.current_choice.lower()] > 255):
+                ledsettings.gradient_start[self.current_choice.lower()] = 255
+            if (ledsettings.gradient_start[self.current_choice.lower()] < 0):
+                ledsettings.gradient_start[self.current_choice.lower()] = 0
+            usersettings.change_setting_value("gradient_start_" + self.current_choice.lower(),
+                                              ledsettings.gradient_start[self.current_choice.lower()])
+
+        if (self.currentlocation == "Gradient_end"):
+            ledsettings.gradient_end[self.current_choice.lower()] += value * self.speed_multiplier
+            if (ledsettings.gradient_end[self.current_choice.lower()] > 255):
+                ledsettings.gradient_end[self.current_choice.lower()] = 255
+            if (ledsettings.gradient_end[self.current_choice.lower()] < 0):
+                ledsettings.gradient_end[self.current_choice.lower()] = 0
+            usersettings.change_setting_value("gradient_end_" + self.current_choice.lower(),
+                                              ledsettings.gradient_end[self.current_choice.lower()])
 
         if(self.currentlocation == "Color_in_scale"):
             ledsettings.key_in_scale[self.current_choice.lower()] +=  value*self.speed_multiplier
@@ -1931,6 +1971,16 @@ class LedSettings:
         self.speed_period_in_seconds = float(usersettings.get_setting_value("speed_period_in_seconds"))
         self.speed_max_notes = int(usersettings.get_setting_value("speed_max_notes"))
 
+        self.gradient_start = {}
+        self.gradient_start["red"] = int(usersettings.get_setting_value("gradient_start_red"))
+        self.gradient_start["green"] = int(usersettings.get_setting_value("gradient_start_green"))
+        self.gradient_start["blue"] = int(usersettings.get_setting_value("gradient_start_blue"))
+
+        self.gradient_end = {}
+        self.gradient_end["red"] = int(usersettings.get_setting_value("gradient_end_red"))
+        self.gradient_end["green"] = int(usersettings.get_setting_value("gradient_end_green"))
+        self.gradient_end["blue"] = int(usersettings.get_setting_value("gradient_end_blue"))
+
         self.key_in_scale = {}
         self.key_in_scale["red"] = int(usersettings.get_setting_value("key_in_scale_red"))
         self.key_in_scale["green"] = int(usersettings.get_setting_value("key_in_scale_green"))
@@ -2176,6 +2226,15 @@ class LedSettings:
                 self.speed_period_in_seconds = float(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed_period_in_seconds")[0].firstChild.nodeValue)
                 self.speed_max_notes = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("speed_max_notes")[0].firstChild.nodeValue)
 
+            if(self.color_mode == "Gradient"):
+                self.gradient_start["red"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("gradient_start_red")[0].firstChild.nodeValue)
+                self.gradient_start["green"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("gradient_start_green")[0].firstChild.nodeValue)
+                self.gradient_start["blue"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("gradient_start_blue")[0].firstChild.nodeValue)
+
+                self.gradient_end["red"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("gradien_end_red")[0].firstChild.nodeValue)
+                self.gradient_end["green"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("gradien_end_green")[0].firstChild.nodeValue)
+                self.gradient_end["blue"] = int(self.sequences_tree.getElementsByTagName("sequence_"+str(self.sequence_number))[0].getElementsByTagName("step_"+str(self.step_number))[0].getElementsByTagName("gradien_end_blue")[0].firstChild.nodeValue)
+
             if(self.color_mode == "Multicolor"):
                 self.multicolor = []
                 self.multicolor_range = []
@@ -2274,6 +2333,14 @@ class LedSettings:
             green = ((self.speed_fastest["green"] - self.speed_slowest["green"]) * float(speed_percent)) + self.speed_slowest["green"]
             blue = ((self.speed_fastest["blue"] - self.speed_slowest["blue"]) * float(speed_percent)) + self.speed_slowest["blue"]
         return[round(red), round(green), round(blue)]
+
+    def gradient_get_colors(self, position):
+
+        red = ((position / ledstrip.led_number) * (self.gradient_end["red"] - self.gradient_start["red"])) + self.gradient_start["red"]
+        green = ((position / ledstrip.led_number) * (self.gradient_end["green"] - self.gradient_start["green"])) + self.gradient_start["green"]
+        blue = ((position / ledstrip.led_number) * (self.gradient_end["blue"] - self.gradient_start["blue"])) + self.gradient_start["blue"]
+
+        return [round(red), round(green), round(blue)]
 
 class MidiPorts():
     def __init__(self):
@@ -2452,28 +2519,35 @@ while True:
                 except:
                     pass
 
-            if(ledsettings.color_mode == "Rainbow"):
-                red = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
-                green = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
-                blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue")
+            if (int(note) > 0):
+                if(ledsettings.color_mode == "Rainbow"):
+                    red = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "red")
+                    green = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale) / 100)) & 255, "green")
+                    blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (float(ledsettings.rainbow_scale)/ 100)) & 255, "blue")
 
-                if (int(note) == 1001):
-                    ledstrip.strip.setPixelColor((n), Color(int(green), int(red), int(blue)))
-                    ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
+                    if (int(note) == 1001):
+                        ledstrip.strip.setPixelColor((n), Color(int(green), int(red), int(blue)))
+                        ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
 
-            if(ledsettings.color_mode == "Speed"):
-                speed_colors = ledsettings.speed_get_colors()
-                red = speed_colors[0]
-                green = speed_colors[1]
-                blue = speed_colors[2]
+                if(ledsettings.color_mode == "Speed"):
+                    speed_colors = ledsettings.speed_get_colors()
+                    red = speed_colors[0]
+                    green = speed_colors[1]
+                    blue = speed_colors[2]
 
-            if(ledsettings.color_mode == "Scale"):
-                try:
-                    red = ledstrip.keylist_color[n][0]
-                    green = ledstrip.keylist_color[n][1]
-                    blue = ledstrip.keylist_color[n][2]
-                except:
-                    pass
+                if (ledsettings.color_mode == "Gradient"):
+                    gradient_colors = ledsettings.gradient_get_colors(n)
+                    red = gradient_colors[0]
+                    green = gradient_colors[1]
+                    blue = gradient_colors[2]
+
+                if(ledsettings.color_mode == "Scale"):
+                    try:
+                        red = ledstrip.keylist_color[n][0]
+                        green = ledstrip.keylist_color[n][1]
+                        blue = ledstrip.keylist_color[n][2]
+                    except:
+                        pass
 
             if(int(note) != 1001):
                 if(int(note) > 0):
@@ -2556,6 +2630,12 @@ while True:
             red = speed_colors[0]
             green = speed_colors[1]
             blue = speed_colors[2]
+
+        if (ledsettings.color_mode == "Gradient"):
+            gradient_colors = ledsettings.gradient_get_colors(note_position)
+            red = gradient_colors[0]
+            green = gradient_colors[1]
+            blue = gradient_colors[2]
 
         if (ledsettings.color_mode == "Scale"):
             scale_colors = get_scale_color(ledsettings.scale_key, note)
