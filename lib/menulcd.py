@@ -119,6 +119,7 @@ class MenuLCD:
 
     def update_ports(self):
         ports = mido.get_input_names()
+        ports = list(dict.fromkeys(ports))
         self.update_sequence_list()
         for port in ports:
             element = self.DOMTree.createElement("Input")

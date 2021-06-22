@@ -2,25 +2,28 @@
     <div class="flex items-center h-1 intro-y">
         <div class="relative">
             <div class="absolute inset-y-0 left-0 flex items-center px-2 pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                 </svg>
-              </div>
-        <select id="refresh_rate" class="block appearance-none h-8 w-1 bg-gray-200 dark:bg-gray-700
+            </div>
+            <select id="refresh_rate" class="block appearance-none h-8 w-1 bg-gray-200 dark:bg-gray-700
         px-1 pr-8 pl-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-            <option value="1">1 second</option>
-            <option value="2">2 seconds</option>
-            <option value="3">3 seconds</option>
-            <option value="5">5 seconds</option>
-            <option value="10">10 seconds</option>
-            <option value="0">never</option>
-        </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-          <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path
-                  d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                <option value="1">1 second</option>
+                <option value="2">2 seconds</option>
+                <option value="3">3 seconds</option>
+                <option value="5">5 seconds</option>
+                <option value="10">10 seconds</option>
+                <option value="0">never</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path
+                            d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+            </div>
         </div>
-      </div>
     </div>
     <div class="grid grid-cols-12 gap-6 mt-5">
         <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
@@ -29,9 +32,9 @@
                 <div class="flex justify-between">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0
-                            002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0
+                            002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
                     </svg>
                     <div class="bg-red-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
                         <span id="cpu_temp" class="flex items-center">°C</span>
@@ -39,7 +42,8 @@
                 </div>
                 <div class="ml-2 w-full flex-1">
                     <div>
-                        <div id="cpu_usage" class="mt-3 text-3xl font-bold leading-8"><span id='cpu_number'></span>%</div>
+                        <div id="cpu_usage" class="mt-3 text-3xl font-bold leading-8"><span id='cpu_number'></span>%
+                        </div>
 
                         <div class="mt-1 text-base text-gray-600 dark:text-gray-400">CPU Usage</div>
                     </div>
@@ -53,9 +57,9 @@
                 <div class="flex justify-between">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5
-                            12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5
+                            12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
                     </svg>
                     <div class="bg-green-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
                         <span id="memory_usage_percent" class="flex items-center">--%</span>
@@ -76,8 +80,8 @@
                 <div class="flex justify-between">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
                     </svg>
                     <div class="bg-yellow-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
                         <span id="card_usage_percent" class="flex items-center">50%</span>
@@ -98,22 +102,27 @@
                 <div class="flex justify-between">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 " fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
                     </svg>
                     <div class="bg-blue-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
                         <span id="upload" class="flex items-center"><span id="upload_number">---</span>/s
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-6" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                             </svg>
                         </span>
                     </div>
                 </div>
                 <div class="ml-2 w-full flex-1">
                     <div>
-                        <div id="download" class="flex mt-3 text-3xl font-bold leading-8"><span id="download_number">---</span>/s
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        <div id="download" class="flex mt-3 text-3xl font-bold leading-8"><span
+                                id="download_number">---</span>/s
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-6" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                             </svg>
                         </div>
 
@@ -123,27 +132,27 @@
             </div>
         </a>
 
-        <a class="shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
+        <a class="transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
         bg-gray-200 dark:bg-gray-700" href="#">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                 <div class="p-5">
                     <div class="text-base text-gray-600 dark:text-gray-400">Led Color</div>
                     <div class="flex items-center pt-1">
                         <div id="led_color" class="text-2xl font-bold ">#ffffff</div>
-                        </div>
-			    </div>
+                    </div>
+                </div>
                 <div class="p-5">
                     <div class="text-base text-gray-600 dark:text-gray-400">Light Mode</div>
                     <div class="flex items-center pt-1">
                         <div id="light_mode" class="text-2xl font-bold ">Normal</div>
-                        </div>
-			    </div>
+                    </div>
+                </div>
                 <div class="p-5">
                     <div class="text-base text-gray-600 dark:text-gray-400">Brightness</div>
                     <div class="flex items-center pt-1">
                         <div id="brightness_percent" class="text-2xl font-bold ">100%</div>
-                        </div>
-			    </div>
+                    </div>
+                </div>
             </div>
         </a>
     </div>

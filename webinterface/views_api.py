@@ -1,11 +1,12 @@
 from webinterface import webinterface
 from flask import render_template, flash, redirect, request, url_for, jsonify
 from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
-    rainbow, rainbowCycle
+    rainbow, rainbowCycle, fastColorWipe
 import psutil
 import threading
 from neopixel import *
 import webcolors as wc
+import mido
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -154,6 +155,13 @@ def change_setting():
         webinterface.usersettings.change_setting_value("brightness_percent", int(value))
         webinterface.ledstrip.change_brightness(int(value), True)
 
+    if setting_name == "input_port":
+        webinterface.usersettings.change_setting_value("input_port", value)
+        webinterface.midiports.change_port("inport", value)
+
+    if setting_name == "secondary_input_port":
+        webinterface.usersettings.change_setting_value("secondary_input_port", value)
+
     return jsonify(success=True)
 
 
@@ -175,3 +183,28 @@ def get_settings():
     response["brightness"] = brightness
 
     return jsonify(response)
+
+
+@webinterface.route('/api/get_ports', methods=['GET'])
+def get_ports():
+    ports = mido.get_input_names()
+    ports = list(dict.fromkeys(ports))
+    response = {}
+    response["ports_list"] = ports
+    response["input_port"] = webinterface.usersettings.get_setting_value("input_port")
+    response["secondary_input_port"] = webinterface.usersettings.get_setting_value("secondary_input_port")
+    response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
+
+    return jsonify(response)
+
+@webinterface.route('/api/switch_ports', methods=['GET'])
+def switch_ports():
+    active_input = webinterface.usersettings.get_setting_value("input_port")
+    secondary_input = webinterface.usersettings.get_setting_value("secondary_input_port")
+    webinterface.midiports.change_port("inport", secondary_input)
+    webinterface.usersettings.change_setting_value("secondary_input_port", active_input)
+
+    fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
+
+    return jsonify(success=True)
+

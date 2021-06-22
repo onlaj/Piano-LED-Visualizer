@@ -83,6 +83,7 @@
 	<reverse>0</reverse>
 
 	<input_port>default</input_port>
+	<secondary_input_port>default</secondary_input_port>
 	<play_port>default</play_port>
 
 	<!-- Learn MIDI -->

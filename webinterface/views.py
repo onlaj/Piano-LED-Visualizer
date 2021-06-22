@@ -20,3 +20,8 @@ def ledsettings():
 @webinterface.route('/ledanimations')
 def ledanimations():
     return render_template('ledanimations.html')
+
+
+@webinterface.route('/ports')
+def ports():
+    return render_template('ports.html')
