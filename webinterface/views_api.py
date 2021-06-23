@@ -153,6 +153,7 @@ def change_setting():
 
     if setting_name == "brightness":
         webinterface.usersettings.change_setting_value("brightness_percent", int(value))
+        webinterface.ledstrip.change_brightness(int(value), True)
 
     if setting_name == "backlight_brightness":
         webinterface.ledsettings.backlight_brightness_percent = int(value)
