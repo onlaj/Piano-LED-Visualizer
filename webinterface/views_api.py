@@ -162,6 +162,10 @@ def change_setting():
     if setting_name == "secondary_input_port":
         webinterface.usersettings.change_setting_value("secondary_input_port", value)
 
+    if setting_name == "play_port":
+        webinterface.usersettings.change_setting_value("play_port", value)
+        webinterface.midiports.change_port("playport", value)
+
     return jsonify(success=True)
 
 

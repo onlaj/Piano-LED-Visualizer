@@ -488,24 +488,31 @@
             if (this.readyState == 4 && this.status == 200 && document.getElementById('active_input') != null) {
                 var active_input_select = document.getElementById('active_input');
                 var secondary_input_select = document.getElementById('secondary_input');
+                var playback_select = document.getElementById('playback_input');
                 response = JSON.parse(this.responseText);
                 var length = active_input_select.options.length;
                 for (i = length - 1; i >= 0; i--) {
                     active_input_select.options[i] = null;
                     secondary_input_select.options[i] = null;
+                    playback_select.options[i] = null;
                 }
                 response.ports_list.forEach(function (item, index) {
                     var opt = document.createElement('option');
                     var opt2 = document.createElement('option');
+                    var opt3 = document.createElement('option');
                     opt.appendChild(document.createTextNode(item));
                     opt2.appendChild(document.createTextNode(item));
+                    opt3.appendChild(document.createTextNode(item));
                     opt.value = item;
                     opt2.value = item;
+                    opt3.value = item;
                     active_input_select.appendChild(opt);
                     secondary_input_select.appendChild(opt2);
+                    playback_select.appendChild(opt3);
                 });
                 active_input_select.value = response.input_port;
                 secondary_input_select.value = response.secondary_input_port;
+                playback_select.value = response.play_port;
             }
         };
         xhttp.open("GET", "/api/get_ports", true);
@@ -596,6 +603,9 @@
         }
         document.getElementById('secondary_input').onchange = function () {
             change_setting("secondary_input_port", this.value)
+        }
+        document.getElementById('playback_input').onchange = function () {
+            change_setting("play_port", this.value)
         }
     }
 

@@ -20,14 +20,18 @@
             </div>
 
             <div class="flex justify-center w-full h-10 md:w-1/5 px-3 mb-2 mt-4 md:mb-0">
-                <button id="switch_ports" class="mt-2 bg-gray-100 dark:bg-gray-600 font-bold h-10 py-2 px-2 rounded-2xl inline-flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden md:block lg:block xl:block 2xl:block" fill="none"
+                <button id="switch_ports"
+                        class="mt-2 bg-gray-100 dark:bg-gray-600 font-bold h-10 py-2 px-2 rounded-2xl inline-flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden md:block lg:block xl:block 2xl:block"
+                         fill="none"
                          viewBox="0 0 24 24"
                          stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                     </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 xs:block sm:block md:hidden lg:hidden xl:hidden 2xl:hidden" fill="none" viewBox="0 0 24 24"
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="h-6 w-6 xs:block sm:block md:hidden lg:hidden xl:hidden 2xl:hidden" fill="none"
+                         viewBox="0 0 24 24"
                          stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
@@ -59,7 +63,21 @@
 
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div class="flex-1 font-bold text-xl pb-2">Playback Port</div>
-
+        <div class="w-full md:w-2/5 px-3 md:mb-0">
+            <label class="block  tracking-wide text-xs mb-2">
+                Active
+            </label>
+            <div class="relative">
+                <select id="playback_input" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+        py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
