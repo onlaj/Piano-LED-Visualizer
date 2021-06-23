@@ -153,7 +153,29 @@ def change_setting():
 
     if setting_name == "brightness":
         webinterface.usersettings.change_setting_value("brightness_percent", int(value))
-        webinterface.ledstrip.change_brightness(int(value), True)
+
+    if setting_name == "backlight_brightness":
+        webinterface.ledsettings.backlight_brightness_percent = int(value)
+        webinterface.ledsettings.backlight_brightness = 255 * webinterface.ledsettings.backlight_brightness_percent / 100
+        webinterface.usersettings.change_setting_value("backlight_brightness",
+                                                       int(webinterface.ledsettings.backlight_brightness))
+        webinterface.usersettings.change_setting_value("backlight_brightness_percent",
+                                                       webinterface.ledsettings.backlight_brightness_percent)
+        fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
+
+    if setting_name == "backlight_color":
+        rgb = wc.hex_to_rgb("#" + value)
+
+        webinterface.ledsettings.backlight_red = rgb[0]
+        webinterface.ledsettings.backlight_green = rgb[1]
+        webinterface.ledsettings.backlight_blue = rgb[2]
+
+        webinterface.usersettings.change_setting_value("backlight_red", rgb[0])
+        webinterface.usersettings.change_setting_value("backlight_green", rgb[1])
+        webinterface.usersettings.change_setting_value("backlight_blue", rgb[2])
+
+        fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
+
 
     if setting_name == "input_port":
         webinterface.usersettings.change_setting_value("input_port", value)
@@ -178,13 +200,21 @@ def get_settings():
     blue = webinterface.usersettings.get_setting_value("blue")
     led_color = wc.rgb_to_hex((int(red), int(green), int(blue)))
 
+    backlight_red = webinterface.usersettings.get_setting_value("backlight_red")
+    backlight_green = webinterface.usersettings.get_setting_value("backlight_green")
+    backlight_blue = webinterface.usersettings.get_setting_value("backlight_blue")
+    backlight_color = wc.rgb_to_hex((int(backlight_red), int(backlight_green), int(backlight_blue)))
+
     light_mode = webinterface.usersettings.get_setting_value("mode")
 
     brightness = webinterface.usersettings.get_setting_value("brightness_percent")
+    backlight_brightness = webinterface.usersettings.get_setting_value("backlight_brightness_percent")
 
     response["led_color"] = led_color
     response["light_mode"] = light_mode
     response["brightness"] = brightness
+    response["backlight_brightness"] = backlight_brightness
+    response["backlight_color"] = backlight_color
 
     return jsonify(response)
 

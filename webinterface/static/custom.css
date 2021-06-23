@@ -39,3 +39,7 @@ button[disabled]{
   opacity: 50%;
   cursor: not-allowed;
 }
+
+input:focus-visible {
+    outline: none;
+}

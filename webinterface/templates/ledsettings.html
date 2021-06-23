@@ -5,21 +5,21 @@
             <input id="led_color" type="color" value="#ffffff"
                    class="cursor-pointer h-10 w-full bg-gray-200 dark:bg-gray-700">
             <div id="ledcolors" class="justify-center flex">
-                <span class="w-1/6 rounded-l px-2 py-2 whitespace-no-wrap bg-gray-100 dark:bg-gray-800
+                <span class="w-1/6  rounded-l-2xl px-2 py-2 whitespace-no-wrap bg-gray-100 dark:bg-gray-800
                 border-l-2 border-t-2 border-b-2 border-red-600">R:</span>
                 <input id="red" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 rounded-r px-2 py-2 bg-gray-100 dark:bg-gray-800
+                       class="w-1/6 rounded-r-2xl px-2 py-2 bg-gray-100 dark:bg-gray-800
                        border-t-2 border-r-2 border-b-2 border-red-600" onkeyup=enforceMinMax(this)>
-                <span class="w-1/6 ml-2 rounded-l px-2 py-2 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap
+                <span class="w-1/6 ml-2 rounded-l-2xl px-2 py-2 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap
                 border-l-2 border-t-2 border-b-2 border-green-600">G:</span>
                 <input id="green" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 mr-2 rounded-r px-2 py-2 bg-gray-100 dark:bg-gray-800
+                       class="w-1/6 mr-2 rounded-r-2xl px-2 py-2 bg-gray-100 dark:bg-gray-800
                        border-t-2 border-r-2
                        border-b-2 border-green-600" onkeyup=enforceMinMax(this)>
-                <span class="w-1/6 rounded-l px-2 py-2 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap border-l-2
+                <span class="w-1/6 rounded-l-2xl px-2 py-2 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap border-l-2
                 border-t-2 border-b-2 border-blue-600">B:</span>
                 <input id="blue" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 rounded-r px-2 py-2 bg-gray-100 dark:bg-gray-800 border-t-2 border-r-2
+                       class="w-1/6 rounded-r-2xl px-2 py-2 bg-gray-100 dark:bg-gray-800 border-t-2 border-r-2
                        border-b-2 border-blue-600" onkeyup=enforceMinMax(this)>
             </div>
         </div>
@@ -44,7 +44,7 @@
 
         <div hidden="true" id="fading" class="relative">
             <select id="fading_speed" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
-        py-2 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+        py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                 <option value="1000">Instant</option>
                 <option value="50">Very Fast</option>
                 <option value="40">Fast</option>
@@ -59,8 +59,8 @@
             </div>
         </div>
         <div hidden="true" id="velocity" class="relative">
-            <select id="velocity_speed" class="block appearance-none w-full bg-gray-200 dark:bg-gray-700 border border-gray-400
-        py-2 px-2 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+            <select id="velocity_speed" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
+        py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                 <option value="10">Fast</option>
                 <option value="8" selected>Medium</option>
                 <option value="6">Slow</option>
@@ -81,6 +81,37 @@
             <input id="brightness" class="w-full" type="range" value="50" min="1" max="100"
                    oninput="this.nextElementSibling.value = this.value+'%' ">
             <output id="brightness_percent" class="flex justify-center">50%</output>
+        </div>
+    </div>
+
+    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+        <div class="flex-1 font-bold text-xl pb-2">Backlight</div>
+        <div class="flex-1">
+            <input id="backlight_color" type="color" value="#ffffff"
+                   class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700">
+            <div id="backlightcolors" class="justify-center flex">
+                <span class="w-1/6 h-8 rounded-l-2xl px-2 whitespace-no-wrap bg-gray-100 dark:bg-gray-800
+                border-l-2 border-t-2 border-b-2 border-red-600">R:</span>
+                <input id="backlight_red" name="field_name" type="number" value="255" min="0" max="255"
+                       class="w-1/6 h-8 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800
+                       border-t-2 border-r-2 border-b-2 border-red-600" onkeyup=enforceMinMax(this)>
+                <span class="w-1/6 h-8 ml-2 rounded-l-2xl px-2  bg-gray-100 dark:bg-gray-800 whitespace-no-wrap
+                border-l-2 border-t-2 border-b-2 border-green-600">G:</span>
+                <input id="backlight_green" name="field_name" type="number" value="255" min="0" max="255"
+                       class="w-1/6 h-8 mr-2 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800
+                       border-t-2 border-r-2
+                       border-b-2 border-green-600" onkeyup=enforceMinMax(this)>
+                <span class="w-1/6 h-8 rounded-l-2xl px-2 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap border-l-2
+                border-t-2 border-b-2 border-blue-600">B:</span>
+                <input id="backlight_blue" name="field_name" type="number" value="255" min="0" max="255"
+                       class="w-1/6 h-8 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800 border-t-2 border-r-2
+                       border-b-2 border-blue-600" onkeyup=enforceMinMax(this)>
+            </div>
+        </div>
+        <div class="content-center flex-1">
+            <input id="backlight_brightness" class="w-full" type="range" value="50" min="0" max="100"
+                   oninput="this.nextElementSibling.value = this.value+'%' ">
+            <output id="backlight_brightness_percent" class="flex justify-center -mb-4">50%</output>
         </div>
     </div>
 </div>
