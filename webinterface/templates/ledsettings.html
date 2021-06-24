@@ -114,6 +114,48 @@
             <output id="backlight_brightness_percent" class="flex justify-center -mb-4">50%</output>
         </div>
     </div>
+
+    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+        <div class="flex-1 font-bold text-xl pb-2">Sides Colors</div>
+
+        <div class="relative">
+            <select id="sides_color_mode" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+        py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                <option value="Off">Off</option>
+                <option value="Main">Same as led color</option>
+                <option value="RGB">RGB</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="flex-1">
+            <input id="sides_color" type="color" value="#ffffff"
+                   class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700">
+            <div id="sidescolors" class="justify-center flex">
+                <span class="w-1/6 h-8 rounded-l-2xl pl-1 -mr-6 whitespace-no-wrap bg-gray-100 dark:bg-gray-800
+                border-l-2 border-t-2 border-b-2 border-red-600">R:</span>
+                <input id="sides_red" name="field_name" type="number" value="255" min="0" max="255"
+                       class="w-1/6 h-8 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800
+                       border-t-2 border-r-2 border-b-2 border-red-600" onkeyup=enforceMinMax(this)>
+                <span class="w-1/6 h-8 ml-2 rounded-l-2xl pl-1 -mr-6 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap
+                border-l-2 border-t-2 border-b-2 border-green-600">G:</span>
+                <input id="sides_green" name="field_name" type="number" value="255" min="0" max="255"
+                       class="w-1/6 h-8 mr-2 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800
+                       border-t-2 border-r-2
+                       border-b-2 border-green-600" onkeyup=enforceMinMax(this)>
+                <span class="w-1/6 h-8 rounded-l-2xl pl-1 -mr-6 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap border-l-2
+                border-t-2 border-b-2 border-blue-600">B:</span>
+                <input id="sides_blue" name="field_name" type="number" value="255" min="0" max="255"
+                       class="w-1/6 h-8 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800 border-t-2 border-r-2
+                       border-b-2 border-blue-600" onkeyup=enforceMinMax(this)>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 

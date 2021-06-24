@@ -177,6 +177,21 @@ def change_setting():
 
         fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
 
+    if setting_name == "sides_color":
+        rgb = wc.hex_to_rgb("#" + value)
+
+        webinterface.ledsettings.adjacent_red = rgb[0]
+        webinterface.ledsettings.adjacent_green = rgb[1]
+        webinterface.ledsettings.adjacent_blue = rgb[2]
+
+        webinterface.usersettings.change_setting_value("adjacent_red", rgb[0])
+        webinterface.usersettings.change_setting_value("adjacent_green", rgb[1])
+        webinterface.usersettings.change_setting_value("adjacent_blue", rgb[2])
+
+    if setting_name == "sides_color_mode":
+        webinterface.ledsettings.adjacent_mode = value
+        webinterface.usersettings.change_setting_value("adjacent_mode", value)
+
 
     if setting_name == "input_port":
         webinterface.usersettings.change_setting_value("input_port", value)
@@ -206,6 +221,11 @@ def get_settings():
     backlight_blue = webinterface.usersettings.get_setting_value("backlight_blue")
     backlight_color = wc.rgb_to_hex((int(backlight_red), int(backlight_green), int(backlight_blue)))
 
+    sides_red = webinterface.usersettings.get_setting_value("adjacent_red")
+    sides_green = webinterface.usersettings.get_setting_value("adjacent_green")
+    sides_blue = webinterface.usersettings.get_setting_value("adjacent_blue")
+    sides_color = wc.rgb_to_hex((int(sides_red), int(sides_green), int(sides_blue)))
+
     light_mode = webinterface.usersettings.get_setting_value("mode")
 
     brightness = webinterface.usersettings.get_setting_value("brightness_percent")
@@ -216,6 +236,9 @@ def get_settings():
     response["brightness"] = brightness
     response["backlight_brightness"] = backlight_brightness
     response["backlight_color"] = backlight_color
+
+    response["sides_color_mode"] = webinterface.usersettings.get_setting_value("adjacent_mode")
+    response["sides_color"] = sides_color
 
     return jsonify(response)
 

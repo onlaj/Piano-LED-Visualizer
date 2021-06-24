@@ -465,6 +465,9 @@
 
                     document.getElementById("backlight_color").value = response.backlight_color;
 
+                    document.getElementById("sides_color").value = response.sides_color;
+                    document.getElementById("sides_color_mode").value = response.sides_color_mode;
+
                     document.getElementById("light_mode").value = response.light_mode;
                     if (response.light_mode == "Fading") {
                         document.getElementById('fading').hidden = false;
@@ -476,6 +479,7 @@
                     document.getElementById("brightness_percent").value = response.brightness + "%";
                     document.getElementById("backlight_brightness").value = response.backlight_brightness;
                     document.getElementById("backlight_brightness_percent").value = response.backlight_brightness + "%";
+
                 } else {
                     document.getElementById("led_color").innerHTML = response.led_color;
                     document.getElementById("light_mode").innerHTML = response.light_mode;
@@ -552,11 +556,14 @@
     function initialize_led_settings() {
         var theInput = document.getElementById("led_color");
         var theInput2 = document.getElementById("backlight_color");
+        var theInput3 = document.getElementById("sides_color");
         theInput.addEventListener("input", editLedColor, false);
         theInput2.addEventListener("input", editBacklightColor, false);
+        theInput3.addEventListener("input", editBacklightColor, false);
 
         theInput.addEventListener("click", editLedColor, false);
         theInput2.addEventListener("click", editBacklightColor, false);
+        theInput3.addEventListener("click", editBacklightColor, false);
 
         document.getElementById('led_color').onchange = function () {
             change_setting("led_color", this.value)
@@ -564,6 +571,10 @@
 
         document.getElementById('backlight_color').onchange = function () {
             change_setting("backlight_color", this.value)
+        }
+
+        document.getElementById('sides_color').onchange = function () {
+            change_setting("sides_color", this.value)
         }
 
         document.getElementById('light_mode').onchange = function () {
@@ -608,12 +619,25 @@
             change_setting("backlight_color", new_color)
         });
 
+        document.getElementById('sidescolors').addEventListener('change', function (event) {
+            var new_color = rgbToHex(
+                parseInt(document.getElementById("sides_red").value, 10),
+                parseInt(document.getElementById("sides_green").value, 10),
+                parseInt(document.getElementById("sides_blue").value, 10));
+            document.getElementById("sides_color").value = new_color;
+            change_setting("sides_color", new_color)
+        });
+
         document.getElementById('brightness').onchange = function () {
             change_setting("brightness", this.value)
         }
 
         document.getElementById('backlight_brightness').onchange = function () {
             change_setting("backlight_brightness", this.value)
+        }
+
+        document.getElementById('sides_color_mode').onchange = function () {
+            change_setting("sides_color_mode", this.value)
         }
 
         get_settings();
