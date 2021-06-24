@@ -468,6 +468,10 @@
                     document.getElementById("sides_color").value = response.sides_color;
                     document.getElementById("sides_color_mode").value = response.sides_color_mode;
 
+                    if (response.sides_color_mode !== "RGB") {
+                        document.getElementById('sides_color_choose').hidden = true;
+                    }
+
                     document.getElementById("light_mode").value = response.light_mode;
                     if (response.light_mode == "Fading") {
                         document.getElementById('fading').hidden = false;
@@ -638,6 +642,11 @@
 
         document.getElementById('sides_color_mode').onchange = function () {
             change_setting("sides_color_mode", this.value)
+            if (this.value == "RGB") {
+                document.getElementById('sides_color_choose').hidden = false;
+            } else {
+                document.getElementById('sides_color_choose').hidden = true;
+            }
         }
 
         get_settings();
