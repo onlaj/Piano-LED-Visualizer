@@ -484,10 +484,18 @@
                     document.getElementById("backlight_brightness").value = response.backlight_brightness;
                     document.getElementById("backlight_brightness_percent").value = response.backlight_brightness + "%";
 
+                    document.getElementById("skipped_notes").value = response.skipped_notes;
+                    document.getElementById("led_count").value = response.led_count;
+                    document.getElementById("shift").value = response.led_shift;
+                    document.getElementById("reverse").value = response.led_reverse;
+
                 } else {
                     document.getElementById("led_color").innerHTML = response.led_color;
                     document.getElementById("light_mode").innerHTML = response.light_mode;
                     document.getElementById("brightness_percent").innerHTML = response.brightness + "%";
+                    document.getElementById("backlight_brightness_percent").innerHTML = response.backlight_brightness + "%";
+                    document.getElementById("input_port").innerHTML = response.input_port;
+                    document.getElementById("playback_port").innerHTML = response.play_port;
                 }
 
             }
@@ -563,11 +571,11 @@
         var theInput3 = document.getElementById("sides_color");
         theInput.addEventListener("input", editLedColor, false);
         theInput2.addEventListener("input", editBacklightColor, false);
-        theInput3.addEventListener("input", editBacklightColor, false);
+        theInput3.addEventListener("input", editSidesColor, false);
 
         theInput.addEventListener("click", editLedColor, false);
         theInput2.addEventListener("click", editBacklightColor, false);
-        theInput3.addEventListener("click", editBacklightColor, false);
+        theInput3.addEventListener("click", editSidesColor, false);
 
         document.getElementById('led_color').onchange = function () {
             change_setting("led_color", this.value)
@@ -640,6 +648,22 @@
             change_setting("backlight_brightness", this.value)
         }
 
+        document.getElementById('skipped_notes').onchange = function () {
+            change_setting("skipped_notes", this.value)
+        }
+
+        document.getElementById('led_count').onchange = function () {
+            change_setting("led_count", this.value)
+        }
+
+        document.getElementById('shift').onchange = function () {
+            change_setting("shift", this.value)
+        }
+
+        document.getElementById('reverse').onchange = function () {
+            change_setting("reverse", this.value)
+        }
+
         document.getElementById('sides_color_mode').onchange = function () {
             change_setting("sides_color_mode", this.value)
             if (this.value == "RGB") {
@@ -704,6 +728,12 @@
         document.getElementById("backlight_red").value = hexToRgb(this.value).r;
         document.getElementById("backlight_green").value = hexToRgb(this.value).g;
         document.getElementById("backlight_blue").value = hexToRgb(this.value).b;
+    };
+
+    var editSidesColor = function (event) {
+        document.getElementById("sides_red").value = hexToRgb(this.value).r;
+        document.getElementById("sides_green").value = hexToRgb(this.value).g;
+        document.getElementById("sides_blue").value = hexToRgb(this.value).b;
     };
 
     function setCookie(name, value, days) {

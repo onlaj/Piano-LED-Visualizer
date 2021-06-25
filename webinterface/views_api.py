@@ -204,6 +204,22 @@ def change_setting():
         webinterface.usersettings.change_setting_value("play_port", value)
         webinterface.midiports.change_port("playport", value)
 
+    if setting_name == "skipped_notes":
+        webinterface.usersettings.change_setting_value("skipped_notes", value)
+        webinterface.ledsettings.skipped_notes = value
+
+    if setting_name == "led_count":
+        webinterface.usersettings.change_setting_value("led_count", int(value))
+        webinterface.ledstrip.change_led_count(int(value), True)
+
+    if setting_name == "shift":
+        webinterface.usersettings.change_setting_value("shift", int(value))
+        webinterface.ledstrip.change_shift(int(value), True)
+
+    if setting_name == "reverse":
+        webinterface.usersettings.change_setting_value("reverse", int(value))
+        webinterface.ledstrip.change_reverse(int(value), True)
+
     return jsonify(success=True)
 
 
@@ -239,6 +255,14 @@ def get_settings():
 
     response["sides_color_mode"] = webinterface.usersettings.get_setting_value("adjacent_mode")
     response["sides_color"] = sides_color
+
+    response["input_port"] = webinterface.usersettings.get_setting_value("input_port")
+    response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
+
+    response["skipped_notes"] = webinterface.usersettings.get_setting_value("skipped_notes")
+    response["led_count"] = webinterface.usersettings.get_setting_value("led_count")
+    response["led_shift"] = webinterface.usersettings.get_setting_value("shift")
+    response["led_reverse"] = webinterface.usersettings.get_setting_value("reverse")
 
     return jsonify(response)
 

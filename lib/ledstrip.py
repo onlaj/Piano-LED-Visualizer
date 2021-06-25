@@ -59,8 +59,11 @@ class LedStrip:
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
 
-    def change_led_count(self, value):
-        self.led_number += value
+    def change_led_count(self, value, fixed_number=False):
+        if fixed_number:
+            self.led_number = value
+        else:
+            self.led_number += value
         self.led_number = max(1, self.led_number)
 
         self.usersettings.change_setting_value("led_count", self.led_number)
@@ -79,12 +82,18 @@ class LedStrip:
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
 
-    def change_shift(self, value):
-        self.shift += value
+    def change_shift(self, value, fixed_number=False):
+        if fixed_number:
+            self.shift = value
+        else:
+            self.shift += value
         self.usersettings.change_setting_value("shift", self.shift)
 
-    def change_reverse(self, value):
-        self.reverse += value
+    def change_reverse(self, value, fixed_number=False):
+        if fixed_number:
+            self.reverse = value
+        else:
+            self.reverse += value
         self.reverse = clamp(self.reverse, 0, 1)
         self.usersettings.change_setting_value("reverse", self.reverse)
 

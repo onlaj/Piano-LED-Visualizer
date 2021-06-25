@@ -115,7 +115,7 @@
         </div>
     </div>
 
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div class="flex-1 font-bold text-xl pb-2">Sides Colors</div>
 
         <div class="relative">
@@ -152,6 +152,70 @@
                 <input id="sides_blue" name="field_name" type="number" value="255" min="0" max="255"
                        class="w-1/6 h-8 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800 border-t-2 border-r-2
                        border-b-2 border-blue-600" onkeyup=enforceMinMax(this)>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+        <div class="flex-1 font-bold text-xl">Adjustments</div>
+        <div class="flex flex-wrap">
+            <div class="w-full md:w-1/2 px-3 md:mb-0">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Skipped Notes
+                </label>
+                <div class="relative">
+                    <select id="skipped_notes" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+            py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <option value="None">None</option>
+                        <option value="Normal">Normal</option>
+                        <option value="Finger-based">Finger Based</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full md:w-1/2 px-3 md:mb-0">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Led Count
+                </label>
+                <input id="led_count" name="field_name" type="number" value="176" min="0" max="255"
+                       class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+            </div>
+        </div>
+
+        <div class="flex flex-wrap">
+            <div class="w-full md:w-1/2 px-3 md:mb-0">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Shift
+                </label>
+                <input id="shift" name="field_name" type="number" value="176" min="-255" max="255"
+                       class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+            </div>
+
+            <div class="w-full md:w-1/2 px-3 md:mb-0">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Reverse
+                </label>
+                <div class="relative">
+                    <select id="reverse" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+            py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <option value="0">Normal</option>
+                        <option value="1">Inverted</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
         </div>
 
