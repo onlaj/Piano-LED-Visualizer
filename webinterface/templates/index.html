@@ -432,10 +432,19 @@
         xhttp.send();
     }
 
-    function change_setting(setting_name, value) {
+    function change_setting(setting_name, value, second_value = false) {
         var xhttp = new XMLHttpRequest();
         var value = value.replace('#', '');
-        xhttp.open("GET", "/api/change_setting?setting_name=" + setting_name + "&value=" + value, true);
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                response = JSON.parse(this.responseText);
+                if (response.reload == true) {
+                    get_settings();
+                }
+            }
+        }
+        xhttp.open("GET", "/api/change_setting?setting_name=" + setting_name + "&value=" + value
+            + "&second_value=" + second_value, true);
         xhttp.send();
     }
 
@@ -489,6 +498,13 @@
                     document.getElementById("shift").value = response.led_shift;
                     document.getElementById("reverse").value = response.led_reverse;
 
+                    document.getElementById("color_mode").value = response.color_mode;
+
+
+                    show_multicolors(response.multicolor, response.multicolor_range, response.led_shift);
+
+                    document.getElementById('color_mode').onchange();
+
                 } else {
                     document.getElementById("led_color").innerHTML = response.led_color;
                     document.getElementById("light_mode").innerHTML = response.light_mode;
@@ -502,6 +518,102 @@
         };
         xhttp.open("GET", "/api/get_settings", true);
         xhttp.send();
+    }
+
+    function show_multicolors(colors, ranges) {
+        colors = JSON.parse(colors);
+        ranges = JSON.parse(ranges);
+
+        multicolor_element = document.getElementById("Multicolor");
+        var i = 0
+        multicolor_element.innerHTML = "";
+        var add_button = "<button onclick=\"this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')\" " +
+            "id=\"multicolor_add\" class=\"w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 " +
+            "rounded-2xl inline-flex items-center\">\n" +
+            "   <svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-full justify-items-center text-green-400\" " +
+            "fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n" +
+            "      <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 9v3m0 " +
+            "0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z\"></path>\n" +
+            "   </svg>\n" +
+            "</button>\n" +
+            "<button onclick=\"change_setting('add_multicolor', '0')\" id=\"multicolor_add\" " +
+            "class=\"hidden w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 " +
+            "rounded-2xl inline-flex items-center\">\n" +
+            "<span class=\"w-full text-green-400\">Click to confirm</span></button>"
+        multicolor_element.classList.remove("pointer-events-none", "opacity-50");
+        multicolor_element.innerHTML += add_button;
+        for (const element of colors) {
+
+            var hex_color = rgbToHex(element[0], element[1], element[2]);
+
+            var min = 20
+            var max = 108
+
+            var value_left = ranges[i][0];
+            var value_right = ranges[i][1];
+
+            var value_left_percent = (100 / (max - min)) * value_left - (100 / (max - min)) * min;
+            var value_right_percent = (100 / (max - min)) * value_right - (100 / (max - min)) * min;
+
+            var value_right_percent_reverse = 100 - value_right_percent;
+
+            //append multicolor slider
+            multicolor_element.innerHTML += '<div class="mb-2 bg-gray-100 dark:bg-gray-600" id="multicolor_' + i + '">' +
+                '<label class="ml-2 inline block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">\n' +
+                '                    Color ' + parseInt(i + 1) + '\n' +
+                '                </label><div onclick=\'this.classList.add("hidden");' +
+                'this.nextElementSibling.classList.remove("hidden")\' class="inline float-right text-red-400">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">\n' +
+                '  <path stroke-linecap="round" stroke-linejoin="round" ' +
+                'stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 ' +
+                '4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />\n' +
+                '</svg>' +
+                '</div><div onclick=\'change_setting("remove_multicolor", "' + i + '");' +
+                'document.getElementById("Multicolor").classList.add("pointer-events-none","opacity-50")\' ' +
+                'class="hidden inline float-right text-red-400">Click to confirm</div>' +
+                '<input id="multicolor_input_' + i + '" type="color" value="' + hex_color + '"\n' +
+                '                        class="cursor-pointer px-2 pt-2 h-8 w-full bg-gray-100 dark:bg-gray-600" ' +
+                'oninput=\'editLedColor(event, "multicolor_' + i + '_")\'' +
+                'onchange=\'change_setting("multicolor", this.value, ' + i + ')\'>\n' +
+                '                <div id="multicolors_' + i + '" class="justify-center flex" ' +
+                'onchange=\'change_color_input(event, "multicolor_' + i + '", "multicolor_input_' + i + '", "multicolor", ' + i + ')\'>\n' +
+                '                    <span class="w-1/12 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-red-400">R:</span>\n' +
+                '                    <input id="multicolor_' + i + '_red" type="number" value="' + element[0] + '" min="0" max="255"\n' +
+                '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
+                '                    <span class="w-1/12 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-green-400">G:</span>\n' +
+                '                    <input id="multicolor_' + i + '_green" type="number" value="' + element[1] + '" min="0" max="255"\n' +
+                '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
+                '                    <span class="w-1/12 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-blue-400">B:</span>\n' +
+                '                    <input id="multicolor_' + i + '_blue" type="number" value="' + element[2] + '" min="0" max="255"\n' +
+                '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
+                '                </div>' +
+                '<div slider id="slider-distance">\n' +
+                '  <div>\n' +
+                '    <div inverse-left style="width:' + value_left_percent + '%;"></div>\n' +
+                '    <div inverse-right style="width:' + value_right_percent_reverse + '%;"></div>\n' +
+                '    <div range style="left:' + value_left_percent + '%;right:' + value_right_percent_reverse + '%;"></div>\n' +
+                '    <span thumb style="left:' + value_left_percent + '%;"></span>\n' +
+                '    <span thumb style="left:' + value_right_percent + '%;"></span>\n' +
+                '    <div sign style="left:' + value_left_percent + '%;">\n' +
+                '      <span id="value">' + value_left + '</span>\n' +
+                '    </div>\n' +
+                '    <div sign style="left:' + value_right_percent + '%;">\n' +
+                '      <span id="value">' + value_right + '</span>\n' +
+                '    </div>\n' +
+                '  </div>\n' +
+                '  <input type="range" tabindex="0" value="' + value_left + '" max="' + max + '" min="' + min + '" ' +
+                'step="1" oninput="show_left_slider(this)" ' +
+                'onchange=\'change_setting("multicolor_range_left", this.value, ' + i + ')\' />\n' +
+                '  <input type="range" tabindex="0" value="' + value_right + '" max="' + max + '" min="' + min + '" ' +
+                'step="1" oninput="show_right_slider(this)" ' +
+                'onchange=\'change_setting("multicolor_range_right", this.value, ' + i + ')\' />\n' +
+                '</div>' +
+                '               </div>';
+            i++;
+        }
+        if (i >= 3) {
+            multicolor_element.innerHTML += add_button;
+        }
     }
 
     function get_ports() {
@@ -566,16 +678,30 @@
     }
 
     function initialize_led_settings() {
+
+
         var theInput = document.getElementById("led_color");
         var theInput2 = document.getElementById("backlight_color");
         var theInput3 = document.getElementById("sides_color");
-        theInput.addEventListener("input", editLedColor, false);
-        theInput2.addEventListener("input", editBacklightColor, false);
-        theInput3.addEventListener("input", editSidesColor, false);
+        theInput.addEventListener("input", function (event) {
+            editLedColor(event, "");
+        });
+        theInput2.addEventListener("input", function (event) {
+            editLedColor(event, "backlight_");
+        });
+        theInput3.addEventListener("input", function (event) {
+            editLedColor(event, "sides_");
+        });
 
-        theInput.addEventListener("click", editLedColor, false);
-        theInput2.addEventListener("click", editBacklightColor, false);
-        theInput3.addEventListener("click", editSidesColor, false);
+        theInput.addEventListener("click", function (event) {
+            editLedColor(event, "");
+        });
+        theInput2.addEventListener("click", function (event) {
+            editLedColor(event, "backlight_");
+        });
+        theInput3.addEventListener("click", function (event) {
+            editLedColor(event, "sides_");
+        });
 
         document.getElementById('led_color').onchange = function () {
             change_setting("led_color", this.value)
@@ -673,6 +799,35 @@
             }
         }
 
+        function remove_color_modes() {
+            var slides = document.getElementsByClassName("color_mode");
+            for (var i = 0; i < slides.length; i++) {
+                slides.item(i).hidden = true;
+            }
+        }
+
+        document.getElementById('color_mode').onchange = function () {
+            switch (this.value) {
+                case "Single":
+                    remove_color_modes();
+                    document.getElementById('Single').hidden = false;
+                    change_setting("color_mode", "Single");
+                    break;
+                case "Multicolor":
+                    remove_color_modes();
+                    document.getElementById('Multicolor').hidden = false;
+                    change_setting("color_mode", "Multicolor");
+                    break;
+                case "Rainbow":
+                    remove_color_modes();
+                    document.getElementById('Rainbow').hidden = false;
+                    change_setting("color_mode", "Rainbow");
+                    break;
+                default:
+                // code block
+            }
+        }
+
         get_settings();
     }
 
@@ -718,10 +873,42 @@
         }
     }
 
-    var editLedColor = function (event) {
-        document.getElementById("red").value = hexToRgb(this.value).r;
-        document.getElementById("green").value = hexToRgb(this.value).g;
-        document.getElementById("blue").value = hexToRgb(this.value).b;
+    function show_left_slider(element) {
+        element.value = Math.min(element.value, element.parentNode.childNodes[5].value - 1);
+        var value = (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.value) - (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.min);
+        var children = element.parentNode.childNodes[1].childNodes;
+        children[1].style.width = value + '%';
+        children[5].style.left = value + '%';
+        children[7].style.left = value + '%';
+        children[11].style.left = value + '%';
+        children[11].childNodes[1].innerHTML = element.value;
+    }
+
+    function show_right_slider(element) {
+        element.value = Math.max(element.value, element.parentNode.childNodes[3].value - (-1));
+        var value = (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.value) - (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.min);
+        var children = element.parentNode.childNodes[1].childNodes;
+        children[3].style.width = (100 - value) + '%';
+        children[5].style.right = (100 - value) + '%';
+        children[9].style.left = value + '%';
+        children[13].style.left = value + '%';
+        children[13].childNodes[1].innerHTML = element.value;
+    }
+
+    function change_color_input(event, prefix, id_to_change, setting_name, i) {
+        var new_color = rgbToHex(
+            parseInt(document.getElementById(prefix + "_red").value, 10),
+            parseInt(document.getElementById(prefix + "_green").value, 10),
+            parseInt(document.getElementById(prefix + "_blue").value, 10));
+        document.getElementById(id_to_change).value = new_color;
+        change_setting(setting_name, new_color, i)
+    }
+
+    var editLedColor = function (event, prefix) {
+        console.log("prefix: " + prefix + "red")
+        document.getElementById(prefix + "red").value = hexToRgb(event.srcElement.value).r;
+        document.getElementById(prefix + "green").value = hexToRgb(event.srcElement.value).g;
+        document.getElementById(prefix + "blue").value = hexToRgb(event.srcElement.value).b;
     };
 
     var editBacklightColor = function (event) {
@@ -796,6 +983,7 @@
         }
         switch_ports()
     }
+
 
 </script>
 </div>

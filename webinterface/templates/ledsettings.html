@@ -1,26 +1,60 @@
 <div class="transition duration-300 slide-in-content grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
     <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
-        <div class="flex-1 font-bold text-xl pb-2">LED Color</div>
-        <div class="flex-1">
-            <input id="led_color" type="color" value="#ffffff"
-                   class="cursor-pointer h-10 w-full bg-gray-200 dark:bg-gray-700">
-            <div id="ledcolors" class="justify-center flex">
-                <span class="w-1/6  rounded-l-2xl px-2 py-2 whitespace-no-wrap bg-gray-100 dark:bg-gray-800
-                border-l-2 border-t-2 border-b-2 border-red-600">R:</span>
-                <input id="red" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 rounded-r-2xl px-2 py-2 bg-gray-100 dark:bg-gray-800
-                       border-t-2 border-r-2 border-b-2 border-red-600" onkeyup=enforceMinMax(this)>
-                <span class="w-1/6 ml-2 rounded-l-2xl px-2 py-2 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap
-                border-l-2 border-t-2 border-b-2 border-green-600">G:</span>
-                <input id="green" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 mr-2 rounded-r-2xl px-2 py-2 bg-gray-100 dark:bg-gray-800
-                       border-t-2 border-r-2
-                       border-b-2 border-green-600" onkeyup=enforceMinMax(this)>
-                <span class="w-1/6 rounded-l-2xl px-2 py-2 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap border-l-2
-                border-t-2 border-b-2 border-blue-600">B:</span>
-                <input id="blue" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 rounded-r-2xl px-2 py-2 bg-gray-100 dark:bg-gray-800 border-t-2 border-r-2
-                       border-b-2 border-blue-600" onkeyup=enforceMinMax(this)>
+        <div class="flex">
+            <div class="flex-1 font-bold text-xl pb-2">LED Color</div>
+            <div class="relative w-1/2">
+                <select id="color_mode" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
+                py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    <option value="Single">Single</option>
+                    <option value="Multicolor">Multicolor</option>
+                    <option value="Rainbow">Rainbow Colors</option>
+                    <option value="Speed">Speed</option>
+                    <option value="Gradient">Gradient</option>
+                    <option value="Scale">Scale Coloring</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-y-auto overflow-x-hidden max-h-80">
+            <div id="Single" class="flex-1 color_mode">
+                1<input id="led_color" type="color" value="#ffffff"
+                        class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700">
+                <div id="ledcolors" class="justify-center flex">
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                    <input id="red" name="field_name" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                    <input id="green" name="field_name" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                    <input id="blue" name="field_name" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                </div>
+            </div>
+
+            <div hidden="true" id="Multicolor" class="flex-1 color_mode">
+
+            </div>
+
+            <div hidden="true" id="Rainbow" class="flex-1 color_mode">
+                3<input id="led_color" type="color" value="#ffffff"
+                        class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700">
+                <div id="ledcolors" class="justify-center flex">
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                    <input id="red" name="field_name" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                    <input id="green" name="field_name" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                    <input id="blue" name="field_name" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                </div>
             </div>
         </div>
 
@@ -90,22 +124,15 @@
             <input id="backlight_color" type="color" value="#ffffff"
                    class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700">
             <div id="backlightcolors" class="justify-center flex">
-                <span class="w-1/6 h-8 rounded-l-2xl pl-1 -mr-6 whitespace-no-wrap bg-gray-100 dark:bg-gray-800
-                border-l-2 border-t-2 border-b-2 border-red-600">R:</span>
+                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
                 <input id="backlight_red" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 h-8 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800
-                       border-t-2 border-r-2 border-b-2 border-red-600" onkeyup=enforceMinMax(this)>
-                <span class="w-1/6 h-8 ml-2 rounded-l-2xl pl-1 -mr-6 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap
-                border-l-2 border-t-2 border-b-2 border-green-600">G:</span>
+                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
                 <input id="backlight_green" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 h-8 mr-2 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800
-                       border-t-2 border-r-2
-                       border-b-2 border-green-600" onkeyup=enforceMinMax(this)>
-                <span class="w-1/6 h-8 rounded-l-2xl pl-1 -mr-6 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap border-l-2
-                border-t-2 border-b-2 border-blue-600">B:</span>
+                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
                 <input id="backlight_blue" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 h-8 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800 border-t-2 border-r-2
-                       border-b-2 border-blue-600" onkeyup=enforceMinMax(this)>
+                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
             </div>
         </div>
         <div class="content-center flex-1">
@@ -136,22 +163,15 @@
             <input id="sides_color" type="color" value="#ffffff"
                    class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700">
             <div id="sidescolors" class="justify-center flex">
-                <span class="w-1/6 h-8 rounded-l-2xl pl-1 -mr-6 whitespace-no-wrap bg-gray-100 dark:bg-gray-800
-                border-l-2 border-t-2 border-b-2 border-red-600">R:</span>
+                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
                 <input id="sides_red" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 h-8 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800
-                       border-t-2 border-r-2 border-b-2 border-red-600" onkeyup=enforceMinMax(this)>
-                <span class="w-1/6 h-8 ml-2 rounded-l-2xl pl-1 -mr-6 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap
-                border-l-2 border-t-2 border-b-2 border-green-600">G:</span>
+                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
                 <input id="sides_green" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 h-8 mr-2 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800
-                       border-t-2 border-r-2
-                       border-b-2 border-green-600" onkeyup=enforceMinMax(this)>
-                <span class="w-1/6 h-8 rounded-l-2xl pl-1 -mr-6 bg-gray-100 dark:bg-gray-800 whitespace-no-wrap border-l-2
-                border-t-2 border-b-2 border-blue-600">B:</span>
+                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
                 <input id="sides_blue" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-1/6 h-8 rounded-r-2xl px-2 bg-gray-100 dark:bg-gray-800 border-t-2 border-r-2
-                       border-b-2 border-blue-600" onkeyup=enforceMinMax(this)>
+                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
             </div>
         </div>
 

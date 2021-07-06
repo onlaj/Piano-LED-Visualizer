@@ -128,6 +128,7 @@ def get_homepage_data():
 def change_setting():
     setting_name = request.args.get('setting_name')
     value = request.args.get('value')
+    second_value = request.args.get('second_value')
 
     if setting_name == "led_color":
         rgb = wc.hex_to_rgb("#"+value)
@@ -220,6 +221,36 @@ def change_setting():
         webinterface.usersettings.change_setting_value("reverse", int(value))
         webinterface.ledstrip.change_reverse(int(value), True)
 
+    if setting_name == "color_mode":
+        webinterface.ledsettings.color_mode = value
+        webinterface.usersettings.change_setting_value("color_mode", webinterface.ledsettings.color_mode)
+
+    if setting_name == "add_multicolor":
+        webinterface.ledsettings.addcolor()
+        return jsonify(success=True, reload=True)
+
+    if setting_name == "remove_multicolor":
+        webinterface.ledsettings.deletecolor(int(value)+1)
+        return jsonify(success=True, reload=True)
+
+    if setting_name == "multicolor":
+        rgb = wc.hex_to_rgb("#" + value)
+        webinterface.ledsettings.multicolor[int(second_value)][0] = rgb[0]
+        webinterface.ledsettings.multicolor[int(second_value)][1] = rgb[1]
+        webinterface.ledsettings.multicolor[int(second_value)][2] = rgb[2]
+
+        webinterface.usersettings.change_setting_value("multicolor", webinterface.ledsettings.multicolor)
+
+    if setting_name == "multicolor_range_left":
+        webinterface.ledsettings.multicolor_range[int(second_value)][0] = int(value)
+        webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
+
+
+    if setting_name == "multicolor_range_right":
+        webinterface.ledsettings.multicolor_range[int(second_value)][1] = int(value)
+        webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
+
+
     return jsonify(success=True)
 
 
@@ -263,6 +294,11 @@ def get_settings():
     response["led_count"] = webinterface.usersettings.get_setting_value("led_count")
     response["led_shift"] = webinterface.usersettings.get_setting_value("shift")
     response["led_reverse"] = webinterface.usersettings.get_setting_value("reverse")
+
+    response["color_mode"] = webinterface.usersettings.get_setting_value("color_mode")
+
+    response["multicolor"] = webinterface.usersettings.get_setting_value("multicolor")
+    response["multicolor_range"] = webinterface.usersettings.get_setting_value("multicolor_range")
 
     return jsonify(response)
 
