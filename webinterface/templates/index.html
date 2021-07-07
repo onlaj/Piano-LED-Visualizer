@@ -500,11 +500,23 @@
 
                     document.getElementById("color_mode").value = response.color_mode;
 
-
                     show_multicolors(response.multicolor, response.multicolor_range, response.led_shift);
 
-                    document.getElementById('color_mode').onchange();
+                    document.getElementById("rainbow_offset").value = response.rainbow_offset;
+                    document.getElementById("rainbow_scale").value = response.rainbow_scale;
+                    document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
 
+                    document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
+
+                    document.getElementById("speed_slow_color").value = response.speed_slowest_color;
+                    document.getElementById("speed_fast_color").value = response.speed_fastest_color;
+
+                    document.getElementById("speed_max_notes").value = response.speed_max_notes;
+                    document.getElementById("speed_period_in_seconds").value = response.speed_period_in_seconds;
+
+
+
+                    document.getElementById('color_mode').onchange();
                 } else {
                     document.getElementById("led_color").innerHTML = response.led_color;
                     document.getElementById("light_mode").innerHTML = response.light_mode;
@@ -517,6 +529,263 @@
             }
         };
         xhttp.open("GET", "/api/get_settings", true);
+        xhttp.send();
+    }
+
+
+    function initialize_homepage() {
+        clearInterval(homepage_interval);
+        if (getCookie("refresh_rate") != null) {
+            refresh_rate = getCookie("refresh_rate");
+        } else {
+            setCookie("refresh_rate", 3, 365);
+        }
+        document.getElementById("refresh_rate").value = refresh_rate;
+        if (getCookie("refresh_rate") != 0 && refresh_rate != null) {
+            homepage_interval = setInterval(get_homepage_data_loop, refresh_rate * 1000)
+        }
+        if (getCookie("refresh_rate") == 0) {
+            setTimeout(get_homepage_data_loop, 1000)
+        }
+        document.getElementById('refresh_rate').onchange = function () {
+            setCookie('refresh_rate', this.value, 365);
+            clearInterval(homepage_interval)
+            if (this.value != 0) {
+                homepage_interval = setInterval(get_homepage_data_loop, this.value * 1000)
+            }
+        }
+    }
+
+    function initialize_led_settings() {
+
+        document.getElementById('light_mode').onchange = function () {
+            if (this.value == "Fading") {
+                document.getElementById('fading').hidden = false;
+                document.getElementById('fading_speed').onchange();
+            } else {
+                document.getElementById('fading').hidden = true;
+            }
+            if (this.value == "Velocity") {
+                document.getElementById('velocity').hidden = false;
+                document.getElementById('velocity_speed').onchange();
+            } else {
+                document.getElementById('velocity').hidden = true;
+            }
+            change_setting("light_mode", this.value)
+        }
+
+        document.getElementById('fading_speed').onchange = function () {
+            change_setting("fading_speed", this.value)
+        }
+
+        document.getElementById('velocity_speed').onchange = function () {
+            change_setting("velocity_speed", this.value)
+        }
+
+        document.getElementById('ledcolors').addEventListener('change', function (event) {
+            var new_color = rgbToHex(
+                parseInt(document.getElementById("red").value, 10),
+                parseInt(document.getElementById("green").value, 10),
+                parseInt(document.getElementById("blue").value, 10));
+            document.getElementById("led_color").value = new_color;
+            change_setting("led_color", new_color)
+        });
+
+        document.getElementById('speedslowcolors').addEventListener('change', function (event) {
+            var new_color = rgbToHex(
+                parseInt(document.getElementById("speed_slowest_red").value, 10),
+                parseInt(document.getElementById("speed_slowest_green").value, 10),
+                parseInt(document.getElementById("speed_slowest_blue").value, 10));
+            document.getElementById("speed_slow_color").value = new_color;
+            change_setting("speed_slowest_color", new_color)
+        });
+
+        document.getElementById('speedfastcolors').addEventListener('change', function (event) {
+            var new_color = rgbToHex(
+                parseInt(document.getElementById("speed_fastest_red").value, 10),
+                parseInt(document.getElementById("speed_fastest_green").value, 10),
+                parseInt(document.getElementById("speed_fastest_blue").value, 10));
+            document.getElementById("speed_fast_color").value = new_color;
+            change_setting("speed_fastest_color", new_color)
+        });
+
+        document.getElementById('backlightcolors').addEventListener('change', function (event) {
+            var new_color = rgbToHex(
+                parseInt(document.getElementById("backlight_red").value, 10),
+                parseInt(document.getElementById("backlight_green").value, 10),
+                parseInt(document.getElementById("backlight_blue").value, 10));
+            document.getElementById("backlight_color").value = new_color;
+            change_setting("backlight_color", new_color)
+        });
+
+        document.getElementById('sidescolors').addEventListener('change', function (event) {
+            var new_color = rgbToHex(
+                parseInt(document.getElementById("sides_red").value, 10),
+                parseInt(document.getElementById("sides_green").value, 10),
+                parseInt(document.getElementById("sides_blue").value, 10));
+            document.getElementById("sides_color").value = new_color;
+            change_setting("sides_color", new_color)
+        });
+
+        document.getElementById('brightness').onchange = function () {
+            change_setting("brightness", this.value)
+        }
+
+        document.getElementById('backlight_brightness').onchange = function () {
+            change_setting("backlight_brightness", this.value)
+        }
+
+        document.getElementById('skipped_notes').onchange = function () {
+            change_setting("skipped_notes", this.value)
+        }
+
+        document.getElementById('led_count').onchange = function () {
+            change_setting("led_count", this.value)
+        }
+
+        document.getElementById('shift').onchange = function () {
+            change_setting("shift", this.value)
+        }
+
+        document.getElementById('reverse').onchange = function () {
+            change_setting("reverse", this.value)
+        }
+
+        document.getElementById('rainbow_offset').onchange = function () {
+            change_setting("rainbow_offset", this.value)
+        }
+
+        document.getElementById('rainbow_scale').onchange = function () {
+            change_setting("rainbow_scale", this.value)
+        }
+
+        document.getElementById('rainbow_timeshift').onchange = function () {
+            change_setting("rainbow_timeshift", this.value)
+        }
+
+        document.getElementById('sides_color_mode').onchange = function () {
+            change_setting("sides_color_mode", this.value)
+            if (this.value == "RGB") {
+                document.getElementById('sides_color_choose').hidden = false;
+            } else {
+                document.getElementById('sides_color_choose').hidden = true;
+            }
+        }
+
+        function remove_color_modes() {
+            var slides = document.getElementsByClassName("color_mode");
+            for (var i = 0; i < slides.length; i++) {
+                slides.item(i).hidden = true;
+            }
+        }
+
+        document.getElementById('color_mode').onchange = function () {
+            switch (this.value) {
+                case "Single":
+                    remove_color_modes();
+                    document.getElementById('Single').hidden = false;
+                    change_setting("color_mode", "Single");
+                    break;
+                case "Multicolor":
+                    remove_color_modes();
+                    document.getElementById('Multicolor').hidden = false;
+                    change_setting("color_mode", "Multicolor");
+                    break;
+                case "Rainbow":
+                    remove_color_modes();
+                    document.getElementById('Rainbow').hidden = false;
+                    change_setting("color_mode", "Rainbow");
+                    break;
+                case "Speed":
+                    remove_color_modes();
+                    document.getElementById('Speed').hidden = false;
+                    change_setting("color_mode", "Speed");
+                    break;
+                default:
+                // code block
+            }
+        }
+
+        get_settings();
+    }
+
+    function initialize_ports_settings() {
+        get_ports()
+        document.getElementById('switch_ports').onclick = function () {
+            document.getElementById('switch_ports').disabled = true;
+            document.getElementById('switch_ports_sidebar').disabled = true;
+            switch_ports()
+        }
+        document.getElementById('active_input').onchange = function () {
+            change_setting("input_port", this.value)
+        }
+        document.getElementById('secondary_input').onchange = function () {
+            change_setting("secondary_input_port", this.value)
+        }
+        document.getElementById('playback_input').onchange = function () {
+            change_setting("play_port", this.value)
+        }
+    }
+
+    function hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    function rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    function enforceMinMax(el) {
+        if (el.value != "") {
+            if (parseInt(el.value) < parseInt(el.min)) {
+                el.value = el.min;
+            }
+            if (parseInt(el.value) > parseInt(el.max)) {
+                el.value = el.max;
+            }
+        }
+    }
+
+    function get_ports() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.timeout = 5000;
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200 && document.getElementById('active_input') != null) {
+                var active_input_select = document.getElementById('active_input');
+                var secondary_input_select = document.getElementById('secondary_input');
+                var playback_select = document.getElementById('playback_input');
+                response = JSON.parse(this.responseText);
+                var length = active_input_select.options.length;
+                for (i = length - 1; i >= 0; i--) {
+                    active_input_select.options[i] = null;
+                    secondary_input_select.options[i] = null;
+                    playback_select.options[i] = null;
+                }
+                response.ports_list.forEach(function (item, index) {
+                    var opt = document.createElement('option');
+                    var opt2 = document.createElement('option');
+                    var opt3 = document.createElement('option');
+                    opt.appendChild(document.createTextNode(item));
+                    opt2.appendChild(document.createTextNode(item));
+                    opt3.appendChild(document.createTextNode(item));
+                    opt.value = item;
+                    opt2.value = item;
+                    opt3.value = item;
+                    active_input_select.appendChild(opt);
+                    secondary_input_select.appendChild(opt2);
+                    playback_select.appendChild(opt3);
+                });
+                active_input_select.value = response.input_port;
+                secondary_input_select.value = response.secondary_input_port;
+                playback_select.value = response.play_port;
+            }
+        };
+        xhttp.open("GET", "/api/get_ports", true);
         xhttp.send();
     }
 
@@ -613,263 +882,6 @@
         }
         if (i >= 3) {
             multicolor_element.innerHTML += add_button;
-        }
-    }
-
-    function get_ports() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.timeout = 5000;
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200 && document.getElementById('active_input') != null) {
-                var active_input_select = document.getElementById('active_input');
-                var secondary_input_select = document.getElementById('secondary_input');
-                var playback_select = document.getElementById('playback_input');
-                response = JSON.parse(this.responseText);
-                var length = active_input_select.options.length;
-                for (i = length - 1; i >= 0; i--) {
-                    active_input_select.options[i] = null;
-                    secondary_input_select.options[i] = null;
-                    playback_select.options[i] = null;
-                }
-                response.ports_list.forEach(function (item, index) {
-                    var opt = document.createElement('option');
-                    var opt2 = document.createElement('option');
-                    var opt3 = document.createElement('option');
-                    opt.appendChild(document.createTextNode(item));
-                    opt2.appendChild(document.createTextNode(item));
-                    opt3.appendChild(document.createTextNode(item));
-                    opt.value = item;
-                    opt2.value = item;
-                    opt3.value = item;
-                    active_input_select.appendChild(opt);
-                    secondary_input_select.appendChild(opt2);
-                    playback_select.appendChild(opt3);
-                });
-                active_input_select.value = response.input_port;
-                secondary_input_select.value = response.secondary_input_port;
-                playback_select.value = response.play_port;
-            }
-        };
-        xhttp.open("GET", "/api/get_ports", true);
-        xhttp.send();
-    }
-
-    function initialize_homepage() {
-        clearInterval(homepage_interval);
-        if (getCookie("refresh_rate") != null) {
-            refresh_rate = getCookie("refresh_rate");
-        } else {
-            setCookie("refresh_rate", 3, 365);
-        }
-        document.getElementById("refresh_rate").value = refresh_rate;
-        if (getCookie("refresh_rate") != 0 && refresh_rate != null) {
-            homepage_interval = setInterval(get_homepage_data_loop, refresh_rate * 1000)
-        }
-        if (getCookie("refresh_rate") == 0) {
-            setTimeout(get_homepage_data_loop, 1000)
-        }
-        document.getElementById('refresh_rate').onchange = function () {
-            setCookie('refresh_rate', this.value, 365);
-            clearInterval(homepage_interval)
-            if (this.value != 0) {
-                homepage_interval = setInterval(get_homepage_data_loop, this.value * 1000)
-            }
-        }
-    }
-
-    function initialize_led_settings() {
-
-
-        var theInput = document.getElementById("led_color");
-        var theInput2 = document.getElementById("backlight_color");
-        var theInput3 = document.getElementById("sides_color");
-        theInput.addEventListener("input", function (event) {
-            editLedColor(event, "");
-        });
-        theInput2.addEventListener("input", function (event) {
-            editLedColor(event, "backlight_");
-        });
-        theInput3.addEventListener("input", function (event) {
-            editLedColor(event, "sides_");
-        });
-
-        theInput.addEventListener("click", function (event) {
-            editLedColor(event, "");
-        });
-        theInput2.addEventListener("click", function (event) {
-            editLedColor(event, "backlight_");
-        });
-        theInput3.addEventListener("click", function (event) {
-            editLedColor(event, "sides_");
-        });
-
-        document.getElementById('led_color').onchange = function () {
-            change_setting("led_color", this.value)
-        }
-
-        document.getElementById('backlight_color').onchange = function () {
-            change_setting("backlight_color", this.value)
-        }
-
-        document.getElementById('sides_color').onchange = function () {
-            change_setting("sides_color", this.value)
-        }
-
-        document.getElementById('light_mode').onchange = function () {
-            if (this.value == "Fading") {
-                document.getElementById('fading').hidden = false;
-                document.getElementById('fading_speed').onchange();
-            } else {
-                document.getElementById('fading').hidden = true;
-            }
-            if (this.value == "Velocity") {
-                document.getElementById('velocity').hidden = false;
-                document.getElementById('velocity_speed').onchange();
-            } else {
-                document.getElementById('velocity').hidden = true;
-            }
-            change_setting("light_mode", this.value)
-        }
-
-        document.getElementById('fading_speed').onchange = function () {
-            change_setting("fading_speed", this.value)
-        }
-
-        document.getElementById('velocity_speed').onchange = function () {
-            change_setting("velocity_speed", this.value)
-        }
-
-        document.getElementById('ledcolors').addEventListener('change', function (event) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById("red").value, 10),
-                parseInt(document.getElementById("green").value, 10),
-                parseInt(document.getElementById("blue").value, 10));
-            document.getElementById("led_color").value = new_color;
-            change_setting("led_color", new_color)
-        });
-
-        document.getElementById('backlightcolors').addEventListener('change', function (event) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById("backlight_red").value, 10),
-                parseInt(document.getElementById("backlight_green").value, 10),
-                parseInt(document.getElementById("backlight_blue").value, 10));
-            document.getElementById("backlight_color").value = new_color;
-            change_setting("backlight_color", new_color)
-        });
-
-        document.getElementById('sidescolors').addEventListener('change', function (event) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById("sides_red").value, 10),
-                parseInt(document.getElementById("sides_green").value, 10),
-                parseInt(document.getElementById("sides_blue").value, 10));
-            document.getElementById("sides_color").value = new_color;
-            change_setting("sides_color", new_color)
-        });
-
-        document.getElementById('brightness').onchange = function () {
-            change_setting("brightness", this.value)
-        }
-
-        document.getElementById('backlight_brightness').onchange = function () {
-            change_setting("backlight_brightness", this.value)
-        }
-
-        document.getElementById('skipped_notes').onchange = function () {
-            change_setting("skipped_notes", this.value)
-        }
-
-        document.getElementById('led_count').onchange = function () {
-            change_setting("led_count", this.value)
-        }
-
-        document.getElementById('shift').onchange = function () {
-            change_setting("shift", this.value)
-        }
-
-        document.getElementById('reverse').onchange = function () {
-            change_setting("reverse", this.value)
-        }
-
-        document.getElementById('sides_color_mode').onchange = function () {
-            change_setting("sides_color_mode", this.value)
-            if (this.value == "RGB") {
-                document.getElementById('sides_color_choose').hidden = false;
-            } else {
-                document.getElementById('sides_color_choose').hidden = true;
-            }
-        }
-
-        function remove_color_modes() {
-            var slides = document.getElementsByClassName("color_mode");
-            for (var i = 0; i < slides.length; i++) {
-                slides.item(i).hidden = true;
-            }
-        }
-
-        document.getElementById('color_mode').onchange = function () {
-            switch (this.value) {
-                case "Single":
-                    remove_color_modes();
-                    document.getElementById('Single').hidden = false;
-                    change_setting("color_mode", "Single");
-                    break;
-                case "Multicolor":
-                    remove_color_modes();
-                    document.getElementById('Multicolor').hidden = false;
-                    change_setting("color_mode", "Multicolor");
-                    break;
-                case "Rainbow":
-                    remove_color_modes();
-                    document.getElementById('Rainbow').hidden = false;
-                    change_setting("color_mode", "Rainbow");
-                    break;
-                default:
-                // code block
-            }
-        }
-
-        get_settings();
-    }
-
-    function initialize_ports_settings() {
-        get_ports()
-        document.getElementById('switch_ports').onclick = function () {
-            document.getElementById('switch_ports').disabled = true;
-            document.getElementById('switch_ports_sidebar').disabled = true;
-            switch_ports()
-        }
-        document.getElementById('active_input').onchange = function () {
-            change_setting("input_port", this.value)
-        }
-        document.getElementById('secondary_input').onchange = function () {
-            change_setting("secondary_input_port", this.value)
-        }
-        document.getElementById('playback_input').onchange = function () {
-            change_setting("play_port", this.value)
-        }
-    }
-
-    function hexToRgb(hex) {
-        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : null;
-    }
-
-    function rgbToHex(r, g, b) {
-        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-    }
-
-    function enforceMinMax(el) {
-        if (el.value != "") {
-            if (parseInt(el.value) < parseInt(el.min)) {
-                el.value = el.min;
-            }
-            if (parseInt(el.value) > parseInt(el.max)) {
-                el.value = el.max;
-            }
         }
     }
 

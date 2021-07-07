@@ -250,6 +250,50 @@ def change_setting():
         webinterface.ledsettings.multicolor_range[int(second_value)][1] = int(value)
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
 
+    if setting_name == "rainbow_offset":
+        webinterface.ledsettings.rainbow_offset = int(value)
+        webinterface.usersettings.change_setting_value("rainbow_offset",
+                                                       int(webinterface.ledsettings.rainbow_offset))
+
+    if setting_name == "rainbow_scale":
+        webinterface.ledsettings.rainbow_scale = int(value)
+        webinterface.usersettings.change_setting_value("rainbow_scale",
+                                                       int(webinterface.ledsettings.rainbow_scale))
+
+    if setting_name == "rainbow_timeshift":
+        webinterface.ledsettings.rainbow_timeshift = int(value)
+        webinterface.usersettings.change_setting_value("rainbow_timeshift",
+                                                       int(webinterface.ledsettings.rainbow_timeshift))
+
+    if setting_name == "speed_slowest_color":
+        rgb = wc.hex_to_rgb("#" + value)
+        webinterface.ledsettings.speed_slowest["red"] = rgb[0]
+        webinterface.ledsettings.speed_slowest["green"] = rgb[1]
+        webinterface.ledsettings.speed_slowest["blue"] = rgb[2]
+
+        webinterface.usersettings.change_setting_value("speed_slowest_red", rgb[0])
+        webinterface.usersettings.change_setting_value("speed_slowest_green", rgb[1])
+        webinterface.usersettings.change_setting_value("speed_slowest_blue", rgb[2])
+
+    if setting_name == "speed_fastest_color":
+        rgb = wc.hex_to_rgb("#" + value)
+        webinterface.ledsettings.speed_fastest["red"] = rgb[0]
+        webinterface.ledsettings.speed_fastest["green"] = rgb[1]
+        webinterface.ledsettings.speed_fastest["blue"] = rgb[2]
+
+        webinterface.usersettings.change_setting_value("speed_fastest_red", rgb[0])
+        webinterface.usersettings.change_setting_value("speed_fastest_green", rgb[1])
+        webinterface.usersettings.change_setting_value("speed_fastest_blue", rgb[2])
+
+    if setting_name == "speed_max_notes":
+        webinterface.ledsettings.speed_max_notes = int(value)
+        webinterface.usersettings.change_setting_value("speed_max_notes", int(value))
+
+    if setting_name == "speed_period_in_seconds":
+        webinterface.ledsettings.speed_period_in_seconds = float(value)
+        webinterface.usersettings.change_setting_value("speed_period_in_seconds", float(value))
+
+
 
     return jsonify(success=True)
 
@@ -299,6 +343,27 @@ def get_settings():
 
     response["multicolor"] = webinterface.usersettings.get_setting_value("multicolor")
     response["multicolor_range"] = webinterface.usersettings.get_setting_value("multicolor_range")
+
+    response["rainbow_offset"] = webinterface.usersettings.get_setting_value("rainbow_offset")
+    response["rainbow_scale"] = webinterface.usersettings.get_setting_value("rainbow_scale")
+    response["rainbow_timeshift"] = webinterface.usersettings.get_setting_value("rainbow_timeshift")
+
+    speed_slowest_red = webinterface.usersettings.get_setting_value("speed_slowest_red")
+    speed_slowest_green = webinterface.usersettings.get_setting_value("speed_slowest_green")
+    speed_slowest_blue = webinterface.usersettings.get_setting_value("speed_slowest_blue")
+    speed_slowest_color = wc.rgb_to_hex((int(speed_slowest_red), int(speed_slowest_green), int(speed_slowest_blue)))
+
+    response["speed_slowest_color"] = speed_slowest_color
+
+    speed_fastest_red = webinterface.usersettings.get_setting_value("speed_fastest_red")
+    speed_fastest_green = webinterface.usersettings.get_setting_value("speed_fastest_green")
+    speed_fastest_blue = webinterface.usersettings.get_setting_value("speed_fastest_blue")
+    speed_fastest_color = wc.rgb_to_hex((int(speed_fastest_red), int(speed_fastest_green), int(speed_fastest_blue)))
+
+    response["speed_fastest_color"] = speed_fastest_color
+
+    response["speed_max_notes"] = webinterface.usersettings.get_setting_value("speed_max_notes")
+    response["speed_period_in_seconds"] = webinterface.usersettings.get_setting_value("speed_period_in_seconds")
 
     return jsonify(response)
 
