@@ -514,7 +514,8 @@
                     document.getElementById("speed_max_notes").value = response.speed_max_notes;
                     document.getElementById("speed_period_in_seconds").value = response.speed_period_in_seconds;
 
-
+                    document.getElementById("gradient_start_color").value = response.gradient_start_color;
+                    document.getElementById("gradient_end_color").value = response.gradient_end_color;
 
                     document.getElementById('color_mode').onchange();
                 } else {
@@ -609,6 +610,24 @@
             change_setting("speed_fastest_color", new_color)
         });
 
+        document.getElementById('gradientstartcolors').addEventListener('change', function (event) {
+            var new_color = rgbToHex(
+                parseInt(document.getElementById("gradient_start_red").value, 10),
+                parseInt(document.getElementById("gradient_start_green").value, 10),
+                parseInt(document.getElementById("gradient_start_blue").value, 10));
+            document.getElementById("gradient_start_color").value = new_color;
+            change_setting("gradient_start_color", new_color)
+        });
+
+        document.getElementById('gradientendcolors').addEventListener('change', function (event) {
+            var new_color = rgbToHex(
+                parseInt(document.getElementById("gradient_end_red").value, 10),
+                parseInt(document.getElementById("gradient_end_green").value, 10),
+                parseInt(document.getElementById("gradient_end_blue").value, 10));
+            document.getElementById("gradient_end_color").value = new_color;
+            change_setting("gradient_end_color", new_color)
+        });
+
         document.getElementById('backlightcolors').addEventListener('change', function (event) {
             var new_color = rgbToHex(
                 parseInt(document.getElementById("backlight_red").value, 10),
@@ -700,6 +719,11 @@
                     remove_color_modes();
                     document.getElementById('Speed').hidden = false;
                     change_setting("color_mode", "Speed");
+                    break;
+                case "Gradient":
+                    remove_color_modes();
+                    document.getElementById('Gradient').hidden = false;
+                    change_setting("color_mode", "Gradient");
                     break;
                 default:
                 // code block

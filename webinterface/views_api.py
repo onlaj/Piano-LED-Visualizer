@@ -285,6 +285,26 @@ def change_setting():
         webinterface.usersettings.change_setting_value("speed_fastest_green", rgb[1])
         webinterface.usersettings.change_setting_value("speed_fastest_blue", rgb[2])
 
+    if setting_name == "gradient_start_color":
+        rgb = wc.hex_to_rgb("#" + value)
+        webinterface.ledsettings.gradient_start["red"] = rgb[0]
+        webinterface.ledsettings.gradient_start["green"] = rgb[1]
+        webinterface.ledsettings.gradient_start["blue"] = rgb[2]
+
+        webinterface.usersettings.change_setting_value("gradient_start_red", rgb[0])
+        webinterface.usersettings.change_setting_value("gradient_start_green", rgb[1])
+        webinterface.usersettings.change_setting_value("gradient_start_blue", rgb[2])
+
+    if setting_name == "gradient_end_color":
+        rgb = wc.hex_to_rgb("#" + value)
+        webinterface.ledsettings.gradient_end["red"] = rgb[0]
+        webinterface.ledsettings.gradient_end["green"] = rgb[1]
+        webinterface.ledsettings.gradient_end["blue"] = rgb[2]
+
+        webinterface.usersettings.change_setting_value("gradient_end_red", rgb[0])
+        webinterface.usersettings.change_setting_value("gradient_end_green", rgb[1])
+        webinterface.usersettings.change_setting_value("gradient_end_blue", rgb[2])
+
     if setting_name == "speed_max_notes":
         webinterface.ledsettings.speed_max_notes = int(value)
         webinterface.usersettings.change_setting_value("speed_max_notes", int(value))
@@ -352,15 +372,26 @@ def get_settings():
     speed_slowest_green = webinterface.usersettings.get_setting_value("speed_slowest_green")
     speed_slowest_blue = webinterface.usersettings.get_setting_value("speed_slowest_blue")
     speed_slowest_color = wc.rgb_to_hex((int(speed_slowest_red), int(speed_slowest_green), int(speed_slowest_blue)))
-
     response["speed_slowest_color"] = speed_slowest_color
 
     speed_fastest_red = webinterface.usersettings.get_setting_value("speed_fastest_red")
     speed_fastest_green = webinterface.usersettings.get_setting_value("speed_fastest_green")
     speed_fastest_blue = webinterface.usersettings.get_setting_value("speed_fastest_blue")
     speed_fastest_color = wc.rgb_to_hex((int(speed_fastest_red), int(speed_fastest_green), int(speed_fastest_blue)))
-
     response["speed_fastest_color"] = speed_fastest_color
+
+    gradient_start_red = webinterface.usersettings.get_setting_value("gradient_start_red")
+    gradient_start_green = webinterface.usersettings.get_setting_value("gradient_start_green")
+    gradient_start_blue = webinterface.usersettings.get_setting_value("gradient_start_blue")
+    gradient_start_color = wc.rgb_to_hex((int(gradient_start_red), int(gradient_start_green), int(gradient_start_blue)))
+    response["gradient_start_color"] = gradient_start_color
+
+    gradient_end_red = webinterface.usersettings.get_setting_value("gradient_end_red")
+    gradient_end_green = webinterface.usersettings.get_setting_value("gradient_end_green")
+    gradient_end_blue = webinterface.usersettings.get_setting_value("gradient_end_blue")
+    gradient_end_color = wc.rgb_to_hex((int(gradient_end_red), int(gradient_end_green), int(gradient_end_blue)))
+    response["gradient_end_color"] = gradient_end_color
+
 
     response["speed_max_notes"] = webinterface.usersettings.get_setting_value("speed_max_notes")
     response["speed_period_in_seconds"] = webinterface.usersettings.get_setting_value("speed_period_in_seconds")

@@ -138,6 +138,48 @@
                     </div>
                 </div>
             </div>
+
+            <div hidden="true" id="Gradient" class="flex-1 color_mode">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Start
+                </label>
+                <input id="gradient_start_color" type="color" value="#ffffff"
+                       class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                       onclick="editLedColor(event, 'gradient_start_');"
+                       oninput="editLedColor(event, 'gradient_start_');"
+                       onchange="change_setting('gradient_start_color', this.value);">
+                <div id="gradientstartcolors" class="justify-center flex">
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                    <input id="gradient_start_red" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                    <input id="gradient_start_green" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                    <input id="gradient_start_blue" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                </div>
+
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    End
+                </label>
+                <input id="gradient_end_color" type="color" value="#ffffff"
+                       class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                       onclick="editLedColor(event, 'gradient_end_');"
+                       oninput="editLedColor(event, 'gradient_end_');"
+                       onchange="change_setting('gradient_end_color', this.value);">
+                <div id="gradientendcolors" class="justify-center flex">
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                    <input id="gradient_end_red" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                    <input id="gradient_end_green" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                    <input id="gradient_end_blue" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                </div>
+            </div>
         </div>
 
     </div>
