@@ -517,6 +517,11 @@
                     document.getElementById("gradient_start_color").value = response.gradient_start_color;
                     document.getElementById("gradient_end_color").value = response.gradient_end_color;
 
+                    document.getElementById("key_in_scale_color").value = response.key_in_scale_color;
+                    document.getElementById("key_not_in_scale_color").value = response.key_not_in_scale_color;
+
+                    document.getElementById("scale_key").value = response.scale_key;
+
                     document.getElementById('color_mode').onchange();
                 } else {
                     document.getElementById("led_color").innerHTML = response.led_color;
@@ -628,6 +633,24 @@
             change_setting("gradient_end_color", new_color)
         });
 
+        document.getElementById('keyinscalecolors').addEventListener('change', function (event) {
+            var new_color = rgbToHex(
+                parseInt(document.getElementById("key_in_scale_red").value, 10),
+                parseInt(document.getElementById("key_in_scale_green").value, 10),
+                parseInt(document.getElementById("key_in_scale_blue").value, 10));
+            document.getElementById("key_in_scale_color").value = new_color;
+            change_setting("key_in_scale_color", new_color)
+        });
+
+        document.getElementById('keynotinscalecolors').addEventListener('change', function (event) {
+            var new_color = rgbToHex(
+                parseInt(document.getElementById("key_not_in_scale_red").value, 10),
+                parseInt(document.getElementById("key_not_in_scale_green").value, 10),
+                parseInt(document.getElementById("key_not_in_scale_blue").value, 10));
+            document.getElementById("key_not_in_scale_color").value = new_color;
+            change_setting("key_not_in_scale_color", new_color)
+        });
+
         document.getElementById('backlightcolors').addEventListener('change', function (event) {
             var new_color = rgbToHex(
                 parseInt(document.getElementById("backlight_red").value, 10),
@@ -724,6 +747,11 @@
                     remove_color_modes();
                     document.getElementById('Gradient').hidden = false;
                     change_setting("color_mode", "Gradient");
+                    break;
+                case "Scale":
+                    remove_color_modes();
+                    document.getElementById('Scale').hidden = false;
+                    change_setting("color_mode", "Scale");
                     break;
                 default:
                 // code block
@@ -941,7 +969,6 @@
     }
 
     var editLedColor = function (event, prefix) {
-        console.log("prefix: " + prefix + "red")
         document.getElementById(prefix + "red").value = hexToRgb(event.srcElement.value).r;
         document.getElementById(prefix + "green").value = hexToRgb(event.srcElement.value).g;
         document.getElementById(prefix + "blue").value = hexToRgb(event.srcElement.value).b;

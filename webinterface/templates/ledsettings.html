@@ -124,7 +124,7 @@
                         <input id="speed_max_notes" type="number" value="176" min="0" max="255"
                                class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
             py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                        onchange="change_setting('speed_max_notes', this.value)">
+                               onchange="change_setting('speed_max_notes', this.value)">
                     </div>
 
                     <div class="w-full md:w-1/2 px-3 md:mb-0">
@@ -134,7 +134,7 @@
                         <input id="speed_period_in_seconds" step="0.1" type="number" value="176" min="0" max="255"
                                class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
             py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                        onchange="change_setting('speed_period_in_seconds', this.value)">
+                               onchange="change_setting('speed_period_in_seconds', this.value)">
                     </div>
                 </div>
             </div>
@@ -178,6 +178,68 @@
                     <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
                     <input id="gradient_end_blue" type="number" value="255" min="0" max="255"
                            class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                </div>
+            </div>
+
+            <div hidden="true" id="Scale" class="flex-1 color_mode">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Color for in scale
+                </label>
+                <input id="key_in_scale_color" type="color" value="#ffffff"
+                       class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                       onclick="editLedColor(event, 'key_in_scale_');"
+                       oninput="editLedColor(event, 'key_in_scale_');"
+                       onchange="change_setting('key_in_scale_color', this.value);">
+                <div id="keyinscalecolors" class="justify-center flex">
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                    <input id="key_in_scale_red" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                    <input id="key_in_scale_green" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                    <input id="key_in_scale_blue" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                </div>
+
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Color for not in scale
+                </label>
+                <input id="key_not_in_scale_color" type="color" value="#ffffff"
+                       class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                       onclick="editLedColor(event, 'key_not_in_scale_');"
+                       oninput="editLedColor(event, 'key_not_in_scale_');"
+                       onchange="change_setting('key_not_in_scale_color', this.value);">
+                <div id="keynotinscalecolors" class="justify-center flex">
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                    <input id="key_not_in_scale_red" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                    <input id="key_not_in_scale_green" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                    <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                    <input id="key_not_in_scale_blue" type="number" value="255" min="0" max="255"
+                           class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                </div>
+
+                <div class="relative">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Scale key
+                    </label>
+                    <select id="scale_key" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
+        py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                            onchange="change_setting('scale_key', this.value);">
+                        {% set i = 0 %}
+                        {% set scales_list = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"] %}
+                        {% for scale in scales_list %}
+                        <option value="{{ loop.index0 }}">{{ scale }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </div>

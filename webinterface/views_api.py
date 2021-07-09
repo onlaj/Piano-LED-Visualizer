@@ -313,6 +313,29 @@ def change_setting():
         webinterface.ledsettings.speed_period_in_seconds = float(value)
         webinterface.usersettings.change_setting_value("speed_period_in_seconds", float(value))
 
+    if setting_name == "key_in_scale_color":
+        rgb = wc.hex_to_rgb("#" + value)
+        webinterface.ledsettings.key_in_scale["red"] = rgb[0]
+        webinterface.ledsettings.key_in_scale["green"] = rgb[1]
+        webinterface.ledsettings.key_in_scale["blue"] = rgb[2]
+
+        webinterface.usersettings.change_setting_value("key_in_scale_red", rgb[0])
+        webinterface.usersettings.change_setting_value("key_in_scale_green", rgb[1])
+        webinterface.usersettings.change_setting_value("key_in_scale_blue", rgb[2])
+
+    if setting_name == "key_not_in_scale_color":
+        rgb = wc.hex_to_rgb("#" + value)
+        webinterface.ledsettings.key_not_in_scale["red"] = rgb[0]
+        webinterface.ledsettings.key_not_in_scale["green"] = rgb[1]
+        webinterface.ledsettings.key_not_in_scale["blue"] = rgb[2]
+
+        webinterface.usersettings.change_setting_value("key_not_in_scale_red", rgb[0])
+        webinterface.usersettings.change_setting_value("key_not_in_scale_green", rgb[1])
+        webinterface.usersettings.change_setting_value("key_not_in_scale_blue", rgb[2])
+
+    if setting_name == "scale_key":
+        webinterface.ledsettings.scale_key = int(value)
+        webinterface.usersettings.change_setting_value("scale_key", int(value))
 
 
     return jsonify(success=True)
@@ -392,6 +415,19 @@ def get_settings():
     gradient_end_color = wc.rgb_to_hex((int(gradient_end_red), int(gradient_end_green), int(gradient_end_blue)))
     response["gradient_end_color"] = gradient_end_color
 
+    key_in_scale_red = webinterface.usersettings.get_setting_value("key_in_scale_red")
+    key_in_scale_green = webinterface.usersettings.get_setting_value("key_in_scale_green")
+    key_in_scale_blue = webinterface.usersettings.get_setting_value("key_in_scale_blue")
+    key_in_scale_color = wc.rgb_to_hex((int(key_in_scale_red), int(key_in_scale_green), int(key_in_scale_blue)))
+    response["key_in_scale_color"] = key_in_scale_color
+
+    key_not_in_scale_red = webinterface.usersettings.get_setting_value("key_not_in_scale_red")
+    key_not_in_scale_green = webinterface.usersettings.get_setting_value("key_not_in_scale_green")
+    key_not_in_scale_blue = webinterface.usersettings.get_setting_value("key_not_in_scale_blue")
+    key_not_in_scale_color = wc.rgb_to_hex((int(key_not_in_scale_red), int(key_not_in_scale_green), int(key_not_in_scale_blue)))
+    response["key_not_in_scale_color"] = key_not_in_scale_color
+
+    response["scale_key"] = webinterface.usersettings.get_setting_value("scale_key")
 
     response["speed_max_notes"] = webinterface.usersettings.get_setting_value("speed_max_notes")
     response["speed_period_in_seconds"] = webinterface.usersettings.get_setting_value("speed_period_in_seconds")
