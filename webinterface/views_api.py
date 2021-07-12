@@ -341,7 +341,11 @@ def change_setting():
         return jsonify(success=True)
 
     if setting_name == "set_sequence":
-        webinterface.ledsettings.set_sequence(int(value), 0)
+        if(int(value) == 0):
+            webinterface.ledsettings.__init__(webinterface.usersettings)
+            webinterface.ledsettings.sequence_active = False
+        else:
+            webinterface.ledsettings.set_sequence(int(value) - 1, 0)
         return jsonify(success=True)
 
     return jsonify(success=True)
