@@ -1,43 +1,44 @@
 input:checked ~ .dot {
-  transform: translateX(100%);
-  background-color: #000000;
+    transform: translateX(100%);
+    background-color: #000000;
 }
 
 .slide-in {
-  overflow: hidden; /* to prevent scrollbar appearing */
+    overflow: hidden; /* to prevent scrollbar appearing */
+
 }
 
 .slide-in.from-left {
-  left: 0;
+    left: 0;
 }
 
 .slide-in.from-right {
-  right: 0;
+    right: 0;
 }
 
 .slide-in-content {
-  transition: transform .3s ease-in-out; /* our nice transition */
+    transition: transform .3s ease-in-out; /* our nice transition */
 }
 
 .slide-in.from-left .slide-in-content {
-  transform: translateX(-110%);
-  -webkit-transform: translateX(-110%);
+    transform: translateX(-110%);
+    -webkit-transform: translateX(-110%);
 }
 
 .slide-in.from-right .slide-in-content {
-  transform: translateX(100%);
-  -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+    -webkit-transform: translateX(100%);
 }
 
 .slide-in.show .slide-in-content {
-  transform: translateX(0);
-  -webkit-transform: translateX(0);
+    transform: translateX(0);
+    -webkit-transform: translateX(0);
 }
 
 button:disabled,
-button[disabled]{
-  opacity: 50%;
-  cursor: not-allowed;
+button[disabled] {
+    opacity: 50%;
+    cursor: not-allowed;
 }
 
 input:focus-visible {
@@ -45,24 +46,27 @@ input:focus-visible {
 }
 
 ::-webkit-scrollbar {
- width: 7px;
- height: 7px;
+    width: 7px;
+    height: 7px;
 }
+
 ::-webkit-scrollbar-thumb {
- background: #7a7a7a;
- border-radius: 7px;
+    background: #7a7a7a;
+    border-radius: 7px;
 }
-::-webkit-scrollbar-thumb:hover{
- background: #949494;
+
+::-webkit-scrollbar-thumb:hover {
+    background: #949494;
 }
-::-webkit-scrollbar-track{
- background: #cfcfcf;
- border-radius: 10px;
+
+::-webkit-scrollbar-track {
+    background: #cfcfcf;
+    border-radius: 10px;
 }
 
 body {
-  background-color: #666;
-  margin: 100px 50px;
+    background-color: #666;
+    margin: 100px 50px;
 }
 
 [slider] {
@@ -75,10 +79,10 @@ body {
 }
 
 [slider] > div {
-  position: absolute;
-  left: 13px;
-  right: 15px;
-  height: 14px;
+    position: absolute;
+    left: 13px;
+    right: 15px;
+    height: 14px;
 }
 
 [slider] > div > [inverse-left] {
@@ -123,81 +127,81 @@ body {
 }
 
 [slider] > input[type=range] {
-  position: absolute;
-  pointer-events: none;
-  -webkit-appearance: none;
-  z-index: 3;
-  height: 14px;
-  top: -2px;
-  width: 100%;
-  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-  filter: alpha(opacity=0);
-  -moz-opacity: 0;
-  -khtml-opacity: 0;
-  opacity: 0;
+    position: absolute;
+    pointer-events: none;
+    -webkit-appearance: none;
+    z-index: 3;
+    height: 14px;
+    top: -2px;
+    width: 100%;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    filter: alpha(opacity=0);
+    -moz-opacity: 0;
+    -khtml-opacity: 0;
+    opacity: 0;
 }
 
 div[slider] > input[type=range]::-ms-track {
-  -webkit-appearance: none;
-  background: transparent;
-  color: transparent;
+    -webkit-appearance: none;
+    background: transparent;
+    color: transparent;
 }
 
 div[slider] > input[type=range]::-moz-range-track {
-  -moz-appearance: none;
-  background: transparent;
-  color: transparent;
+    -moz-appearance: none;
+    background: transparent;
+    color: transparent;
 }
 
 div[slider] > input[type=range]:focus::-webkit-slider-runnable-track {
-  background: transparent;
-  border: transparent;
+    background: transparent;
+    border: transparent;
 }
 
 div[slider] > input[type=range]:focus {
-  outline: none;
+    outline: none;
 }
 
 div[slider] > input[type=range]::-ms-thumb {
-  pointer-events: all;
-  width: 28px;
-  height: 28px;
-  border-radius: 0px;
-  border: 0 none;
-  background: red;
+    pointer-events: all;
+    width: 28px;
+    height: 28px;
+    border-radius: 0px;
+    border: 0 none;
+    background: red;
 }
 
 div[slider] > input[type=range]::-moz-range-thumb {
-  pointer-events: all;
-  width: 28px;
-  height: 28px;
-  border-radius: 0px;
-  border: 0 none;
-  background: red;
+    pointer-events: all;
+    width: 28px;
+    height: 28px;
+    border-radius: 0px;
+    border: 0 none;
+    background: red;
 }
 
 div[slider] > input[type=range]::-webkit-slider-thumb {
-  pointer-events: all;
-  width: 28px;
-  height: 28px;
-  border-radius: 0px;
-  border: 0 none;
-  background: red;
-  -webkit-appearance: none;
+    pointer-events: all;
+    width: 28px;
+    height: 28px;
+    border-radius: 0px;
+    border: 0 none;
+    background: red;
+    -webkit-appearance: none;
 }
 
 div[slider] > input[type=range]::-ms-fill-lower {
-  background: transparent;
-  border: 0 none;
+    background: transparent;
+    border: 0 none;
 }
 
 div[slider] > input[type=range]::-ms-fill-upper {
-  background: transparent;
-  border: 0 none;
+    background: transparent;
+    border: 0 none;
 }
 
 div[slider] > input[type=range]::-ms-tooltip {
-  display: none;
+    display: none;
 }
 
 [slider] > div > [sign] {
@@ -232,11 +236,26 @@ div[slider] > input[type=range]::-ms-tooltip {
 }
 
 [slider] > div > [sign] > span {
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 28px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 28px;
 }
 
 [slider]:hover > div > [sign] {
-  opacity: 1;
+    opacity: 1;
+}
+
+.big-button {
+    height: 100% !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.height-80vw {
+    min-height: 50vw;
+}
+
+.pressed {
+    transform: translateY(4px) !important;
 }

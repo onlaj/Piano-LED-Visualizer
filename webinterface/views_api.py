@@ -7,6 +7,7 @@ import threading
 from neopixel import *
 import webcolors as wc
 import mido
+from xml.dom import minidom
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -113,7 +114,7 @@ def get_homepage_data():
         'cpu_usage': psutil.cpu_percent(interval=0.1),
         'memory_usage_percent': psutil.virtual_memory()[2],
         'memory_usage_total': psutil.virtual_memory()[0],
-        'memory_usage_used':  psutil.virtual_memory()[3],
+        'memory_usage_used': psutil.virtual_memory()[3],
         'cpu_temp': temp,
         'upload': upload,
         'download': download,
@@ -131,7 +132,7 @@ def change_setting():
     second_value = request.args.get('second_value')
 
     if setting_name == "led_color":
-        rgb = wc.hex_to_rgb("#"+value)
+        rgb = wc.hex_to_rgb("#" + value)
 
         webinterface.ledsettings.color_mode = "Single"
 
@@ -193,7 +194,6 @@ def change_setting():
         webinterface.ledsettings.adjacent_mode = value
         webinterface.usersettings.change_setting_value("adjacent_mode", value)
 
-
     if setting_name == "input_port":
         webinterface.usersettings.change_setting_value("input_port", value)
         webinterface.midiports.change_port("inport", value)
@@ -230,7 +230,7 @@ def change_setting():
         return jsonify(success=True, reload=True)
 
     if setting_name == "remove_multicolor":
-        webinterface.ledsettings.deletecolor(int(value)+1)
+        webinterface.ledsettings.deletecolor(int(value) + 1)
         return jsonify(success=True, reload=True)
 
     if setting_name == "multicolor":
@@ -244,7 +244,6 @@ def change_setting():
     if setting_name == "multicolor_range_left":
         webinterface.ledsettings.multicolor_range[int(second_value)][0] = int(value)
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
-
 
     if setting_name == "multicolor_range_right":
         webinterface.ledsettings.multicolor_range[int(second_value)][1] = int(value)
@@ -337,6 +336,13 @@ def change_setting():
         webinterface.ledsettings.scale_key = int(value)
         webinterface.usersettings.change_setting_value("scale_key", int(value))
 
+    if setting_name == "next_step":
+        webinterface.ledsettings.set_sequence(0, 1)
+        return jsonify(success=True)
+
+    if setting_name == "set_sequence":
+        webinterface.ledsettings.set_sequence(int(value), 0)
+        return jsonify(success=True)
 
     return jsonify(success=True)
 
@@ -424,7 +430,8 @@ def get_settings():
     key_not_in_scale_red = webinterface.usersettings.get_setting_value("key_not_in_scale_red")
     key_not_in_scale_green = webinterface.usersettings.get_setting_value("key_not_in_scale_green")
     key_not_in_scale_blue = webinterface.usersettings.get_setting_value("key_not_in_scale_blue")
-    key_not_in_scale_color = wc.rgb_to_hex((int(key_not_in_scale_red), int(key_not_in_scale_green), int(key_not_in_scale_blue)))
+    key_not_in_scale_color = wc.rgb_to_hex(
+        (int(key_not_in_scale_red), int(key_not_in_scale_green), int(key_not_in_scale_blue)))
     response["key_not_in_scale_color"] = key_not_in_scale_color
 
     response["scale_key"] = webinterface.usersettings.get_setting_value("scale_key")
@@ -447,6 +454,7 @@ def get_ports():
 
     return jsonify(response)
 
+
 @webinterface.route('/api/switch_ports', methods=['GET'])
 def switch_ports():
     active_input = webinterface.usersettings.get_setting_value("input_port")
@@ -458,3 +466,23 @@ def switch_ports():
 
     return jsonify(success=True)
 
+
+@webinterface.route('/api/get_sequences', methods=['GET'])
+def get_sequences():
+    response = {}
+    sequences_list = []
+    sequences_tree = minidom.parse("sequences.xml")
+    i = 0
+    while True:
+        try:
+            i += 1
+            sequences_list.append(\
+                            sequences_tree.getElementsByTagName("sequence_" + str(i))[0].getElementsByTagName(
+                                "sequence_name")[
+                                0].firstChild.nodeValue)
+        except:
+            break
+    response["sequences_list"] = sequences_list
+    response["sequence_number"] = webinterface.ledsettings.sequence_number
+
+    return jsonify(response)

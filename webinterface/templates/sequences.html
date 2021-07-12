@@ -1,0 +1,41 @@
+<div class="transition duration-300 slide-in-content grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2 gap-6">
+    <div id="sequence_block" class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+        <div class="flex-1 font-bold text-xl pb-2">Sequence</div>
+        <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+            Active sequence
+        </label>
+        <div class="relative">
+            <select id="sequences_list" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
+        py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            onchange="change_setting('set_sequence', this.value);">
+                <option value="0">None</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+            </div>
+        </div>
+        <button id="next_step_button" onclick="change_setting('next_step', '0')" class="transform
+        shadow-xl w-full h-20 bg-gray-100 dark:bg-gray-600 font-bold rounded-lg">
+            <div class="absolute top-0 right-0 pt-2 flex items-center px-2 text-gray-700 dark:text-gray-200"
+                 onclick="event.stopPropagation();this.parentElement.classList.toggle('big-button');document.getElementById('sequence_block').classList.toggle('height-80vw');">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+            Next Step
+            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+            press spacebar
+        </label>
+        </button>
+    </div>
+
+    <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+        <div class="flex-1 font-bold text-xl pb-2">Sequence editor</div>
+        Work in progress
+    </div>
+</div>
+</div>

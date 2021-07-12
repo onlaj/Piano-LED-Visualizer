@@ -79,6 +79,8 @@ class LedSettings:
         self.scales = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
         self.scale_key = int(usersettings.get_setting_value("scale_key"))
 
+        self.sequence_number = 0
+
     def add_instance(self, menu, ledstrip):
         self.menu = menu
         self.ledstrip = ledstrip
@@ -262,6 +264,7 @@ class LedSettings:
                     0].getElementsByTagName("control_number")[0].firstChild.nodeValue
                 self.count_steps = 1
                 self.sequence_active = True
+                self.sequence_active_name = sequence
                 while True:
                     try:
                         temp_step = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
