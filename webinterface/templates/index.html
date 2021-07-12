@@ -713,6 +713,7 @@
                     remove_color_modes();
                     document.getElementById('Single').hidden = false;
                     change_setting("color_mode", "Single");
+                    document.getElementById("led_color").dispatchEvent(new Event('input'));
                     break;
                 case "Multicolor":
                     remove_color_modes();
@@ -728,16 +729,22 @@
                     remove_color_modes();
                     document.getElementById('Speed').hidden = false;
                     change_setting("color_mode", "Speed");
+                    document.getElementById("speed_slow_color").dispatchEvent(new Event('input'));
+                    document.getElementById("speed_fast_color").dispatchEvent(new Event('input'));
                     break;
                 case "Gradient":
                     remove_color_modes();
                     document.getElementById('Gradient').hidden = false;
                     change_setting("color_mode", "Gradient");
+                    document.getElementById("gradient_start_color").dispatchEvent(new Event('input'));
+                    document.getElementById("gradient_end_color").dispatchEvent(new Event('input'));
                     break;
                 case "Scale":
                     remove_color_modes();
                     document.getElementById('Scale').hidden = false;
                     change_setting("color_mode", "Scale");
+                    document.getElementById("key_in_scale_color").dispatchEvent(new Event('input'));
+                    document.getElementById("key_not_in_scale_color").dispatchEvent(new Event('input'));
                     break;
                 default:
                 // code block
@@ -1002,18 +1009,6 @@
         document.getElementById(prefix + "red").value = hexToRgb(event.srcElement.value).r;
         document.getElementById(prefix + "green").value = hexToRgb(event.srcElement.value).g;
         document.getElementById(prefix + "blue").value = hexToRgb(event.srcElement.value).b;
-    };
-
-    var editBacklightColor = function (event) {
-        document.getElementById("backlight_red").value = hexToRgb(this.value).r;
-        document.getElementById("backlight_green").value = hexToRgb(this.value).g;
-        document.getElementById("backlight_blue").value = hexToRgb(this.value).b;
-    };
-
-    var editSidesColor = function (event) {
-        document.getElementById("sides_red").value = hexToRgb(this.value).r;
-        document.getElementById("sides_green").value = hexToRgb(this.value).g;
-        document.getElementById("sides_blue").value = hexToRgb(this.value).b;
     };
 
     function setCookie(name, value, days) {
