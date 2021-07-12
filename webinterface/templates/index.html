@@ -610,85 +610,49 @@
             change_setting("velocity_speed", this.value)
         }
 
-        document.getElementById('ledcolors').addEventListener('change', function (event) {
+        function change_color_input(color_prefix, color_input_id, setting_name) {
             var new_color = rgbToHex(
-                parseInt(document.getElementById("red").value, 10),
-                parseInt(document.getElementById("green").value, 10),
-                parseInt(document.getElementById("blue").value, 10));
-            document.getElementById("led_color").value = new_color;
-            change_setting("led_color", new_color)
+                parseInt(document.getElementById(color_prefix+"red").value, 10),
+                parseInt(document.getElementById(color_prefix+"green").value, 10),
+                parseInt(document.getElementById(color_prefix+"blue").value, 10));
+            document.getElementById(color_input_id).value = new_color;
+            change_setting(setting_name, new_color)
+        }
+
+        document.getElementById('ledcolors').addEventListener('change', function (event) {
+            change_color_input('', 'led_color', 'led_color')
         });
 
         document.getElementById('speedslowcolors').addEventListener('change', function (event) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById("speed_slowest_red").value, 10),
-                parseInt(document.getElementById("speed_slowest_green").value, 10),
-                parseInt(document.getElementById("speed_slowest_blue").value, 10));
-            document.getElementById("speed_slow_color").value = new_color;
-            change_setting("speed_slowest_color", new_color)
+            change_color_input('speed_slowest_', 'speed_slow_color', 'speed_slowest_color')
         });
 
         document.getElementById('speedfastcolors').addEventListener('change', function (event) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById("speed_fastest_red").value, 10),
-                parseInt(document.getElementById("speed_fastest_green").value, 10),
-                parseInt(document.getElementById("speed_fastest_blue").value, 10));
-            document.getElementById("speed_fast_color").value = new_color;
-            change_setting("speed_fastest_color", new_color)
+            change_color_input('speed_fastest_', 'speed_fast_color', 'speed_fastest_color')
         });
 
         document.getElementById('gradientstartcolors').addEventListener('change', function (event) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById("gradient_start_red").value, 10),
-                parseInt(document.getElementById("gradient_start_green").value, 10),
-                parseInt(document.getElementById("gradient_start_blue").value, 10));
-            document.getElementById("gradient_start_color").value = new_color;
-            change_setting("gradient_start_color", new_color)
+            change_color_input('gradient_start_', 'gradient_start_color', 'gradient_start_color')
         });
 
         document.getElementById('gradientendcolors').addEventListener('change', function (event) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById("gradient_end_red").value, 10),
-                parseInt(document.getElementById("gradient_end_green").value, 10),
-                parseInt(document.getElementById("gradient_end_blue").value, 10));
-            document.getElementById("gradient_end_color").value = new_color;
-            change_setting("gradient_end_color", new_color)
+            change_color_input('gradient_end_', 'gradient_end_color', 'gradient_end_color')
         });
 
         document.getElementById('keyinscalecolors').addEventListener('change', function (event) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById("key_in_scale_red").value, 10),
-                parseInt(document.getElementById("key_in_scale_green").value, 10),
-                parseInt(document.getElementById("key_in_scale_blue").value, 10));
-            document.getElementById("key_in_scale_color").value = new_color;
-            change_setting("key_in_scale_color", new_color)
+            change_color_input('key_in_scale_', 'key_in_scale_color', 'key_in_scale_color')
         });
 
         document.getElementById('keynotinscalecolors').addEventListener('change', function (event) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById("key_not_in_scale_red").value, 10),
-                parseInt(document.getElementById("key_not_in_scale_green").value, 10),
-                parseInt(document.getElementById("key_not_in_scale_blue").value, 10));
-            document.getElementById("key_not_in_scale_color").value = new_color;
-            change_setting("key_not_in_scale_color", new_color)
+            change_color_input('key_not_in_scale_', 'key_not_in_scale_color', 'key_not_in_scale_color')
         });
 
         document.getElementById('backlightcolors').addEventListener('change', function (event) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById("backlight_red").value, 10),
-                parseInt(document.getElementById("backlight_green").value, 10),
-                parseInt(document.getElementById("backlight_blue").value, 10));
-            document.getElementById("backlight_color").value = new_color;
-            change_setting("backlight_color", new_color)
+            change_color_input('backlight_', 'backlight_color', 'backlight_color')
         });
 
         document.getElementById('sidescolors').addEventListener('change', function (event) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById("sides_red").value, 10),
-                parseInt(document.getElementById("sides_green").value, 10),
-                parseInt(document.getElementById("sides_blue").value, 10));
-            document.getElementById("sides_color").value = new_color;
-            change_setting("sides_color", new_color)
+            change_color_input('sides_', 'sides_color', 'sides_color')
         });
 
         document.getElementById('brightness').onchange = function () {
@@ -790,7 +754,6 @@
 
     function initialize_sequences() {
         clearInterval(homepage_interval);
-
         document.getElementById('next_step_button').addEventListener("mousedown", function(e) {
             press_button(document.getElementById('next_step_button'));
         });
@@ -823,6 +786,7 @@
             change_setting("play_port", this.value)
         }
     }
+
 
     function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
