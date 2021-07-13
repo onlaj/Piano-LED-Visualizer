@@ -17,7 +17,7 @@
 </head>
 
 <body class="bg-gray-800">
-<div>
+<div id="slider">
     <div class="flex min-h-screen overflow-y-hidden bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
          x-data="setup()" x-init="$refs.loading.classList.add('hidden')">
         <!-- Loading screen -->
@@ -28,6 +28,9 @@
         >
             Loading.....
         </div>
+
+        <div id="close_sidebar" hidden @click="closeSidebarMenu()">1</div>
+        <div id="open_sidebar" hidden @click="openSidebarMenu()">2</div>
 
         <!-- Sidebar backdrop -->
         <div
@@ -68,7 +71,7 @@
                 </button>
             </div>
             <!-- Sidebar links -->
-            <nav class="flex-1 overflow-hidden hover:overflow-y-auto">
+            <nav class="flex-1 overflow-auto hover:overflow-y-auto">
                 <ul @click="closeSidebarMenu()" onclick="loadAjax('home')" class="p-2 overflow-hidden">
                     <li>
                         <a
@@ -174,8 +177,37 @@
                             <span :class="{ 'lg:hidden': !isSidebarOpen }">LED Animations</span>
                         </a>
                     </li>
-                    <!-- Sidebar Links... -->
                 </ul>
+
+                <ul @click="closeSidebarMenu()" onclick="loadAjax('settings')" class="p-2 overflow-hidden">
+                    <li>
+                        <a
+                                href="#"
+                                class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100
+                                dark:hover:bg-gray-700"
+                                :class="{'justify-center': !isSidebarOpen}"
+                        >
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573
+                            1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0
+                            3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572
+                            1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0
+                            00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0
+                            00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0
+                            001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+
+
             </nav>
             <!-- Sidebar footer -->
             <div class="flex-shrink-0 p-2 max-h-20">
@@ -321,6 +353,9 @@
             closeSidebarMenu() {
                 this.isSidebarOpen = false
             },
+            openSidebarMenu() {
+                this.isSidebarOpen = true
+            },
             isSettingsPanelOpen: false,
             isSearchBoxOpen: false,
         }
@@ -378,18 +413,21 @@
                     }
                     if (subpage == "ledsettings") {
                         initialize_led_settings();
-                        clearInterval(homepage_interval)
+                        clearInterval(homepage_interval);
                     }
                     if (subpage == "ledanimations") {
-                        clearInterval(homepage_interval)
+                        clearInterval(homepage_interval);
                     }
                     if (subpage == "sequences") {
                         initialize_sequences();
-                        clearInterval(homepage_interval)
+                        clearInterval(homepage_interval);
                     }
                     if (subpage == "ports") {
-                        clearInterval(homepage_interval)
-                        initialize_ports_settings()
+                        clearInterval(homepage_interval);
+                        initialize_ports_settings();
+                    }
+                    if (subpage == "settings") {
+                        clearInterval(homepage_interval);
                     }
                 }
             };
@@ -546,8 +584,10 @@
                     document.getElementById("scale_key").value = response.scale_key;
 
                     document.getElementById('color_mode').onchange();
+                    document.getElementById("sides_color").dispatchEvent(new Event('input'));
+                    document.getElementById("backlight_color").dispatchEvent(new Event('input'));
                 } else {
-                    document.getElementById("led_color").innerHTML = response.led_color;
+                    document.getElementById("color_mode").innerHTML = response.color_mode;
                     document.getElementById("light_mode").innerHTML = response.light_mode;
                     document.getElementById("brightness_percent").innerHTML = response.brightness + "%";
                     document.getElementById("backlight_brightness_percent").innerHTML = response.backlight_brightness + "%";
@@ -608,15 +648,6 @@
 
         document.getElementById('velocity_speed').onchange = function () {
             change_setting("velocity_speed", this.value)
-        }
-
-        function change_color_input(color_prefix, color_input_id, setting_name) {
-            var new_color = rgbToHex(
-                parseInt(document.getElementById(color_prefix+"red").value, 10),
-                parseInt(document.getElementById(color_prefix+"green").value, 10),
-                parseInt(document.getElementById(color_prefix+"blue").value, 10));
-            document.getElementById(color_input_id).value = new_color;
-            change_setting(setting_name, new_color)
         }
 
         document.getElementById('ledcolors').addEventListener('change', function (event) {
@@ -750,18 +781,19 @@
                 // code block
             }
         }
-
         get_settings();
     }
 
-    function press_button(element){
-         element.classList.add("pressed");
-          setTimeout(function(){ element.classList.remove("pressed"); }, 150);
+    function press_button(element) {
+        element.classList.add("pressed");
+        setTimeout(function () {
+            element.classList.remove("pressed");
+        }, 150);
     }
 
     function initialize_sequences() {
         clearInterval(homepage_interval);
-        document.getElementById('next_step_button').addEventListener("mousedown", function(e) {
+        document.getElementById('next_step_button').addEventListener("mousedown", function (e) {
             press_button(document.getElementById('next_step_button'));
         });
 
@@ -931,10 +963,10 @@
                 'class="hidden inline float-right text-red-400">Click to confirm</div>' +
                 '<input id="multicolor_input_' + i + '" type="color" value="' + hex_color + '"\n' +
                 '                        class="cursor-pointer px-2 pt-2 h-8 w-full bg-gray-100 dark:bg-gray-600" ' +
-                'oninput=\'editLedColor(event, "multicolor_' + i + '_")\''  +
+                'oninput=\'editLedColor(event, "multicolor_' + i + '_")\'' +
                 'onchange=\'change_setting("multicolor", this.value, ' + i + ')\'>\n' +
                 '                <div id="multicolors_' + i + '" class="justify-center flex" ' +
-                'onchange=\'change_color_input(event, "multicolor_' + i + '", "multicolor_input_' + i + '", "multicolor", ' + i + ')\'>\n' +
+                'onchange=\'change_color_input_multicolor(event, "multicolor_' + i + '_", "multicolor_input_' + i + '", "multicolor", ' + i + ')\'>\n' +
                 '                    <span class="w-1/12 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-red-400">R:</span>\n' +
                 '                    <input id="multicolor_' + i + '_red" type="number" value="' + element[0] + '" min="0" max="255"\n' +
                 '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
@@ -996,11 +1028,20 @@
         children[13].childNodes[1].innerHTML = element.value;
     }
 
-    function change_color_input(event, prefix, id_to_change, setting_name, i) {
+    function change_color_input(prefix, color_input_id, setting_name) {
         var new_color = rgbToHex(
-            parseInt(document.getElementById(prefix + "_red").value, 10),
-            parseInt(document.getElementById(prefix + "_green").value, 10),
-            parseInt(document.getElementById(prefix + "_blue").value, 10));
+            parseInt(document.getElementById(prefix + "red").value, 10),
+            parseInt(document.getElementById(prefix + "green").value, 10),
+            parseInt(document.getElementById(prefix + "blue").value, 10));
+        document.getElementById(color_input_id).value = new_color;
+        change_setting(setting_name, new_color)
+    }
+
+    function change_color_input_multicolor(event, prefix, id_to_change, setting_name, i) {
+        var new_color = rgbToHex(
+            parseInt(document.getElementById(prefix + "red").value, 10),
+            parseInt(document.getElementById(prefix + "green").value, 10),
+            parseInt(document.getElementById(prefix + "blue").value, 10));
         document.getElementById(id_to_change).value = new_color;
         change_setting(setting_name, new_color, i)
     }
@@ -1072,6 +1113,30 @@
         switch_ports()
     }
 
+    let touchstartX = 0;
+    let touchendX = 0;
+    const slider = document.getElementById('slider');
+
+    function difference(a, b) {
+      return Math.abs(a - b);
+    }
+    function handleGesture() {
+        if(difference(touchendX, touchstartX) > 100) {
+            if (touchendX < touchstartX) document.getElementById('close_sidebar').click();
+            if (touchendX > touchstartX) document.getElementById('open_sidebar').click();
+        }
+    }
+
+    slider.addEventListener('touchstart', e => {
+        touchstartX = e.changedTouches[0].screenX;
+    });
+
+    slider.addEventListener('touchend', e => {
+        touchendX = e.changedTouches[0].screenX;
+        if (e.target.type !== "range") {
+            handleGesture();
+        }
+    });
 
 </script>
 </div>

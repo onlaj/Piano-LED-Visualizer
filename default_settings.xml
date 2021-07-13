@@ -1,4 +1,5 @@
 <settings>
+	<screen_on>1</screen_on>
 	<brightness_percent>50</brightness_percent>
 	<background_color>BLACK</background_color>
 	<text_color>WHITE</text_color>

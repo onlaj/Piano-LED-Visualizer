@@ -21,6 +21,7 @@ def ledsettings():
 def ledanimations():
     return render_template('ledanimations.html')
 
+
 @webinterface.route('/sequences')
 def sequences():
     return render_template('sequences.html')
@@ -29,3 +30,8 @@ def sequences():
 @webinterface.route('/ports')
 def ports():
     return render_template('ports.html')
+
+
+@webinterface.route('/settings')
+def settings():
+    return render_template('settings.html')
