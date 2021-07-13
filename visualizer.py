@@ -15,11 +15,18 @@ from neopixel import *
 import argparse
 import threading
 from webinterface import webinterface
+import filecmp
+from shutil import copyfile
 
 os.chdir(sys.path[0])
 
 # Ensure there is only one instance of the script running.
 fh = 0
+
+# make sure connectall.rb file is updated
+if filecmp.cmp('/usr/local/bin/connectall.rb', 'connectall.rb') is not True:
+    print("Connectall.rb script is outdated, updating...")
+    copyfile('connectall.rb', '/usr/local/bin/connectall.rb')
 
 
 def singleton():
