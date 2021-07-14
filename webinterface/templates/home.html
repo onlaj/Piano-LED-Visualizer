@@ -27,7 +27,7 @@
     </div>
     <div class="grid grid-cols-12 gap-6 mt-5">
         <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
-        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#">
+        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#/">
             <div class="p-5">
                 <div class="flex justify-between">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
@@ -52,7 +52,7 @@
         </a>
 
         <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
-        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#">
+        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#/">
             <div class="p-5">
                 <div class="flex justify-between">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
@@ -75,7 +75,7 @@
             </div>
         </a>
         <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
-        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#">
+        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#/">
             <div class="p-5">
                 <div class="flex justify-between">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
@@ -97,7 +97,7 @@
             </div>
         </a>
         <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
-        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#">
+        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#/">
             <div class="p-5">
                 <div class="flex justify-between">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 " fill="none"
@@ -133,7 +133,7 @@
         </a>
 
         <a class="transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
-        bg-gray-200 dark:bg-gray-700" href="#">
+        bg-gray-200 dark:bg-gray-700" href="#/">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                 <div class="p-5">
                     <div class="text-base text-gray-600 dark:text-gray-400">Color Mode</div>
@@ -176,8 +176,8 @@
         </a>
 
         <a class="cursor-default transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
-        bg-gray-200 dark:bg-gray-700" href="#">
-            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4">
+        bg-gray-200 dark:bg-gray-700" href="#/">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-6 lg:grid-cols-6 xl:grid-cols-6">
                 <div class="p-5">
                     <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Screen
@@ -199,6 +199,19 @@
 
                 <div class="p-5">
                     <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Reset settings to default
+                    </label>
+                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                        <svg class="h-6 w-full justify-items-center fill-current text-gray-800 dark:text-gray-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16.5 14.7"><g fill-rule="evenodd"><path d="M7.8 14.6A7.8 7.8 0 011.2 9h2.1l.2.5c.7 1.6 2 2.8 3.9 3.2.6.2 2 .2 2.7 0a7 7 0 002.1-1 6 6 0 002-3c.2-.6.2-1.7 0-2.4-.1-1.2-.6-2-1.5-2.9-1-1-2.2-1.5-3.7-1.6L7.5 2a5.7 5.7 0 00-4 3.4l-.2.3H1.2v-.2a9 9 0 011-2c.4-.6 1.3-1.6 2-2C8.5-1.5 14.4.4 16.1 5c1.5 4.4-1.6 9.1-6.5 9.6H7.8z"/><path d="M.1 8.8h4.4v.9H0zM0 5.2h4.6L2.2 8.8z"/></g></svg>
+                       </button>
+                    <button onclick="change_setting('reset_to_default', '0')"
+                            class="w-full h-12 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                        <span class="w-full uppercase text-xs">Click to confirm resetting settings</span></button>
+                </div>
+
+                <div class="p-5">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Restart RPi
                     </label>
                     <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
@@ -212,7 +225,7 @@
                     </button>
                     <button onclick="change_setting('restart_rpi', '0')"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase">Click to confirm restart</span></button>
+                        <span class="w-full uppercase text-xs">Click to confirm restart</span></button>
                 </div>
 
                 <div class="p-5">
@@ -229,7 +242,7 @@
                     </button>
                     <button onclick="change_setting('turnoff_rpi', '0')"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase">Click to confirm power off</span></button>
+                        <span class="w-full uppercase text-xs">Click to confirm power off</span></button>
                 </div>
 
                 <div class="p-5">
@@ -246,7 +259,7 @@
                     </button>
                     <button onclick="change_setting('update_rpi', '0')"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase">Click to confirm update</span></button>
+                        <span class="w-full uppercase text-xs">Click to confirm update</span></button>
                 </div>
             </div>
         </a>

@@ -30,8 +30,3 @@ def sequences():
 @webinterface.route('/ports')
 def ports():
     return render_template('ports.html')
-
-
-@webinterface.route('/settings')
-def settings():
-    return render_template('settings.html')

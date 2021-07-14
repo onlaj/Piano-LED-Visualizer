@@ -8,6 +8,7 @@ from neopixel import *
 import webcolors as wc
 import mido
 from xml.dom import minidom
+from subprocess import call
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -353,6 +354,22 @@ def change_setting():
             webinterface.menu.disable_screen()
         else:
             webinterface.menu.enable_screen()
+
+    if setting_name == "reset_to_default":
+        webinterface.usersettings.reset_to_default()
+
+    if setting_name == "restart_rpi":
+        call("sudo reboot now", shell=True)
+
+    if setting_name == "turnoff_rpi":
+        call("sudo shutdown -h now", shell=True)
+
+    if setting_name == "update_rpi":
+        call("sudo git reset --hard HEAD", shell=True)
+        call("sudo git checkout .", shell=True)
+        call("sudo git clean -fdx", shell=True)
+        call("sudo git pull origin master", shell=True)
+
 
     return jsonify(success=True)
 
