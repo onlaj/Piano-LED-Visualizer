@@ -348,6 +348,12 @@ def change_setting():
             webinterface.ledsettings.set_sequence(int(value) - 1, 0)
         return jsonify(success=True)
 
+    if setting_name == "screen_on":
+        if(int(value) == 0):
+            webinterface.menu.disable_screen()
+        else:
+            webinterface.menu.enable_screen()
+
     return jsonify(success=True)
 
 

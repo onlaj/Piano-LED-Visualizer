@@ -1,9 +1,7 @@
-
 import os
 
 from subprocess import call
 from xml.dom import minidom
-
 
 import webcolors as wc
 from PIL import ImageFont, Image, ImageDraw
@@ -13,6 +11,7 @@ import LCD_1in44
 import LCD_Config
 
 from lib.functions import *
+import RPi.GPIO as GPIO
 
 
 class MenuLCD:
@@ -62,6 +61,8 @@ class MenuLCD:
         self.led_animation_delay = usersettings.get_setting_value("led_animation_delay")
 
         self.led_animation = usersettings.get_setting_value("led_animation")
+
+        self.screen_on = usersettings.get_setting_value("screen_on")
 
         self.screen_status = 1
 
@@ -189,7 +190,20 @@ class MenuLCD:
     def scale(self, size):
         return int(round(size * self.LCD.font_scale))
 
+    def disable_screen(self):
+        GPIO.output(24, 0)
+        self.screen_on = 0
+        self.usersettings.change_setting_value("screen_on", 0)
+
+    def enable_screen(self):
+        GPIO.output(24, 1)
+        self.screen_on = 1
+        self.usersettings.change_setting_value("screen_on", 1)
+
     def show(self, position="default", back_pointer_location=False):
+        if self.screen_on == 0:
+            return False
+
         if position == "default" and self.currentlocation:
             position = self.currentlocation
             refresh = 1
