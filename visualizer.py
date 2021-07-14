@@ -17,6 +17,7 @@ import threading
 from webinterface import webinterface
 import filecmp
 from shutil import copyfile
+from waitress import serve
 
 os.chdir(sys.path[0])
 
@@ -108,7 +109,8 @@ def start_webserver():
     webinterface.menu = menu
     webinterface.jinja_env.auto_reload = True
     webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
-    webinterface.run(use_reloader=False, debug=True, port=80, host='0.0.0.0')
+    #webinterface.run(use_reloader=False, debug=True, port=80, host='0.0.0.0')
+    serve(webinterface, host='0.0.0.0', port=80)
 
 
 processThread = threading.Thread(target=start_webserver)
