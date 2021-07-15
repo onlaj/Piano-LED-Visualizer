@@ -876,6 +876,11 @@
                 active_input_select.value = response.input_port;
                 secondary_input_select.value = response.secondary_input_port;
                 playback_select.value = response.play_port;
+                var connected_ports = response.connected_ports;
+                connected_ports = connected_ports.replaceAll("\\n", "&#10;")
+                connected_ports = connected_ports.replaceAll("\\t", "        ")
+                connected_ports = connected_ports.replaceAll("b\"", "")
+                document.getElementById('connect_all_textarea').innerHTML = connected_ports;
             }
         };
         xhttp.open("GET", "/api/get_ports", true);

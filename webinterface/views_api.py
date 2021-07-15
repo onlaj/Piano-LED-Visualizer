@@ -9,6 +9,7 @@ import webcolors as wc
 import mido
 from xml.dom import minidom
 from subprocess import call
+import subprocess
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -481,6 +482,7 @@ def get_ports():
     response["input_port"] = webinterface.usersettings.get_setting_value("input_port")
     response["secondary_input_port"] = webinterface.usersettings.get_setting_value("secondary_input_port")
     response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
+    response["connected_ports"] = str(subprocess.check_output(["aconnect", "-i", "-l"]))
 
     return jsonify(response)
 
