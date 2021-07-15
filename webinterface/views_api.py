@@ -370,6 +370,9 @@ def change_setting():
         call("sudo git clean -fdx", shell=True)
         call("sudo git pull origin master", shell=True)
 
+    if setting_name == "connect_ports":
+        call("sudo ruby /usr/local/bin/connectall.rb", shell=True)
+
 
     return jsonify(success=True)
 
