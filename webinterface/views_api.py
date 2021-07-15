@@ -373,6 +373,11 @@ def change_setting():
 
     if setting_name == "connect_ports":
         call("sudo ruby /usr/local/bin/connectall.rb", shell=True)
+        return jsonify(success=True, reload_ports=True)
+
+    if setting_name == "disconnect_ports":
+        call("sudo aconnect -x", shell=True)
+        return jsonify(success=True, reload_ports=True)
 
 
     return jsonify(success=True)

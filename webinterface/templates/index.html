@@ -473,6 +473,9 @@
                 if (response.reload == true) {
                     get_settings();
                 }
+                if (response.reload_ports == true) {
+                    get_ports();
+                }
             }
         }
         xhttp.open("GET", "/api/change_setting?setting_name=" + setting_name + "&value=" + value
@@ -1028,6 +1031,15 @@
         document.getElementById(prefix + "blue").value = hexToRgb(event.srcElement.value).b;
     };
 
+    function temporary_disable_button(element, timeout) {
+        element.classList.add('opacity-50', 'pointer-events-none');
+        setTimeout(function () {
+            element.classList.add('hidden');
+            element.previousElementSibling.classList.remove('hidden');
+            element.classList.remove('opacity-50', 'pointer-events-none');
+        }, timeout);
+    }
+
     function setCookie(name, value, days) {
         var expires = "";
         if (days) {
@@ -1094,10 +1106,11 @@
     const slider = document.getElementById('slider');
 
     function difference(a, b) {
-      return Math.abs(a - b);
+        return Math.abs(a - b);
     }
+
     function handleGesture() {
-        if(difference(touchendX, touchstartX) > 100) {
+        if (difference(touchendX, touchstartX) > 100) {
             if (touchendX < touchstartX) document.getElementById('close_sidebar').click();
             if (touchendX > touchstartX) document.getElementById('open_sidebar').click();
         }
