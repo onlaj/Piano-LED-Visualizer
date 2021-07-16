@@ -49,7 +49,10 @@ singleton()
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
 parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
+parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
 args = parser.parse_args()
+
+print(args)
 
 KEYRIGHT = 26
 KEYLEFT = 5
@@ -112,9 +115,10 @@ def start_webserver():
     #webinterface.run(use_reloader=False, debug=True, port=80, host='0.0.0.0')
     serve(webinterface, host='0.0.0.0', port=80)
 
-
-processThread = threading.Thread(target=start_webserver)
-processThread.start()
+if args.webinterface != "false":
+    print ("Starting webinterface")
+    processThread = threading.Thread(target=start_webserver)
+    processThread.start()
 
 while True:
     # screensaver
