@@ -83,24 +83,27 @@
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div class="flex-1 font-bold text-xl pb-2">List of ports and connections</div>
         <textarea id="connect_all_textarea"
-                  class="w-full px-3 py-2 bg-gray-100 dark:bg-gray-600 border rounded-lg focus:outline-none"
+                  class="w-full px-3 py-2 bg-gray-100 dark:bg-gray-600 rounded-lg focus:outline-none"
                   rows="16"></textarea>
 
-        <div class="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+        <div class="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
             <div class="p-2">
                 <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                     Connect ports
                 </label>
                 <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                        rounded-2xl inline-flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0
+                              005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
                     </svg>
                 </button>
                 <button onclick="change_setting('connect_ports', '0');temporary_disable_button(this, 5000);"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                        rounded-2xl inline-flex items-center hidden">
                     <span class="w-full uppercase text-xs">Click to confirm connect</span></button>
             </div>
 
@@ -109,16 +112,39 @@
                     Disconnect ports
                 </label>
                 <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none" viewBox="0 0 24 24"
+                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                        rounded-2xl inline-flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+                         viewBox="0 0 24 24"
                          stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"/>
+                              d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0
+                              10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"/>
                     </svg>
                 </button>
                 <button onclick="change_setting('disconnect_ports', '0');temporary_disable_button(this, 1500);"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                        rounded-2xl inline-flex items-center hidden">
                     <span class="w-full uppercase text-xs">Click to confirm disconnect</span></button>
+            </div>
+
+            <div class="p-2">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Restart RTP MIDI service
+                </label>
+                <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                        rounded-2xl inline-flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                </button>
+                <button onclick="change_setting('restart_rtp', '0');temporary_disable_button(this, 1500);"
+                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                        rounded-2xl inline-flex items-center hidden">
+                    <span class="w-full uppercase text-xs">Click to confirm RTP restart</span></button>
             </div>
 
         </div>
