@@ -380,7 +380,7 @@ def change_setting():
         return jsonify(success=True, reload_ports=True)
 
     if setting_name == "restart_rtp":
-        call("sudo sudo systemctl restart rtpmidid", shell=True)
+        call("sudo systemctl restart rtpmidid", shell=True)
 
     return jsonify(success=True)
 
