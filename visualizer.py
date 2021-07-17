@@ -50,6 +50,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
 parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
 parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
+parser.add_argument('-p', '--port', type=int, help="set port for webinterface (80 is default)")
 args = parser.parse_args()
 
 print(args)
@@ -103,6 +104,9 @@ fastColorWipe(ledstrip.strip, True, ledsettings)
 
 
 def start_webserver():
+    if not args.port:
+        args.port = 80
+
     webinterface.usersettings = usersettings
     webinterface.ledsettings = ledsettings
     webinterface.ledstrip = ledstrip
@@ -113,7 +117,7 @@ def start_webserver():
     webinterface.jinja_env.auto_reload = True
     webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
     #webinterface.run(use_reloader=False, debug=True, port=80, host='0.0.0.0')
-    serve(webinterface, host='0.0.0.0', port=80)
+    serve(webinterface, host='0.0.0.0', port=args.port)
 
 if args.webinterface != "false":
     print ("Starting webinterface")

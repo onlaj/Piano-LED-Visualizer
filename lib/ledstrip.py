@@ -28,12 +28,6 @@ class LedStrip:
         self.LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
         self.LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-        parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
-        parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
-        args = parser.parse_args()
-
         # Create NeoPixel object with appropriate configuration.
         self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
                                        self.LED_BRIGHTNESS, self.LED_CHANNEL)
@@ -49,12 +43,6 @@ class LedStrip:
         self.brightness = 255 * self.brightness_percent / 100
 
         self.usersettings.change_setting_value("brightness_percent", self.brightness_percent)
-
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-        parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
-        parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
-        args = parser.parse_args()
 
         self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
                                        int(self.brightness), self.LED_CHANNEL)
@@ -73,12 +61,6 @@ class LedStrip:
         self.keylist = [0] * self.led_number
         self.keylist_status = [0] * self.led_number
         self.keylist_color = [0] * self.led_number
-
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-        parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
-        parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
-        args = parser.parse_args()
 
         self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA,
                                        self.LED_INVERT, int(self.brightness), self.LED_CHANNEL)
