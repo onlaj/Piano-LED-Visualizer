@@ -4,11 +4,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#0ed3cf">
-    <meta name="msapplication-TileColor" content="#0ed3cf">
+    <link rel="apple-touch-icon" sizes="180x180" href="../static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon-16x16.png">
+    <link rel="mask-icon" href="../static/safari-pinned-tab.svg" color="#0ed3cf">
+    <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#0ed3cf">
 
     <title>Piano LED Visualizer</title>
@@ -56,7 +56,7 @@
             <div class="flex items-center justify-between flex-shrink-0 p-2"
                  :class="{'lg:justify-center': !isSidebarOpen}">
           <span class="p-2 text-xl font-semibold leading-8 tracking-wider uppercase whitespace-nowrap">
-            PLV<span :class="{'lg:hidden': !isSidebarOpen}"></span>
+            <img class="w-10" src="../static/logo.svg" alt="logo"><span :class="{'lg:hidden': !isSidebarOpen}"></span>
           </span>
                 <button @click="toggleSidebarMenu()" class="p-2 rounded-md lg:hidden">
                     <svg
@@ -76,6 +76,7 @@
                     <li>
                         <a
                                 href="#"
+                                id="home"
                                 class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
@@ -97,6 +98,7 @@
                     <li>
                         <a
                                 href="#"
+                                id="ledsettings"
                                 class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
@@ -118,6 +120,7 @@
                     <li>
                         <a
                                 href="#"
+                                id="sequences"
                                 class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
@@ -137,6 +140,7 @@
                     <li>
                         <a
                                 href="#"
+                                id="ports"
                                 class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
@@ -163,6 +167,7 @@
                     <li>
                         <a
                                 href="#"
+                                id="ledanimations"
                                 class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100
                                 dark:hover:bg-gray-700"
                                 :class="{'justify-center': !isSidebarOpen}"
@@ -213,7 +218,7 @@
                 <div class="flex items-center justify-between p-2">
                     <!-- Navbar left -->
                     <div class="flex items-center space-x-3">
-                        <span class="p-2 text-xl font-semibold tracking-wider uppercase lg:hidden">PLV</span>
+                        <span class="p-2 text-xl font-semibold tracking-wider uppercase lg:hidden"><img class="w-10" src="../static/logo.svg" alt="logo"></span>
                         <!-- Toggle sidebar button -->
                         <button @click="toggleSidebarMenu()" class="p-2 rounded-md focus:outline-none focus:ring">
                             <svg
@@ -356,6 +361,27 @@
 
     if (getCookie('darkmode') != "1") {
         document.documentElement.classList.remove('dark')
+    }
+
+    function change_dark_mode() {
+        if (document.getElementById('toggleDark').checked) {
+            document.documentElement.classList.add('dark')
+            document.getElementById("dot_icon").innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" ' +
+                'fill="none" viewBox="0 0 24 24" stroke="currentColor">\n' +
+                '  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 ' +
+                '018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />\n' +
+                '</svg>'
+            setCookie('darkmode', "1", 365);
+        } else {
+            document.documentElement.classList.remove('dark')
+            document.getElementById("dot_icon").innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" ' +
+                'fill="none" viewBox="0 0 24 24" stroke="currentColor">\n' +
+                '  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 ' +
+                '12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 ' +
+                '12a4 4 0 11-8 0 4 4 0 018 0z" />\n' +
+                '</svg>'
+            setCookie('darkmode', "0", 365);
+        }
     }
 
     if (document.documentElement.classList.contains("dark")) {

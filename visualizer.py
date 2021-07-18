@@ -149,6 +149,7 @@ while True:
             menu = MenuLCD("menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
             menu.show()
             ledsettings = LedSettings(usersettings)
+
     if GPIO.input(KEYUP) == 0:
         midiports.last_activity = time.time()
         menu.change_pointer(0)
