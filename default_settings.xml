@@ -1,4 +1,5 @@
 <settings>
+	<screen_on>1</screen_on>
 	<brightness_percent>50</brightness_percent>
 	<background_color>BLACK</background_color>
 	<text_color>WHITE</text_color>
@@ -83,6 +84,7 @@
 	<reverse>0</reverse>
 
 	<input_port>default</input_port>
+	<secondary_input_port>default</secondary_input_port>
 	<play_port>default</play_port>
 
 	<!-- Learn MIDI -->

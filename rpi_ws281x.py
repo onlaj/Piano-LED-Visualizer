@@ -267,6 +267,6 @@ ws2811_led_set = _rpi_ws281x.ws2811_led_set
 def ws2811_channel_get(ws, channelnum):
     return _rpi_ws281x.ws2811_channel_get(ws, channelnum)
 ws2811_channel_get = _rpi_ws281x.ws2811_channel_get
-# This file is compatible with both classic and new-style classes.
+# This file is compatible with both classic and new-style lib.
 
 

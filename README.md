@@ -1,5 +1,6 @@
 
 
+
 # Piano LED Visualizer
 
 ## [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/onlaj)
@@ -16,16 +17,16 @@
   - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Aliexpress](http://s.click.aliexpress.com/e/dFyC7NO)
   - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/2JViZJ3) | [Aliexpress](http://s.click.aliexpress.com/e/hUgrv6s)
   - DC 5.5x2.5mm socket with quick connection [Amazon US](https://amzn.to/2YizYOC) | [Aliexpress](http://s.click.aliexpress.com/e/T8YSkbq)
-  - Waveshare LCD TFT 1,44'' 128x128px [Amazon US](https://amzn.to/2YkW5nC) | [Aliexpress](http://s.click.aliexpress.com/e/cpk00blQ)
-  - Some wires
+  - Some wires [Amazon US](https://amzn.to/3ky6k2G) | [Aliexpress](https://s.click.aliexpress.com/e/_AKKvPu)
 
 **Not required but worth having, to make everything look neat:**
 
   - Custom 3d printed case (*I attached STL file with modified 3d model, there is additional space and holes for power socket and wires, [here](https://www.thingiverse.com/thing:3393553) is original model*) 
+  -  Waveshare LCD TFT 1,44'' 128x128px [Amazon US](https://amzn.to/2YkW5nC) | [Aliexpress](http://s.click.aliexpress.com/e/cpk00blQ)
   - Braid for cables [Amazon US](https://amzn.to/2yd2Fhz) | [Aliexpress](http://s.click.aliexpress.com/e/cG7ur6Di)
   - Heat shrink bands [Amazon US](https://amzn.to/2SsSYok) | [Aliexpress](http://s.click.aliexpress.com/e/UwKVLo8)
   - Aluminium LED Profile with diffuser (*highly recommend to search for the right one in local shops*) [pic#1](https://i.imgur.com/MF7dd1R.png) [pic#2](https://i.imgur.com/fFWOs3v.png) 
-  [Aliexpress](https://s.click.aliexpress.com/e/_A0HNfF)  *(choose T0515 for 12mm 2 meters, credits to [vzoltan](https://github.com/vzoltan) for finding this)*
+  Alternative made of silica gel: [Aliexpress](https://s.click.aliexpress.com/e/_A0HNfF)  *(choose T0515 for 12mm 2 meters, credits to [vzoltan](https://github.com/vzoltan) for finding this)*
   - Double side tape to stick everything on the piano
   - Windows 10 laptop/tablet with bluetooth to run Synthesia
 
@@ -49,6 +50,27 @@ If you want to make your RPi autoconnect to Wi-Fi you need to follow [this guide
 ### 2. **Manual installation**
 [Instruction](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/manual_installation.md)
 
+## Connecting LED Strip to Raspberry Pi and enabling SPI
+There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*
+
+If you are wondering how to connect wires to RPI if screen hat is taking all pins here is a [picture](https://i.imgur.com/7KhwM7r.jpg) of how I did it. There should be a gap between RPI and screen so you can solder your wires or just wrap cables around the pins and separate them with heat shrink bands.
+
+After connecting all cables as described above everything should fit nicely to case. Scroll down to see some photos of the setup I made
+If you don't have a 3d printer (like me) try to find some company or private person who will print it for you. I paid 12USD for my print. [RPICaseModel.stl](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/RPICaseModel.stl "RPICaseModel.stl")
+
+## Web interface
+The visualizer comes with a web interface with which you can control the colors of the led list, change port settings, run animations of the strip, control sequences, and (in the future) download, upload and play midi files.
+To connect to the web interface, type the local address of your raspberry pi in the browser, for example [http:/192.168.1.10](http:/192.168.1.10)
+Both devices must be connected to the same network. By default web interface works on port 80, but if needed it can be changed with the script's argument `--port`
+
+    sudo python3 /home/Piano-LED-Visualizer/visualizer.py --port 5000
+
+Although in my tests I did not notice any deterioration in performance, if necessary, you can disable the web interface with the `--webinterface` parameter
+
+    sudo python3 /home/Piano-LED-Visualizer/visualizer.py --webinterface false
+
+
+
 ## Learning to play with Synthesia
 
 ### We need to make a connection between your PC/MAC/Android. There are at least 3 ways of doing that: ###
@@ -66,42 +88,6 @@ For this method you need to use some software on your Synthesia's device and bot
 - Android [touchdaw](https://xmmc.de/touchdaw/)
 
 Default port is 5004.
-
-- Connect RTP MIDI server with your piano, type:
-`aconnect -i -l`
-You should see something like:
-
-```bash
-
-pi@raspberrypi:~ $ aconnect -i -l
-client 0: 'System' [type=kernel]
-    0 'Timer           '
-    1 'Announce        '
-client 14: 'Midi Through' [type=kernel]
-    0 'Midi Through Port-0'
-client 20: 'mio' [type=kernel,card=1]
-    0 'mio MIDI 1      '
-client 128: 'rtpmidi raspberrypi' [type=user,pid=475]
-    0 'Network         '
-    1 'DESKTOP-VMRSF66 '
-client 133: 'RtMidiOut Client' [type=user,pid=583]
-    0 'RtMidi output   '
-client 134: 'RtMidiOut Client' [type=user,pid=583]
-    0 'RtMidi output   '
-        Connecting To: 128:0[real:0]
-```
-Look for your piano name and RTP midi ports, in my case it's `mio MIDI 1` and `rtpmidi raspberrypi`.
-- Connect them accordingly with:
-
-`aconnect 20:0 128:1`
-
-`aconnect 128:1 20:0`
-
-In case of any problems those commands might be helpful:
-
-`sudo systemctl restart rtpmidid` *restarting RTP midi service*
-
-`aconnect --removeall` *removing all connections between ports*
 
 **3. Bluetooth**
 This method is not recommended due to problems with establishing the first connection, especially on devices other than those with Windows 10.
@@ -146,15 +132,6 @@ cd /home/Piano-LED-Visualizer/
 sudo chmod a+rwxX -R Songs/
 ```
 
-
-## Connecting LED Strip to Raspberry Pi and enabling SPI
-There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*
-
-If you are wondering how to connect wires to RPI if screen hat is taking all pins here is a [picture](https://i.imgur.com/7KhwM7r.jpg) of how I did it. There should be a gap between RPI and screen so you can solder your wires or just wrap cables around the pins and separate them with heat shrink bands.
-
-After connecting all cables as described above everything should fit nicely to case. Scroll down to see some photos of the setup I made
-If you don't have a 3d printer (like me) try to find some company or private person who will print it for you. I paid 12USD for my print. [RPICaseModel.stl](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/RPICaseModel.stl "RPICaseModel.stl")
-
 ## FAQ ##
 **Q - Can I use Raspberry Pi 1/2/3/4 instead of Zero?**
 
@@ -166,7 +143,7 @@ If you don't have a 3d printer (like me) try to find some company or private per
 
 **Q - Can I use other screens or no screen at all?**
 
-- Currently the only other supported screen is Waveshare LCD TFT 1,3". As for no screen, you need it for changing LED settings. If you don't mind changing it manually by editing settings file you can go without screen.
+- Currently the only other supported screen is Waveshare LCD TFT 1,3". As for no screen, you can instead use webinterface.
 
 **Q - Does the color of LED strip PCB matter?**
 
@@ -240,6 +217,12 @@ You can also use sequences as a way to save your presets under custom names.
 ![Image](https://i.imgur.com/9MgNUl5.jpg?1)
 ![Image](https://i.imgur.com/WGxGdNM.jpg?2)
 ![Image](https://i.imgur.com/J1wA1rU.jpg)
+
+![sidebar](https://i.imgur.com/ZVLsu0K.png)
+![homepage](https://i.imgur.com/LiSszwF.png)
+![changing led colors](https://i.imgur.com/iBEIM3x.png)
+![ports settings](https://i.imgur.com/k6stIXg.png)
+
 ![Image](https://i.imgur.com/5riJs9k.jpg?1)
 ![Image](https://i.imgur.com/LLzeff2.jpg?1)
 ![Image](https://i.imgur.com/ZnYBxTp.jpg)

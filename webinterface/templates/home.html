@@ -1,0 +1,288 @@
+<div class="slide-in-content col-span-12 mt-1">
+    <div class="flex items-center h-1 intro-y">
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center px-2 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+            </div>
+            <select id="refresh_rate" class="block appearance-none h-8 w-1 bg-gray-200 dark:bg-gray-700
+        px-1 pr-8 pl-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                <option value="1">1 second</option>
+                <option value="2">2 seconds</option>
+                <option value="3">3 seconds</option>
+                <option value="5">5 seconds</option>
+                <option value="10">10 seconds</option>
+                <option value="0">never</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path
+                            d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    <div class="grid grid-cols-12 gap-6 mt-5">
+        <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
+        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#/">
+            <div class="p-5">
+                <div class="flex justify-between">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0
+                            002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                    </svg>
+                    <div class="bg-red-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
+                        <span id="cpu_temp" class="flex items-center">°C</span>
+                    </div>
+                </div>
+                <div class="ml-2 w-full flex-1">
+                    <div>
+                        <div id="cpu_usage" class="mt-3 text-3xl font-bold leading-8"><span id='cpu_number'></span>%
+                        </div>
+
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">CPU Usage</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
+        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#/">
+            <div class="p-5">
+                <div class="flex justify-between">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5
+                            12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
+                    </svg>
+                    <div class="bg-green-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
+                        <span id="memory_usage_percent" class="flex items-center">--%</span>
+                    </div>
+                </div>
+                <div class="ml-2 w-full flex-1">
+                    <div>
+                        <div id="memory_usage" class="mt-3 text-3xl font-bold leading-8">---/---MB</div>
+
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">RAM Usage</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
+        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#/">
+            <div class="p-5">
+                <div class="flex justify-between">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                    </svg>
+                    <div class="bg-yellow-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
+                        <span id="card_usage_percent" class="flex items-center">50%</span>
+                    </div>
+                </div>
+                <div class="ml-2 w-full flex-1">
+                    <div>
+                        <div id="card_usage" class="mt-3 text-3xl font-bold leading-8">---/---GB</div>
+
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Disk Usage</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
+        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#/">
+            <div class="p-5">
+                <div class="flex justify-between">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 " fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+                    </svg>
+                    <div class="bg-blue-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
+                        <span id="upload" class="flex items-center"><span id="upload_number">---</span>/s
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-6" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+                <div class="ml-2 w-full flex-1">
+                    <div>
+                        <div id="download" class="flex mt-3 text-3xl font-bold leading-8"><span
+                                id="download_number">---</span>/s
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-6" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                        </div>
+
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Bandwidth Usage</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+        <a class="transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
+        bg-gray-200 dark:bg-gray-700" href="#/">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400">Color Mode</div>
+                    <div class="flex items-center pt-1">
+                        <div id="color_mode" class="text-2xl font-bold ">Single</div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400">Light Mode</div>
+                    <div class="flex items-center pt-1">
+                        <div id="light_mode" class="text-2xl font-bold ">Normal</div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400">Brightness</div>
+                    <div class="flex items-center pt-1">
+                        <div id="brightness_percent" class="text-2xl font-bold ">100%</div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400">Backlight Brightness</div>
+                    <div class="flex items-center pt-1">
+                        <div id="backlight_brightness_percent" class="text-2xl font-bold ">0%</div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400">Input Port</div>
+                    <div class="flex items-center pt-1">
+                        <div id="input_port" class="text-2xl font-bold "></div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400">Playback Port</div>
+                    <div class="flex items-center pt-1">
+                        <div id="playback_port" class="text-2xl font-bold "></div>
+                    </div>
+                </div>
+
+            </div>
+        </a>
+
+        <a class="cursor-default transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
+        bg-gray-200 dark:bg-gray-700" href="#/">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-6 lg:grid-cols-6 xl:grid-cols-6">
+                <div class="p-5">
+                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Screen
+                    </label>
+                    <div class="relative">
+                        <select id="screen_on" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+            py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                onchange="change_setting('screen_on', this.value)">
+                            <option value="1">Enabled</option>
+                            <option value="0">Disabled</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-5">
+                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Reset settings to default
+                    </label>
+                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('reset_to_default', '0');temporary_disable_button(this, 2000);"
+                            class="w-full h-12 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                        <span class="w-full uppercase text-xs">Click to confirm reset to default settings</span></button>
+                </div>
+
+                <div class="p-5">
+                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Restart RPi
+                    </label>
+                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('restart_rpi', '0');temporary_disable_button(this, 25000);"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                        <span class="w-full uppercase text-xs text-red-400">Click to confirm restart</span></button>
+                </div>
+
+                <div class="p-5">
+                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Power Off
+                    </label>
+                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('turnoff_rpi', '0');temporary_disable_button(this, 25000);"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                        <span class="w-full uppercase text-xs text-red-400">Click to confirm power off</span></button>
+                </div>
+
+                <div class="p-5">
+                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Update Visualizer
+                    </label>
+                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('update_rpi', '0');temporary_disable_button(this, 25000);"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                        <span class="w-full uppercase text-xs">Click to confirm update</span></button>
+                </div>
+
+                <div class="p-5">
+                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Connect ports
+                    </label>
+                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('connect_ports', '0');temporary_disable_button(this, 5000);"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                        <span class="w-full uppercase text-xs">Click to confirm connect</span></button>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>

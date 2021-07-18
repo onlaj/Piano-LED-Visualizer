@@ -7,3 +7,5 @@ python-rtmidi
 rpi-ws281x
 spidev
 numpy
+flask
+waitress
