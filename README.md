@@ -12,7 +12,7 @@
   - Piano with MIDI or USB output
   - MIDI to USB interface (if your piano doesn't have USB output) ~~[Amazon US](https://amzn.to/2xZUipg) | [Aliexpress](http://s.click.aliexpress.com/e/b9mjFaIy)~~ (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use iConnectivity mio [Amazon US](https://amzn.to/2nhsYBl) )
   - Raspberry Pi Zero WH [Amazon US](https://amzn.to/2TPz3CQ) | [Aliexpress](https://s.click.aliexpress.com/e/_dXc8jGl) | [Aliexpress #2](http://s.click.aliexpress.com/e/3r32Dass)
-  - MicroSD card (16GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Aliexpress](http://s.click.aliexpress.com/e/mGNi7sl2)
+  - MicroSD card (16 GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Aliexpress](http://s.click.aliexpress.com/e/mGNi7sl2)
   - USB OTG [Amazon US](https://amzn.to/3aYWVJj) | [Aliexpress](https://s.click.aliexpress.com/e/_d7FjmJD)
   - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Aliexpress](http://s.click.aliexpress.com/e/dFyC7NO)
   - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/2JViZJ3) | [Aliexpress](http://s.click.aliexpress.com/e/hUgrv6s)
@@ -37,7 +37,7 @@
 There are two ways, you can use preconfigured system image or install everything manually.
 
 ### 1. **System image**
-- Download latest zip file from releases.
+- Download the latest zip file from releases.
 - Unzip the file.
 - Use program like [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager/) or [Etcher](https://www.balena.io/etcher/) to save system image to your SD card (4GB is a minimum).
 
@@ -56,12 +56,12 @@ There is no point to reinvent the wheel again, here is a nice [tutorial](https:/
 If you are wondering how to connect wires to RPI if screen hat is taking all pins here is a [picture](https://i.imgur.com/7KhwM7r.jpg) of how I did it. There should be a gap between RPI and screen so you can solder your wires or just wrap cables around the pins and separate them with heat shrink bands.
 
 After connecting all cables as described above everything should fit nicely to case. Scroll down to see some photos of the setup I made
-If you don't have a 3d printer (like me) try to find some company or private person who will print it for you. I paid 12USD for my print. [RPICaseModel.stl](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/RPICaseModel.stl "RPICaseModel.stl")
+If you don't have a 3d printer, try to find some company or private person who will print it for you. I paid 12USD for my print. [RPICaseModel.stl](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/RPICaseModel.stl "RPICaseModel.stl")
 
 ## Web interface
-The visualizer comes with a web interface with which you can control the colors of the led list, change port settings, run animations of the strip, control sequences, and (in the future) download, upload and play midi files.
+The visualizer comes with a web interface with which you can control the colors of the LED strip, change port settings, run animations of the strip, control sequences, and (in the future) download, upload and play midi files.
 To connect to the web interface, type the local address of your raspberry pi in the browser, for example [http:/192.168.1.10](http:/192.168.1.10)
-Both devices must be connected to the same network. By default web interface works on port 80, but if needed it can be changed with the script's argument `--port`
+Both devices must be connected to the same network. By default, web interface works on port 80, but if needed it can be changed with the script's argument `--port`
 
     sudo python3 /home/Piano-LED-Visualizer/visualizer.py --port 5000
 
@@ -143,7 +143,7 @@ sudo chmod a+rwxX -R Songs/
 
 **Q - Can I use other screens or no screen at all?**
 
-- Currently the only other supported screen is Waveshare LCD TFT 1,3". As for no screen, you can instead use webinterface.
+- Currently, the only other supported screen is Waveshare LCD TFT 1,3". As for no screen, you can instead use webinterface.
 
 **Q - Does the color of LED strip PCB matter?**
 

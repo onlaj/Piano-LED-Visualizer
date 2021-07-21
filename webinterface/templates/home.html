@@ -132,6 +132,81 @@
             </div>
         </a>
 
+        <span class="transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
+        bg-gray-200 dark:bg-gray-700" href="#/">
+            <div class="m-4 text-base text-gray-600 dark:text-gray-400 absolute">
+                Metronome
+            </div>
+            <div class="grid grid-cols-1 justify-items-center">
+                <div class="text-2xl mb-2"><span id="beats_per_minute">120</span> BPM</div>
+                <div class="w-full justify-center flex text-sm text-gray-600 dark:text-gray-400">
+                    20<input onchange="change_bpm(this.value);"
+                             oninput="document.getElementById('beats_per_minute').innerHTML = this.value;"
+                             id="bpm_slider" class="w-1/2 mx-2" type="range"
+                             min="20" max="280">280
+                </div>
+                <button id="metronome_start"
+                        onclick="ticker.start();this.classList.add('hidden');
+                        this.nextElementSibling.classList.remove('hidden');
+                        is_playing = 1;"
+                        class="w-20 h-8 outline-none my-2 bg-gray-100
+                dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </button>
+                <button id="metronome_stop" onclick="ticker.stop();
+                    this.classList.add('hidden');
+                    this.previousElementSibling.classList.remove('hidden');
+                    is_playing = 0;" class="w-20 h-8 outline-none my-2 bg-gray-100
+                dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
+                    </svg>
+                </button>
+
+                <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Beats per measure</div>
+                <div class="justify-center flex">
+                <svg onclick="input = document.getElementById('beats_per_measure');
+                    input.value = parseInt(input.value) - 1;
+                    if(input.value <= 2){input.value = 3};
+                    change_beats_per_measure(input.value);"
+                     id="subtract_beat_per_measure" xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer"
+                     fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <input onchange="if(this.value <= 2){this.value = 3};
+                    if(this.value >= 13){this.value = 12};
+                    change_beats_per_measure(this.value);" value=4 min=3 max=24
+                       type="number" id="beats_per_measure"
+                       class="h-8 py-2 px-2 w-20 mb-2
+                    rounded-2xl bg-gray-100 dark:bg-gray-600 appearance-none">
+                <svg onclick="input = document.getElementById('beats_per_measure');
+                    input.value = parseInt(input.value) + 1;
+                    if(input.value >= 13){input.value = 12};
+                    change_beats_per_measure(input.value);"
+                     id="add_beat_per_measure" xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer"
+                     fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                </div>
+
+            </div>
+        </span>
+
+
         <a class="transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
         bg-gray-200 dark:bg-gray-700" href="#/">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
@@ -211,7 +286,8 @@
                     </button>
                     <button onclick="change_setting('reset_to_default', '0');temporary_disable_button(this, 2000);"
                             class="w-full h-12 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs">Click to confirm reset to default settings</span></button>
+                        <span class="w-full uppercase text-xs">Click to confirm reset to default settings</span>
+                    </button>
                 </div>
 
                 <div class="p-5">
