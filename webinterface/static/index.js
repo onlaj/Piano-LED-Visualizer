@@ -29,6 +29,16 @@ function change_bpm(bpm){
     ticker.interval = 60000 / bpm;
 }
 
+function change_volume(value){
+    if(parseInt(value) <  -10 || parseInt(value) > 110){
+        return false;
+    }
+    value = (parseFloat(value) / 100);
+    console.log(value)
+    tick1.volume = value;
+    tick2.volume = value;
+}
+
 function change_beats_per_measure(value){
     if(parseInt(value) <= 2){
         return false;

@@ -172,35 +172,71 @@
                             d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
                     </svg>
                 </button>
+                <div class="grid grid-cols-2 sm:grid-cols-1 justify-items-center">
+                    <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Beats per measure</div>
+                    <div class="justify-center flex">
+                        <svg onclick="input = document.getElementById('beats_per_measure');
+                            input.value = parseInt(input.value) - 1;
+                            if(input.value <= 2){input.value = 3};
+                            change_beats_per_measure(input.value);"
+                             id="subtract_beat_per_measure" xmlns="http://www.w3.org/2000/svg"
+                             class="h-8 w-6 cursor-pointer"
+                             fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <input onchange="if(this.value <= 2){this.value = 3};
+                            if(this.value >= 13){this.value = 12};
+                            change_beats_per_measure(this.value);" min="3" max="12"
+                               type="number" id="beats_per_measure"
+                               class="h-8 py-2 px-2 w-20 mb-2
+                            rounded-2xl bg-gray-100 dark:bg-gray-600 appearance-none">
+                        <svg onclick="input = document.getElementById('beats_per_measure');
+                            input.value = parseInt(input.value) + 1;
+                            if(input.value >= 13){input.value = 12};
+                            change_beats_per_measure(input.value);"
+                             id="add_beat_per_measure" xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer"
+                             fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
 
-                <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Beats per measure</div>
-                <div class="justify-center flex">
-                <svg onclick="input = document.getElementById('beats_per_measure');
-                    input.value = parseInt(input.value) - 1;
-                    if(input.value <= 2){input.value = 3};
-                    change_beats_per_measure(input.value);"
-                     id="subtract_beat_per_measure" xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer"
-                     fill="none" viewBox="0 0 24 24"
-                     stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <input onchange="if(this.value <= 2){this.value = 3};
-                    if(this.value >= 13){this.value = 12};
-                    change_beats_per_measure(this.value);" value=4 min=3 max=24
-                       type="number" id="beats_per_measure"
-                       class="h-8 py-2 px-2 w-20 mb-2
-                    rounded-2xl bg-gray-100 dark:bg-gray-600 appearance-none">
-                <svg onclick="input = document.getElementById('beats_per_measure');
-                    input.value = parseInt(input.value) + 1;
-                    if(input.value >= 13){input.value = 12};
-                    change_beats_per_measure(input.value);"
-                     id="add_beat_per_measure" xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer"
-                     fill="none" viewBox="0 0 24 24"
-                     stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+                    <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Volume</div>
+                    <div class="justify-center flex">
+                        <svg onclick="input = document.getElementById('metronome_volume');
+                            input.value = parseInt(input.value) - 10;
+                            if(input.value <= 0){input.value = 0};
+                            change_volume(input.value);"
+                             xmlns="http://www.w3.org/2000/svg" class="h-8 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M 15.536 8.464 C 17.489 10.417 17.489 13.583 15.536 15.536 M 5.586 15 L 4 15 C
+                                3.448 15 3 14.552 3 14 L 3 10 C 3 9.448 3.448 9 4 9 L 5.586 9 L 10.293 4.293 C 10.923
+                                3.663 12 4.109 12 5 L 12 19 C 12 19.891 10.923 20.337 10.293 19.707 L 5.586 15 Z">
+                          </path>
+                        </svg>
+                        <input onchange="if(this.value <= 0){this.value = 0};
+                            if(this.value >= 100){this.value = 100};
+                            change_volume(this.value);" value="50" min="0" max="100" step="10"
+                               type="number" id="metronome_volume"
+                               class="h-8 py-2 px-2 w-20 mb-2
+                            rounded-2xl bg-gray-100 dark:bg-gray-600 appearance-none">
+                        <svg onclick="input = document.getElementById('metronome_volume');
+                            input.value = parseInt(input.value) + 10;
+                            if(input.value >= 100){input.value = 100};
+                            change_volume(input.value);"
+                             xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer"
+                             fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1
+                                1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0
+                                .891-1.077 1.337-1.707.707L5.586 15z"/>
+                        </svg>
+                    </div>
+
                 </div>
 
             </div>
