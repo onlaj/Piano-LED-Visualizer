@@ -34,7 +34,6 @@ function change_volume(value){
         return false;
     }
     value = (parseFloat(value) / 100);
-    console.log(value)
     tick1.volume = value;
     tick2.volume = value;
 }

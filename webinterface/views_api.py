@@ -133,6 +133,9 @@ def change_setting():
     value = request.args.get('value')
     second_value = request.args.get('second_value')
 
+    if setting_name == "clean_ledstrip":
+        fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
+
     if setting_name == "led_color":
         rgb = wc.hex_to_rgb("#" + value)
 

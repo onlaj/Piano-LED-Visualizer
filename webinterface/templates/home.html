@@ -163,7 +163,7 @@
                     this.classList.add('hidden');
                     this.previousElementSibling.classList.remove('hidden');
                     is_playing = 0;" class="w-20 h-8 outline-none my-2 bg-gray-100
-                dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center animate-pulse hidden">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -288,9 +288,9 @@
 
         <a class="cursor-default transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
         bg-gray-200 dark:bg-gray-700" href="#/">
-            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-6 lg:grid-cols-6 xl:grid-cols-6">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-7">
                 <div class="p-5">
-                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Screen
                     </label>
                     <div class="relative">
@@ -309,7 +309,7 @@
                 </div>
 
                 <div class="p-5">
-                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Reset settings to default
                     </label>
                     <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
@@ -327,7 +327,7 @@
                 </div>
 
                 <div class="p-5">
-                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Restart RPi
                     </label>
                     <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
@@ -345,7 +345,7 @@
                 </div>
 
                 <div class="p-5">
-                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Power Off
                     </label>
                     <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
@@ -362,7 +362,7 @@
                 </div>
 
                 <div class="p-5">
-                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Update Visualizer
                     </label>
                     <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
@@ -379,7 +379,7 @@
                 </div>
 
                 <div class="p-5">
-                    <label class="mb-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Connect ports
                     </label>
                     <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
@@ -393,6 +393,24 @@
                     <button onclick="change_setting('connect_ports', '0');temporary_disable_button(this, 5000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
                         <span class="w-full uppercase text-xs">Click to confirm connect</span></button>
+                </div>
+
+                <div class="p-5">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Clean led strip
+                    </label>
+                    <button onclick="change_setting('clean_ledstrip', '0');
+                    element = this;
+                    element.classList.add('pointer-events-none', 'animate-pulse');
+                    setTimeout(function () {
+                        element.classList.remove('pointer-events-none', 'animate-pulse');
+                    }, 1000);"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </a>
