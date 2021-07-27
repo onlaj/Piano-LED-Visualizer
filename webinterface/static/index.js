@@ -9,7 +9,7 @@ const tick2 = new Audio('/static/tick1.mp3');
 tick2.volume = 0.2;
 
 function play_tick_sound() {
-    if (count === beats_per_measure) {
+    if (count >= beats_per_measure) {
         count = 0;
     }
     if (count === 0) {
@@ -19,9 +19,7 @@ function play_tick_sound() {
         tick2.play();
         tick2.currentTime = 0;
     }
-    if(count >= 13){
-        count = 0;
-    }
+
     count++;
 }
 function change_bpm(bpm){
