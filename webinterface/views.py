@@ -21,6 +21,9 @@ def ledsettings():
 def ledanimations():
     return render_template('ledanimations.html')
 
+@webinterface.route('/songs')
+def songs():
+    return render_template('songs.html')
 
 @webinterface.route('/sequences')
 def sequences():

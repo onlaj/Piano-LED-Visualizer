@@ -74,6 +74,10 @@ function loadAjax(subpage) {
                 if (subpage == "ledanimations") {
                     clearInterval(homepage_interval);
                 }
+                if (subpage == "songs") {
+                    initialize_songs();
+                    clearInterval(homepage_interval);
+                }
                 if (subpage == "sequences") {
                     initialize_sequences();
                     clearInterval(homepage_interval);
@@ -471,6 +475,11 @@ function press_button(element) {
         element.classList.remove("pressed");
     }, 150);
 }
+
+function initialize_songs(){
+
+}
+
 
 function initialize_sequences() {
     clearInterval(homepage_interval);
