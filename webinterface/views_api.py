@@ -10,6 +10,7 @@ import mido
 from xml.dom import minidom
 from subprocess import call
 import subprocess
+import datetime
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -385,6 +386,20 @@ def change_setting():
     if setting_name == "restart_rtp":
         call("sudo systemctl restart rtpmidid", shell=True)
 
+    if setting_name == "start_recording":
+        webinterface.saving.start_recording()
+        return jsonify(success=True, reload_songs=True)
+
+    if setting_name == "cancel_recording":
+        webinterface.saving.cancel_recording()
+        return jsonify(success=True, reload_songs=True)
+
+    if setting_name == "save_recording":
+        now = datetime.datetime.now()
+        current_date = now.strftime("%Y-%m-%d %H:%M")
+        webinterface.saving.save(current_date)
+        return jsonify(success=True, reload_songs=True)
+
     return jsonify(success=True)
 
 
@@ -479,6 +494,16 @@ def get_settings():
 
     response["speed_max_notes"] = webinterface.usersettings.get_setting_value("speed_max_notes")
     response["speed_period_in_seconds"] = webinterface.usersettings.get_setting_value("speed_period_in_seconds")
+
+    return jsonify(response)
+
+@webinterface.route('/api/get_songs', methods=['GET'])
+def get_songs():
+    response = {}
+    response["input_port"] = webinterface.usersettings.get_setting_value("input_port")
+    response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
+
+    response["isrecording"] = webinterface.saving.isrecording
 
     return jsonify(response)
 

@@ -107,6 +107,7 @@ loadAjax("home")
 function remove_page_indicators() {
     document.getElementById("home").classList.remove("dark:bg-gray-700", "bg-gray-100");
     document.getElementById("ledsettings").classList.remove("dark:bg-gray-700", "bg-gray-100");
+    document.getElementById("songs").classList.remove("dark:bg-gray-700", "bg-gray-100");
     document.getElementById("sequences").classList.remove("dark:bg-gray-700", "bg-gray-100");
     document.getElementById("ports").classList.remove("dark:bg-gray-700", "bg-gray-100");
     document.getElementById("ledanimations").classList.remove("dark:bg-gray-700", "bg-gray-100");
@@ -173,6 +174,9 @@ function change_setting(setting_name, value, second_value = false) {
             }
             if (response.reload_ports == true) {
                 get_ports();
+            }
+            if (response.reload_songs == true) {
+                get_songs();
             }
         }
     }
@@ -477,7 +481,7 @@ function press_button(element) {
 }
 
 function initialize_songs(){
-
+    get_songs();
 }
 
 
@@ -602,6 +606,28 @@ function get_ports() {
         }
     };
     xhttp.open("GET", "/api/get_ports", true);
+    xhttp.send();
+}
+
+function get_songs(){
+    var xhttp = new XMLHttpRequest();
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            response = JSON.parse(this.responseText);
+            console.log("response songs: "+response.isrecording)
+            if(response.isrecording){
+                document.getElementById("start_recording_button").classList.add('pointer-events-none', 'animate-pulse');
+                document.getElementById("save_recording_button").classList.remove('pointer-events-none', 'opacity-50');
+                document.getElementById("cancel_recording_button").classList.remove('pointer-events-none', 'opacity-50');
+            }else{
+                document.getElementById("start_recording_button").classList.remove('pointer-events-none', 'animate-pulse');
+                document.getElementById("save_recording_button").classList.add('pointer-events-none', 'opacity-50');
+                document.getElementById("cancel_recording_button").classList.add('pointer-events-none', 'opacity-50');
+            }
+        }
+    };
+    xhttp.open("GET", "/api/get_songs", true);
     xhttp.send();
 }
 

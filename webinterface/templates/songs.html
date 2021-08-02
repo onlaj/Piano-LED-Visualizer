@@ -1,10 +1,74 @@
-<div class="transition duration-300 slide-in-content grid grid-cols-1 gap-6">
+<div class="transition duration-300 slide-in-content grid grid-cols-1 gap-6 w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto">
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div class="flex">
-            <div class="p-5 content-center flex-1 text-center">1</div>
-            <div class="p-5 content-center flex-1 text-center">2</div>
-            <div class="p-5 content-center flex-1 text-center">3</div>
-            <div class="p-5 content-center flex-1 text-center">4</div>
+            <div class="content-center flex-1 text-center">
+                <div class="p-5">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Start recording
+                    </label>
+                    <button id="start_recording_button" onclick="change_setting('start_recording', '0');
+                    this.classList.add('animate-pulse', 'pointer-events-none');
+                    document.getElementById('save_recording_button').classList.remove('pointer-events-none', 'opacity-50');
+                    document.getElementById('cancel_recording_button').classList.remove('pointer-events-none', 'opacity-50');"
+                            class="w-full h-10 outline-none mb-2
+                            bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"
+                             class="h-6 w-6 inline m-auto fill-current text-red-500">
+                            <path d="M20 0a20 20 0 100 40 20 20 0 000-40zm0 28a8 8 0 110-16 8 8 0 010 16z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-center flex-1 text-center">
+                <div class="p-5">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Stop and Save
+                    </label>
+                    <button id="save_recording_button"
+                            onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                            h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline m-auto" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('save_recording', '0');
+                    temporary_disable_button(this, 3000);
+                    document.getElementById('save_recording_button').classList.add('pointer-events-none', 'opacity-50');
+                    document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                            h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                        <span class="w-full uppercase text-xs text-green-400">Click to confirm save</span></button>
+                </div>
+            </div>
+            <div class="content-center flex-1 text-center">
+                <div class="p-5">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Cancel recording
+                    </label>
+                    <button id="cancel_recording_button"
+                            onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline m-auto" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('cancel_recording', '0');
+                    temporary_disable_button(this, 3000);
+                    document.getElementById('save_recording_button').classList.add('pointer-events-none', 'opacity-50');
+                    document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                            h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                        <span class="w-full uppercase text-xs text-red-400">Click to confirm cancel recording</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
