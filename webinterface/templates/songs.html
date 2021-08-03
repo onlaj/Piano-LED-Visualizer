@@ -1,5 +1,20 @@
 <div class="transition duration-300 slide-in-content grid grid-cols-1 gap-6 w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto">
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+        <div class="flex -mb-4">
+            <div class="inline pr-2 text-gray-600 dark:text-gray-400">
+                Input port:
+            </div>
+            <div class="inline" id="input_port">
+            </div>
+
+            <div class="flex-1 pr-2 text-gray-600 dark:text-gray-400 text-right">
+                Status:
+            </div>
+            <div class="flex text-right w-20 uppercase" id="recording_status">
+            </div>
+
+        </div>
+
         <div class="flex">
             <div class="content-center flex-1 text-center">
                 <div class="p-5">
@@ -9,7 +24,8 @@
                     <button id="start_recording_button" onclick="change_setting('start_recording', '0');
                     this.classList.add('animate-pulse', 'pointer-events-none');
                     document.getElementById('save_recording_button').classList.remove('pointer-events-none', 'opacity-50');
-                    document.getElementById('cancel_recording_button').classList.remove('pointer-events-none', 'opacity-50');"
+                    document.getElementById('cancel_recording_button').classList.remove('pointer-events-none', 'opacity-50');
+                    document.getElementById('recording_status').innerHTML = '<p class=\'text-red-400\'>starting</p>'"
                             class="w-full h-10 outline-none mb-2
                             bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
                         <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"
@@ -38,10 +54,11 @@
                     <button onclick="change_setting('save_recording', '0');
                     temporary_disable_button(this, 3000);
                     document.getElementById('save_recording_button').classList.add('pointer-events-none', 'opacity-50');
-                    document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');"
+                    document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');
+                    document.getElementById('recording_status').innerHTML = '<p>saving</p>'"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
                             h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-green-400">Click to confirm save</span></button>
+                        <span class="w-full uppercase text-xs text-green-400">Click to confirm</span></button>
                 </div>
             </div>
             <div class="content-center flex-1 text-center">
@@ -62,10 +79,11 @@
                     <button onclick="change_setting('cancel_recording', '0');
                     temporary_disable_button(this, 3000);
                     document.getElementById('save_recording_button').classList.add('pointer-events-none', 'opacity-50');
-                    document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');"
+                    document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');
+                    document.getElementById('recording_status').innerHTML = '<p>canceling</p>'"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
                             h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-red-400">Click to confirm cancel recording</span>
+                        <span class="w-full uppercase text-xs text-red-400">Click to confirm</span>
                     </button>
                 </div>
             </div>

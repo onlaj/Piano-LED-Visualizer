@@ -616,11 +616,15 @@ function get_songs(){
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
             console.log("response songs: "+response.isrecording)
+            document.getElementById("input_port").innerHTML = response.input_port;
+
             if(response.isrecording){
+                document.getElementById("recording_status").innerHTML = '<p class="animate-pulse text-red-400">recording</p>';
                 document.getElementById("start_recording_button").classList.add('pointer-events-none', 'animate-pulse');
                 document.getElementById("save_recording_button").classList.remove('pointer-events-none', 'opacity-50');
                 document.getElementById("cancel_recording_button").classList.remove('pointer-events-none', 'opacity-50');
             }else{
+                document.getElementById("recording_status").innerHTML = '<p>idle</p>';
                 document.getElementById("start_recording_button").classList.remove('pointer-events-none', 'animate-pulse');
                 document.getElementById("save_recording_button").classList.add('pointer-events-none', 'opacity-50');
                 document.getElementById("cancel_recording_button").classList.add('pointer-events-none', 'opacity-50');
