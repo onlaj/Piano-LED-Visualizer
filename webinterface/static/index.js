@@ -176,7 +176,7 @@ function change_setting(setting_name, value, second_value = false) {
                 get_ports();
             }
             if (response.reload_songs == true) {
-                get_songs();
+                get_recording_status();
             }
         }
     }
@@ -481,6 +481,7 @@ function press_button(element) {
 }
 
 function initialize_songs(){
+    get_recording_status();
     get_songs();
 }
 
@@ -609,13 +610,12 @@ function get_ports() {
     xhttp.send();
 }
 
-function get_songs(){
+function get_recording_status(){
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
-            console.log("response songs: "+response.isrecording)
             document.getElementById("input_port").innerHTML = response.input_port;
 
             if(response.isrecording){
@@ -628,6 +628,22 @@ function get_songs(){
                 document.getElementById("start_recording_button").classList.remove('pointer-events-none', 'animate-pulse');
                 document.getElementById("save_recording_button").classList.add('pointer-events-none', 'opacity-50');
                 document.getElementById("cancel_recording_button").classList.add('pointer-events-none', 'opacity-50');
+            }
+        }
+    };
+    xhttp.open("GET", "/api/get_recording_status", true);
+    xhttp.send();
+}
+
+function get_songs(){
+    var xhttp = new XMLHttpRequest();
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("songs_list_table").innerHTML = this.responseText;
+            var sizes = document.getElementsByClassName("song_size");
+            for (var i = 0; i < sizes.length; i++) {
+               sizes.item(i).innerHTML = formatBytes(sizes.item(i).innerHTML, 2, true)
             }
         }
     };

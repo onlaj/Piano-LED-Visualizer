@@ -11,6 +11,7 @@ from xml.dom import minidom
 from subprocess import call
 import subprocess
 import datetime
+import os
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -497,8 +498,8 @@ def get_settings():
 
     return jsonify(response)
 
-@webinterface.route('/api/get_songs', methods=['GET'])
-def get_songs():
+@webinterface.route('/api/get_recording_status', methods=['GET'])
+def get_recording_status():
     response = {}
     response["input_port"] = webinterface.usersettings.get_setting_value("input_port")
     response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
@@ -506,6 +507,34 @@ def get_songs():
     response["isrecording"] = webinterface.saving.isrecording
 
     return jsonify(response)
+
+
+@webinterface.route('/api/get_songs', methods=['GET'])
+def get_songs():
+    start = request.args.get('start')
+    length = request.args.get('length')
+    sortby = request.args.get('sortby')
+
+    response = {}
+    response["songs_list"] = {}
+
+    songs_list_dict = {}
+
+    songs_list = os.listdir("Songs")
+
+    for song in songs_list:
+        length = os.path.getsize("Songs/"+song)
+        if "_#" in song:
+            continue
+
+        songs_list_dict[song] = length
+        if len(songs_list_dict) >= 10:
+            break
+    print(songs_list_dict)
+
+    #response["songs_list"] = songs_list_dict
+
+    return render_template('songs_list.html', len = len(songs_list_dict), songs_list_dict = songs_list_dict)
 
 
 @webinterface.route('/api/get_ports', methods=['GET'])
