@@ -435,7 +435,8 @@
 
     slider.addEventListener('touchend', e => {
         touchendX = e.changedTouches[0].screenX;
-        if (e.target.type !== "range") {
+        if (e.target.type !== "range" && e.target.nodeName !== "TD"
+            && e.target.nodeName !== "TABLE" && e.target.nodeName !== "TH") {
             handleGesture();
         }
     });

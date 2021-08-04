@@ -530,9 +530,6 @@ def get_songs():
         songs_list_dict[song] = length
         if len(songs_list_dict) >= 10:
             break
-    print(songs_list_dict)
-
-    #response["songs_list"] = songs_list_dict
 
     return render_template('songs_list.html', len = len(songs_list_dict), songs_list_dict = songs_list_dict)
 
