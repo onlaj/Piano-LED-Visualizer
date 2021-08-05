@@ -636,6 +636,26 @@ function get_recording_status(){
 }
 
 function get_songs(){
+    if(document.getElementById("songs_page")){
+        page = document.getElementById("songs_page").value;
+        max_page = document.getElementById("songs_page").max;
+    }else{
+        page = 1;
+        max_page = 1;
+    }
+    if(page > max_page){
+        document.getElementById("songs_page").value = max_page;
+        return false;
+    }
+    if(page < 1){
+        document.getElementById("songs_page").value = 1;
+        return false;
+    }
+    document.getElementById("songs_list_table").classList.add("animate-pulse", "pointer-events-none");
+
+    length = 10;
+    sortby = "nameAsc";
+
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
@@ -649,9 +669,10 @@ function get_songs(){
             for (var i = 0; i < sizes.length; i++) {
                sizes.item(i).value = sizes.item(i).value.replace('.mid', '');
             }
+            document.getElementById("songs_list_table").classList.remove("animate-pulse", "pointer-events-none");
         }
     };
-    xhttp.open("GET", "/api/get_songs", true);
+    xhttp.open("GET", "/api/get_songs?page="+page+"&length="+length+"&sortby="+sortby, true);
     xhttp.send();
 }
 

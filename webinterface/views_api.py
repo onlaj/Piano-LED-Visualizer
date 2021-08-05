@@ -12,6 +12,7 @@ from subprocess import call
 import subprocess
 import datetime
 import os
+import math
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -522,27 +523,51 @@ def get_recording_status():
 
 @webinterface.route('/api/get_songs', methods=['GET'])
 def get_songs():
-    start = request.args.get('start')
+    page = request.args.get('page')
+    page = int(page) - 1
     length = request.args.get('length')
     sortby = request.args.get('sortby')
 
-    response = {}
-    response["songs_list"] = {}
+    start = int(page)*int(length)
 
     songs_list_dict = {}
 
     songs_list = os.listdir("Songs")
 
+    if sortby == "nameAsc":
+        songs_list.sort()
+
+    if sortby == "nameDesc":
+        songs_list.sort(reverse=True)
+
+    i = 0
+    print("start: "+str(start))
+    print("length: "+str(length))
+    print("page: "+str(page))
+
+    total_songs = 0
+
     for song in songs_list:
-        length = os.path.getsize("Songs/"+song)
+        if "_#" in song:
+            continue
+        total_songs += 1
+
+    max_page = int(math.ceil(total_songs / int(length)))
+
+    for song in songs_list:
+        print("Song: " +song+ "i: "+str(i))
+        size = os.path.getsize("Songs/"+song)
         if "_#" in song:
             continue
 
-        songs_list_dict[song] = length
-        if len(songs_list_dict) >= 99:
+        i += 1
+        if(i > int(start)):
+            songs_list_dict[song] = size
+
+        if len(songs_list_dict) >= int(length):
             break
 
-    return render_template('songs_list.html', len = len(songs_list_dict), songs_list_dict = songs_list_dict)
+    return render_template('songs_list.html', len=len(songs_list_dict), songs_list_dict=songs_list_dict, page=page, max_page=max_page)
 
 
 @webinterface.route('/api/get_ports', methods=['GET'])

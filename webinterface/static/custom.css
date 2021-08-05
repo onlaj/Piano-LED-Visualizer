@@ -277,3 +277,11 @@ tr td:nth-child(1),
 tr th:nth-child(1) {
     border-radius: .625rem 0 0 .625rem;
 }
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+}
