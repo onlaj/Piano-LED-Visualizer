@@ -637,8 +637,8 @@ function get_recording_status(){
 
 function get_songs(){
     if(document.getElementById("songs_page")){
-        page = document.getElementById("songs_page").value;
-        max_page = document.getElementById("songs_page").max;
+        page = parseInt(document.getElementById("songs_page").value);
+        max_page = parseInt(document.getElementById("songs_page").max);
     }else{
         page = 1;
         max_page = 1;
