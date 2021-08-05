@@ -645,6 +645,10 @@ function get_songs(){
             for (var i = 0; i < sizes.length; i++) {
                sizes.item(i).innerHTML = formatBytes(sizes.item(i).innerHTML, 2, true)
             }
+            var sizes = document.getElementsByClassName("song_name");
+            for (var i = 0; i < sizes.length; i++) {
+               sizes.item(i).value = sizes.item(i).value.replace('.mid', '');
+            }
         }
     };
     xhttp.open("GET", "/api/get_songs", true);

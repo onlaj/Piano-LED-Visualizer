@@ -401,6 +401,17 @@ def change_setting():
         webinterface.saving.save(current_date)
         return jsonify(success=True, reload_songs=True)
 
+    if setting_name == "change_song_name":
+        if "_main" in value:
+            search_name = value.replace("_main.mid", "")
+            for fname in os.listdir('Songs'):
+                if search_name in fname:
+                    new_name = second_value.replace(".mid", "")+fname.replace(search_name, "")
+                    os.rename('Songs/' + fname, 'Songs/' + new_name)
+        else:
+            os.rename('Songs/'+value, 'Songs/'+second_value)
+
+
     return jsonify(success=True)
 
 
@@ -528,7 +539,7 @@ def get_songs():
             continue
 
         songs_list_dict[song] = length
-        if len(songs_list_dict) >= 10:
+        if len(songs_list_dict) >= 99:
             break
 
     return render_template('songs_list.html', len = len(songs_list_dict), songs_list_dict = songs_list_dict)
