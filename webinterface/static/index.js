@@ -659,8 +659,12 @@ function get_songs(){
     }
     document.getElementById("songs_list_table").classList.add("animate-pulse", "pointer-events-none");
 
-    length = 10;
     sortby =  document.getElementById("sort_by").value;
+    if(document.getElementById("songs_per_page")) {
+        length = document.getElementById("songs_per_page").value;
+    }else{
+        length = 10;
+    }
 
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
@@ -676,6 +680,8 @@ function get_songs(){
                names.item(i).value = names.item(i).value.replace('.mid', '');
             }
             document.getElementById("songs_list_table").classList.remove("animate-pulse", "pointer-events-none");
+
+            document.getElementById("songs_per_page").value = length;
 
             if(sortby == "nameAsc"){
                 document.getElementById("sort_icon_nameAsc").classList.remove("hidden");

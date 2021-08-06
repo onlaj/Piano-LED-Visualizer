@@ -10,14 +10,17 @@
                 get_songs();"
                      id="sort_icon_nameAsc" xmlns="http://www.w3.org/2000/svg"
                      class="ml-2 h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
                 </svg>
                 <svg onclick="this.previousElementSibling.classList.remove('hidden');
                 this.classList.add('hidden');
                 document.getElementById('sort_by').value = 'nameAsc';
                 get_songs();"
-                     id="sort_icon_nameDesc" xmlns="http://www.w3.org/2000/svg" class="ml-2 h-6 w-6 cursor-pointer hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                     id="sort_icon_nameDesc" xmlns="http://www.w3.org/2000/svg"
+                     class="ml-2 h-6 w-6 cursor-pointer hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"/>
                 </svg>
             </div>
         </th>
@@ -30,14 +33,17 @@
                 get_songs();"
                      id="sort_icon_dateAsc" xmlns="http://www.w3.org/2000/svg"
                      class="ml-2 h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
                 </svg>
                 <svg onclick="this.previousElementSibling.classList.remove('hidden');
                 this.classList.add('hidden');
                 document.getElementById('sort_by').value = 'dateAsc';
                 get_songs();"
-                     id="sort_icon_dateDesc" xmlns="http://www.w3.org/2000/svg" class="ml-2 h-6 w-6 cursor-pointer hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                     id="sort_icon_dateDesc" xmlns="http://www.w3.org/2000/svg"
+                     class="ml-2 h-6 w-6 cursor-pointer hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"/>
                 </svg>
             </div>
         </th>
@@ -106,6 +112,29 @@
     {% endfor %}
 
 </table>
+<div class="flex justify-between flex-wrap">
+
+    <div class="flex w-1/3">
+        <div class="text-xs font-bold mt-2 text-gray-600 dark:text-gray-400 mr-2">Songs per page</div>
+        <div class="relative w-1/3">
+            <select onchange="get_songs();" id="songs_per_page" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
+                    py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="1000">1000</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                </svg>
+            </div>
+
+        </div>
+    </div>
+
+
 <div class="justify-center flex space-x-4">
     <svg onclick="document.getElementById('songs_page').value = 1;
     get_songs();"
@@ -136,3 +165,12 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
     </svg>
 </div>
+
+    <div class="w-1/3 block float-right text-right">
+        <div class="text-xs font-bold mt-2 text-gray-600 dark:text-gray-400 mr-2">
+            Total songs: {{total_songs}}
+        </div>
+    </div>
+
+
+    </div>

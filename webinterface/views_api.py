@@ -570,7 +570,7 @@ def get_songs():
         if len(songs_list_dict) >= int(length):
             break
 
-    return render_template('songs_list.html', len=len(songs_list_dict), songs_list_dict=songs_list_dict, page=page, max_page=max_page)
+    return render_template('songs_list.html', len=len(songs_list_dict), songs_list_dict=songs_list_dict, page=page, max_page=max_page, total_songs=total_songs)
 
 
 @webinterface.route('/api/get_ports', methods=['GET'])
