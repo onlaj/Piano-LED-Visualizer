@@ -177,6 +177,7 @@ function change_setting(setting_name, value, second_value = false) {
             }
             if (response.reload_songs == true) {
                 get_recording_status();
+                get_songs();
             }
         }
     }
@@ -482,6 +483,11 @@ function press_button(element) {
 
 function initialize_songs(){
     get_recording_status();
+    if(getCookie("sort_by") !== null){
+         document.getElementById("sort_by").value = getCookie("sort_by");
+    }else{
+        document.getElementById("sort_by").value = "dateAsc";
+    }
     get_songs();
 }
 
@@ -654,22 +660,49 @@ function get_songs(){
     document.getElementById("songs_list_table").classList.add("animate-pulse", "pointer-events-none");
 
     length = 10;
-    sortby = "nameAsc";
+    sortby =  document.getElementById("sort_by").value;
 
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             document.getElementById("songs_list_table").innerHTML = this.responseText;
-            var sizes = document.getElementsByClassName("song_size");
-            for (var i = 0; i < sizes.length; i++) {
-               sizes.item(i).innerHTML = formatBytes(sizes.item(i).innerHTML, 2, true)
+            var dates = document.getElementsByClassName("song_size");
+            for (var i = 0; i < dates.length; i++) {
+               dates.item(i).innerHTML = new Date(dates.item(i).innerHTML * 1000).toISOString().slice(0, 19).replace('T', ' ');
             }
-            var sizes = document.getElementsByClassName("song_name");
-            for (var i = 0; i < sizes.length; i++) {
-               sizes.item(i).value = sizes.item(i).value.replace('.mid', '');
+            var names = document.getElementsByClassName("song_name");
+            for (var i = 0; i < names.length; i++) {
+               names.item(i).value = names.item(i).value.replace('.mid', '');
             }
             document.getElementById("songs_list_table").classList.remove("animate-pulse", "pointer-events-none");
+
+            if(sortby == "nameAsc"){
+                document.getElementById("sort_icon_nameAsc").classList.remove("hidden");
+                document.getElementById("sort_icon_nameDesc").classList.add("hidden");
+                document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
+                document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
+            }
+            if(sortby == "nameDesc"){
+                document.getElementById("sort_icon_nameDesc").classList.remove("hidden");
+                document.getElementById("sort_icon_nameAsc").classList.add("hidden");
+                document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
+                document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
+            }
+
+            if(sortby == "dateAsc"){
+                document.getElementById("sort_icon_dateAsc").classList.remove("hidden");
+                document.getElementById("sort_icon_dateDesc").classList.add("hidden");
+                document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
+                document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
+            }
+            if(sortby == "dateDesc"){
+                document.getElementById("sort_icon_dateDesc").classList.remove("hidden");
+                document.getElementById("sort_icon_dateAsc").classList.add("hidden");
+                document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
+                document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
+            }
+
         }
     };
     xhttp.open("GET", "/api/get_songs?page="+page+"&length="+length+"&sortby="+sortby, true);

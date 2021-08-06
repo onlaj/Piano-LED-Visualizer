@@ -532,7 +532,14 @@ def get_songs():
 
     songs_list_dict = {}
 
-    songs_list = os.listdir("Songs")
+    path = 'Songs/'
+    songs_list = os.listdir(path)
+    songs_list = [os.path.join(path, i) for i in songs_list]
+
+    songs_list = sorted(songs_list, key=os.path.getmtime)
+
+    if sortby == "dateAsc":
+        songs_list.reverse()
 
     if sortby == "nameAsc":
         songs_list.sort()
@@ -541,10 +548,6 @@ def get_songs():
         songs_list.sort(reverse=True)
 
     i = 0
-    print("start: "+str(start))
-    print("length: "+str(length))
-    print("page: "+str(page))
-
     total_songs = 0
 
     for song in songs_list:
@@ -555,14 +558,14 @@ def get_songs():
     max_page = int(math.ceil(total_songs / int(length)))
 
     for song in songs_list:
-        print("Song: " +song+ "i: "+str(i))
-        size = os.path.getsize("Songs/"+song)
+        song = song.replace("Songs/", "")
+        date = os.path.getmtime("Songs/"+song)
         if "_#" in song:
             continue
 
         i += 1
         if(i > int(start)):
-            songs_list_dict[song] = size
+            songs_list_dict[song] = date
 
         if len(songs_list_dict) >= int(length):
             break
