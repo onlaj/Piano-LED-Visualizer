@@ -1,3 +1,5 @@
+var search_song;
+
 let beats_per_minute = 160;
 let beats_per_measure = 4;
 let count = 0;
@@ -666,6 +668,8 @@ function get_songs(){
         length = 10;
     }
 
+    search = document.getElementById("song_search").value;
+
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
@@ -711,7 +715,7 @@ function get_songs(){
 
         }
     };
-    xhttp.open("GET", "/api/get_songs?page="+page+"&length="+length+"&sortby="+sortby, true);
+    xhttp.open("GET", "/api/get_songs?page="+page+"&length="+length+"&sortby="+sortby+"&search="+search, true);
     xhttp.send();
 }
 

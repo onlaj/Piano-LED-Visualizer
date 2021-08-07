@@ -527,6 +527,7 @@ def get_songs():
     page = int(page) - 1
     length = request.args.get('length')
     sortby = request.args.get('sortby')
+    search = request.args.get('search')
 
     start = int(page)*int(length)
 
@@ -551,8 +552,11 @@ def get_songs():
     total_songs = 0
 
     for song in songs_list:
-        if "_#" in song:
+        if "_#" in song or not song.endswith('.mid'):
             continue
+        if search:
+            if search.lower() not in song.lower():
+                continue
         total_songs += 1
 
     max_page = int(math.ceil(total_songs / int(length)))
@@ -560,8 +564,12 @@ def get_songs():
     for song in songs_list:
         song = song.replace("Songs/", "")
         date = os.path.getmtime("Songs/"+song)
-        if "_#" in song:
+        if "_#" in song or not song.endswith('.mid'):
             continue
+
+        if search:
+            if search.lower() not in song.lower():
+                continue
 
         i += 1
         if(i > int(start)):
