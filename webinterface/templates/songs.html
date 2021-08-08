@@ -96,14 +96,19 @@
 
             <div class="relative">
               <span class="absolute left-0 flex items-center pl-2">
-                <button type="submit" class="pt-2 focus:outline-none focus:shadow-outline">
                   <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                       viewBox="0 0 24 24" class="w-6 h-6"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </button>
+                       viewBox="0 0 24 24" class="w-6 h-6 mt-2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
               </span>
-                <input onkeyup="clearTimeout(search_song);search_song = setTimeout(function(){ get_songs(); }, 1200);" id="song_search" type="search"
-                       class="py-2 text-sm mb-2 rounded-2xl bg-gray-100 dark:bg-gray-600 pl-10 focus:outline-none focus:bg-white"
-                       placeholder="Search..." autocomplete="off">
+                <input onkeyup="clearTimeout(search_song);search_song = setTimeout(function(){ get_songs(); }, 1200);" id="song_search"
+                       class="h-10 py-2 text-sm mb-2 rounded-2xl bg-gray-100 dark:bg-gray-600 pl-10 focus:outline-none focus:bg-white"
+                       placeholder="Search...">
+                <span onclick="this.previousElementSibling.value = '';get_songs();" id="clear_input"
+                      class="h-10 absolute right-0 top-0 flex items-center cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+              </span>
             </div>
         </div>
         <div id="sort_by" value=""></div>

@@ -651,6 +651,9 @@ function get_songs(){
         page = 1;
         max_page = 1;
     }
+    if(max_page == 0){
+        max_page = 1;
+    }
     if(page > max_page){
         document.getElementById("songs_page").value = max_page;
         return false;
@@ -675,7 +678,7 @@ function get_songs(){
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             document.getElementById("songs_list_table").innerHTML = this.responseText;
-            var dates = document.getElementsByClassName("song_size");
+            var dates = document.getElementsByClassName("song_date");
             for (var i = 0; i < dates.length; i++) {
                dates.item(i).innerHTML = new Date(dates.item(i).innerHTML * 1000).toISOString().slice(0, 19).replace('T', ' ');
             }

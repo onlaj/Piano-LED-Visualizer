@@ -285,3 +285,13 @@ input[type=number]::-webkit-outer-spin-button {
     appearance: none;
     margin: 0;
 }
+
+#song_search:not(:placeholder-shown) + #clear_input {
+  visibility: visible;
+}
+
+#clear_input {
+  visibility: hidden;
+  border: none;
+  background: none;
+}
