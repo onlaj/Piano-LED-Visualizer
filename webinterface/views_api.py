@@ -432,11 +432,19 @@ def change_setting():
         if "_main" in value:
             zipObj = ZipFile("Songs/"+value.replace(".mid", "")+".zip", 'w')
             name_no_suffix = value.replace("_main.mid", "")
+            songs_count = 0
             for fname in os.listdir('Songs'):
                 if name_no_suffix in fname and ".zip" not in fname:
+                    songs_count += 1
                     zipObj.write("Songs/"+fname)
             zipObj.close()
-            return send_file("../Songs/"+value.replace(".mid", "")+".zip", mimetype='application/x-csv', attachment_filename=value.replace(".mid", "")+".zip", as_attachment=True)
+            if songs_count == 1:
+                os.remove("Songs/"+value.replace(".mid", "")+".zip")
+                return send_file("../Songs/" + value, mimetype='application/x-csv', attachment_filename=value,
+                                 as_attachment=True)
+            else:
+                return send_file("../Songs/"+value.replace(".mid", "")+".zip", mimetype='application/x-csv',
+                                 attachment_filename=value.replace(".mid", "")+".zip", as_attachment=True)
         else:
             return send_file("../Songs/"+value, mimetype='application/x-csv', attachment_filename=value, as_attachment=True)
 
