@@ -403,6 +403,9 @@ def change_setting():
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "change_song_name":
+        if os.path.exists("Songs/"+second_value):
+            return jsonify(success=False, reload_songs=True, error=second_value+" already exists")
+
         if "_main" in value:
             search_name = value.replace("_main.mid", "")
             for fname in os.listdir('Songs'):
@@ -411,6 +414,19 @@ def change_setting():
                     os.rename('Songs/' + fname, 'Songs/' + new_name)
         else:
             os.rename('Songs/'+value, 'Songs/'+second_value)
+
+        return jsonify(success=True, reload_songs=True)
+
+    if setting_name == "remove_song":
+        if "_main" in value:
+            name_no_suffix = value.replace("_main.mid", "")
+            for fname in os.listdir('Songs'):
+                if name_no_suffix in fname:
+                    os.remove("Songs/"+fname)
+        else:
+            os.remove("Songs/"+value)
+        return jsonify(success=True, reload_songs=True)
+
 
 
     return jsonify(success=True)
