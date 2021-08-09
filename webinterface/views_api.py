@@ -1,5 +1,5 @@
 from webinterface import webinterface
-from flask import render_template, flash, redirect, request, url_for, jsonify
+from flask import render_template, send_file, redirect, request, url_for, jsonify
 from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
     rainbow, rainbowCycle, fastColorWipe
 import psutil
@@ -13,6 +13,7 @@ import subprocess
 import datetime
 import os
 import math
+from zipfile import ZipFile
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -427,7 +428,17 @@ def change_setting():
             os.remove("Songs/"+value)
         return jsonify(success=True, reload_songs=True)
 
-
+    if setting_name == "download_song":
+        if "_main" in value:
+            zipObj = ZipFile("Songs/"+value.replace(".mid", "")+".zip", 'w')
+            name_no_suffix = value.replace("_main.mid", "")
+            for fname in os.listdir('Songs'):
+                if name_no_suffix in fname and ".zip" not in fname:
+                    zipObj.write("Songs/"+fname)
+            zipObj.close()
+            return send_file("../Songs/"+value.replace(".mid", "")+".zip", mimetype='application/x-csv', attachment_filename=value.replace(".mid", "")+".zip", as_attachment=True)
+        else:
+            return send_file("../Songs/"+value, mimetype='application/x-csv', attachment_filename=value, as_attachment=True)
 
     return jsonify(success=True)
 
