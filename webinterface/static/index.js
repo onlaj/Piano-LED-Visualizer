@@ -962,10 +962,10 @@ function initializeProgress(numFiles) {
 function updateProgress(fileNumber, percent) {
     uploadProgress[fileNumber] = percent
     let total = uploadProgress.reduce((tot, curr) => tot + curr, 0) / uploadProgress.length
-    document.getElementById("progress-bar").style.width = total+"%";
-    if(total >= 100 || total <= 0){
+    document.getElementById("progress-bar").style.width = total + "%";
+    if (total >= 100 || total <= 0) {
         document.getElementById("progress-bar-group").classList.add("hidden");
-    }else{
+    } else {
         document.getElementById("progress-bar-group").classList.remove("hidden");
     }
 }
@@ -983,8 +983,10 @@ function previewFile(file) {
     reader.readAsDataURL(file)
 
     reader.onloadend = function () {
-        var name = document.createElement('p');
+        var name = document.createElement('div');
+        name.setAttribute("id", file.name);
         name.innerHTML = file.name;
+        name.className = "flex";
         document.getElementById('gallery').appendChild(name);
     }
 }
@@ -1003,9 +1005,23 @@ function uploadFile(file, i) {
 
     xhr.addEventListener('readystatechange', function (e) {
         if (xhr.readyState == 4 && xhr.status == 200) {
+            response = JSON.parse(this.responseText);
+
             updateProgress(i, 100);
-            clearTimeout(get_songs_timeout);
-            get_songs_timeout = setTimeout(function(){ get_songs(); }, 2000);
+
+            if(response.success == true) {
+                clearTimeout(get_songs_timeout);
+                get_songs_timeout = setTimeout(function () {
+                    get_songs();
+                }, 2000);
+                document.getElementById(response.song_name).innerHTML += "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 ml-2 text-green-400\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n" +
+                    "  <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M5 13l4 4L19 7\" />\n" +
+                    "</svg>";
+            }else{
+                document.getElementById(response.song_name).innerHTML += "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 ml-2 text-red-500\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n" +
+                    "  <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\" />\n" +
+                    "</svg>"+" "+response.error;
+            }
         } else if (xhr.readyState == 4 && xhr.status != 200) {
             // Error. Inform the user
         }

@@ -91,14 +91,16 @@
     </div>
 
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
-        <div class="flex-1 font-bold text-xl pb-2">Upload</div>
+        <div class="flex-1 font-bold text-xl pb-2">Upload songs</div>
         <div id="drop-area"
              class="content-center flex-1 border-dashed border-4 border-green-400 border-opacity-50 p-5 mb-4">
             <form class="my-form grid justify-items-center">
                 <input class="hidden" name="song" type="file" id="fileElem" multiple accept="audio/mid"
                        onchange="handleFiles(this.files)">
                 <label class="text-xl font-bold">Drag and drop midi file here</label>
-                <label class="block h-10 inline m-auto fill-current underline button" for="fileElem">or click to upload</label>
+                <label class="block h-10 inline m-auto fill-current underline button cursor-pointer" for="fileElem">
+                    or click to choose files to upload
+                </label>
             </form>
             <div id="progress-bar-group" class="relative pt-1 hidden">
                 <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-green-200">

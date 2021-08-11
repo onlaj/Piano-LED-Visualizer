@@ -47,8 +47,12 @@ def ports():
 @webinterface.route('/upload', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
+        if 'file' not in request.files:
+            return jsonify(success=False, error="no file")
         file = request.files['file']
         filename = file.filename
+        if os.path.exists("Songs/" + filename):
+            return jsonify(success=False, error="file already exists", song_name=filename)
         file.save(os.path.join(webinterface.config['UPLOAD_FOLDER'], filename))
         return jsonify(success=True, reload_songs=True, song_name=filename)
 
