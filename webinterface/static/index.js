@@ -818,7 +818,7 @@ function show_multicolors(colors, ranges) {
 }
 
 function show_left_slider(element) {
-    element.value = Math.min(element.value, element.parentNode.childNodes[5].value - 1);
+    element.value = Math.min(element.value, element.parentNode.childNodes[5].value);
     var value = (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.value) - (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.min);
     var children = element.parentNode.childNodes[1].childNodes;
     children[1].style.width = value + '%';
@@ -829,7 +829,7 @@ function show_left_slider(element) {
 }
 
 function show_right_slider(element) {
-    element.value = Math.max(element.value, element.parentNode.childNodes[3].value - (-1));
+    element.value = Math.max(element.value, element.parentNode.childNodes[3].value);
     var value = (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.value) - (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.min);
     var children = element.parentNode.childNodes[1].childNodes;
     children[3].style.width = (100 - value) + '%';
