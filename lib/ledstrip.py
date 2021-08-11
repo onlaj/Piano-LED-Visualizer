@@ -44,10 +44,7 @@ class LedStrip:
 
         self.usersettings.change_setting_value("brightness_percent", self.brightness_percent)
 
-        self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
-                                       int(self.brightness), self.LED_CHANNEL)
-        # Intialize the library (must be called once before other functions).
-        self.strip.begin()
+        self.strip.setBrightness(int(self.brightness))
 
     def change_led_count(self, value, fixed_number=False):
         if fixed_number:
