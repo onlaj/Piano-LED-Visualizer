@@ -91,12 +91,34 @@
     </div>
 
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+        <div class="flex-1 font-bold text-xl pb-2">Upload</div>
+        <div id="drop-area"
+             class="content-center flex-1 border-dashed border-4 border-green-400 border-opacity-50 p-5 mb-4">
+            <form class="my-form grid justify-items-center">
+                <input class="hidden" name="song" type="file" id="fileElem" multiple accept="audio/mid"
+                       onchange="handleFiles(this.files)">
+                <label class="text-xl font-bold">Drag and drop midi file here</label>
+                <label class="block h-10 inline m-auto fill-current underline button" for="fileElem">or click to upload</label>
+            </form>
+            <div id="progress-bar-group" class="relative pt-1 hidden">
+                <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-green-200">
+                    <div id="progress-bar" style="width:30%"
+                         class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-500"></div>
+                </div>
+            </div>
+            <div id="gallery" class="max-h-60 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+
         <div class="flex">
             <div class="flex-1 font-bold text-xl pb-2">Songs list</div>
             <div class="relative">
               <span class="absolute left-0 flex items-center pl-2">
                   <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                       viewBox="0 0 24 24" class="w-6 h-6 mt-2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                       viewBox="0 0 24 24" class="w-6 h-6 mt-2"><path
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                   </svg>
               </span>
                 <input onkeyup="clearTimeout(search_song);search_song =
@@ -107,8 +129,9 @@
                 <span onclick="this.previousElementSibling.value = '';
                     get_songs();" id="clear_input"
                       class="h-10 absolute right-0 top-0 flex items-center cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                       stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
               </span>
             </div>

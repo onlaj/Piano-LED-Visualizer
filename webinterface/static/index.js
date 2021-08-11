@@ -1,4 +1,5 @@
 var search_song;
+var get_songs_timeout;
 
 let beats_per_minute = 160;
 let beats_per_measure = 4;
@@ -24,13 +25,14 @@ function play_tick_sound() {
 
     count++;
 }
-function change_bpm(bpm){
+
+function change_bpm(bpm) {
     beats_per_minute = bpm;
     ticker.interval = 60000 / bpm;
 }
 
-function change_volume(value){
-    if(parseInt(value) <  -10 || parseInt(value) > 110){
+function change_volume(value) {
+    if (parseInt(value) < -10 || parseInt(value) > 110) {
         return false;
     }
     value = (parseFloat(value) / 100);
@@ -38,12 +40,13 @@ function change_volume(value){
     tick2.volume = value;
 }
 
-function change_beats_per_measure(value){
-    if(parseInt(value) <= 2){
+function change_beats_per_measure(value) {
+    if (parseInt(value) <= 2) {
         return false;
     }
     beats_per_measure = parseInt(value);
 }
+
 var ticker = new AdjustingInterval(play_tick_sound, 60000 / beats_per_minute);
 
 
@@ -303,10 +306,10 @@ function initialize_homepage() {
         }
     }
 
-    if(is_playing){
+    if (is_playing) {
         document.getElementById("metronome_start").classList.add("hidden");
         document.getElementById("metronome_stop").classList.remove("hidden");
-    }else{
+    } else {
         document.getElementById("metronome_start").classList.remove("hidden");
         document.getElementById("metronome_stop").classList.add("hidden");
     }
@@ -483,14 +486,15 @@ function press_button(element) {
     }, 150);
 }
 
-function initialize_songs(){
+function initialize_songs() {
     get_recording_status();
-    if(getCookie("sort_by") !== null){
-         document.getElementById("sort_by").value = getCookie("sort_by");
-    }else{
+    if (getCookie("sort_by") !== null) {
+        document.getElementById("sort_by").value = getCookie("sort_by");
+    } else {
         document.getElementById("sort_by").value = "dateAsc";
     }
     get_songs();
+    initialize_upload();
 }
 
 
@@ -618,7 +622,7 @@ function get_ports() {
     xhttp.send();
 }
 
-function get_recording_status(){
+function get_recording_status() {
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
@@ -626,12 +630,12 @@ function get_recording_status(){
             response = JSON.parse(this.responseText);
             document.getElementById("input_port").innerHTML = response.input_port;
 
-            if(response.isrecording){
+            if (response.isrecording) {
                 document.getElementById("recording_status").innerHTML = '<p class="animate-pulse text-red-400">recording</p>';
                 document.getElementById("start_recording_button").classList.add('pointer-events-none', 'animate-pulse');
                 document.getElementById("save_recording_button").classList.remove('pointer-events-none', 'opacity-50');
                 document.getElementById("cancel_recording_button").classList.remove('pointer-events-none', 'opacity-50');
-            }else{
+            } else {
                 document.getElementById("recording_status").innerHTML = '<p>idle</p>';
                 document.getElementById("start_recording_button").classList.remove('pointer-events-none', 'animate-pulse');
                 document.getElementById("save_recording_button").classList.add('pointer-events-none', 'opacity-50');
@@ -643,31 +647,31 @@ function get_recording_status(){
     xhttp.send();
 }
 
-function get_songs(){
-    if(document.getElementById("songs_page")){
+function get_songs() {
+    if (document.getElementById("songs_page")) {
         page = parseInt(document.getElementById("songs_page").value);
         max_page = parseInt(document.getElementById("songs_page").max);
-    }else{
+    } else {
         page = 1;
         max_page = 1;
     }
-    if(max_page == 0){
+    if (max_page == 0) {
         max_page = 1;
     }
-    if(page > max_page){
+    if (page > max_page) {
         document.getElementById("songs_page").value = max_page;
         return false;
     }
-    if(page < 1){
+    if (page < 1) {
         document.getElementById("songs_page").value = 1;
         return false;
     }
     document.getElementById("songs_list_table").classList.add("animate-pulse", "pointer-events-none");
 
-    sortby =  document.getElementById("sort_by").value;
-    if(document.getElementById("songs_per_page")) {
+    sortby = document.getElementById("sort_by").value;
+    if (document.getElementById("songs_per_page")) {
         length = document.getElementById("songs_per_page").value;
-    }else{
+    } else {
         length = 10;
     }
 
@@ -680,36 +684,36 @@ function get_songs(){
             document.getElementById("songs_list_table").innerHTML = this.responseText;
             var dates = document.getElementsByClassName("song_date");
             for (var i = 0; i < dates.length; i++) {
-               dates.item(i).innerHTML = new Date(dates.item(i).innerHTML * 1000).toISOString().slice(0, 19).replace('T', ' ');
+                dates.item(i).innerHTML = new Date(dates.item(i).innerHTML * 1000).toISOString().slice(0, 19).replace('T', ' ');
             }
             var names = document.getElementsByClassName("song_name");
             for (var i = 0; i < names.length; i++) {
-               names.item(i).value = names.item(i).value.replace('.mid', '');
+                names.item(i).value = names.item(i).value.replace('.mid', '');
             }
             document.getElementById("songs_list_table").classList.remove("animate-pulse", "pointer-events-none");
 
             document.getElementById("songs_per_page").value = length;
 
-            if(sortby == "nameAsc"){
+            if (sortby == "nameAsc") {
                 document.getElementById("sort_icon_nameAsc").classList.remove("hidden");
                 document.getElementById("sort_icon_nameDesc").classList.add("hidden");
                 document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
                 document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
             }
-            if(sortby == "nameDesc"){
+            if (sortby == "nameDesc") {
                 document.getElementById("sort_icon_nameDesc").classList.remove("hidden");
                 document.getElementById("sort_icon_nameAsc").classList.add("hidden");
                 document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
                 document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
             }
 
-            if(sortby == "dateAsc"){
+            if (sortby == "dateAsc") {
                 document.getElementById("sort_icon_dateAsc").classList.remove("hidden");
                 document.getElementById("sort_icon_dateDesc").classList.add("hidden");
                 document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
                 document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
             }
-            if(sortby == "dateDesc"){
+            if (sortby == "dateDesc") {
                 document.getElementById("sort_icon_dateDesc").classList.remove("hidden");
                 document.getElementById("sort_icon_dateAsc").classList.add("hidden");
                 document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
@@ -718,7 +722,7 @@ function get_songs(){
 
         }
     };
-    xhttp.open("GET", "/api/get_songs?page="+page+"&length="+length+"&sortby="+sortby+"&search="+search, true);
+    xhttp.open("GET", "/api/get_songs?page=" + page + "&length=" + length + "&sortby=" + sortby + "&search=" + search, true);
     xhttp.send();
 }
 
@@ -929,4 +933,83 @@ function AdjustingInterval(workFunc, interval, errorFunc) {
         expected += that.interval;
         timeout = setTimeout(step, Math.max(0, that.interval - drift));
     }
+}
+
+function initialize_upload() {
+
+// Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        document.getElementById("drop-area").addEventListener(eventName, preventDefaults, false)
+        document.body.addEventListener(eventName, preventDefaults, false)
+    })
+
+    let uploadProgress = []
+}
+
+function preventDefaults(e) {
+    e.preventDefault()
+    e.stopPropagation()
+}
+
+function initializeProgress(numFiles) {
+    document.getElementById("progress-bar").style.width = "0%";
+    uploadProgress = []
+    for (let i = numFiles; i > 0; i--) {
+        uploadProgress.push(0)
+    }
+}
+
+function updateProgress(fileNumber, percent) {
+    uploadProgress[fileNumber] = percent
+    let total = uploadProgress.reduce((tot, curr) => tot + curr, 0) / uploadProgress.length
+    document.getElementById("progress-bar").style.width = total+"%";
+    if(total >= 100 || total <= 0){
+        document.getElementById("progress-bar-group").classList.add("hidden");
+    }else{
+        document.getElementById("progress-bar-group").classList.remove("hidden");
+    }
+}
+
+function handleFiles(files) {
+    document.getElementById("gallery").innerHTML = "";
+    files = [...files]
+    initializeProgress(files.length)
+    files.forEach(uploadFile)
+    files.forEach(previewFile)
+}
+
+function previewFile(file) {
+    let reader = new FileReader()
+    reader.readAsDataURL(file)
+
+    reader.onloadend = function () {
+        var name = document.createElement('p');
+        name.innerHTML = file.name;
+        document.getElementById('gallery').appendChild(name);
+    }
+}
+
+function uploadFile(file, i) {
+    var url = '/upload'
+    var xhr = new XMLHttpRequest()
+    var formData = new FormData()
+    xhr.open('POST', url, true)
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+
+    // Update progress (can be used to show progress indicator)
+    xhr.upload.addEventListener("progress", function (e) {
+        updateProgress(i, (e.loaded * 100.0 / e.total) || 100)
+    })
+
+    xhr.addEventListener('readystatechange', function (e) {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            updateProgress(i, 100);
+            clearTimeout(get_songs_timeout);
+            get_songs_timeout = setTimeout(function(){ get_songs(); }, 2000);
+        } else if (xhr.readyState == 4 && xhr.status != 200) {
+            // Error. Inform the user
+        }
+    })
+    formData.append('file', file)
+    xhr.send(formData)
 }
