@@ -56,6 +56,10 @@ function loadAjax(subpage) {
         document.getElementById("main").innerHTML = "";
     }, 100);
 
+    if(document.getElementById("midi_player")) {
+        document.getElementById('midi_player').stop()
+    }
+
     setTimeout(function () {
         var xhttp = new XMLHttpRequest();
         xhttp.timeout = 5000;
