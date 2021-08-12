@@ -1024,10 +1024,8 @@ function uploadFile(file, i) {
             }else{
                 document.getElementById(response.song_name).innerHTML += "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 ml-2 text-red-500\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n" +
                     "  <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\" />\n" +
-                    "</svg>"+" "+response.error;
+                    "</svg>"+"<div class='text-red-400'>"+response.error+"</div>";
             }
-        } else if (xhr.readyState == 4 && xhr.status != 200) {
-            // Error. Inform the user
         }
     })
     formData.append('file', file)

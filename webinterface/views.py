@@ -53,6 +53,9 @@ def upload_file():
         filename = file.filename
         if os.path.exists("Songs/" + filename):
             return jsonify(success=False, error="file already exists", song_name=filename)
+        if not allowed_file(file.filename):
+            return jsonify(success=False, error="not a midi file", song_name=filename)
+
         filename = filename.replace("'", "")
         file.save(os.path.join(webinterface.config['UPLOAD_FOLDER'], filename))
         return jsonify(success=True, reload_songs=True, song_name=filename)
