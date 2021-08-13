@@ -633,6 +633,7 @@ function get_recording_status() {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
             document.getElementById("input_port").innerHTML = response.input_port;
+            document.getElementById("play_port").innerHTML = response.play_port;
 
             if (response.isrecording) {
                 document.getElementById("recording_status").innerHTML = '<p class="animate-pulse text-red-400">recording</p>';

@@ -134,16 +134,24 @@
                 </a>
             </div>
             <div class="flex m-auto">
-                <div class="p-5">
+                <div class="inline pr-2 text-gray-600 dark:text-gray-400">
+                    Play port:
+                </div>
+                <div class="inline" id="play_port"></div>
+            </div>
+            <div class="flex m-auto">
+                <div class="p-2">
                     <button id="start_midi_play" onclick="song_name = document.getElementById('midi_player').src;
                         song_name = song_name.replace('api/change_setting?setting_name=download_song&value=', '');
                         change_setting('start_midi_play', song_name);
                         this.classList.add('hidden');
                         this.nextElementSibling.classList.remove('hidden');"
                             class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
-                        <span class="flex uppercase text-xs m-auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        <span class="flex uppercase text-xs m-auto ">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 " fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                             </svg>
                             <div class="align-middle">Play on piano</div>
                         </span>
@@ -154,9 +162,13 @@
                     this.previousElementSibling.classList.remove('hidden');"
                             class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
                         <span class="flex uppercase text-xs m-auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 " fill="none" viewBox="0 0 24 24"
+" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
                             </svg>
                             <div class="align-middle">Stop</div>
                         </span>
