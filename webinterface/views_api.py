@@ -1,7 +1,7 @@
 from webinterface import webinterface
-from flask import render_template, flash, redirect, request, url_for, jsonify
+from flask import render_template, send_file, redirect, request, url_for, jsonify
 from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
-    rainbow, rainbowCycle, fastColorWipe
+    rainbow, rainbowCycle, fastColorWipe, play_midi
 import psutil
 import threading
 from neopixel import *
@@ -10,6 +10,10 @@ import mido
 from xml.dom import minidom
 from subprocess import call
 import subprocess
+import datetime
+import os
+import math
+from zipfile import ZipFile
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -385,6 +389,81 @@ def change_setting():
     if setting_name == "restart_rtp":
         call("sudo systemctl restart rtpmidid", shell=True)
 
+    if setting_name == "start_recording":
+        webinterface.saving.start_recording()
+        return jsonify(success=True, reload_songs=True)
+
+    if setting_name == "cancel_recording":
+        webinterface.saving.cancel_recording()
+        return jsonify(success=True, reload_songs=True)
+
+    if setting_name == "save_recording":
+        now = datetime.datetime.now()
+        current_date = now.strftime("%Y-%m-%d %H:%M")
+        webinterface.saving.save(current_date)
+        return jsonify(success=True, reload_songs=True)
+
+    if setting_name == "change_song_name":
+        if os.path.exists("Songs/"+second_value):
+            return jsonify(success=False, reload_songs=True, error=second_value+" already exists")
+
+        if "_main" in value:
+            search_name = value.replace("_main.mid", "")
+            for fname in os.listdir('Songs'):
+                if search_name in fname:
+                    new_name = second_value.replace(".mid", "")+fname.replace(search_name, "")
+                    os.rename('Songs/' + fname, 'Songs/' + new_name)
+        else:
+            os.rename('Songs/'+value, 'Songs/'+second_value)
+
+        return jsonify(success=True, reload_songs=True)
+
+    if setting_name == "remove_song":
+        if "_main" in value:
+            name_no_suffix = value.replace("_main.mid", "")
+            for fname in os.listdir('Songs'):
+                if name_no_suffix in fname:
+                    os.remove("Songs/"+fname)
+        else:
+            os.remove("Songs/"+value)
+        return jsonify(success=True, reload_songs=True)
+
+    if setting_name == "download_song":
+        if "_main" in value:
+            zipObj = ZipFile("Songs/"+value.replace(".mid", "")+".zip", 'w')
+            name_no_suffix = value.replace("_main.mid", "")
+            songs_count = 0
+            for fname in os.listdir('Songs'):
+                if name_no_suffix in fname and ".zip" not in fname:
+                    songs_count += 1
+                    zipObj.write("Songs/"+fname)
+            zipObj.close()
+            if songs_count == 1:
+                os.remove("Songs/"+value.replace(".mid", "")+".zip")
+                return send_file("../Songs/" + value, mimetype='application/x-csv', attachment_filename=value,
+                                 as_attachment=True)
+            else:
+                return send_file("../Songs/"+value.replace(".mid", "")+".zip", mimetype='application/x-csv',
+                                 attachment_filename=value.replace(".mid", "")+".zip", as_attachment=True)
+        else:
+            return send_file("../Songs/"+value, mimetype='application/x-csv', attachment_filename=value, as_attachment=True)
+
+    if setting_name == "start_midi_play":
+        webinterface.saving.t = threading.Thread(target=play_midi, args=(value, webinterface.midiports,
+                                                                         webinterface.saving, webinterface.menu,
+                                                                         webinterface.ledsettings, webinterface.ledstrip))
+        webinterface.saving.t.start()
+
+        return jsonify(success=True, reload_songs=True)
+
+    if setting_name == "stop_midi_play":
+        webinterface.saving.is_playing_midi.clear()
+        fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
+
+        return jsonify(success=True, reload_songs=True)
+
+
+
     return jsonify(success=True)
 
 
@@ -481,6 +560,78 @@ def get_settings():
     response["speed_period_in_seconds"] = webinterface.usersettings.get_setting_value("speed_period_in_seconds")
 
     return jsonify(response)
+
+@webinterface.route('/api/get_recording_status', methods=['GET'])
+def get_recording_status():
+    response = {}
+    response["input_port"] = webinterface.usersettings.get_setting_value("input_port")
+    response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
+
+    response["isrecording"] = webinterface.saving.isrecording
+
+    response["isplaying"] = webinterface.saving.is_playing_midi
+
+    return jsonify(response)
+
+
+@webinterface.route('/api/get_songs', methods=['GET'])
+def get_songs():
+    page = request.args.get('page')
+    page = int(page) - 1
+    length = request.args.get('length')
+    sortby = request.args.get('sortby')
+    search = request.args.get('search')
+
+    start = int(page)*int(length)
+
+    songs_list_dict = {}
+
+    path = 'Songs/'
+    songs_list = os.listdir(path)
+    songs_list = [os.path.join(path, i) for i in songs_list]
+
+    songs_list = sorted(songs_list, key=os.path.getmtime)
+
+    if sortby == "dateAsc":
+        songs_list.reverse()
+
+    if sortby == "nameAsc":
+        songs_list.sort()
+
+    if sortby == "nameDesc":
+        songs_list.sort(reverse=True)
+
+    i = 0
+    total_songs = 0
+
+    for song in songs_list:
+        if "_#" in song or not song.endswith('.mid'):
+            continue
+        if search:
+            if search.lower() not in song.lower():
+                continue
+        total_songs += 1
+
+    max_page = int(math.ceil(total_songs / int(length)))
+
+    for song in songs_list:
+        song = song.replace("Songs/", "")
+        date = os.path.getmtime("Songs/"+song)
+        if "_#" in song or not song.endswith('.mid'):
+            continue
+
+        if search:
+            if search.lower() not in song.lower():
+                continue
+
+        i += 1
+        if(i > int(start)):
+            songs_list_dict[song] = date
+
+        if len(songs_list_dict) >= int(length):
+            break
+
+    return render_template('songs_list.html', len=len(songs_list_dict), songs_list_dict=songs_list_dict, page=page, max_page=max_page, total_songs=total_songs)
 
 
 @webinterface.route('/api/get_ports', methods=['GET'])

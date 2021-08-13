@@ -47,7 +47,7 @@
                 x-transition:leave="transition transform duration-300"
                 x-transition:leave-start="translate-x-0 opacity-100 ease-out"
                 x-transition:leave-end="-translate-x-full opacity-0 ease-in"
-                class="fixed inset-y-0 z-10 flex flex-col flex-shrink-0 w-64 max-h-screen overflow-hidden transition-all
+                class="fixed inset-y-0 z-10 flex flex-col flex-shrink-0 w-64 overflow-hidden transition-all
         transform bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-gray-200 border-none shadow-lg lg:z-auto
         lg:static lg:shadow-none"
                 :class="{'-translate-x-full lg:translate-x-0 lg:w-20': !isSidebarOpen}"
@@ -112,6 +112,26 @@
                     </svg>
                 </span>
                             <span :class="{ 'lg:hidden': !isSidebarOpen }">LED Settings</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul @click="closeSidebarMenu()" onclick="loadAjax('songs')" class="p-2 overflow-hidden">
+                    <li>
+                        <a
+                                href="#"
+                                id="songs"
+                                class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                                :class="{'justify-center': !isSidebarOpen}"
+                        >
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                    </svg>
+                </span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Songs</span>
                         </a>
                     </li>
                 </ul>
@@ -218,7 +238,9 @@
                 <div class="flex items-center justify-between p-2">
                     <!-- Navbar left -->
                     <div class="flex items-center space-x-3">
-                        <span class="p-2 text-xl font-semibold tracking-wider uppercase lg:hidden"><img class="w-10" src="../static/logo.svg" alt="logo"></span>
+                        <span class="p-2 text-xl font-semibold tracking-wider uppercase lg:hidden"><img class="w-10"
+                                                                                                        src="../static/logo.svg"
+                                                                                                        alt="logo"></span>
                         <!-- Toggle sidebar button -->
                         <button @click="toggleSidebarMenu()" class="p-2 rounded-md focus:outline-none focus:ring">
                             <svg
@@ -311,6 +333,7 @@
 </div>
 <script src="../static/alpine.min.js" defer></script>
 <script src="../static/index.js" defer></script>
+<script src="../static/html-midi-player.js" defer></script>
 <script>
     var homepage_interval = null;
     var download_start = 0;
@@ -417,7 +440,8 @@
 
     slider.addEventListener('touchend', e => {
         touchendX = e.changedTouches[0].screenX;
-        if (e.target.type !== "range") {
+        if (e.target.type !== "range" && e.target.nodeName !== "TD"
+            && e.target.nodeName !== "TABLE" && e.target.nodeName !== "TH" && e.target.nodeName !== "TR") {
             handleGesture();
         }
     });

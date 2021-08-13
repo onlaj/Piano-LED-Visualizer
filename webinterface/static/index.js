@@ -1,3 +1,6 @@
+var search_song;
+var get_songs_timeout;
+
 let beats_per_minute = 160;
 let beats_per_measure = 4;
 let count = 0;
@@ -22,13 +25,14 @@ function play_tick_sound() {
 
     count++;
 }
-function change_bpm(bpm){
+
+function change_bpm(bpm) {
     beats_per_minute = bpm;
     ticker.interval = 60000 / bpm;
 }
 
-function change_volume(value){
-    if(parseInt(value) <  -10 || parseInt(value) > 110){
+function change_volume(value) {
+    if (parseInt(value) < -10 || parseInt(value) > 110) {
         return false;
     }
     value = (parseFloat(value) / 100);
@@ -36,12 +40,13 @@ function change_volume(value){
     tick2.volume = value;
 }
 
-function change_beats_per_measure(value){
-    if(parseInt(value) <= 2){
+function change_beats_per_measure(value) {
+    if (parseInt(value) <= 2) {
         return false;
     }
     beats_per_measure = parseInt(value);
 }
+
 var ticker = new AdjustingInterval(play_tick_sound, 60000 / beats_per_minute);
 
 
@@ -50,6 +55,10 @@ function loadAjax(subpage) {
     setTimeout(function () {
         document.getElementById("main").innerHTML = "";
     }, 100);
+
+    if(document.getElementById("midi_player")) {
+        document.getElementById('midi_player').stop()
+    }
 
     setTimeout(function () {
         var xhttp = new XMLHttpRequest();
@@ -72,6 +81,10 @@ function loadAjax(subpage) {
                     clearInterval(homepage_interval);
                 }
                 if (subpage == "ledanimations") {
+                    clearInterval(homepage_interval);
+                }
+                if (subpage == "songs") {
+                    initialize_songs();
                     clearInterval(homepage_interval);
                 }
                 if (subpage == "sequences") {
@@ -103,6 +116,7 @@ loadAjax("home")
 function remove_page_indicators() {
     document.getElementById("home").classList.remove("dark:bg-gray-700", "bg-gray-100");
     document.getElementById("ledsettings").classList.remove("dark:bg-gray-700", "bg-gray-100");
+    document.getElementById("songs").classList.remove("dark:bg-gray-700", "bg-gray-100");
     document.getElementById("sequences").classList.remove("dark:bg-gray-700", "bg-gray-100");
     document.getElementById("ports").classList.remove("dark:bg-gray-700", "bg-gray-100");
     document.getElementById("ledanimations").classList.remove("dark:bg-gray-700", "bg-gray-100");
@@ -169,6 +183,10 @@ function change_setting(setting_name, value, second_value = false) {
             }
             if (response.reload_ports == true) {
                 get_ports();
+            }
+            if (response.reload_songs == true) {
+                get_recording_status();
+                get_songs();
             }
         }
     }
@@ -292,10 +310,10 @@ function initialize_homepage() {
         }
     }
 
-    if(is_playing){
+    if (is_playing) {
         document.getElementById("metronome_start").classList.add("hidden");
         document.getElementById("metronome_stop").classList.remove("hidden");
-    }else{
+    } else {
         document.getElementById("metronome_start").classList.remove("hidden");
         document.getElementById("metronome_stop").classList.add("hidden");
     }
@@ -472,6 +490,18 @@ function press_button(element) {
     }, 150);
 }
 
+function initialize_songs() {
+    get_recording_status();
+    if (getCookie("sort_by") !== null) {
+        document.getElementById("sort_by").value = getCookie("sort_by");
+    } else {
+        document.getElementById("sort_by").value = "dateAsc";
+    }
+    get_songs();
+    initialize_upload();
+}
+
+
 function initialize_sequences() {
     clearInterval(homepage_interval);
     document.getElementById('next_step_button').addEventListener("mousedown", function (e) {
@@ -596,6 +626,116 @@ function get_ports() {
     xhttp.send();
 }
 
+function get_recording_status() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            response = JSON.parse(this.responseText);
+            document.getElementById("input_port").innerHTML = response.input_port;
+            document.getElementById("play_port").innerHTML = response.play_port;
+
+            if (response.isrecording) {
+                document.getElementById("recording_status").innerHTML = '<p class="animate-pulse text-red-400">recording</p>';
+                document.getElementById("start_recording_button").classList.add('pointer-events-none', 'animate-pulse');
+                document.getElementById("save_recording_button").classList.remove('pointer-events-none', 'opacity-50');
+                document.getElementById("cancel_recording_button").classList.remove('pointer-events-none', 'opacity-50');
+            } else {
+                document.getElementById("recording_status").innerHTML = '<p>idle</p>';
+                document.getElementById("start_recording_button").classList.remove('pointer-events-none', 'animate-pulse');
+                document.getElementById("save_recording_button").classList.add('pointer-events-none', 'opacity-50');
+                document.getElementById("cancel_recording_button").classList.add('pointer-events-none', 'opacity-50');
+            }
+            if(Object.keys(response.isplaying).length > 0){
+                document.getElementById("midi_player_wrapper").classList.remove("hidden");
+                document.getElementById("start_midi_play").classList.add("hidden");
+                document.getElementById("stop_midi_play").classList.remove("hidden");
+            }
+        }
+    };
+    xhttp.open("GET", "/api/get_recording_status", true);
+    xhttp.send();
+}
+
+function get_songs() {
+    if (document.getElementById("songs_page")) {
+        page = parseInt(document.getElementById("songs_page").value);
+        max_page = parseInt(document.getElementById("songs_page").max);
+    } else {
+        page = 1;
+        max_page = 1;
+    }
+    if (max_page == 0) {
+        max_page = 1;
+    }
+    if (page > max_page) {
+        document.getElementById("songs_page").value = max_page;
+        return false;
+    }
+    if (page < 1) {
+        document.getElementById("songs_page").value = 1;
+        return false;
+    }
+    document.getElementById("songs_list_table").classList.add("animate-pulse", "pointer-events-none");
+
+    sortby = document.getElementById("sort_by").value;
+    if (document.getElementById("songs_per_page")) {
+        length = document.getElementById("songs_per_page").value;
+    } else {
+        length = 10;
+    }
+
+    search = document.getElementById("song_search").value;
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("songs_list_table").innerHTML = this.responseText;
+            var dates = document.getElementsByClassName("song_date");
+            for (var i = 0; i < dates.length; i++) {
+                dates.item(i).innerHTML = new Date(dates.item(i).innerHTML * 1000).toISOString().slice(0, 19).replace('T', ' ');
+            }
+            var names = document.getElementsByClassName("song_name");
+            for (var i = 0; i < names.length; i++) {
+                names.item(i).value = names.item(i).value.replace('.mid', '');
+            }
+            document.getElementById("songs_list_table").classList.remove("animate-pulse", "pointer-events-none");
+
+            document.getElementById("songs_per_page").value = length;
+
+            if (sortby == "nameAsc") {
+                document.getElementById("sort_icon_nameAsc").classList.remove("hidden");
+                document.getElementById("sort_icon_nameDesc").classList.add("hidden");
+                document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
+                document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
+            }
+            if (sortby == "nameDesc") {
+                document.getElementById("sort_icon_nameDesc").classList.remove("hidden");
+                document.getElementById("sort_icon_nameAsc").classList.add("hidden");
+                document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
+                document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
+            }
+
+            if (sortby == "dateAsc") {
+                document.getElementById("sort_icon_dateAsc").classList.remove("hidden");
+                document.getElementById("sort_icon_dateDesc").classList.add("hidden");
+                document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
+                document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
+            }
+            if (sortby == "dateDesc") {
+                document.getElementById("sort_icon_dateDesc").classList.remove("hidden");
+                document.getElementById("sort_icon_dateAsc").classList.add("hidden");
+                document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
+                document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
+            }
+
+        }
+    };
+    xhttp.open("GET", "/api/get_songs?page=" + page + "&length=" + length + "&sortby=" + sortby + "&search=" + search, true);
+    xhttp.send();
+}
+
 function show_multicolors(colors, ranges) {
     colors = JSON.parse(colors);
     ranges = JSON.parse(ranges);
@@ -692,7 +832,7 @@ function show_multicolors(colors, ranges) {
 }
 
 function show_left_slider(element) {
-    element.value = Math.min(element.value, element.parentNode.childNodes[5].value - 1);
+    element.value = Math.min(element.value, element.parentNode.childNodes[5].value);
     var value = (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.value) - (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.min);
     var children = element.parentNode.childNodes[1].childNodes;
     children[1].style.width = value + '%';
@@ -703,7 +843,7 @@ function show_left_slider(element) {
 }
 
 function show_right_slider(element) {
-    element.value = Math.max(element.value, element.parentNode.childNodes[3].value - (-1));
+    element.value = Math.max(element.value, element.parentNode.childNodes[3].value);
     var value = (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.value) - (100 / (parseInt(element.max) - parseInt(element.min))) * parseInt(element.min);
     var children = element.parentNode.childNodes[1].childNodes;
     children[3].style.width = (100 - value) + '%';
@@ -803,4 +943,97 @@ function AdjustingInterval(workFunc, interval, errorFunc) {
         expected += that.interval;
         timeout = setTimeout(step, Math.max(0, that.interval - drift));
     }
+}
+
+function initialize_upload() {
+
+// Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        document.getElementById("drop-area").addEventListener(eventName, preventDefaults, false)
+        document.body.addEventListener(eventName, preventDefaults, false)
+    })
+
+    let uploadProgress = []
+}
+
+function preventDefaults(e) {
+    e.preventDefault()
+    e.stopPropagation()
+}
+
+function initializeProgress(numFiles) {
+    document.getElementById("progress-bar").style.width = "0%";
+    uploadProgress = []
+    for (let i = numFiles; i > 0; i--) {
+        uploadProgress.push(0)
+    }
+}
+
+function updateProgress(fileNumber, percent) {
+    uploadProgress[fileNumber] = percent
+    let total = uploadProgress.reduce((tot, curr) => tot + curr, 0) / uploadProgress.length
+    document.getElementById("progress-bar").style.width = total + "%";
+    if (total >= 100 || total <= 0) {
+        document.getElementById("progress-bar-group").classList.add("hidden");
+    } else {
+        document.getElementById("progress-bar-group").classList.remove("hidden");
+    }
+}
+
+function handleFiles(files) {
+    document.getElementById("gallery").innerHTML = "";
+    files = [...files]
+    initializeProgress(files.length)
+    files.forEach(uploadFile)
+    files.forEach(previewFile)
+}
+
+function previewFile(file) {
+    let reader = new FileReader()
+    reader.readAsDataURL(file)
+
+    reader.onloadend = function () {
+        var name = document.createElement('div');
+        name.setAttribute("id", file.name);
+        name.innerHTML = file.name;
+        name.className = "flex";
+        document.getElementById('gallery').appendChild(name);
+    }
+}
+
+function uploadFile(file, i) {
+    var url = '/upload'
+    var xhr = new XMLHttpRequest()
+    var formData = new FormData()
+    xhr.open('POST', url, true)
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+
+    // Update progress (can be used to show progress indicator)
+    xhr.upload.addEventListener("progress", function (e) {
+        updateProgress(i, (e.loaded * 100.0 / e.total) || 100)
+    })
+
+    xhr.addEventListener('readystatechange', function (e) {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            response = JSON.parse(this.responseText);
+
+            updateProgress(i, 100);
+
+            if(response.success == true) {
+                clearTimeout(get_songs_timeout);
+                get_songs_timeout = setTimeout(function () {
+                    get_songs();
+                }, 2000);
+                document.getElementById(response.song_name).innerHTML += "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 ml-2 text-green-400\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n" +
+                    "  <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M5 13l4 4L19 7\" />\n" +
+                    "</svg>";
+            }else{
+                document.getElementById(response.song_name).innerHTML += "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 ml-2 text-red-500\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n" +
+                    "  <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\" />\n" +
+                    "</svg>"+"<div class='text-red-400'>"+response.error+"</div>";
+            }
+        }
+    })
+    formData.append('file', file)
+    xhr.send(formData)
 }
