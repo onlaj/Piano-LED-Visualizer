@@ -645,6 +645,11 @@ function get_recording_status() {
                 document.getElementById("save_recording_button").classList.add('pointer-events-none', 'opacity-50');
                 document.getElementById("cancel_recording_button").classList.add('pointer-events-none', 'opacity-50');
             }
+            if(Object.keys(response.isplaying).length > 0){
+                document.getElementById("midi_player_wrapper").classList.remove("hidden");
+                document.getElementById("start_midi_play").classList.add("hidden");
+                document.getElementById("stop_midi_play").classList.remove("hidden");
+            }
         }
     };
     xhttp.open("GET", "/api/get_recording_status", true);

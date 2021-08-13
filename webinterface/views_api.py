@@ -1,7 +1,7 @@
 from webinterface import webinterface
 from flask import render_template, send_file, redirect, request, url_for, jsonify
 from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
-    rainbow, rainbowCycle, fastColorWipe
+    rainbow, rainbowCycle, fastColorWipe, play_midi
 import psutil
 import threading
 from neopixel import *
@@ -448,6 +448,22 @@ def change_setting():
         else:
             return send_file("../Songs/"+value, mimetype='application/x-csv', attachment_filename=value, as_attachment=True)
 
+    if setting_name == "start_midi_play":
+        webinterface.saving.t = threading.Thread(target=play_midi, args=(value, webinterface.midiports,
+                                                                         webinterface.saving, webinterface.menu,
+                                                                         webinterface.ledsettings, webinterface.ledstrip))
+        webinterface.saving.t.start()
+
+        return jsonify(success=True, reload_songs=True)
+
+    if setting_name == "stop_midi_play":
+        webinterface.saving.is_playing_midi.clear()
+        fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
+
+        return jsonify(success=True, reload_songs=True)
+
+
+
     return jsonify(success=True)
 
 
@@ -552,6 +568,8 @@ def get_recording_status():
     response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
 
     response["isrecording"] = webinterface.saving.isrecording
+
+    response["isplaying"] = webinterface.saving.is_playing_midi
 
     return jsonify(response)
 
