@@ -2,14 +2,15 @@ import mido
 from mido import MidiFile, Message, tempo2bpm, MidiTrack,MetaMessage
 
 ports = mido.get_input_names()
-
+ports_list = []
+i = 1
+print("List of ports: \n")
 for port in ports:
-	if "Through" not in port and "RPi" not in port and "RtMidOut" not in port:
-		try:
-			inport =  mido.open_input(port)
-			print("Inport set to "+port)
-		except:
-			print ("Failed to set "+port+" as inport")
+	ports_list.append(port)
+	print(str(i)+". "+str(port))
+	i += 1
+user_input = input('\n Choose port by typing corresponding number \n')
+inport = mido.open_input(ports_list[int(user_input) - 1])
 
 while True:
 	for msg in inport.iter_pending():
