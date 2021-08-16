@@ -954,6 +954,7 @@ function initialize_upload() {
     })
 
     let uploadProgress = []
+    document.getElementById("drop-area").addEventListener('drop', handleDrop, false)
 }
 
 function preventDefaults(e) {
@@ -978,6 +979,13 @@ function updateProgress(fileNumber, percent) {
     } else {
         document.getElementById("progress-bar-group").classList.remove("hidden");
     }
+}
+
+function handleDrop(e) {
+  var dt = e.dataTransfer
+  var files = dt.files
+
+  handleFiles(files)
 }
 
 function handleFiles(files) {
