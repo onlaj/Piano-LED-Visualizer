@@ -218,10 +218,13 @@ You can also use sequences as a way to save your presets under custom names.
 ![Image](https://i.imgur.com/WGxGdNM.jpg?2)
 ![Image](https://i.imgur.com/J1wA1rU.jpg)
 
+
+
 ![sidebar](https://i.imgur.com/ZVLsu0K.png)
 ![homepage](https://i.imgur.com/LiSszwF.png)
 ![changing led colors](https://i.imgur.com/iBEIM3x.png)
 ![ports settings](https://i.imgur.com/k6stIXg.png)
+![songs_management](https://i.imgur.com/uoD2Gxz.png)
 
 ![Image](https://i.imgur.com/5riJs9k.jpg?1)
 ![Image](https://i.imgur.com/LLzeff2.jpg?1)

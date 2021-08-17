@@ -295,3 +295,9 @@ input[type=number]::-webkit-outer-spin-button {
   border: none;
   background: none;
 }
+
+.waterfall-notes-container{
+    overflow: hidden !important;
+    padding-top: 250px !important;
+    height: 250px !important;
+}

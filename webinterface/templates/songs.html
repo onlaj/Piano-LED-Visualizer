@@ -113,12 +113,13 @@
         </div>
     </div>
 
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div id="player_and_songs" class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div id="midi_player_wrapper" class="contents hidden">
             <div class="flex bg-gray-100 dark:bg-gray-600 rounded-2xl m-auto mb-2">
                 <midi-player
                         src=""
-                        sound-font id="midi_player">
+                        sound-font id="midi_player"
+                        visualizer="#myVisualizer">
                 </midi-player>
                 <a href="https://github.com/cifkao/html-midi-player" target="_blank"
                    class="flex items-center space-x-1">
@@ -174,6 +175,18 @@
                     </button>
                 </div>
             </div>
+        </div>
+
+        <div class="flex w-full mb-2" id="midi_visualizer_wrapper">
+            <div class="absolute right-0" onclick="document.getElementById('myVisualizer').src = '';
+            document.getElementById('midi_visualizer_wrapper').classList.add('hidden');
+            clearTimeout(scrolldelay)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </div>
+            <midi-visualizer src="" type="waterfall" id="myVisualizer"></midi-visualizer>
         </div>
 
 

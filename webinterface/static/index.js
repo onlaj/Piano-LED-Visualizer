@@ -1,3 +1,5 @@
+var scrolldelay;
+
 var search_song;
 var get_songs_timeout;
 
@@ -56,7 +58,7 @@ function loadAjax(subpage) {
         document.getElementById("main").innerHTML = "";
     }, 100);
 
-    if(document.getElementById("midi_player")) {
+    if (document.getElementById("midi_player")) {
         document.getElementById('midi_player').stop()
     }
 
@@ -499,6 +501,10 @@ function initialize_songs() {
     }
     get_songs();
     initialize_upload();
+    window.addEventListener('resize', function (event) {
+        var note_width = document.getElementById('player_and_songs').offsetWidth / 54;
+        document.getElementById('myVisualizer').config.whiteNoteWidth = note_width;
+    }, true);
 }
 
 
@@ -646,7 +652,7 @@ function get_recording_status() {
                 document.getElementById("save_recording_button").classList.add('pointer-events-none', 'opacity-50');
                 document.getElementById("cancel_recording_button").classList.add('pointer-events-none', 'opacity-50');
             }
-            if(Object.keys(response.isplaying).length > 0){
+            if (Object.keys(response.isplaying).length > 0) {
                 document.getElementById("midi_player_wrapper").classList.remove("hidden");
                 document.getElementById("start_midi_play").classList.add("hidden");
                 document.getElementById("stop_midi_play").classList.remove("hidden");
@@ -982,10 +988,10 @@ function updateProgress(fileNumber, percent) {
 }
 
 function handleDrop(e) {
-  var dt = e.dataTransfer
-  var files = dt.files
+    var dt = e.dataTransfer
+    var files = dt.files
 
-  handleFiles(files)
+    handleFiles(files)
 }
 
 function handleFiles(files) {
@@ -1027,7 +1033,7 @@ function uploadFile(file, i) {
 
             updateProgress(i, 100);
 
-            if(response.success == true) {
+            if (response.success == true) {
                 clearTimeout(get_songs_timeout);
                 get_songs_timeout = setTimeout(function () {
                     get_songs();
@@ -1035,13 +1041,20 @@ function uploadFile(file, i) {
                 document.getElementById(response.song_name).innerHTML += "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 ml-2 text-green-400\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n" +
                     "  <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M5 13l4 4L19 7\" />\n" +
                     "</svg>";
-            }else{
+            } else {
                 document.getElementById(response.song_name).innerHTML += "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 ml-2 text-red-500\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n" +
                     "  <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\" />\n" +
-                    "</svg>"+"<div class='text-red-400'>"+response.error+"</div>";
+                    "</svg>" + "<div class='text-red-400'>" + response.error + "</div>";
             }
         }
     })
     formData.append('file', file)
     xhr.send(formData)
+}
+
+//"waterfall" visualizer only updates the view when new note is played, this function makes the container scroll slowly
+//to simulate smooth animation
+function pageScroll() {
+    document.getElementsByClassName("waterfall-notes-container")[0].scrollBy(0, -1);
+    scrolldelay = setTimeout(pageScroll, 33);
 }

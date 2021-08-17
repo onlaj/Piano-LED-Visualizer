@@ -93,7 +93,24 @@
         <td class="p-3 flex flex-wrap justify-between">
             <svg onclick="document.getElementById('midi_player').src =
             'api/change_setting?setting_name=download_song&value={{key}}';
-            document.getElementById('midi_player_wrapper').classList.remove('hidden');"
+            document.getElementById('midi_player_wrapper').classList.remove('hidden');
+
+            document.getElementById('midi_player').addEventListener('load', function (e) {
+                if(document.getElementById('player_and_songs').offsetWidth > 500 && document.getElementById('midi_player').noteSequence.notes.length < 6000){
+                    document.getElementById('myVisualizer').src =
+                    'api/change_setting?setting_name=download_song&value={{key}}';
+                    document.getElementById('midi_visualizer_wrapper').classList.remove('hidden');
+                    document.getElementById('midi_player').addVisualizer(document.getElementById('myVisualizer'));
+                    var note_width = document.getElementById('player_and_songs').offsetWidth / 54;
+                    document.getElementById('myVisualizer').config.whiteNoteWidth = note_width;
+                    document.getElementById('midi_player').addEventListener('start', function (e) { clearTimeout(scrolldelay);pageScroll(); }, false);
+                    document.getElementById('midi_player').addEventListener('stop', function (e) { clearTimeout(scrolldelay); }, false);
+                }else{
+                    document.getElementById('myVisualizer').src = '';
+                    document.getElementById('midi_visualizer_wrapper').classList.add('hidden');
+                    clearTimeout(scrolldelay);
+                }
+             }, false);"
                  xmlns="http://www.w3.org/2000/svg" class="h-6 w-14 cursor-pointer" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
