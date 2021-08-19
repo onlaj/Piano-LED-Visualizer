@@ -177,16 +177,23 @@
             </div>
         </div>
 
-        <div class="flex w-full mb-2" id="midi_visualizer_wrapper">
-            <div id="midi_visualizer_close_button" class="absolute right-0 hidden" onclick="document.getElementById('myVisualizer').src = '';
+        <div class="hidden" id="midi_visualizer_wrapper">
+            <div class="flex w-full mb-2">
+                <div id="midi_visualizer_close_button" class="absolute right-0" onclick="document.getElementById('myVisualizer').src = '';
             document.getElementById('midi_visualizer_wrapper').classList.add('hidden');
             clearTimeout(scrolldelay)">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24"
-                     stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+                <midi-visualizer src="" type="waterfall" id="myVisualizer"></midi-visualizer>
             </div>
-            <midi-visualizer src="" type="waterfall" id="myVisualizer"></midi-visualizer>
+        </div>
+        <div id="visualizer_error" class="w-4/5 m-auto mb-2 bg-red-100 border border-red-400 text-red-700 p-4 rounded relative hidden" role="alert">
+            <strong class="font-bold" id="visualizer_error_name"></strong>
+            <span class="block sm:inline" id="visualizer_error_description"></span>
         </div>
 
 
