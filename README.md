@@ -48,7 +48,7 @@ If you want to make your RPi autoconnect to Wi-Fi you need to follow [this guide
 *Note: replace `“` with `"` when editing `wpa_supplicant.conf` file.*
 
 ### 2. **Manual installation**
-[Instruction](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/manual_installation.md)
+[Instruction](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
 
 ## Connecting LED Strip to Raspberry Pi and enabling SPI
 There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*
@@ -91,7 +91,7 @@ Default port is 5004.
 
 **3. Bluetooth**
 This method is not recommended due to problems with establishing the first connection, especially on devices other than those with Windows 10.
-If you still want to try, follow [this link](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/btconnection.md) for instructions.
+If you still want to try, follow [this link](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/btconnection.md) for instructions.
 
 
 ### Configuring Synthesia
