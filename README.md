@@ -59,7 +59,7 @@ After connecting all cables as described above everything should fit nicely to c
 If you don't have a 3d printer, try to find some company or private person who will print it for you. I paid 12USD for my print. [RPICaseModel.stl](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/RPICaseModel.stl "RPICaseModel.stl")
 
 ## Web interface
-The visualizer comes with a web interface with which you can control the colors of the LED strip, change port settings, run animations of the strip, control sequences, and (in the future) download, upload and play midi files.
+The visualizer comes with a web interface with which you can control the colors of the LED strip, change port settings, run animations of the strip, control sequences and manage midi files, including downloading, uploading, renaming, deleting, and playing.
 To connect to the web interface, type the local address of your raspberry pi in the browser, for example [http:/192.168.1.10](http:/192.168.1.10)
 Both devices must be connected to the same network. By default, web interface works on port 80, but if needed it can be changed with the script's argument `--port`
 
@@ -163,7 +163,11 @@ sudo chmod a+rwxX -R Songs/
 
 **Q - How do I access recorded files?**
 
-- If you connected your RPi to Wi-Fi you can use SFTP to transfer files. In any FTP program like Filezilla connect to your RPi local address (for example: sftp://192.168.1.10 ) and navigate to /home/Piano-LED-Visualizer/Songs.
+- If you connected your RPi to Wi-Fi you can use SFTP or web interface to transfer files. 
+
+For web interface: Open internet browser on device connected to the same network and type RPi's local address (for example: 192.168.1.10). Then from the menu on the left choose "songs management" tab.
+
+For SFTP: in any FTP program (like Filezilla) connect to your RPi local address (for example: sftp://192.168.1.10) and navigate to /home/Piano-LED-Visualizer/Songs.
 
 **Q - How do I update visualizer?**
 

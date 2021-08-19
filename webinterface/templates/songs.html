@@ -178,7 +178,7 @@
         </div>
 
         <div class="flex w-full mb-2" id="midi_visualizer_wrapper">
-            <div class="absolute right-0" onclick="document.getElementById('myVisualizer').src = '';
+            <div id="midi_visualizer_close_button" class="absolute right-0 hidden" onclick="document.getElementById('myVisualizer').src = '';
             document.getElementById('midi_visualizer_wrapper').classList.add('hidden');
             clearTimeout(scrolldelay)">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24"
