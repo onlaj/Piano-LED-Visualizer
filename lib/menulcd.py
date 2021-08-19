@@ -805,6 +805,14 @@ class MenuLCD:
                 self.render_message("Reseting BL service", "", 1000)
                 os.system("sudo systemctl restart btmidi.service")
 
+            if choice == "Connect ports":
+                self.render_message("Connecting ports", "", 2000)
+                call("sudo ruby /usr/local/bin/connectall.rb", shell=True)
+
+            if choice == "Disconnect ports":
+                self.render_message("Disconnecting ports", "", 1000)
+                call("sudo aconnect -x", shell=True)
+
         if location == "LED_animations":
             if choice == "Theater Chase":
                 self.t = threading.Thread(target=theaterChase, args=(self.ledstrip.strip, Color(127, 127, 127),
