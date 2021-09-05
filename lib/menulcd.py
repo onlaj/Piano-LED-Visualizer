@@ -788,7 +788,10 @@ class MenuLCD:
             self.usersettings.change_setting_value("fadingspeed", self.ledsettings.fadingspeed)
 
         if location == "Light_mode":
-            self.ledsettings.mode = "Normal"
+            if choice == "Disabled":
+                self.ledsettings.mode = "Disabled"
+            else:
+                self.ledsettings.mode = "Normal"
             self.usersettings.change_setting_value("mode", self.ledsettings.mode)
             fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
 

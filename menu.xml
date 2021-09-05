@@ -108,6 +108,7 @@
 				<Velocity text="Slow"></Velocity>
 				<Velocity text="Very slow"></Velocity>
 			</Light_mode>
+			<Light_mode text="Disabled"></Light_mode>
 		</LED_Strip_Settings>
 		<LED_Strip_Settings text="Brightness">
 			<Brightness text="Power"></Brightness>

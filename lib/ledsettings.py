@@ -81,6 +81,10 @@ class LedSettings:
 
         self.sequence_number = 0
 
+        #if self.mode == "Disabled" and self.color_mode != "disabled":
+        #    usersettings.change_setting_value("color_mode", "disabled")
+            
+
     def add_instance(self, menu, ledstrip):
         self.menu = menu
         self.ledstrip = ledstrip

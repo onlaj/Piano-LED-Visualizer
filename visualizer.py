@@ -348,7 +348,7 @@ while True:
             blue = scale_colors[2]
             ledstrip.keylist_color[note_position] = scale_colors
 
-        if int(velocity) == 0 and int(note) > 0:  # when a note is lifted (off)
+        if int(velocity) == 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is lifted (off)
             ledstrip.keylist_status[note_position] = 0
             if ledsettings.mode == "Fading":
                 ledstrip.keylist[note_position] = 1000
@@ -371,7 +371,7 @@ while True:
                     ledstrip.set_adjacent_colors(note_position, Color(0, 0, 0), False)
             if saving.isrecording:
                 saving.add_track("note_off", original_note, velocity, midiports.last_activity)
-        elif int(velocity) > 0 and int(note) > 0:  # when a note is pressed
+        elif int(velocity) > 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is pressed
             ledsettings.speed_add_note()
             if ledsettings.color_mode == "Multicolor":
                 choosen_color = ledsettings.get_random_multicolor_in_range(note)
