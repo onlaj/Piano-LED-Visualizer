@@ -190,6 +190,9 @@ function change_setting(setting_name, value, second_value = false) {
                 get_recording_status();
                 get_songs();
             }
+            if (response.reload_sequence == true) {
+                get_current_sequence_setting();
+            }
         }
     }
     xhttp.open("GET", "/api/change_setting?setting_name=" + setting_name + "&value=" + value
@@ -286,6 +289,46 @@ function get_settings(home = true) {
         }
     };
     xhttp.open("GET", "/api/get_settings", true);
+    xhttp.send();
+}
+
+function get_current_sequence_setting(home = true) {
+    console.log("test")
+    var xhttp = new XMLHttpRequest();
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            response = JSON.parse(this.responseText);
+
+
+            document.getElementById("color_mode").innerHTML = response.color_mode
+            document.getElementById("light_mode").innerHTML = response.light_mode
+
+
+            if (response.color_mode == "Single") {
+                //document.getElementById("led_color").innerHTML = response.led_color
+                document.getElementById("led_color").innerHTML = response.led_color+'<svg height="20px">' +
+                    '<rect width="20" height="20" fill="' + response.led_color + '" /></svg>'
+            }
+            if (response.color_mode == "Multicolor") {
+                //document.getElementById("led_color").innerHTML = response.multicolor
+            }
+            if (response.color_mode == "Gradient") {
+                //document.getElementById("led_color").innerHTML = response.gradient_end_color
+            }
+            if (response.color_mode == "Speed") {
+                //document.getElementById("led_color").innerHTML = response.speed_max_notes
+            }
+            if (response.color_mode == "Rainbow") {
+                //document.getElementById("led_color").innerHTML = response.rainbow_offset
+            }
+            if (response.color_mode == "Scale") {
+                //document.getElementById("led_color").innerHTML = response.scale_key
+            }
+
+        }
+    };
+    xhttp.open("GET", "/api/get_sequence_setting", true);
     xhttp.send();
 }
 
@@ -522,6 +565,7 @@ function initialize_sequences() {
         }
     });
     get_sequences();
+    get_current_sequence_setting();
 }
 
 function initialize_ports_settings() {
@@ -741,6 +785,7 @@ function get_songs() {
     xhttp.open("GET", "/api/get_songs?page=" + page + "&length=" + length + "&sortby=" + sortby + "&search=" + search, true);
     xhttp.send();
 }
+
 
 function show_multicolors(colors, ranges) {
     colors = JSON.parse(colors);

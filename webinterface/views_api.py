@@ -347,7 +347,7 @@ def change_setting():
 
     if setting_name == "next_step":
         webinterface.ledsettings.set_sequence(0, 1)
-        return jsonify(success=True)
+        return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "set_sequence":
         if(int(value) == 0):
@@ -355,7 +355,7 @@ def change_setting():
             webinterface.ledsettings.sequence_active = False
         else:
             webinterface.ledsettings.set_sequence(int(value) - 1, 0)
-        return jsonify(success=True)
+        return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "screen_on":
         if(int(value) == 0):
@@ -466,6 +466,68 @@ def change_setting():
 
     return jsonify(success=True)
 
+
+@webinterface.route('/api/get_sequence_setting', methods=['GET'])
+def get_sequence_setting():
+    response = {}
+
+    color_mode = webinterface.ledsettings.color_mode
+
+    light_mode = webinterface.usersettings.get_setting_value("mode")
+
+    red = webinterface.ledsettings.red
+    green = webinterface.ledsettings.green
+    blue = webinterface.ledsettings.blue
+    led_color = wc.rgb_to_hex((int(red), int(green), int(blue)))
+
+    multicolor = webinterface.ledsettings.multicolor
+    multicolor_range = webinterface.ledsettings.multicolor_range
+
+    speed_slowest_red = webinterface.ledsettings.speed_slowest["red"]
+    speed_slowest_green = webinterface.ledsettings.speed_slowest["green"]
+    speed_slowest_blue = webinterface.ledsettings.speed_slowest["blue"]
+    speed_slowest_color = wc.rgb_to_hex((int(speed_slowest_red), int(speed_slowest_green), int(speed_slowest_blue)))
+    response["speed_slowest_color"] = speed_slowest_color
+
+    speed_fastest_red = webinterface.ledsettings.speed_fastest["red"]
+    speed_fastest_green = webinterface.ledsettings.speed_fastest["green"]
+    speed_fastest_blue = webinterface.ledsettings.speed_fastest["blue"]
+    speed_fastest_color = wc.rgb_to_hex((int(speed_fastest_red), int(speed_fastest_green), int(speed_fastest_blue)))
+    response["speed_fastest_color"] = speed_fastest_color
+
+    gradient_start_red = webinterface.ledsettings.gradient_start["red"]
+    gradient_start_green = webinterface.ledsettings.gradient_start["green"]
+    gradient_start_blue = webinterface.ledsettings.gradient_start["blue"]
+    gradient_start_color = wc.rgb_to_hex((int(gradient_start_red), int(gradient_start_green), int(gradient_start_blue)))
+    response["gradient_start_color"] = gradient_start_color
+
+    gradient_end_red = webinterface.ledsettings.gradient_end["red"]
+    gradient_end_green = webinterface.ledsettings.gradient_end["green"]
+    gradient_end_blue = webinterface.ledsettings.gradient_end["blue"]
+    gradient_end_color = wc.rgb_to_hex((int(gradient_end_red), int(gradient_end_green), int(gradient_end_blue)))
+    response["gradient_end_color"] = gradient_end_color
+
+    key_in_scale_red = webinterface.ledsettings.key_in_scale["red"]
+    key_in_scale_green = webinterface.ledsettings.key_in_scale["green"]
+    key_in_scale_blue = webinterface.ledsettings.key_in_scale["blue"]
+    key_in_scale_color = wc.rgb_to_hex((int(key_in_scale_red), int(key_in_scale_green), int(key_in_scale_blue)))
+    response["key_in_scale_color"] = key_in_scale_color
+
+    key_not_in_scale_red = webinterface.ledsettings.key_not_in_scale["red"]
+    key_not_in_scale_green = webinterface.ledsettings.key_not_in_scale["green"]
+    key_not_in_scale_blue = webinterface.ledsettings.key_not_in_scale["blue"]
+    key_not_in_scale_color = wc.rgb_to_hex(
+        (int(key_not_in_scale_red), int(key_not_in_scale_green), int(key_not_in_scale_blue)))
+    response["key_not_in_scale_color"] = key_not_in_scale_color
+
+    response["scale_key"] = webinterface.ledsettings.scale_key
+
+    response["led_color"] = led_color
+    response["color_mode"] = color_mode
+    response["light_mode"] = light_mode
+    response["multicolor"] = multicolor
+    response["multicolor_range"] = multicolor_range
+    return jsonify(response)
 
 @webinterface.route('/api/get_settings', methods=['GET'])
 def get_settings():
