@@ -311,7 +311,15 @@ function get_current_sequence_setting(home = true) {
                     '<rect width="20" height="20" fill="' + response.led_color + '" /></svg>'
             }
             if (response.color_mode == "Multicolor") {
-                //document.getElementById("led_color").innerHTML = response.multicolor
+                document.getElementById("led_color").innerHTML = '';
+                response.multicolor.forEach(function (item, index) {
+                  var multicolor_hex = rgbToHex(item[0], item[1], item[2]);
+                  var length = response.multicolor_range[index][1] - response.multicolor_range[index][0]
+                  length = (length / 108) * 100
+                  var left_spacing = (response.multicolor_range[index][0] / 108) * 100
+                  document.getElementById("led_color").innerHTML += '<svg class="mb-2" style="margin-left:'+left_spacing+'%" width="100%" height="10px">' +
+                    '<rect width="'+length+'%" height="20" fill="' + multicolor_hex + '" /></svg>'
+                });
             }
             if (response.color_mode == "Gradient") {
                 //document.getElementById("led_color").innerHTML = response.gradient_end_color
