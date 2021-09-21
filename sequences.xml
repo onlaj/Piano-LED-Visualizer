@@ -23,11 +23,11 @@
     <step_3>
       <color>Multicolor</color>
       <color_1>210, 40 , 40</color_1>
-	  <color_range_1>0, 255</color_range_1>
+	  <color_range_1>20, 108</color_range_1>
       <color_2>0, 255, 80</color_2>
-	  <color_range_2>0, 255</color_range_2>
+	  <color_range_2>20, 108</color_range_2>
       <color_3>120, 0, 255</color_3>
-	  <color_range_3>0, 255</color_range_3>
+	  <color_range_3>20, 108</color_range_3>
       <light_mode>Normal</light_mode>
     </step_3>
     <step_4>
@@ -89,9 +89,9 @@
     <step_4>
       <color>Multicolor</color>
       <color_1>129, 135 , 170</color_1>
-      <color_range_1>0, 255</color_range_1>
+      <color_range_1>80, 108</color_range_1>
       <color_2>185, 81, 92</color_2>
-	  <color_range_2>0, 255</color_range_2>
+	  <color_range_2>20, 81</color_range_2>
       <light_mode>Normal</light_mode>
     </step_4>
     <step_5>

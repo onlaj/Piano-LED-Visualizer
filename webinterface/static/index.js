@@ -306,7 +306,6 @@ function get_current_sequence_setting(home = true) {
 
 
             if (response.color_mode == "Single") {
-                //document.getElementById("led_color").innerHTML = response.led_color
                 document.getElementById("led_color").innerHTML = response.led_color+'<svg height="20px">' +
                     '<rect width="20" height="20" fill="' + response.led_color + '" /></svg>'
             }
@@ -314,9 +313,13 @@ function get_current_sequence_setting(home = true) {
                 document.getElementById("led_color").innerHTML = '';
                 response.multicolor.forEach(function (item, index) {
                   var multicolor_hex = rgbToHex(item[0], item[1], item[2]);
-                  var length = response.multicolor_range[index][1] - response.multicolor_range[index][0]
-                  length = (length / 108) * 100
-                  var left_spacing = (response.multicolor_range[index][0] / 108) * 100
+
+                  var length = (response.multicolor_range[index][1] - 20) - (response.multicolor_range[index][0] - 20)
+                  length = (length / 88) * 100
+                  var left_spacing = ((response.multicolor_range[index][0] - 20) / 88) * 100
+
+                  left_spacing = Math.min(Math.max(parseInt(left_spacing), 0), 88);
+
                   document.getElementById("led_color").innerHTML += '<svg class="mb-2" style="margin-left:'+left_spacing+'%" width="100%" height="10px">' +
                     '<rect width="'+length+'%" height="20" fill="' + multicolor_hex + '" /></svg>'
                 });
