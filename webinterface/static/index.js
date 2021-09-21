@@ -300,10 +300,8 @@ function get_current_sequence_setting(home = true) {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
 
-
             document.getElementById("color_mode").innerHTML = response.color_mode
             document.getElementById("light_mode").innerHTML = response.light_mode
-
 
             if (response.color_mode == "Single") {
                 document.getElementById("led_color").innerHTML = response.led_color+'<svg height="20px">' +
@@ -325,7 +323,20 @@ function get_current_sequence_setting(home = true) {
                 });
             }
             if (response.color_mode == "Gradient") {
-                //document.getElementById("led_color").innerHTML = response.gradient_end_color
+                document.getElementById("led_color").innerHTML = '<svg width="100%" height="20">\n' +
+                    '      <style type="text/css">\n' +
+                    '        rect{fill:url(#MyGradient)}\n' +
+                    '      </style>\n' +
+                    '      <defs>\n' +
+                    '        <linearGradient id="MyGradient">\n' +
+                    '          <stop offset="5%" stop-color="'+response.gradient_end_color+'" />\n' +
+                    '          <stop offset="95%" stop-color="'+response.gradient_start_color+'" />\n' +
+                    '        </linearGradient>\n' +
+                    '      </defs>\n' +
+                    '      \n' +
+                    '      <rect width="100%" height="20"/>\n' +
+                    '    </svg>'
+
             }
             if (response.color_mode == "Speed") {
                 //document.getElementById("led_color").innerHTML = response.speed_max_notes
