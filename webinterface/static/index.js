@@ -336,14 +336,38 @@ function get_current_sequence_setting(home = true) {
                     '      \n' +
                     '      <rect width="100%" height="20"/>\n' +
                     '    </svg>'
-
             }
+
             if (response.color_mode == "Speed") {
                 //document.getElementById("led_color").innerHTML = response.speed_max_notes
             }
+
             if (response.color_mode == "Rainbow") {
-                //document.getElementById("led_color").innerHTML = response.rainbow_offset
+                box_amount = Math.floor(response.rainbow_scale / 150);
+                box_remaining = response.rainbow_scale % 150;
+                box_remaining_percent = (box_remaining / 150) * 100
+                if(box_remaining > 0) {
+                    if(box_amount > 0) {
+                        parts = 100 / box_remaining_percent;
+                        total_parts_visible = ((parts * box_amount) + 1);
+                        width = (100 / total_parts_visible) * parts;
+                    }else{
+                        width = (100 / box_remaining_percent) * 100
+                    }
+                    box_amount += 1;
+                }else{
+                    width = 0;
+                }
+
+                var rainbow_example = '';
+                rainbow_example += '<div class="flex overflow-hidden mt-2">';
+                for(i=0; i<box_amount; i++) {
+                    rainbow_example += '<div class="rainbow-box" style="min-width:' + width + '%"></div>';
+                }
+                rainbow_example += '</div>'
+                document.getElementById("led_color").innerHTML = rainbow_example;
             }
+
             if (response.color_mode == "Scale") {
                 //document.getElementById("led_color").innerHTML = response.scale_key
             }
