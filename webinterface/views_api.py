@@ -485,6 +485,8 @@ def get_sequence_setting():
 
 
     rainbow_scale = webinterface.ledsettings.rainbow_scale
+    rainbow_offset = webinterface.ledsettings.rainbow_offset
+    rainbow_timeshift = webinterface.ledsettings.rainbow_timeshift
 
     speed_slowest_red = webinterface.ledsettings.speed_slowest["red"]
     speed_slowest_green = webinterface.ledsettings.speed_slowest["green"]
@@ -531,6 +533,8 @@ def get_sequence_setting():
     response["multicolor"] = multicolor
     response["multicolor_range"] = multicolor_range
     response["rainbow_scale"] = rainbow_scale
+    response["rainbow_offset"] = rainbow_offset
+    response["rainbow_timeshift"] = rainbow_timeshift
     return jsonify(response)
 
 @webinterface.route('/api/get_settings', methods=['GET'])

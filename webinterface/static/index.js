@@ -293,7 +293,6 @@ function get_settings(home = true) {
 }
 
 function get_current_sequence_setting(home = true) {
-    console.log("test")
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
@@ -343,6 +342,19 @@ function get_current_sequence_setting(home = true) {
             }
 
             if (response.color_mode == "Rainbow") {
+                offset = response.rainbow_offset % 175;
+                offset_percent = (offset / 175) * 100;
+                offset_percent = -200 - offset_percent;
+
+                if(response.rainbow_timeshift < 0) {
+                    response.rainbow_timeshift *= -1;
+                    timeshift_speed_in_seconds = 19 * (10 / response.rainbow_timeshift);
+                    animation = 'animation: bannermove_right '+timeshift_speed_in_seconds+'s linear infinite;';
+                }else{
+                    timeshift_speed_in_seconds = 19 * (10 / response.rainbow_timeshift);
+                    animation = 'animation: bannermove_left '+timeshift_speed_in_seconds+'s linear infinite;';
+                }
+
                 box_amount = Math.floor(response.rainbow_scale / 150);
                 box_remaining = response.rainbow_scale % 150;
                 box_remaining_percent = (box_remaining / 150) * 100
@@ -352,7 +364,7 @@ function get_current_sequence_setting(home = true) {
                         total_parts_visible = ((parts * box_amount) + 1);
                         width = (100 / total_parts_visible) * parts;
                     }else{
-                        width = (100 / box_remaining_percent) * 100
+                        width = (100 / box_remaining_percent) * 100;
                     }
                     box_amount += 1;
                 }else{
@@ -361,10 +373,13 @@ function get_current_sequence_setting(home = true) {
 
                 var rainbow_example = '';
                 rainbow_example += '<div class="flex overflow-hidden mt-2">';
-                for(i=0; i<box_amount; i++) {
-                    rainbow_example += '<div class="rainbow-box" style="min-width:' + width + '%"></div>';
+                for(i=0; i<(box_amount+4); i++) {
+                    rainbow_example += '<div class="rainbow-box" style="'+animation+'transform: translateX('+offset_percent+'%);min-width:' + width + '%"></div>';
                 }
                 rainbow_example += '</div>'
+                rainbow_example += '<p class="text-xs italic text-right text-gray-600 dark:text-gray-400">*approximate look</p>'
+                rainbow_example += '<label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Offset</label><div class="w-full">'+response.rainbow_offset+'</div>'
+                rainbow_example += '<label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Timeshift</label><div class="w-full">'+response.rainbow_timeshift+'</div>'
                 document.getElementById("led_color").innerHTML = rainbow_example;
             }
 
