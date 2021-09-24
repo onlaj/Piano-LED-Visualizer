@@ -303,38 +303,57 @@ function get_current_sequence_setting(home = true) {
             document.getElementById("light_mode").innerHTML = response.light_mode
 
             if (response.color_mode == "Single") {
-                document.getElementById("led_color").innerHTML = response.led_color+'<svg height="20px">' +
-                    '<rect width="20" height="20" fill="' + response.led_color + '" /></svg>'
+                document.getElementById("led_color").innerHTML = response.led_color +
+                    '<svg style="mix-blend-mode: lighten" width="100%" height="45px">' +
+                    '<defs>\n' +
+                    '   <linearGradient id="gradient_single" x1=".5" y1="1" x2=".5">\n' +
+                    '       <stop stop-color="' + response.led_color + '" stop-opacity="0"/>\n' +
+                    '       <stop offset=".61" stop-color="' + response.led_color + '" stop-opacity=".65"/>\n' +
+                    '       <stop offset="1" stop-color="' + response.led_color + '"/>\n' +
+                    '   </linearGradient>\n' +
+                    '</defs>' +
+                    '<rect width="100%" height="45px" fill="url(#gradient_single)" /></svg>'
+                document.getElementById("led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                    'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
             }
             if (response.color_mode == "Multicolor") {
                 document.getElementById("led_color").innerHTML = '';
                 response.multicolor.forEach(function (item, index) {
-                  var multicolor_hex = rgbToHex(item[0], item[1], item[2]);
+                    var multicolor_hex = rgbToHex(item[0], item[1], item[2]);
 
-                  var length = (response.multicolor_range[index][1] - 20) - (response.multicolor_range[index][0] - 20)
-                  length = (length / 88) * 100
-                  var left_spacing = ((response.multicolor_range[index][0] - 20) / 88) * 100
+                    var length = (response.multicolor_range[index][1] - 20) - (response.multicolor_range[index][0] - 20)
+                    length = (length / 88) * 100
+                    var left_spacing = ((response.multicolor_range[index][0] - 20) / 88) * 100
 
-                  left_spacing = Math.min(Math.max(parseInt(left_spacing), 0), 88);
+                    left_spacing = Math.min(Math.max(parseInt(left_spacing), 0), 88);
 
-                  document.getElementById("led_color").innerHTML += '<svg class="mb-2" style="margin-left:'+left_spacing+'%" width="100%" height="10px">' +
-                    '<rect width="'+length+'%" height="20" fill="' + multicolor_hex + '" /></svg>'
+                    document.getElementById("led_color").innerHTML += '<svg class="mb-2" ' +
+                        'style="margin-left:' + left_spacing + '%" width="100%" height="10px">' +
+                        '<rect width="' + length + '%" height="20" fill="' + multicolor_hex + '" /></svg>'
+
                 });
+                document.getElementById("led_color").innerHTML += '<img class="w-full opacity-100" ' +
+                    'style="height: 40px;width:100%;" src="../static/piano.svg">';
             }
             if (response.color_mode == "Gradient") {
-                document.getElementById("led_color").innerHTML = '<svg width="100%" height="20">\n' +
-                    '      <style type="text/css">\n' +
-                    '        rect{fill:url(#MyGradient)}\n' +
-                    '      </style>\n' +
+                document.getElementById("led_color").innerHTML = '<svg ' +
+                    'width="100%" height="45px">\n' +
                     '      <defs>\n' +
-                    '        <linearGradient id="MyGradient">\n' +
-                    '          <stop offset="5%" stop-color="'+response.gradient_end_color+'" />\n' +
-                    '          <stop offset="95%" stop-color="'+response.gradient_start_color+'" />\n' +
+                    '        <linearGradient id="g1">\n' +
+                    '          <stop offset="5%" stop-color="' + response.gradient_end_color + '" />\n' +
+                    '          <stop offset="95%" stop-color="' + response.gradient_start_color + '" />\n' +
                     '        </linearGradient>\n' +
+                    '       <linearGradient id="g2" x1=".5" x2=".5" y2="1">\n' +
+                    '           <stop stop-color="#000" stop-opacity="0"/>\n' +
+                    '           <stop offset=".59" stop-color="#000" stop-opacity=".34217436974789917"/>\n' +
+                    '           <stop offset="1" stop-color="#000"/>\n' +
+                    '       </linearGradient>' +
                     '      </defs>\n' +
-                    '      \n' +
-                    '      <rect width="100%" height="20"/>\n' +
+                    '      <rect width="100%" height="45px" fill=\'url(#g1)\'/>' +
+                    '      <rect width="100%" height="45px" fill=\'url(#g2)\'/>\n' +
                     '    </svg>'
+                document.getElementById("led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                    'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
             }
 
             if (response.color_mode == "Speed") {
@@ -346,40 +365,46 @@ function get_current_sequence_setting(home = true) {
                 offset_percent = (offset / 175) * 100;
                 offset_percent = -200 - offset_percent;
 
-                if(response.rainbow_timeshift < 0) {
+                if (response.rainbow_timeshift < 0) {
                     response.rainbow_timeshift *= -1;
                     timeshift_speed_in_seconds = 19 * (10 / response.rainbow_timeshift);
-                    animation = 'animation: bannermove_right '+timeshift_speed_in_seconds+'s linear infinite;';
-                }else{
+                    animation = 'animation: bannermove_right ' + timeshift_speed_in_seconds + 's linear infinite;';
+                } else {
                     timeshift_speed_in_seconds = 19 * (10 / response.rainbow_timeshift);
-                    animation = 'animation: bannermove_left '+timeshift_speed_in_seconds+'s linear infinite;';
+                    animation = 'animation: bannermove_left ' + timeshift_speed_in_seconds + 's linear infinite;';
                 }
 
                 box_amount = Math.floor(response.rainbow_scale / 150);
                 box_remaining = response.rainbow_scale % 150;
                 box_remaining_percent = (box_remaining / 150) * 100
-                if(box_remaining > 0) {
-                    if(box_amount > 0) {
+                if (box_remaining > 0) {
+                    if (box_amount > 0) {
                         parts = 100 / box_remaining_percent;
                         total_parts_visible = ((parts * box_amount) + 1);
                         width = (100 / total_parts_visible) * parts;
-                    }else{
+                    } else {
                         width = (100 / box_remaining_percent) * 100;
                     }
                     box_amount += 1;
-                }else{
+                } else {
                     width = 0;
                 }
 
                 var rainbow_example = '';
                 rainbow_example += '<div class="flex overflow-hidden mt-2">';
-                for(i=0; i<(box_amount+4); i++) {
-                    rainbow_example += '<div class="rainbow-box" style="'+animation+'transform: translateX('+offset_percent+'%);min-width:' + width + '%"></div>';
+                for (i = 0; i < (box_amount + 4); i++) {
+                    rainbow_example += '<div class="rainbow-box" style="' + animation + '' +
+                        'transform: translateX(' + offset_percent + '%);min-width:' + width + '%;"></div>';
                 }
                 rainbow_example += '</div>'
+                rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">'
                 rainbow_example += '<p class="text-xs italic text-right text-gray-600 dark:text-gray-400">*approximate look</p>'
-                rainbow_example += '<label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Offset</label><div class="w-full">'+response.rainbow_offset+'</div>'
-                rainbow_example += '<label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Timeshift</label><div class="w-full">'+response.rainbow_timeshift+'</div>'
+                rainbow_example += '<label ' +
+                    'class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Offset</label>' +
+                    '<div class="w-full">' + response.rainbow_offset + '</div>'
+                rainbow_example += '<label ' +
+                    'class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Timeshift</label>' +
+                    '<div class="w-full">' + response.rainbow_timeshift + '</div>'
                 document.getElementById("led_color").innerHTML = rainbow_example;
             }
 
