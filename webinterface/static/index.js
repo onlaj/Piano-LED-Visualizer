@@ -304,7 +304,7 @@ function get_current_sequence_setting(home = true) {
 
             if (response.color_mode == "Single") {
                 document.getElementById("led_color").innerHTML = response.led_color +
-                    '<svg style="mix-blend-mode: lighten" width="100%" height="45px">' +
+                    '<svg width="100%" height="45px">' +
                     '<defs>\n' +
                     '   <linearGradient id="gradient_single" x1=".5" y1="1" x2=".5">\n' +
                     '       <stop stop-color="' + response.led_color + '" stop-opacity="0"/>\n' +
@@ -328,7 +328,7 @@ function get_current_sequence_setting(home = true) {
                     left_spacing = Math.min(Math.max(parseInt(left_spacing), 0), 88);
 
                     document.getElementById("led_color").innerHTML += '<svg class="mb-2" ' +
-                        'style="margin-left:' + left_spacing + '%" width="100%" height="10px">' +
+                        'style="filter: drop-shadow(0px 5px 15px ' + multicolor_hex + ');margin-left:' + left_spacing + '%" width="100%" height="10px">' +
                         '<rect width="' + length + '%" height="20" fill="' + multicolor_hex + '" /></svg>'
 
                 });
@@ -357,7 +357,26 @@ function get_current_sequence_setting(home = true) {
             }
 
             if (response.color_mode == "Speed") {
-                //document.getElementById("led_color").innerHTML = response.speed_max_notes
+                document.getElementById("led_color").innerHTML = '<svg ' +
+                    'width="100%" height="45px">\n' +
+                    '      <defs>\n' +
+                    '        <linearGradient id="g1">\n' +
+                    '          <stop offset="5%" stop-color="' + response.speed_slowest_color + '" />\n' +
+                    '          <stop offset="95%" stop-color="' + response.speed_fastest_color + '" />\n' +
+                    '        </linearGradient>\n' +
+                    '       <linearGradient id="g2" x1=".5" x2=".5" y2="1">\n' +
+                    '           <stop stop-color="#000" stop-opacity="0"/>\n' +
+                    '           <stop offset=".59" stop-color="#000" stop-opacity=".34217436974789917"/>\n' +
+                    '           <stop offset="1" stop-color="#000"/>\n' +
+                    '       </linearGradient>' +
+                    '      </defs>\n' +
+                    '      <rect width="100%" height="45px" fill=\'url(#g1)\'/>' +
+                    '      <rect width="100%" height="45px" fill=\'url(#g2)\'/>\n' +
+                    '    </svg>'
+                document.getElementById("led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                    'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
+                    '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">slowest</p>' +
+                    '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">fastest</p></div>';
             }
 
             if (response.color_mode == "Rainbow") {
@@ -374,6 +393,7 @@ function get_current_sequence_setting(home = true) {
                     animation = 'animation: bannermove_left ' + timeshift_speed_in_seconds + 's linear infinite;';
                 }
 
+                //calculating width of gradient box
                 box_amount = Math.floor(response.rainbow_scale / 150);
                 box_remaining = response.rainbow_scale % 150;
                 box_remaining_percent = (box_remaining / 150) * 100
@@ -392,6 +412,7 @@ function get_current_sequence_setting(home = true) {
 
                 var rainbow_example = '';
                 rainbow_example += '<div class="flex overflow-hidden mt-2">';
+                //+4, because there has to be two additional gradient boxes on both sides, so both offset and animation can be applied
                 for (i = 0; i < (box_amount + 4); i++) {
                     rainbow_example += '<div class="rainbow-box" style="' + animation + '' +
                         'transform: translateX(' + offset_percent + '%);min-width:' + width + '%;"></div>';
@@ -410,6 +431,25 @@ function get_current_sequence_setting(home = true) {
 
             if (response.color_mode == "Scale") {
                 //document.getElementById("led_color").innerHTML = response.scale_key
+                let scale_key_array = [response.key_in_scale_color, response.key_not_in_scale_color];
+                document.getElementById("led_color").innerHTML = '<div id="led_color_scale" class="flex"></div>';
+
+                scale_key_array.forEach(function (item, index) {
+                    console.log(item)
+                    document.getElementById("led_color_scale").innerHTML += '<svg width="100%" height="45px">' +
+                        '<defs>\n' +
+                        '   <linearGradient id="gradient_single_'+item+'" x1=".5" y1="1" x2=".5">\n' +
+                        '       <stop stop-color="' + item + '" stop-opacity="0"/>\n' +
+                        '       <stop offset=".61" stop-color="' + item + '" stop-opacity=".65"/>\n' +
+                        '       <stop offset="1" stop-color="' + item + '"/>\n' +
+                        '   </linearGradient>\n' +
+                        '</defs>' +
+                        '<rect width="100%" height="45px" fill="url(#gradient_single_'+item+')" /></svg>';
+                });
+                document.getElementById("led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                        'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
+                    '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">in a scale</p>' +
+                    '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">not in a scale</p></div>';
             }
 
         }
