@@ -80,6 +80,7 @@ function loadAjax(subpage) {
                 }
                 if (subpage == "ledsettings") {
                     initialize_led_settings();
+                    get_current_sequence_setting();
                     clearInterval(homepage_interval);
                 }
                 if (subpage == "ledanimations") {
@@ -182,6 +183,7 @@ function change_setting(setting_name, value, second_value = false) {
             response = JSON.parse(this.responseText);
             if (response.reload == true) {
                 get_settings();
+                get_current_sequence_setting();
             }
             if (response.reload_ports == true) {
                 get_ports();
@@ -299,12 +301,13 @@ function get_current_sequence_setting(home = true) {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
 
-            document.getElementById("color_mode").innerHTML = response.color_mode
-            document.getElementById("light_mode").innerHTML = response.light_mode
+            if (document.getElementById("current_color_mode")) {
+                document.getElementById("current_color_mode").innerHTML = response.color_mode
+                document.getElementById("current_light_mode").innerHTML = response.light_mode
+            }
 
             if (response.color_mode == "Single") {
-                document.getElementById("led_color").innerHTML = response.led_color +
-                    '<svg width="100%" height="45px">' +
+                document.getElementById("current_led_color").innerHTML = '<svg width="100%" height="45px">' +
                     '<defs>\n' +
                     '   <linearGradient id="gradient_single" x1=".5" y1="1" x2=".5">\n' +
                     '       <stop stop-color="' + response.led_color + '" stop-opacity="0"/>\n' +
@@ -313,11 +316,11 @@ function get_current_sequence_setting(home = true) {
                     '   </linearGradient>\n' +
                     '</defs>' +
                     '<rect width="100%" height="45px" fill="url(#gradient_single)" /></svg>'
-                document.getElementById("led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
             }
             if (response.color_mode == "Multicolor") {
-                document.getElementById("led_color").innerHTML = '';
+                document.getElementById("current_led_color").innerHTML = '';
                 response.multicolor.forEach(function (item, index) {
                     var multicolor_hex = rgbToHex(item[0], item[1], item[2]);
 
@@ -327,16 +330,16 @@ function get_current_sequence_setting(home = true) {
 
                     left_spacing = Math.min(Math.max(parseInt(left_spacing), 0), 88);
 
-                    document.getElementById("led_color").innerHTML += '<svg class="mb-2" ' +
+                    document.getElementById("current_led_color").innerHTML += '<svg class="mb-2" ' +
                         'style="filter: drop-shadow(0px 5px 15px ' + multicolor_hex + ');margin-left:' + left_spacing + '%" width="100%" height="10px">' +
                         '<rect width="' + length + '%" height="20" fill="' + multicolor_hex + '" /></svg>'
 
                 });
-                document.getElementById("led_color").innerHTML += '<img class="w-full opacity-100" ' +
+                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-100" ' +
                     'style="height: 40px;width:100%;" src="../static/piano.svg">';
             }
             if (response.color_mode == "Gradient") {
-                document.getElementById("led_color").innerHTML = '<svg ' +
+                document.getElementById("current_led_color").innerHTML = '<svg ' +
                     'width="100%" height="45px">\n' +
                     '      <defs>\n' +
                     '        <linearGradient id="g1">\n' +
@@ -352,12 +355,12 @@ function get_current_sequence_setting(home = true) {
                     '      <rect width="100%" height="45px" fill=\'url(#g1)\'/>' +
                     '      <rect width="100%" height="45px" fill=\'url(#g2)\'/>\n' +
                     '    </svg>'
-                document.getElementById("led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
             }
 
             if (response.color_mode == "Speed") {
-                document.getElementById("led_color").innerHTML = '<svg ' +
+                document.getElementById("current_led_color").innerHTML = '<svg ' +
                     'width="100%" height="45px">\n' +
                     '      <defs>\n' +
                     '        <linearGradient id="g1">\n' +
@@ -373,7 +376,7 @@ function get_current_sequence_setting(home = true) {
                     '      <rect width="100%" height="45px" fill=\'url(#g1)\'/>' +
                     '      <rect width="100%" height="45px" fill=\'url(#g2)\'/>\n' +
                     '    </svg>'
-                document.getElementById("led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">slowest</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">fastest</p></div>';
@@ -420,34 +423,36 @@ function get_current_sequence_setting(home = true) {
                 rainbow_example += '</div>'
                 rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">'
                 rainbow_example += '<p class="text-xs italic text-right text-gray-600 dark:text-gray-400">*approximate look</p>'
+                /*
                 rainbow_example += '<label ' +
                     'class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Offset</label>' +
                     '<div class="w-full">' + response.rainbow_offset + '</div>'
                 rainbow_example += '<label ' +
                     'class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Timeshift</label>' +
                     '<div class="w-full">' + response.rainbow_timeshift + '</div>'
-                document.getElementById("led_color").innerHTML = rainbow_example;
+                 */
+                document.getElementById("current_led_color").innerHTML = rainbow_example;
             }
 
             if (response.color_mode == "Scale") {
                 //document.getElementById("led_color").innerHTML = response.scale_key
                 let scale_key_array = [response.key_in_scale_color, response.key_not_in_scale_color];
-                document.getElementById("led_color").innerHTML = '<div id="led_color_scale" class="flex"></div>';
+                document.getElementById("current_led_color").innerHTML = '<div id="led_color_scale" class="flex"></div>';
 
                 scale_key_array.forEach(function (item, index) {
                     console.log(item)
                     document.getElementById("led_color_scale").innerHTML += '<svg width="100%" height="45px">' +
                         '<defs>\n' +
-                        '   <linearGradient id="gradient_single_'+item+'" x1=".5" y1="1" x2=".5">\n' +
+                        '   <linearGradient id="gradient_single_' + item + '" x1=".5" y1="1" x2=".5">\n' +
                         '       <stop stop-color="' + item + '" stop-opacity="0"/>\n' +
                         '       <stop offset=".61" stop-color="' + item + '" stop-opacity=".65"/>\n' +
                         '       <stop offset="1" stop-color="' + item + '"/>\n' +
                         '   </linearGradient>\n' +
                         '</defs>' +
-                        '<rect width="100%" height="45px" fill="url(#gradient_single_'+item+')" /></svg>';
+                        '<rect width="100%" height="45px" fill="url(#gradient_single_' + item + ')" /></svg>';
                 });
-                document.getElementById("led_color").innerHTML += '<img class="w-full opacity-50" ' +
-                        'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
+                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                    'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">in a scale</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">not in a scale</p></div>';
             }
@@ -648,7 +653,7 @@ function initialize_led_settings() {
                 document.getElementById("key_not_in_scale_color").dispatchEvent(new Event('input'));
                 break;
             default:
-            // code block
+
         }
     }
     get_settings();

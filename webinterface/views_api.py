@@ -154,6 +154,8 @@ def change_setting():
         webinterface.usersettings.change_setting_value("green", rgb[1])
         webinterface.usersettings.change_setting_value("blue", rgb[2])
 
+        return jsonify(success=True, reload_sequence=True)
+
     if setting_name == "light_mode":
         webinterface.ledsettings.mode = value
         webinterface.usersettings.change_setting_value("mode", value)
@@ -233,6 +235,7 @@ def change_setting():
     if setting_name == "color_mode":
         webinterface.ledsettings.color_mode = value
         webinterface.usersettings.change_setting_value("color_mode", webinterface.ledsettings.color_mode)
+        return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "add_multicolor":
         webinterface.ledsettings.addcolor()
@@ -250,28 +253,37 @@ def change_setting():
 
         webinterface.usersettings.change_setting_value("multicolor", webinterface.ledsettings.multicolor)
 
+        return jsonify(success=True, reload_sequence=True)
+
     if setting_name == "multicolor_range_left":
         webinterface.ledsettings.multicolor_range[int(second_value)][0] = int(value)
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
+
+        return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "multicolor_range_right":
         webinterface.ledsettings.multicolor_range[int(second_value)][1] = int(value)
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
 
+        return jsonify(success=True, reload_sequence=True)
+
     if setting_name == "rainbow_offset":
         webinterface.ledsettings.rainbow_offset = int(value)
         webinterface.usersettings.change_setting_value("rainbow_offset",
                                                        int(webinterface.ledsettings.rainbow_offset))
+        return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "rainbow_scale":
         webinterface.ledsettings.rainbow_scale = int(value)
         webinterface.usersettings.change_setting_value("rainbow_scale",
                                                        int(webinterface.ledsettings.rainbow_scale))
+        return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "rainbow_timeshift":
         webinterface.ledsettings.rainbow_timeshift = int(value)
         webinterface.usersettings.change_setting_value("rainbow_timeshift",
                                                        int(webinterface.ledsettings.rainbow_timeshift))
+        return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "speed_slowest_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -283,6 +295,8 @@ def change_setting():
         webinterface.usersettings.change_setting_value("speed_slowest_green", rgb[1])
         webinterface.usersettings.change_setting_value("speed_slowest_blue", rgb[2])
 
+        return jsonify(success=True, reload_sequence=True)
+
     if setting_name == "speed_fastest_color":
         rgb = wc.hex_to_rgb("#" + value)
         webinterface.ledsettings.speed_fastest["red"] = rgb[0]
@@ -292,6 +306,8 @@ def change_setting():
         webinterface.usersettings.change_setting_value("speed_fastest_red", rgb[0])
         webinterface.usersettings.change_setting_value("speed_fastest_green", rgb[1])
         webinterface.usersettings.change_setting_value("speed_fastest_blue", rgb[2])
+
+        return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "gradient_start_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -303,6 +319,8 @@ def change_setting():
         webinterface.usersettings.change_setting_value("gradient_start_green", rgb[1])
         webinterface.usersettings.change_setting_value("gradient_start_blue", rgb[2])
 
+        return jsonify(success=True, reload_sequence=True)
+
     if setting_name == "gradient_end_color":
         rgb = wc.hex_to_rgb("#" + value)
         webinterface.ledsettings.gradient_end["red"] = rgb[0]
@@ -313,13 +331,19 @@ def change_setting():
         webinterface.usersettings.change_setting_value("gradient_end_green", rgb[1])
         webinterface.usersettings.change_setting_value("gradient_end_blue", rgb[2])
 
+        return jsonify(success=True, reload_sequence=True)
+
     if setting_name == "speed_max_notes":
         webinterface.ledsettings.speed_max_notes = int(value)
         webinterface.usersettings.change_setting_value("speed_max_notes", int(value))
 
+        return jsonify(success=True, reload_sequence=True)
+
     if setting_name == "speed_period_in_seconds":
         webinterface.ledsettings.speed_period_in_seconds = float(value)
         webinterface.usersettings.change_setting_value("speed_period_in_seconds", float(value))
+
+        return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "key_in_scale_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -331,6 +355,8 @@ def change_setting():
         webinterface.usersettings.change_setting_value("key_in_scale_green", rgb[1])
         webinterface.usersettings.change_setting_value("key_in_scale_blue", rgb[2])
 
+        return jsonify(success=True, reload_sequence=True)
+
     if setting_name == "key_not_in_scale_color":
         rgb = wc.hex_to_rgb("#" + value)
         webinterface.ledsettings.key_not_in_scale["red"] = rgb[0]
@@ -341,16 +367,20 @@ def change_setting():
         webinterface.usersettings.change_setting_value("key_not_in_scale_green", rgb[1])
         webinterface.usersettings.change_setting_value("key_not_in_scale_blue", rgb[2])
 
+        return jsonify(success=True, reload_sequence=True)
+
     if setting_name == "scale_key":
         webinterface.ledsettings.scale_key = int(value)
         webinterface.usersettings.change_setting_value("scale_key", int(value))
+
+        return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "next_step":
         webinterface.ledsettings.set_sequence(0, 1)
         return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "set_sequence":
-        if(int(value) == 0):
+        if (int(value) == 0):
             webinterface.ledsettings.__init__(webinterface.usersettings)
             webinterface.ledsettings.sequence_active = False
         else:
@@ -358,7 +388,7 @@ def change_setting():
         return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "screen_on":
-        if(int(value) == 0):
+        if (int(value) == 0):
             webinterface.menu.disable_screen()
         else:
             webinterface.menu.enable_screen()
@@ -404,17 +434,17 @@ def change_setting():
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "change_song_name":
-        if os.path.exists("Songs/"+second_value):
-            return jsonify(success=False, reload_songs=True, error=second_value+" already exists")
+        if os.path.exists("Songs/" + second_value):
+            return jsonify(success=False, reload_songs=True, error=second_value + " already exists")
 
         if "_main" in value:
             search_name = value.replace("_main.mid", "")
             for fname in os.listdir('Songs'):
                 if search_name in fname:
-                    new_name = second_value.replace(".mid", "")+fname.replace(search_name, "")
+                    new_name = second_value.replace(".mid", "") + fname.replace(search_name, "")
                     os.rename('Songs/' + fname, 'Songs/' + new_name)
         else:
-            os.rename('Songs/'+value, 'Songs/'+second_value)
+            os.rename('Songs/' + value, 'Songs/' + second_value)
 
         return jsonify(success=True, reload_songs=True)
 
@@ -423,35 +453,37 @@ def change_setting():
             name_no_suffix = value.replace("_main.mid", "")
             for fname in os.listdir('Songs'):
                 if name_no_suffix in fname:
-                    os.remove("Songs/"+fname)
+                    os.remove("Songs/" + fname)
         else:
-            os.remove("Songs/"+value)
+            os.remove("Songs/" + value)
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "download_song":
         if "_main" in value:
-            zipObj = ZipFile("Songs/"+value.replace(".mid", "")+".zip", 'w')
+            zipObj = ZipFile("Songs/" + value.replace(".mid", "") + ".zip", 'w')
             name_no_suffix = value.replace("_main.mid", "")
             songs_count = 0
             for fname in os.listdir('Songs'):
                 if name_no_suffix in fname and ".zip" not in fname:
                     songs_count += 1
-                    zipObj.write("Songs/"+fname)
+                    zipObj.write("Songs/" + fname)
             zipObj.close()
             if songs_count == 1:
-                os.remove("Songs/"+value.replace(".mid", "")+".zip")
+                os.remove("Songs/" + value.replace(".mid", "") + ".zip")
                 return send_file("../Songs/" + value, mimetype='application/x-csv', attachment_filename=value,
                                  as_attachment=True)
             else:
-                return send_file("../Songs/"+value.replace(".mid", "")+".zip", mimetype='application/x-csv',
-                                 attachment_filename=value.replace(".mid", "")+".zip", as_attachment=True)
+                return send_file("../Songs/" + value.replace(".mid", "") + ".zip", mimetype='application/x-csv',
+                                 attachment_filename=value.replace(".mid", "") + ".zip", as_attachment=True)
         else:
-            return send_file("../Songs/"+value, mimetype='application/x-csv', attachment_filename=value, as_attachment=True)
+            return send_file("../Songs/" + value, mimetype='application/x-csv', attachment_filename=value,
+                             as_attachment=True)
 
     if setting_name == "start_midi_play":
         webinterface.saving.t = threading.Thread(target=play_midi, args=(value, webinterface.midiports,
                                                                          webinterface.saving, webinterface.menu,
-                                                                         webinterface.ledsettings, webinterface.ledstrip))
+                                                                         webinterface.ledsettings,
+                                                                         webinterface.ledstrip))
         webinterface.saving.t.start()
 
         return jsonify(success=True, reload_songs=True)
@@ -461,8 +493,6 @@ def change_setting():
         fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
 
         return jsonify(success=True, reload_songs=True)
-
-
 
     return jsonify(success=True)
 
@@ -482,7 +512,6 @@ def get_sequence_setting():
 
     multicolor = webinterface.ledsettings.multicolor
     multicolor_range = webinterface.ledsettings.multicolor_range
-
 
     rainbow_scale = webinterface.ledsettings.rainbow_scale
     rainbow_offset = webinterface.ledsettings.rainbow_offset
@@ -536,6 +565,7 @@ def get_sequence_setting():
     response["rainbow_offset"] = rainbow_offset
     response["rainbow_timeshift"] = rainbow_timeshift
     return jsonify(response)
+
 
 @webinterface.route('/api/get_settings', methods=['GET'])
 def get_settings():
@@ -631,6 +661,7 @@ def get_settings():
 
     return jsonify(response)
 
+
 @webinterface.route('/api/get_recording_status', methods=['GET'])
 def get_recording_status():
     response = {}
@@ -652,7 +683,7 @@ def get_songs():
     sortby = request.args.get('sortby')
     search = request.args.get('search')
 
-    start = int(page)*int(length)
+    start = int(page) * int(length)
 
     songs_list_dict = {}
 
@@ -686,7 +717,7 @@ def get_songs():
 
     for song in songs_list:
         song = song.replace("Songs/", "")
-        date = os.path.getmtime("Songs/"+song)
+        date = os.path.getmtime("Songs/" + song)
         if "_#" in song or not song.endswith('.mid'):
             continue
 
@@ -695,13 +726,14 @@ def get_songs():
                 continue
 
         i += 1
-        if(i > int(start)):
+        if (i > int(start)):
             songs_list_dict[song] = date
 
         if len(songs_list_dict) >= int(length):
             break
 
-    return render_template('songs_list.html', len=len(songs_list_dict), songs_list_dict=songs_list_dict, page=page, max_page=max_page, total_songs=total_songs)
+    return render_template('songs_list.html', len=len(songs_list_dict), songs_list_dict=songs_list_dict, page=page,
+                           max_page=max_page, total_songs=total_songs)
 
 
 @webinterface.route('/api/get_ports', methods=['GET'])
@@ -739,10 +771,10 @@ def get_sequences():
     while True:
         try:
             i += 1
-            sequences_list.append(\
-                            sequences_tree.getElementsByTagName("sequence_" + str(i))[0].getElementsByTagName(
-                                "sequence_name")[
-                                0].firstChild.nodeValue)
+            sequences_list.append( \
+                sequences_tree.getElementsByTagName("sequence_" + str(i))[0].getElementsByTagName(
+                    "sequence_name")[
+                    0].firstChild.nodeValue)
         except:
             break
     response["sequences_list"] = sequences_list

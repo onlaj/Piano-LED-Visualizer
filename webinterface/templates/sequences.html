@@ -8,7 +8,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
         <div class="relative">
             <select id="sequences_list" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
         py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-            onchange="change_setting('set_sequence', this.value);">
+                    onchange="change_setting('set_sequence', this.value);">
                 <option value="0">None</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
@@ -23,15 +23,15 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
             <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                 Color mode
             </label>
-            <div id="color_mode"></div>
+            <div id="current_color_mode"></div>
             <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                 Light mode
             </label>
-            <div id="light_mode"></div>
+            <div id="current_light_mode"></div>
             <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400 mb-2">
                 Color
             </label>
-            <div class="w-full" id="led_color"></div>
+            <div class="w-full" id="current_led_color"></div>
 
         </div>
 
@@ -47,8 +47,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
             </div>
             Next Step
             <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-            press spacebar
-        </label>
+                press spacebar
+            </label>
         </button>
     </div>
 
