@@ -1,0 +1,45 @@
+<div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Light Mode</div>
+<div class="relative">
+    <select id="light_mode" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
+        py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+        <option>Normal</option>
+        <option>Fading</option>
+        <option>Velocity</option>
+    </select>
+    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+        </svg>
+    </div>
+</div>
+
+<div hidden="true" id="fading" class="relative">
+    <select id="fading_speed" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
+        py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+        <option value="1000">Instant</option>
+        <option value="50">Very Fast</option>
+        <option value="40">Fast</option>
+        <option value="20" selected>Medium</option>
+        <option value="10">Slow</option>
+        <option value="2">Very Slow</option>
+    </select>
+    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+        </svg>
+    </div>
+</div>
+<div hidden="true" id="velocity" class="relative">
+    <select id="velocity_speed" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
+        py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+        <option value="10">Fast</option>
+        <option value="8" selected>Medium</option>
+        <option value="6">Slow</option>
+        <option value="3">Very Slow</option>
+    </select>
+    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+        </svg>
+    </div>
+</div>

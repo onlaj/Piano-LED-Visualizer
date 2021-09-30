@@ -92,6 +92,7 @@ function loadAjax(subpage) {
                 }
                 if (subpage == "sequences") {
                     initialize_sequences();
+                    initialize_led_settings();
                     clearInterval(homepage_interval);
                 }
                 if (subpage == "ports") {
@@ -224,15 +225,26 @@ function get_settings(home = true) {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
             if (home) {
-                document.getElementById("led_color").value = response.led_color;
 
-                document.getElementById("backlight_color").value = response.backlight_color;
+                if (document.getElementById("backlight_color")) {
+                    document.getElementById("backlight_color").value = response.backlight_color;
+                    document.getElementById("sides_color").value = response.sides_color;
+                    document.getElementById("sides_color_mode").value = response.sides_color_mode;
 
-                document.getElementById("sides_color").value = response.sides_color;
-                document.getElementById("sides_color_mode").value = response.sides_color_mode;
+                    if (response.sides_color_mode !== "RGB") {
+                        document.getElementById('sides_color_choose').hidden = true;
+                    }
 
-                if (response.sides_color_mode !== "RGB") {
-                    document.getElementById('sides_color_choose').hidden = true;
+                    document.getElementById("brightness").value = response.brightness;
+                    document.getElementById("brightness_percent").value = response.brightness + "%";
+                    document.getElementById("backlight_brightness").value = response.backlight_brightness;
+                    document.getElementById("backlight_brightness_percent").value = response.backlight_brightness + "%";
+                    document.getElementById("skipped_notes").value = response.skipped_notes;
+                    document.getElementById("led_count").value = response.led_count;
+                    document.getElementById("shift").value = response.led_shift;
+                    document.getElementById("reverse").value = response.led_reverse;
+                    document.getElementById("sides_color").dispatchEvent(new Event('input'));
+                    document.getElementById("backlight_color").dispatchEvent(new Event('input'));
                 }
 
                 document.getElementById("light_mode").value = response.light_mode;
@@ -242,15 +254,8 @@ function get_settings(home = true) {
                 if (response.light_mode == "Velocity") {
                     document.getElementById('velocity').hidden = false;
                 }
-                document.getElementById("brightness").value = response.brightness;
-                document.getElementById("brightness_percent").value = response.brightness + "%";
-                document.getElementById("backlight_brightness").value = response.backlight_brightness;
-                document.getElementById("backlight_brightness_percent").value = response.backlight_brightness + "%";
 
-                document.getElementById("skipped_notes").value = response.skipped_notes;
-                document.getElementById("led_count").value = response.led_count;
-                document.getElementById("shift").value = response.led_shift;
-                document.getElementById("reverse").value = response.led_reverse;
+                document.getElementById("led_color").value = response.led_color;
 
                 document.getElementById("color_mode").value = response.color_mode;
 
@@ -277,8 +282,6 @@ function get_settings(home = true) {
                 document.getElementById("scale_key").value = response.scale_key;
 
                 document.getElementById('color_mode').onchange();
-                document.getElementById("sides_color").dispatchEvent(new Event('input'));
-                document.getElementById("backlight_color").dispatchEvent(new Event('input'));
             } else {
                 document.getElementById("color_mode").innerHTML = response.color_mode;
                 document.getElementById("light_mode").innerHTML = response.light_mode;
@@ -440,7 +443,6 @@ function get_current_sequence_setting(home = true) {
                 document.getElementById("current_led_color").innerHTML = '<div id="led_color_scale" class="flex"></div>';
 
                 scale_key_array.forEach(function (item, index) {
-                    console.log(item)
                     document.getElementById("led_color_scale").innerHTML += '<svg width="100%" height="45px">' +
                         '<defs>\n' +
                         '   <linearGradient id="gradient_single_' + item + '" x1=".5" y1="1" x2=".5">\n' +
@@ -501,6 +503,59 @@ function initialize_homepage() {
 }
 
 function initialize_led_settings() {
+    if (document.getElementById('brightness')) {
+
+        document.getElementById('backlightcolors').addEventListener('change', function (event) {
+            change_color_input('backlight_', 'backlight_color', 'backlight_color')
+        });
+
+        document.getElementById('sidescolors').addEventListener('change', function (event) {
+            change_color_input('sides_', 'sides_color', 'sides_color')
+        });
+
+        document.getElementById('brightness').onchange = function () {
+            change_setting("brightness", this.value)
+        }
+
+        document.getElementById('backlight_brightness').onchange = function () {
+            change_setting("backlight_brightness", this.value)
+        }
+
+        document.getElementById('skipped_notes').onchange = function () {
+            change_setting("skipped_notes", this.value)
+        }
+
+        document.getElementById('led_count').onchange = function () {
+            change_setting("led_count", this.value)
+        }
+
+        document.getElementById('shift').onchange = function () {
+            change_setting("shift", this.value)
+        }
+
+        document.getElementById('reverse').onchange = function () {
+            change_setting("reverse", this.value)
+        }
+
+
+        document.getElementById('sides_color_mode').onchange = function () {
+            change_setting("sides_color_mode", this.value)
+            if (this.value == "RGB") {
+                document.getElementById('sides_color_choose').hidden = false;
+            } else {
+                document.getElementById('sides_color_choose').hidden = true;
+            }
+        }
+    }
+
+    document.getElementById('fading_speed').onchange = function () {
+        change_setting("fading_speed", this.value)
+    }
+
+    document.getElementById('velocity_speed').onchange = function () {
+        change_setting("velocity_speed", this.value)
+    }
+
     document.getElementById('light_mode').onchange = function () {
         if (this.value == "Fading") {
             document.getElementById('fading').hidden = false;
@@ -515,14 +570,6 @@ function initialize_led_settings() {
             document.getElementById('velocity').hidden = true;
         }
         change_setting("light_mode", this.value)
-    }
-
-    document.getElementById('fading_speed').onchange = function () {
-        change_setting("fading_speed", this.value)
-    }
-
-    document.getElementById('velocity_speed').onchange = function () {
-        change_setting("velocity_speed", this.value)
     }
 
     document.getElementById('ledcolors').addEventListener('change', function (event) {
@@ -553,38 +600,6 @@ function initialize_led_settings() {
         change_color_input('key_not_in_scale_', 'key_not_in_scale_color', 'key_not_in_scale_color')
     });
 
-    document.getElementById('backlightcolors').addEventListener('change', function (event) {
-        change_color_input('backlight_', 'backlight_color', 'backlight_color')
-    });
-
-    document.getElementById('sidescolors').addEventListener('change', function (event) {
-        change_color_input('sides_', 'sides_color', 'sides_color')
-    });
-
-    document.getElementById('brightness').onchange = function () {
-        change_setting("brightness", this.value)
-    }
-
-    document.getElementById('backlight_brightness').onchange = function () {
-        change_setting("backlight_brightness", this.value)
-    }
-
-    document.getElementById('skipped_notes').onchange = function () {
-        change_setting("skipped_notes", this.value)
-    }
-
-    document.getElementById('led_count').onchange = function () {
-        change_setting("led_count", this.value)
-    }
-
-    document.getElementById('shift').onchange = function () {
-        change_setting("shift", this.value)
-    }
-
-    document.getElementById('reverse').onchange = function () {
-        change_setting("reverse", this.value)
-    }
-
     document.getElementById('rainbow_offset').onchange = function () {
         change_setting("rainbow_offset", this.value)
     }
@@ -595,15 +610,6 @@ function initialize_led_settings() {
 
     document.getElementById('rainbow_timeshift').onchange = function () {
         change_setting("rainbow_timeshift", this.value)
-    }
-
-    document.getElementById('sides_color_mode').onchange = function () {
-        change_setting("sides_color_mode", this.value)
-        if (this.value == "RGB") {
-            document.getElementById('sides_color_choose').hidden = false;
-        } else {
-            document.getElementById('sides_color_choose').hidden = true;
-        }
     }
 
     function remove_color_modes() {
