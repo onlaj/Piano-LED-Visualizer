@@ -176,7 +176,7 @@ function start_led_animation(name, speed) {
     xhttp.send();
 }
 
-function change_setting(setting_name, value, second_value = false) {
+function change_setting(setting_name, value, second_value = false, disable_sequence = false) {
     var xhttp = new XMLHttpRequest();
     var value = value.replace('#', '');
     xhttp.onreadystatechange = function () {
@@ -194,12 +194,13 @@ function change_setting(setting_name, value, second_value = false) {
                 get_songs();
             }
             if (response.reload_sequence == true) {
+                get_sequences();
                 get_current_sequence_setting();
             }
         }
     }
     xhttp.open("GET", "/api/change_setting?setting_name=" + setting_name + "&value=" + value
-        + "&second_value=" + second_value, true);
+        + "&second_value=" + second_value + "&disable_sequence=" + disable_sequence, true);
     xhttp.send();
 }
 
@@ -549,11 +550,11 @@ function initialize_led_settings() {
     }
 
     document.getElementById('fading_speed').onchange = function () {
-        change_setting("fading_speed", this.value)
+        change_setting("fading_speed", this.value, false, true)
     }
 
     document.getElementById('velocity_speed').onchange = function () {
-        change_setting("velocity_speed", this.value)
+        change_setting("velocity_speed", this.value, false, true)
     }
 
     document.getElementById('light_mode').onchange = function () {
@@ -569,7 +570,7 @@ function initialize_led_settings() {
         } else {
             document.getElementById('velocity').hidden = true;
         }
-        change_setting("light_mode", this.value)
+        change_setting("light_mode", this.value, false, true)
     }
 
     document.getElementById('ledcolors').addEventListener('change', function (event) {
@@ -601,15 +602,15 @@ function initialize_led_settings() {
     });
 
     document.getElementById('rainbow_offset').onchange = function () {
-        change_setting("rainbow_offset", this.value)
+        change_setting("rainbow_offset", this.value, false, true)
     }
 
     document.getElementById('rainbow_scale').onchange = function () {
-        change_setting("rainbow_scale", this.value)
+        change_setting("rainbow_scale", this.value, false, true)
     }
 
     document.getElementById('rainbow_timeshift').onchange = function () {
-        change_setting("rainbow_timeshift", this.value)
+        change_setting("rainbow_timeshift", this.value, false, true)
     }
 
     function remove_color_modes() {
@@ -624,37 +625,37 @@ function initialize_led_settings() {
             case "Single":
                 remove_color_modes();
                 document.getElementById('Single').hidden = false;
-                change_setting("color_mode", "Single");
+                change_setting("color_mode", "Single", false, true);
                 document.getElementById("led_color").dispatchEvent(new Event('input'));
                 break;
             case "Multicolor":
                 remove_color_modes();
                 document.getElementById('Multicolor').hidden = false;
-                change_setting("color_mode", "Multicolor");
+                change_setting("color_mode", "Multicolor", false, true);
                 break;
             case "Rainbow":
                 remove_color_modes();
                 document.getElementById('Rainbow').hidden = false;
-                change_setting("color_mode", "Rainbow");
+                change_setting("color_mode", "Rainbow", false, true);
                 break;
             case "Speed":
                 remove_color_modes();
                 document.getElementById('Speed').hidden = false;
-                change_setting("color_mode", "Speed");
+                change_setting("color_mode", "Speed", false, true);
                 document.getElementById("speed_slow_color").dispatchEvent(new Event('input'));
                 document.getElementById("speed_fast_color").dispatchEvent(new Event('input'));
                 break;
             case "Gradient":
                 remove_color_modes();
                 document.getElementById('Gradient').hidden = false;
-                change_setting("color_mode", "Gradient");
+                change_setting("color_mode", "Gradient", false, true);
                 document.getElementById("gradient_start_color").dispatchEvent(new Event('input'));
                 document.getElementById("gradient_end_color").dispatchEvent(new Event('input'));
                 break;
             case "Scale":
                 remove_color_modes();
                 document.getElementById('Scale').hidden = false;
-                change_setting("color_mode", "Scale");
+                change_setting("color_mode", "Scale", false, true);
                 document.getElementById("key_in_scale_color").dispatchEvent(new Event('input'));
                 document.getElementById("key_not_in_scale_color").dispatchEvent(new Event('input'));
                 break;
@@ -749,13 +750,18 @@ function enforceMinMax(el) {
 }
 
 function get_sequences() {
+    if(!document.getElementById('sequences_list')){
+        return false;
+    }
+
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
-            var sequences_list = document.getElementById('sequences_list');
-            var i = 1;
+            removeOptions(document.getElementById('sequences_list'));
+            var i = 0;
+            response.sequences_list.unshift("None");
             response.sequences_list.forEach(function (item, index) {
                 var opt = document.createElement('option');
                 opt.appendChild(document.createTextNode(item));
@@ -1232,6 +1238,13 @@ function uploadFile(file, i) {
     })
     formData.append('file', file)
     xhr.send(formData)
+}
+
+function removeOptions(selectElement) {
+   var i, L = selectElement.options.length - 1;
+   for(i = L; i >= 0; i--) {
+      selectElement.remove(i);
+   }
 }
 
 //"waterfall" visualizer only updates the view when new note is played, this function makes the container scroll slowly

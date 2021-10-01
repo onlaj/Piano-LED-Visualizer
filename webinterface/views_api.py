@@ -136,6 +136,11 @@ def change_setting():
     setting_name = request.args.get('setting_name')
     value = request.args.get('value')
     second_value = request.args.get('second_value')
+    disable_sequence = request.args.get('disable_sequence')
+
+    if(disable_sequence == "true"):
+        webinterface.ledsettings.__init__(webinterface.usersettings)
+        webinterface.ledsettings.sequence_active = False
 
     if setting_name == "clean_ledstrip":
         fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)

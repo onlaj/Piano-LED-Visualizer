@@ -24,7 +24,7 @@
                    class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
                    oninput="editLedColor(event, '');"
                    onclick="editLedColor(event, '');"
-                   onchange="change_setting('led_color', this.value);">
+                   onchange="change_setting('led_color', this.value, false, true);">
             <div id="ledcolors" class="justify-center flex">
                 <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
                 <input id="red" name="field_name" type="number" value="255" min="0" max="255"
@@ -81,7 +81,7 @@
                    class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
                    onclick="editLedColor(event, 'speed_slowest_');"
                    oninput="editLedColor(event, 'speed_slowest_');"
-                   onchange="change_setting('speed_slowest_color', this.value);">
+                   onchange="change_setting('speed_slowest_color', this.value, false, true);">
             <div id="speedslowcolors" class="justify-center flex">
                 <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
                 <input id="speed_slowest_red" type="number" value="255" min="0" max="255"
@@ -101,7 +101,7 @@
                    class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
                    onclick="editLedColor(event, 'speed_fastest_');"
                    oninput="editLedColor(event, 'speed_fastest_');"
-                   onchange="change_setting('speed_fastest_color', this.value);">
+                   onchange="change_setting('speed_fastest_color', this.value, false, true);">
             <div id="speedfastcolors" class="justify-center flex">
                 <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
                 <input id="speed_fastest_red" type="number" value="255" min="0" max="255"
@@ -122,7 +122,7 @@
                     <input id="speed_max_notes" type="number" value="176" min="0" max="255"
                            class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
             py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                           onchange="change_setting('speed_max_notes', this.value)">
+                           onchange="change_setting('speed_max_notes', this.value, false, true)">
                 </div>
 
                 <div class="w-full md:w-1/2 px-3 md:mb-0">
@@ -132,7 +132,7 @@
                     <input id="speed_period_in_seconds" step="0.1" type="number" value="176" min="0" max="255"
                            class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
             py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                           onchange="change_setting('speed_period_in_seconds', this.value)">
+                           onchange="change_setting('speed_period_in_seconds', this.value, false, true)">
                 </div>
             </div>
         </div>
@@ -145,7 +145,7 @@
                    class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
                    onclick="editLedColor(event, 'gradient_start_');"
                    oninput="editLedColor(event, 'gradient_start_');"
-                   onchange="change_setting('gradient_start_color', this.value);">
+                   onchange="change_setting('gradient_start_color', this.value, false, true);">
             <div id="gradientstartcolors" class="justify-center flex">
                 <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
                 <input id="gradient_start_red" type="number" value="255" min="0" max="255"
@@ -165,7 +165,7 @@
                    class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
                    onclick="editLedColor(event, 'gradient_end_');"
                    oninput="editLedColor(event, 'gradient_end_');"
-                   onchange="change_setting('gradient_end_color', this.value);">
+                   onchange="change_setting('gradient_end_color', this.value, false, true);">
             <div id="gradientendcolors" class="justify-center flex">
                 <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
                 <input id="gradient_end_red" type="number" value="255" min="0" max="255"
@@ -187,7 +187,7 @@
                    class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
                    onclick="editLedColor(event, 'key_in_scale_');"
                    oninput="editLedColor(event, 'key_in_scale_');"
-                   onchange="change_setting('key_in_scale_color', this.value);">
+                   onchange="change_setting('key_in_scale_color', this.value, false, true);">
             <div id="keyinscalecolors" class="justify-center flex">
                 <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
                 <input id="key_in_scale_red" type="number" value="255" min="0" max="255"
@@ -207,7 +207,7 @@
                    class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
                    onclick="editLedColor(event, 'key_not_in_scale_');"
                    oninput="editLedColor(event, 'key_not_in_scale_');"
-                   onchange="change_setting('key_not_in_scale_color', this.value);">
+                   onchange="change_setting('key_not_in_scale_color', this.value, false, true);">
             <div id="keynotinscalecolors" class="justify-center flex">
                 <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
                 <input id="key_not_in_scale_red" type="number" value="255" min="0" max="255"
@@ -226,7 +226,7 @@
                 </label>
                 <select id="scale_key" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
         py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                        onchange="change_setting('scale_key', this.value);">
+                        onchange="change_setting('scale_key', this.value, false, true);">
                     {% set i = 0 %}
                     {% set scales_list = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"] %}
                     {% for scale in scales_list %}
