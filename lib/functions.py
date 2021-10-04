@@ -28,6 +28,8 @@ def shift(l, n):
     return l[n:] + l[:n]
 
 def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
+    #commented parts are for benchmarking
+
     midiports.pending_queue.append(mido.Message('note_on'))
 
     if song_path in saving.is_playing_midi.keys():
@@ -40,39 +42,58 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     menu.render_message("Playing: ", song_path, 2000)
     saving.t = threading.currentThread()
 
-    output_time_last = 0
-    delay_debt = 0
     try:
         mid = mido.MidiFile("Songs/" + song_path)
         fastColorWipe(ledstrip.strip, True, ledsettings)
-        # length = mid.length
+        #length = mid.length
         t0 = False
+        total_delay = 0
+        # notes_count = 0
+        delay = 0
+        # message_to_print = ''
         for message in mid:
             if song_path in saving.is_playing_midi.keys():
+
                 if not t0:
                     t0 = time.time()
-                    output_time_start = time.time()
-                output_time_last = time.time() - output_time_start
-                delay_temp = message.time - output_time_last
-                delay = message.time - output_time_last - float(0.003) + delay_debt
+
+                # if(notes_count >= 100):
+                #     notes_count = 0
+                #     print(repr(message_to_print))
+                #     message_to_print = ''
+                # notes_count += 1
+
+                total_delay += message.time
+                current_time = (time.time() - t0) + message.time
+                drift = total_delay - current_time
+
+                if (drift < 0):
+                    delay = message.time + drift
+                else:
+                    delay = message.time
+                if(delay < 0):
+                    delay = 0
+
+                #message_to_print += "\n Message: "+str(message)+" Total delay: "+str(total_delay)+" current_time: "+str(current_time)+' message time: ' + str(message.time) + ' actual delay: ' + str(
+                    #delay) + ' drift: ' + str(drift)
+
                 if delay > 0:
                     time.sleep(delay)
-                    delay_debt = 0
-                else:
-                    delay_debt += delay_temp
-                output_time_start = time.time()
-
                 if not message.is_meta:
                     midiports.playport.send(message)
                     midiports.pending_queue.append(message.copy(time=0))
 
             else:
                 break
-        # print('play time: {:.2f} s (expected {:.2f})'.format(
-        # time.time() - t0, length))
+        print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, total_delay))
+        #print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, length))
         # saving.is_playing_midi = False
+
     except:
         menu.render_message(song_path, "Can't play this file", 2000)
+
+    saving.is_playing_midi.clear()
+
 
 def screensaver(menu, midiports, saving, ledstrip):
     KEY2 = 20
