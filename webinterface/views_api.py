@@ -776,7 +776,7 @@ def get_sequences():
     while True:
         try:
             i += 1
-            sequences_list.append( \
+            sequences_list.append(
                 sequences_tree.getElementsByTagName("sequence_" + str(i))[0].getElementsByTagName(
                     "sequence_name")[
                     0].firstChild.nodeValue)

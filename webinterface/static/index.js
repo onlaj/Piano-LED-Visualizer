@@ -750,7 +750,7 @@ function enforceMinMax(el) {
 }
 
 function get_sequences() {
-    if(!document.getElementById('sequences_list')){
+    if(!document.getElementById('sequences_list_1')){
         return false;
     }
 
@@ -758,18 +758,21 @@ function get_sequences() {
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-            response = JSON.parse(this.responseText);
-            removeOptions(document.getElementById('sequences_list'));
-            var i = 0;
-            response.sequences_list.unshift("None");
-            response.sequences_list.forEach(function (item, index) {
-                var opt = document.createElement('option');
-                opt.appendChild(document.createTextNode(item));
-                opt.value = i;
-                sequences_list.appendChild(opt);
-                i += 1
-            })
-            sequences_list.value = response.sequence_number;
+            for (s = 1; s <= 2; s++) {
+                var sequences_list = document.getElementById('sequences_list_'+s);
+                response = JSON.parse(this.responseText);
+                removeOptions(document.getElementById('sequences_list_'+s));
+                var i = 0;
+                response.sequences_list.unshift("None");
+                response.sequences_list.forEach(function (item, index) {
+                    var opt = document.createElement('option');
+                    opt.appendChild(document.createTextNode(item));
+                    opt.value = i;
+                    sequences_list.appendChild(opt);
+                    i += 1
+                })
+                sequences_list.value = response.sequence_number;
+            }
         }
     };
     xhttp.open("GET", "/api/get_sequences", true);
