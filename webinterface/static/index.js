@@ -194,8 +194,9 @@ function change_setting(setting_name, value, second_value = false, disable_seque
                 get_songs();
             }
             if (response.reload_sequence == true) {
-                get_sequences();
                 get_current_sequence_setting();
+                get_sequences();
+
             }
         }
     }
@@ -702,7 +703,7 @@ function initialize_sequences() {
             e.preventDefault();
         }
     });
-    get_sequences();
+    //get_sequences();
     get_current_sequence_setting();
 }
 
@@ -750,7 +751,7 @@ function enforceMinMax(el) {
 }
 
 function get_sequences() {
-    if(!document.getElementById('sequences_list_1')){
+    if (!document.getElementById('sequences_list_1')) {
         return false;
     }
 
@@ -759,9 +760,9 @@ function get_sequences() {
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             for (s = 1; s <= 2; s++) {
-                var sequences_list = document.getElementById('sequences_list_'+s);
+                var sequences_list = document.getElementById('sequences_list_' + s);
                 response = JSON.parse(this.responseText);
-                removeOptions(document.getElementById('sequences_list_'+s));
+                removeOptions(document.getElementById('sequences_list_' + s));
                 var i = 0;
                 response.sequences_list.unshift("None");
                 response.sequences_list.forEach(function (item, index) {
@@ -773,9 +774,27 @@ function get_sequences() {
                 })
                 sequences_list.value = response.sequence_number;
             }
+            get_steps();
         }
     };
     xhttp.open("GET", "/api/get_sequences", true);
+    xhttp.send();
+}
+
+function get_steps() {
+    var xhttp = new XMLHttpRequest();
+    var sequence = document.getElementById('sequences_list_2').value;
+    if (sequence == 0) {
+        return false;
+    }
+
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+
+        }
+    };
+    xhttp.open("GET", "/api/get_steps?sequence=" + sequence, true);
     xhttp.send();
 }
 
@@ -1244,10 +1263,10 @@ function uploadFile(file, i) {
 }
 
 function removeOptions(selectElement) {
-   var i, L = selectElement.options.length - 1;
-   for(i = L; i >= 0; i--) {
-      selectElement.remove(i);
-   }
+    var i, L = selectElement.options.length - 1;
+    for (i = L; i >= 0; i--) {
+        selectElement.remove(i);
+    }
 }
 
 //"waterfall" visualizer only updates the view when new note is played, this function makes the container scroll slowly
