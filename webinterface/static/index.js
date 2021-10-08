@@ -774,14 +774,14 @@ function get_sequences() {
                 })
                 sequences_list.value = response.sequence_number;
             }
-            get_steps();
+            get_steps_list();
         }
     };
     xhttp.open("GET", "/api/get_sequences", true);
     xhttp.send();
 }
 
-function get_steps() {
+function get_steps_list() {
     var xhttp = new XMLHttpRequest();
     var sequence = document.getElementById('sequences_list_2').value;
     if (sequence == 0) {
@@ -794,7 +794,7 @@ function get_steps() {
 
         }
     };
-    xhttp.open("GET", "/api/get_steps?sequence=" + sequence, true);
+    xhttp.open("GET", "/api/get_steps_list?sequence=" + sequence, true);
     xhttp.send();
 }
 
