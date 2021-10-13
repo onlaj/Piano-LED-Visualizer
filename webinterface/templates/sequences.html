@@ -60,15 +60,81 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                       d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
         </div>
-        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Sequence</div>
-        <select id="sequences_list_2" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                onchange="get_steps_list();">
-        </select>
-        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Step</div>
-        <select id="sequence_step" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-        </select>
+
+        <div class="flex flex-wrap mb-2">
+            <div class="w-full md:w-1/2 md:mb-0">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Sequence
+                </label>
+                <div class="relative pr-2">
+                    <select id="sequences_list_2" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+            py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                            onchange="get_steps_list();">
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full md:w-1/2 md:mb-0">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Step
+                </label>
+                <div class="relative pl-2">
+                    <select id="sequence_step" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+            py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"">
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap mb-4">
+            <div class="w-full md:w-1/2 md:mb-0">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Sequence
+                </label>
+                <div class="relative pr-2">
+                    <select id="control_number" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+            py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"">
+                        <option value="0">Button press</option>
+                        <option value="64">Sustain Pedal</option>
+                        <option value="65">Portamento Pedal</option>
+                        <option value="66">Sostenuto Pedal</option>
+                        <option value="67">Soft Pedal</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full md:w-1/2 md:mb-0">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    Next step value
+                </label>
+                <div class="relative pl-2">
+                    <select id="next_step" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+            py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"">
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {% include 'ledcolor.html' %}
         {% include 'lightmode.html' %}
     </div>

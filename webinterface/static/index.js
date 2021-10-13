@@ -791,7 +791,17 @@ function get_steps_list() {
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-
+            removeOptions(document.getElementById('sequence_step'));
+            var sequences_list = document.getElementById('sequence_step');
+            response = JSON.parse(this.responseText);
+            var i = 0;
+            response.steps_list.forEach(function (item, index) {
+                var opt = document.createElement('option');
+                opt.appendChild(document.createTextNode(item.replace('step_', 'Step ')));
+                opt.value = i;
+                sequences_list.appendChild(opt);
+                i += 1
+            })
         }
     };
     xhttp.open("GET", "/api/get_steps_list?sequence=" + sequence, true);

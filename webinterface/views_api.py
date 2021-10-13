@@ -797,8 +797,12 @@ def get_steps_list():
 
     for step in sequences_tree.getElementsByTagName("sequence_" + str(sequence))[0].childNodes:
         if(step.nodeType == 1):
-            print(step.nodeName)
-            steps_list.append(step.nodeName)
+            if(step.nodeName == "settings"):
+                response["control_number"] = step.getElementsByTagName("control_number")[0].firstChild.nodeValue
+                response["next_step"] = step.getElementsByTagName("next_step")[0].firstChild.nodeValue
+            else:
+                print(step.nodeName)
+                steps_list.append(step.nodeName)
 
     response["steps_list"] = steps_list
     return jsonify(response)
