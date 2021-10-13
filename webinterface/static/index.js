@@ -801,7 +801,10 @@ function get_steps_list() {
                 opt.value = i;
                 sequences_list.appendChild(opt);
                 i += 1
-            })
+            });
+            document.getElementById("control_number").value = response.control_number;
+            document.getElementById("next_step").value = response.next_step;
+
         }
     };
     xhttp.open("GET", "/api/get_steps_list?sequence=" + sequence, true);
