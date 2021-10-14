@@ -254,7 +254,8 @@ class LedSettings:
     def get_adjacent_colors(self):
         return str(self.adjacent_red) + ", " + str(self.adjacent_green) + ", " + str(self.adjacent_blue)
 
-    def set_sequence(self, sequence, step):
+    def set_sequence(self, sequence, step, trigger_sequence = True):
+        print("settings ledsettings "+str(sequence)+ " "+str(step))
         try:
             if step != 1:
                 self.step_number = 1
@@ -267,7 +268,8 @@ class LedSettings:
                 self.control_number = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                     0].getElementsByTagName("control_number")[0].firstChild.nodeValue
                 self.count_steps = 1
-                self.sequence_active = True
+                if(trigger_sequence == True):
+                    self.sequence_active = True
                 self.sequence_active_name = sequence
                 while True:
                     try:

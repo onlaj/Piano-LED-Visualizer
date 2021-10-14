@@ -196,7 +196,6 @@ function change_setting(setting_name, value, second_value = false, disable_seque
             if (response.reload_sequence == true) {
                 get_current_sequence_setting();
                 get_sequences();
-
             }
         }
     }
@@ -691,6 +690,7 @@ function initialize_songs() {
 
 
 function initialize_sequences() {
+    var is_editing_sequence = new Boolean(false);
     clearInterval(homepage_interval);
     document.getElementById('next_step_button').addEventListener("mousedown", function (e) {
         press_button(document.getElementById('next_step_button'));
@@ -759,7 +759,13 @@ function get_sequences() {
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-            for (s = 1; s <= 2; s++) {
+            var loop_length = 1;
+            if(document.getElementById('sequence_edit').getAttribute("active") == 'true'){
+                loop_length = 2;
+            }
+            console.log(document.getElementById('sequence_edit').getAttribute("active"))
+            console.log(loop_length)
+            for (s = 1; s <= loop_length; s++) {
                 var sequences_list = document.getElementById('sequences_list_' + s);
                 response = JSON.parse(this.responseText);
                 removeOptions(document.getElementById('sequences_list_' + s));
@@ -779,6 +785,18 @@ function get_sequences() {
     };
     xhttp.open("GET", "/api/get_sequences", true);
     xhttp.send();
+}
+
+function toggle_edit_sequence(){
+    if(document.getElementById('sequence_edit').getAttribute("active") == 'true'){
+        document.getElementById('sequence_edit').setAttribute("active", false);
+        document.getElementById('sequence_edit_block').classList.add("opacity-50")
+        document.getElementById('sequence_edit_block').classList.add("pointer-events-none")
+    }else{
+        document.getElementById('sequence_edit').setAttribute("active", true);
+        document.getElementById('sequence_edit_block').classList.remove("opacity-50")
+        document.getElementById('sequence_edit_block').classList.remove("pointer-events-none")
+    }
 }
 
 function get_steps_list() {
@@ -804,10 +822,24 @@ function get_steps_list() {
             });
             document.getElementById("control_number").value = response.control_number;
             document.getElementById("next_step").value = response.next_step;
-
+            set_step_properties(document.getElementById('sequences_list_2').value,document.getElementById('sequence_step').value)
         }
     };
     xhttp.open("GET", "/api/get_steps_list?sequence=" + sequence, true);
+    xhttp.send();
+}
+
+function set_step_properties(sequence, step){
+    //return false
+    sequence -= 1
+    var xhttp = new XMLHttpRequest();
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+
+        }
+    };
+    xhttp.open("GET", "/api/set_step_properties?sequence=" + sequence + "&step=" +step, true);
     xhttp.send();
 }
 

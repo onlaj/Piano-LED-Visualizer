@@ -801,8 +801,16 @@ def get_steps_list():
                 response["control_number"] = step.getElementsByTagName("control_number")[0].firstChild.nodeValue
                 response["next_step"] = step.getElementsByTagName("next_step")[0].firstChild.nodeValue
             else:
-                print(step.nodeName)
                 steps_list.append(step.nodeName)
 
     response["steps_list"] = steps_list
     return jsonify(response)
+
+@webinterface.route('/api/set_step_properties', methods=['GET'])
+def set_step_properties():
+    sequence = request.args.get('sequence')
+    step = request.args.get('step')
+    print("settings webinterface "+str(sequence)+ " "+str(step))
+    webinterface.ledsettings.set_sequence(sequence, step, False)
+
+    return jsonify(success=True)
