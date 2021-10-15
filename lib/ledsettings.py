@@ -254,22 +254,24 @@ class LedSettings:
     def get_adjacent_colors(self):
         return str(self.adjacent_red) + ", " + str(self.adjacent_green) + ", " + str(self.adjacent_blue)
 
-    def set_sequence(self, sequence, step, trigger_sequence = True):
-        print("settings ledsettings "+str(sequence)+ " "+str(step))
+    def set_sequence(self, sequence, step, direct_step = False):
         try:
-            if step != 1:
-                self.step_number = 1
+            if int(step) == 0 or direct_step == True:
+                if direct_step == True:
+                    self.step_number = int(step) + 1
+                else:
+                    self.step_number = 1
                 self.sequences_tree = minidom.parse("sequences.xml")
 
-                self.sequence_number = str(sequence + 1)
+                self.sequence_number = str(int(sequence) + 1)
 
                 self.next_step = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                     0].getElementsByTagName("next_step")[0].firstChild.nodeValue
                 self.control_number = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                     0].getElementsByTagName("control_number")[0].firstChild.nodeValue
                 self.count_steps = 1
-                if(trigger_sequence == True):
-                    self.sequence_active = True
+                #if(direct_step == False):
+                self.sequence_active = True
                 self.sequence_active_name = sequence
                 while True:
                     try:
@@ -281,11 +283,9 @@ class LedSettings:
                         self.count_steps -= 1
                         break
             else:
-                # print("step_number: "+str(self.step_number)+" count steps: "+str(self.count_steps))
                 self.step_number += 1
                 if self.step_number > self.count_steps:
                     self.step_number = 1
-
             self.color_mode = \
                 self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                     0].getElementsByTagName(

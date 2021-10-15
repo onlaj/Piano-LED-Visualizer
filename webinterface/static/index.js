@@ -763,8 +763,6 @@ function get_sequences() {
             if(document.getElementById('sequence_edit').getAttribute("active") == 'true'){
                 loop_length = 2;
             }
-            console.log(document.getElementById('sequence_edit').getAttribute("active"))
-            console.log(loop_length)
             for (s = 1; s <= loop_length; s++) {
                 var sequences_list = document.getElementById('sequences_list_' + s);
                 response = JSON.parse(this.responseText);
@@ -796,6 +794,7 @@ function toggle_edit_sequence(){
         document.getElementById('sequence_edit').setAttribute("active", true);
         document.getElementById('sequence_edit_block').classList.remove("opacity-50")
         document.getElementById('sequence_edit_block').classList.remove("pointer-events-none")
+        get_sequences();
     }
 }
 
@@ -836,7 +835,7 @@ function set_step_properties(sequence, step){
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-
+            get_current_sequence_setting();
         }
     };
     xhttp.open("GET", "/api/set_step_properties?sequence=" + sequence + "&step=" +step, true);

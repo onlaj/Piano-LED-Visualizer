@@ -381,7 +381,7 @@ def change_setting():
         return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "next_step":
-        webinterface.ledsettings.set_sequence(0, 1)
+        webinterface.ledsettings.set_sequence(0, 1, False)
         return jsonify(success=True, reload_sequence=True)
 
     if setting_name == "set_sequence":
@@ -811,6 +811,6 @@ def set_step_properties():
     sequence = request.args.get('sequence')
     step = request.args.get('step')
     print("settings webinterface "+str(sequence)+ " "+str(step))
-    webinterface.ledsettings.set_sequence(sequence, step, False)
+    webinterface.ledsettings.set_sequence(sequence, step, True)
 
     return jsonify(success=True)
