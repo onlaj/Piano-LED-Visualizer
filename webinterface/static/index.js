@@ -8,6 +8,8 @@ let beats_per_measure = 4;
 let count = 0;
 let is_playing = 0;
 
+
+
 const tick1 = new Audio('/static/tick2.mp3');
 tick1.volume = 0.2;
 const tick2 = new Audio('/static/tick1.mp3');
@@ -260,12 +262,10 @@ function get_settings(home = true) {
 
                 document.getElementById("color_mode").value = response.color_mode;
 
-                show_multicolors(response.multicolor, response.multicolor_range, response.led_shift);
+                show_multicolors(response.multicolor, response.multicolor_range);
 
                 document.getElementById("rainbow_offset").value = response.rainbow_offset;
                 document.getElementById("rainbow_scale").value = response.rainbow_scale;
-                document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
-
                 document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
 
                 document.getElementById("speed_slow_color").value = response.speed_slowest_color;
@@ -305,6 +305,26 @@ function get_current_sequence_setting(home = true) {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
 
+            if(document.getElementById('sequence_edit')) {
+                is_editing_sequence = document.getElementById('sequence_edit').getAttribute("active");
+            }else{
+                is_editing_sequence = "false";
+            }
+
+            if(is_editing_sequence == "true"){
+                document.getElementById('fading').hidden = true;
+                document.getElementById('velocity').hidden = true;
+                document.getElementById("light_mode").value = response.light_mode;
+                if (response.light_mode == "Fading") {
+                    document.getElementById('fading').hidden = false;
+                }
+                if (response.light_mode == "Velocity") {
+                    document.getElementById('velocity').hidden = false;
+                }
+                document.getElementById("color_mode").value = response.color_mode;
+                console.log(document.getElementById("color_mode").value);
+            }
+
             if (document.getElementById("current_color_mode")) {
                 document.getElementById("current_color_mode").innerHTML = response.color_mode
                 document.getElementById("current_light_mode").innerHTML = response.light_mode
@@ -322,8 +342,15 @@ function get_current_sequence_setting(home = true) {
                     '<rect width="100%" height="45px" fill="url(#gradient_single)" /></svg>'
                 document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
+
+                if(is_editing_sequence == "true"){
+                    document.getElementById("led_color").value = response.led_color;
+                }
             }
             if (response.color_mode == "Multicolor") {
+                if(is_editing_sequence == "true"){
+                    show_multicolors(response.multicolor, response.multicolor_range);
+                }
                 document.getElementById("current_led_color").innerHTML = '';
                 response.multicolor.forEach(function (item, index) {
                     var multicolor_hex = rgbToHex(item[0], item[1], item[2]);
@@ -341,6 +368,8 @@ function get_current_sequence_setting(home = true) {
                 });
                 document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-100" ' +
                     'style="height: 40px;width:100%;" src="../static/piano.svg">';
+
+
             }
             if (response.color_mode == "Gradient") {
                 document.getElementById("current_led_color").innerHTML = '<svg ' +
@@ -459,7 +488,6 @@ function get_current_sequence_setting(home = true) {
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">in a scale</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">not in a scale</p></div>';
             }
-
         }
     };
     xhttp.open("GET", "/api/get_sequence_setting", true);
@@ -690,7 +718,6 @@ function initialize_songs() {
 
 
 function initialize_sequences() {
-    var is_editing_sequence = new Boolean(false);
     clearInterval(homepage_interval);
     document.getElementById('next_step_button').addEventListener("mousedown", function (e) {
         press_button(document.getElementById('next_step_button'));
@@ -788,12 +815,14 @@ function get_sequences() {
 function toggle_edit_sequence(){
     if(document.getElementById('sequence_edit').getAttribute("active") == 'true'){
         document.getElementById('sequence_edit').setAttribute("active", false);
-        document.getElementById('sequence_edit_block').classList.add("opacity-50")
-        document.getElementById('sequence_edit_block').classList.add("pointer-events-none")
+        document.getElementById('sequence_edit_block').classList.add("opacity-50");
+        document.getElementById('sequence_edit_block').classList.add("pointer-events-none");
+        document.getElementById('sequence_block').classList.remove("pointer-events-none");
     }else{
         document.getElementById('sequence_edit').setAttribute("active", true);
-        document.getElementById('sequence_edit_block').classList.remove("opacity-50")
-        document.getElementById('sequence_edit_block').classList.remove("pointer-events-none")
+        document.getElementById('sequence_edit_block').classList.remove("opacity-50");
+        document.getElementById('sequence_edit_block').classList.remove("pointer-events-none");
+        document.getElementById('sequence_block').classList.add("pointer-events-none");
         get_sequences();
     }
 }
@@ -829,7 +858,6 @@ function get_steps_list() {
 }
 
 function set_step_properties(sequence, step){
-    //return false
     sequence -= 1
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;

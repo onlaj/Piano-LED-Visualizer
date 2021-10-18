@@ -508,7 +508,7 @@ def get_sequence_setting():
 
     color_mode = webinterface.ledsettings.color_mode
 
-    light_mode = webinterface.usersettings.get_setting_value("mode")
+    light_mode = webinterface.ledsettings.mode
 
     red = webinterface.ledsettings.red
     green = webinterface.ledsettings.green
