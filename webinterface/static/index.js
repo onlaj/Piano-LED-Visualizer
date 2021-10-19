@@ -823,6 +823,8 @@ function get_sequences() {
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
+            sequence_editing_number = document.getElementById('sequences_list_2').value;
+
             var loop_length = 1;
             if(document.getElementById('sequence_edit').getAttribute("active") == 'true'){
                 loop_length = 2;
@@ -840,9 +842,14 @@ function get_sequences() {
                     sequences_list.appendChild(opt);
                     i += 1
                 })
-                sequences_list.value = response.sequence_number;
+                if(s == 1) {
+                    sequences_list.value = response.sequence_number;
+                }else{
+                    sequences_list.value = sequence_editing_number;
+                }
+
             }
-            get_steps_list();
+            //get_steps_list();
         }
     };
     xhttp.open("GET", "/api/get_sequences", true);
