@@ -322,6 +322,7 @@ function get_current_sequence_setting(home = true) {
                     document.getElementById('velocity').hidden = false;
                 }
                 document.getElementById("color_mode").value = response.color_mode;
+                change_setting("color_mode", response.color_mode, "no_reload", true);
             }
 
             if (document.getElementById("current_color_mode")) {

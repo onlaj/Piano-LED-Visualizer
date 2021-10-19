@@ -238,9 +238,13 @@ def change_setting():
         webinterface.ledstrip.change_reverse(int(value), True)
 
     if setting_name == "color_mode":
+        reload_sequence = True
+        if(second_value == "no_reload"):
+            reload_sequence = False
+
         webinterface.ledsettings.color_mode = value
         webinterface.usersettings.change_setting_value("color_mode", webinterface.ledsettings.color_mode)
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "add_multicolor":
         webinterface.ledsettings.addcolor()
