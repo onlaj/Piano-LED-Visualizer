@@ -411,6 +411,38 @@ class LedSettings:
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
                         "gradien_end_blue")[0].firstChild.nodeValue)
 
+            if self.color_mode == "Scale":
+                self.key_in_scale["red"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_in_scale_red")[0].firstChild.nodeValue)
+                self.key_in_scale["green"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_in_scale_green")[0].firstChild.nodeValue)
+                self.key_in_scale["blue"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_in_scale_blue")[0].firstChild.nodeValue)
+
+                self.key_not_in_scale["red"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_not_in_scale_red")[0].firstChild.nodeValue)
+                self.key_not_in_scale["green"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_not_in_scale_green")[0].firstChild.nodeValue)
+                self.key_not_in_scale["blue"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_not_in_scale_blue")[0].firstChild.nodeValue)
+
+                self.scale_key = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName("scale_key")[
+                        0].firstChild.nodeValue)
+
             if self.color_mode == "Multicolor":
                 self.multicolor = []
                 self.multicolor_range = []

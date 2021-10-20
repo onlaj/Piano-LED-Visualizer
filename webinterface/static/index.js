@@ -180,7 +180,10 @@ function start_led_animation(name, speed) {
 
 function change_setting(setting_name, value, second_value = false, disable_sequence = false) {
     var xhttp = new XMLHttpRequest();
-    var value = value.replace('#', '');
+    try {
+        var value = value.replace('#', '');
+    }
+    catch{}
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
@@ -311,6 +314,11 @@ function get_current_sequence_setting(home = true) {
                 is_editing_sequence = "false";
             }
 
+            if (document.getElementById("current_color_mode")) {
+                document.getElementById("current_color_mode").innerHTML = response.color_mode
+                document.getElementById("current_light_mode").innerHTML = response.light_mode
+            }
+
             if(is_editing_sequence == "true"){
                 document.getElementById('fading').hidden = true;
                 document.getElementById('velocity').hidden = true;
@@ -323,11 +331,7 @@ function get_current_sequence_setting(home = true) {
                 }
                 document.getElementById("color_mode").value = response.color_mode;
                 change_setting("color_mode", response.color_mode, "no_reload", true);
-            }
-
-            if (document.getElementById("current_color_mode")) {
-                document.getElementById("current_color_mode").innerHTML = response.color_mode
-                document.getElementById("current_light_mode").innerHTML = response.light_mode
+                change_setting("light_mode", response.light_mode, false, true);
             }
 
             if (response.color_mode == "Single") {
@@ -348,6 +352,8 @@ function get_current_sequence_setting(home = true) {
                     document.getElementById("led_color").value = response.led_color;
                     document.getElementById('Single').hidden = false;
                     document.getElementById("led_color").dispatchEvent(new Event('input'));
+
+                    change_setting("led_color", response.led_color, "no_reload", true);
                 }
 
             }
@@ -405,6 +411,8 @@ function get_current_sequence_setting(home = true) {
                     document.getElementById("gradient_start_color").dispatchEvent(new Event('input'));
                     document.getElementById("gradient_end_color").dispatchEvent(new Event('input'));
 
+                    change_setting("gradient_start_color", response.gradient_start_color, "no_reload", true);
+                    change_setting("gradient_end_color", response.gradient_end_color, "no_reload", true);
                 }
             }
 
@@ -438,6 +446,10 @@ function get_current_sequence_setting(home = true) {
 
                     document.getElementById("speed_slow_color").dispatchEvent(new Event('input'));
                     document.getElementById("speed_fast_color").dispatchEvent(new Event('input'));
+
+
+                    change_setting("speed_slow_color", response.speed_slowest_color, "no_reload", true);
+                    change_setting("speed_fast_color", response.speed_fastest_color, "no_reload", true);
                 }
             }
 
@@ -499,6 +511,10 @@ function get_current_sequence_setting(home = true) {
 
                     remove_color_modes();
                     document.getElementById('Rainbow').hidden = false;
+
+                    change_setting("rainbow_offset", response.rainbow_offset, "no_reload", true);
+                    change_setting("rainbow_scale", response.rainbow_scale, "no_reload", true);
+                    change_setting("rainbow_timeshift", response.rainbow_timeshift, "no_reload", true);
                 }
             }
 
@@ -522,7 +538,7 @@ function get_current_sequence_setting(home = true) {
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">in a scale</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">not in a scale</p></div>';
-
+                console.log(response.key_not_in_scale_color)
                 if(is_editing_sequence == "true"){
                     remove_color_modes();
                     document.getElementById('Scale').hidden = false;
@@ -532,6 +548,10 @@ function get_current_sequence_setting(home = true) {
 
                     document.getElementById("key_in_scale_color").dispatchEvent(new Event('input'));
                     document.getElementById("key_not_in_scale_color").dispatchEvent(new Event('input'));
+
+                    change_setting("key_in_scale_color", response.key_in_scale_color, "no_reload", true);
+                    change_setting("key_not_in_scale_color", response.key_not_in_scale_color, "no_reload", true);
+                    change_setting("scale_key", response.scale_key, "no_reload", true);
                 }
             }
         }

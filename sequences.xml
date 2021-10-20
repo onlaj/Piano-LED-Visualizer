@@ -102,10 +102,14 @@
       <light_mode>Normal</light_mode>
     </step_5>
     <step_6>
-      <color>RGB</color>
-      <Red>142</Red>
-      <Green>81</Green>
-      <Blue>73</Blue>
+      <color>Scale</color>
+      <key_in_scale_red>255</key_in_scale_red>
+      <key_in_scale_green>0</key_in_scale_green>
+      <key_in_scale_blue>0</key_in_scale_blue>
+      <key_not_in_scale_red>255</key_not_in_scale_red>
+      <key_not_in_scale_green>255</key_not_in_scale_green>
+      <key_not_in_scale_blue>255</key_not_in_scale_blue>
+      <scale_key>0</scale_key>
       <light_mode>Normal</light_mode>
     </step_6>
     <step_7>

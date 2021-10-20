@@ -138,6 +138,10 @@ def change_setting():
     second_value = request.args.get('second_value')
     disable_sequence = request.args.get('disable_sequence')
 
+    reload_sequence = True
+    if (second_value == "no_reload"):
+        reload_sequence = False
+
     if(disable_sequence == "true"):
         webinterface.ledsettings.__init__(webinterface.usersettings)
         webinterface.ledsettings.sequence_active = False
@@ -146,6 +150,7 @@ def change_setting():
         fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
 
     if setting_name == "led_color":
+
         rgb = wc.hex_to_rgb("#" + value)
 
         webinterface.ledsettings.color_mode = "Single"
@@ -159,7 +164,7 @@ def change_setting():
         webinterface.usersettings.change_setting_value("green", rgb[1])
         webinterface.usersettings.change_setting_value("blue", rgb[2])
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "light_mode":
         webinterface.ledsettings.mode = value
@@ -262,37 +267,37 @@ def change_setting():
 
         webinterface.usersettings.change_setting_value("multicolor", webinterface.ledsettings.multicolor)
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "multicolor_range_left":
         webinterface.ledsettings.multicolor_range[int(second_value)][0] = int(value)
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "multicolor_range_right":
         webinterface.ledsettings.multicolor_range[int(second_value)][1] = int(value)
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "rainbow_offset":
         webinterface.ledsettings.rainbow_offset = int(value)
         webinterface.usersettings.change_setting_value("rainbow_offset",
                                                        int(webinterface.ledsettings.rainbow_offset))
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "rainbow_scale":
         webinterface.ledsettings.rainbow_scale = int(value)
         webinterface.usersettings.change_setting_value("rainbow_scale",
                                                        int(webinterface.ledsettings.rainbow_scale))
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "rainbow_timeshift":
         webinterface.ledsettings.rainbow_timeshift = int(value)
         webinterface.usersettings.change_setting_value("rainbow_timeshift",
                                                        int(webinterface.ledsettings.rainbow_timeshift))
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "speed_slowest_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -304,7 +309,7 @@ def change_setting():
         webinterface.usersettings.change_setting_value("speed_slowest_green", rgb[1])
         webinterface.usersettings.change_setting_value("speed_slowest_blue", rgb[2])
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "speed_fastest_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -316,7 +321,7 @@ def change_setting():
         webinterface.usersettings.change_setting_value("speed_fastest_green", rgb[1])
         webinterface.usersettings.change_setting_value("speed_fastest_blue", rgb[2])
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "gradient_start_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -328,7 +333,7 @@ def change_setting():
         webinterface.usersettings.change_setting_value("gradient_start_green", rgb[1])
         webinterface.usersettings.change_setting_value("gradient_start_blue", rgb[2])
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "gradient_end_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -340,19 +345,19 @@ def change_setting():
         webinterface.usersettings.change_setting_value("gradient_end_green", rgb[1])
         webinterface.usersettings.change_setting_value("gradient_end_blue", rgb[2])
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "speed_max_notes":
         webinterface.ledsettings.speed_max_notes = int(value)
         webinterface.usersettings.change_setting_value("speed_max_notes", int(value))
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "speed_period_in_seconds":
         webinterface.ledsettings.speed_period_in_seconds = float(value)
         webinterface.usersettings.change_setting_value("speed_period_in_seconds", float(value))
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "key_in_scale_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -364,7 +369,7 @@ def change_setting():
         webinterface.usersettings.change_setting_value("key_in_scale_green", rgb[1])
         webinterface.usersettings.change_setting_value("key_in_scale_blue", rgb[2])
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "key_not_in_scale_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -376,17 +381,17 @@ def change_setting():
         webinterface.usersettings.change_setting_value("key_not_in_scale_green", rgb[1])
         webinterface.usersettings.change_setting_value("key_not_in_scale_blue", rgb[2])
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "scale_key":
         webinterface.ledsettings.scale_key = int(value)
         webinterface.usersettings.change_setting_value("scale_key", int(value))
 
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "next_step":
         webinterface.ledsettings.set_sequence(0, 1, False)
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "set_sequence":
         if (int(value) == 0):
@@ -394,7 +399,7 @@ def change_setting():
             webinterface.ledsettings.sequence_active = False
         else:
             webinterface.ledsettings.set_sequence(int(value) - 1, 0)
-        return jsonify(success=True, reload_sequence=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "screen_on":
         if (int(value) == 0):
