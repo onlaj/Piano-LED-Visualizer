@@ -814,7 +814,6 @@ def get_steps_list():
 def set_step_properties():
     sequence = request.args.get('sequence')
     step = request.args.get('step')
-    print("settings webinterface "+str(sequence)+ " "+str(step))
     webinterface.ledsettings.set_sequence(sequence, step, True)
 
     return jsonify(success=True)

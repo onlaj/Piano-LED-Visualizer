@@ -352,11 +352,6 @@ function get_current_sequence_setting(home = true) {
 
             }
             if (response.color_mode == "Multicolor") {
-                if(is_editing_sequence == "true"){
-                    remove_color_modes();
-                    document.getElementById('Multicolor').hidden = false;
-                    show_multicolors(response.multicolor, response.multicolor_range);
-                }
                 document.getElementById("current_led_color").innerHTML = '';
                 response.multicolor.forEach(function (item, index) {
                     var multicolor_hex = rgbToHex(item[0], item[1], item[2]);
@@ -374,6 +369,12 @@ function get_current_sequence_setting(home = true) {
                 });
                 document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-100" ' +
                     'style="height: 40px;width:100%;" src="../static/piano.svg">';
+
+                if(is_editing_sequence == "true"){
+                    remove_color_modes();
+                    document.getElementById('Multicolor').hidden = false;
+                    show_multicolors(response.multicolor, response.multicolor_range);
+                }
             }
             if (response.color_mode == "Gradient") {
                 document.getElementById("current_led_color").innerHTML = '<svg ' +
@@ -1072,8 +1073,11 @@ function get_songs() {
 
 
 function show_multicolors(colors, ranges) {
-    colors = JSON.parse(colors);
-    ranges = JSON.parse(ranges);
+    try {
+        colors = JSON.parse(colors);
+        ranges = JSON.parse(ranges);
+    } catch (e) {}
+
     multicolor_element = document.getElementById("Multicolor");
     var i = 0
     multicolor_element.innerHTML = "";
