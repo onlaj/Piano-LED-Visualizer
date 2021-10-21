@@ -9,7 +9,6 @@ let count = 0;
 let is_playing = 0;
 
 
-
 const tick1 = new Audio('/static/tick2.mp3');
 tick1.volume = 0.2;
 const tick2 = new Audio('/static/tick1.mp3');
@@ -182,8 +181,8 @@ function change_setting(setting_name, value, second_value = false, disable_seque
     var xhttp = new XMLHttpRequest();
     try {
         var value = value.replace('#', '');
+    } catch {
     }
-    catch{}
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
@@ -308,9 +307,9 @@ function get_current_sequence_setting(home = true) {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
 
-            if(document.getElementById('sequence_edit')) {
+            if (document.getElementById('sequence_edit')) {
                 is_editing_sequence = document.getElementById('sequence_edit').getAttribute("active");
-            }else{
+            } else {
                 is_editing_sequence = "false";
             }
 
@@ -319,7 +318,7 @@ function get_current_sequence_setting(home = true) {
                 document.getElementById("current_light_mode").innerHTML = response.light_mode
             }
 
-            if(is_editing_sequence == "true"){
+            if (is_editing_sequence == "true") {
                 document.getElementById('fading').hidden = true;
                 document.getElementById('velocity').hidden = true;
                 document.getElementById("light_mode").value = response.light_mode;
@@ -347,7 +346,7 @@ function get_current_sequence_setting(home = true) {
                 document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
 
-                if(is_editing_sequence == "true"){
+                if (is_editing_sequence == "true") {
                     remove_color_modes();
                     document.getElementById("led_color").value = response.led_color;
                     document.getElementById('Single').hidden = false;
@@ -358,6 +357,12 @@ function get_current_sequence_setting(home = true) {
 
             }
             if (response.color_mode == "Multicolor") {
+
+                if (is_editing_sequence == "true") {
+                    change_setting("remove_all_multicolors", "", "", "");
+                }
+
+
                 document.getElementById("current_led_color").innerHTML = '';
                 response.multicolor.forEach(function (item, index) {
                     var multicolor_hex = rgbToHex(item[0], item[1], item[2]);
@@ -370,17 +375,28 @@ function get_current_sequence_setting(home = true) {
 
                     document.getElementById("current_led_color").innerHTML += '<svg class="mb-2" ' +
                         'style="filter: drop-shadow(0px 5px 15px ' + multicolor_hex + ');margin-left:' + left_spacing + '%" width="100%" height="10px">' +
-                        '<rect width="' + length + '%" height="20" fill="' + multicolor_hex + '" /></svg>'
+                        '<rect width="' + length + '%" height="20" fill="' + multicolor_hex + '" /></svg>';
+
+                    if (is_editing_sequence == "true") {
+                        var new_multicolor = {};
+                        new_multicolor["color"] = multicolor_hex
+                        new_multicolor["range"] = response.multicolor_range[index]
+                        console.log(new_multicolor)
+                        console.log(JSON.stringify(new_multicolor))
+                        change_setting("add_multicolor_and_set_value", JSON.stringify(new_multicolor), "", "");
+                    }
 
                 });
                 document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-100" ' +
                     'style="height: 40px;width:100%;" src="../static/piano.svg">';
 
-                if(is_editing_sequence == "true"){
+                if (is_editing_sequence == "true") {
                     remove_color_modes();
                     document.getElementById('Multicolor').hidden = false;
                     show_multicolors(response.multicolor, response.multicolor_range);
                 }
+
+
             }
             if (response.color_mode == "Gradient") {
                 document.getElementById("current_led_color").innerHTML = '<svg ' +
@@ -402,7 +418,7 @@ function get_current_sequence_setting(home = true) {
                 document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
 
-                if(is_editing_sequence == "true"){
+                if (is_editing_sequence == "true") {
                     remove_color_modes();
                     document.getElementById('Gradient').hidden = false;
                     document.getElementById("gradient_start_color").value = response.gradient_start_color;
@@ -438,7 +454,7 @@ function get_current_sequence_setting(home = true) {
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">slowest</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">fastest</p></div>';
 
-                if(is_editing_sequence == "true"){
+                if (is_editing_sequence == "true") {
                     remove_color_modes();
                     document.getElementById('Speed').hidden = false;
                     document.getElementById("speed_slow_color").value = response.speed_slowest_color;
@@ -504,7 +520,7 @@ function get_current_sequence_setting(home = true) {
                  */
                 document.getElementById("current_led_color").innerHTML = rainbow_example;
 
-                if(is_editing_sequence == "true"){
+                if (is_editing_sequence == "true") {
                     document.getElementById("rainbow_offset").value = response.rainbow_offset;
                     document.getElementById("rainbow_scale").value = response.rainbow_scale;
                     document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
@@ -539,7 +555,7 @@ function get_current_sequence_setting(home = true) {
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">in a scale</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">not in a scale</p></div>';
                 console.log(response.key_not_in_scale_color)
-                if(is_editing_sequence == "true"){
+                if (is_editing_sequence == "true") {
                     remove_color_modes();
                     document.getElementById('Scale').hidden = false;
                     document.getElementById("key_in_scale_color").value = response.key_in_scale_color;
@@ -848,7 +864,7 @@ function get_sequences() {
             sequence_editing_number = document.getElementById('sequences_list_2').value;
 
             var loop_length = 1;
-            if(document.getElementById('sequence_edit').getAttribute("active") == 'true'){
+            if (document.getElementById('sequence_edit').getAttribute("active") == 'true') {
                 loop_length = 2;
             }
             for (s = 1; s <= loop_length; s++) {
@@ -864,9 +880,9 @@ function get_sequences() {
                     sequences_list.appendChild(opt);
                     i += 1
                 })
-                if(s == 1) {
+                if (s == 1) {
                     sequences_list.value = response.sequence_number;
-                }else{
+                } else {
                     sequences_list.value = sequence_editing_number;
                 }
 
@@ -878,14 +894,14 @@ function get_sequences() {
     xhttp.send();
 }
 
-function toggle_edit_sequence(){
-    if(document.getElementById('sequence_edit').getAttribute("active") == 'true'){
+function toggle_edit_sequence() {
+    if (document.getElementById('sequence_edit').getAttribute("active") == 'true') {
         document.getElementById('sequence_edit').setAttribute("active", false);
         document.getElementById('sequence_edit_block').classList.add("opacity-50");
         document.getElementById('sequence_edit_block').classList.add("pointer-events-none");
         document.getElementById('sequence_block').classList.remove("pointer-events-none");
         document.getElementById('sequences_list_2').value = 0;
-    }else{
+    } else {
         document.getElementById('sequence_edit').setAttribute("active", true);
         document.getElementById('sequence_edit_block').classList.remove("opacity-50");
         document.getElementById('sequence_edit_block').classList.remove("pointer-events-none");
@@ -925,7 +941,7 @@ function get_steps_list() {
     xhttp.send();
 }
 
-function set_step_properties(sequence, step){
+function set_step_properties(sequence, step) {
     sequence -= 1
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
@@ -934,7 +950,7 @@ function set_step_properties(sequence, step){
             get_current_sequence_setting();
         }
     };
-    xhttp.open("GET", "/api/set_step_properties?sequence=" + sequence + "&step=" +step, true);
+    xhttp.open("GET", "/api/set_step_properties?sequence=" + sequence + "&step=" + step, true);
     xhttp.send();
 }
 
@@ -1096,7 +1112,8 @@ function show_multicolors(colors, ranges) {
     try {
         colors = JSON.parse(colors);
         ranges = JSON.parse(ranges);
-    } catch (e) {}
+    } catch (e) {
+    }
 
     multicolor_element = document.getElementById("Multicolor");
     var i = 0
@@ -1413,11 +1430,11 @@ function removeOptions(selectElement) {
 }
 
 function remove_color_modes() {
-        var slides = document.getElementsByClassName("color_mode");
-        for (var i = 0; i < slides.length; i++) {
-            slides.item(i).hidden = true;
-        }
+    var slides = document.getElementsByClassName("color_mode");
+    for (var i = 0; i < slides.length; i++) {
+        slides.item(i).hidden = true;
     }
+}
 
 //"waterfall" visualizer only updates the view when new note is played, this function makes the container scroll slowly
 //to simulate smooth animation

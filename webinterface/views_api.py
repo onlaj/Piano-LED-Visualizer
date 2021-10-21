@@ -255,6 +255,11 @@ def change_setting():
         webinterface.ledsettings.addcolor()
         return jsonify(success=True, reload=True)
 
+    if setting_name == "add_multicolor_and_set_value":
+        #webinterface.ledsettings.addcolor()
+        print(value)
+        return jsonify(success=True)
+
     if setting_name == "remove_multicolor":
         webinterface.ledsettings.deletecolor(int(value) + 1)
         return jsonify(success=True, reload=True)
@@ -280,6 +285,11 @@ def change_setting():
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
+
+    if setting_name == "remove_all_multicolors":
+        #webinterface.ledsettings.multicolor.clear()
+        return jsonify(success=True)
+
 
     if setting_name == "rainbow_offset":
         webinterface.ledsettings.rainbow_offset = int(value)
