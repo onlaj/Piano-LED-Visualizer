@@ -259,13 +259,18 @@ def change_setting():
     if setting_name == "add_multicolor_and_set_value":
         settings = json.loads(value)
 
-        rgb = wc.hex_to_rgb("#" + settings["color"])
+        webinterface.ledsettings.multicolor.clear()
+        webinterface.ledsettings.multicolor_range.clear()
 
-        webinterface.ledsettings.multicolor.append([int(rgb[0]), int(rgb[1]), int(rgb[2])])
-        webinterface.ledsettings.multicolor_range.append([int(settings["range"][0]), int(settings["range"][1])])
+        for key, value in settings.items():
+            rgb = wc.hex_to_rgb("#" + value["color"])
+
+            webinterface.ledsettings.multicolor.append([int(rgb[0]), int(rgb[1]), int(rgb[2])])
+            webinterface.ledsettings.multicolor_range.append([int(value["range"][0]), int(value["range"][1])])
 
         webinterface.usersettings.change_setting_value("multicolor", webinterface.ledsettings.multicolor)
-        webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
+        webinterface.usersettings.change_setting_value("multicolor_range",
+                                                       webinterface.ledsettings.multicolor_range)
 
         return jsonify(success=True)
 

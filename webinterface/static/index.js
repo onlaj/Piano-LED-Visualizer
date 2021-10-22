@@ -180,7 +180,7 @@ function start_led_animation(name, speed) {
 function change_setting(setting_name, value, second_value = false, disable_sequence = false) {
     var xhttp = new XMLHttpRequest();
     try {
-        var value = value.replace('#', '');
+        var value = value.replaceAll('#', '');
     } catch {
     }
     xhttp.onreadystatechange = function () {
@@ -300,7 +300,7 @@ function get_settings(home = true) {
     xhttp.send();
 }
 
-function get_current_sequence_setting(home = true) {
+function get_current_sequence_setting(home = true, is_loading_step = false) {
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
@@ -358,12 +358,8 @@ function get_current_sequence_setting(home = true) {
             }
             if (response.color_mode == "Multicolor") {
 
-                if (is_editing_sequence == "true") {
-                    change_setting("remove_all_multicolors", "", "", "");
-                }
-
-
                 document.getElementById("current_led_color").innerHTML = '';
+                var new_multicolor = {};
                 response.multicolor.forEach(function (item, index) {
                     var multicolor_hex = rgbToHex(item[0], item[1], item[2]);
 
@@ -377,25 +373,21 @@ function get_current_sequence_setting(home = true) {
                         'style="filter: drop-shadow(0px 5px 15px ' + multicolor_hex + ');margin-left:' + left_spacing + '%" width="100%" height="10px">' +
                         '<rect width="' + length + '%" height="20" fill="' + multicolor_hex + '" /></svg>';
 
-                    if (is_editing_sequence == "true") {
-                        var new_multicolor = {};
-                        new_multicolor["index"] = index;
-                        new_multicolor["color"] = multicolor_hex;
-                        new_multicolor["range"] = response.multicolor_range[index];
-                        setTimeout(function () {
-                            change_setting("add_multicolor_and_set_value", JSON.stringify(new_multicolor), "", "");
-                        }, index * 300);
-
+                    if (is_editing_sequence == "true" && is_loading_step == true) {
+                        new_multicolor[index] = {};
+                        new_multicolor[index]["color"] = multicolor_hex;
+                        new_multicolor[index]["range"] = response.multicolor_range[index];
                     }
 
                 });
                 document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-100" ' +
                     'style="height: 40px;width:100%;" src="../static/piano.svg">';
 
-                if (is_editing_sequence == "true") {
+                if (is_editing_sequence == "true" && is_loading_step == true) {
                     remove_color_modes();
                     document.getElementById('Multicolor').hidden = false;
                     show_multicolors(response.multicolor, response.multicolor_range);
+                    change_setting("add_multicolor_and_set_value", JSON.stringify(new_multicolor), "", "");
                 }
 
 
@@ -948,7 +940,7 @@ function set_step_properties(sequence, step) {
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-            get_current_sequence_setting();
+            get_current_sequence_setting(true, true);
         }
     };
     xhttp.open("GET", "/api/set_step_properties?sequence=" + sequence + "&step=" + step, true);

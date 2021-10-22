@@ -97,7 +97,7 @@ class LedSettings:
         self.usersettings.change_setting_value("multicolor", self.multicolor)
         self.usersettings.change_setting_value("multicolor_range", self.multicolor_range)
 
-        self.menu.update_multicolor(self.multicolor)
+        #self.menu.update_multicolor(self.multicolor)
 
     def deletecolor(self, key):
         del self.multicolor[int(key) - 1]
@@ -106,7 +106,7 @@ class LedSettings:
         self.usersettings.change_setting_value("multicolor", self.multicolor)
         self.usersettings.change_setting_value("multicolor_range", self.multicolor_range)
 
-        self.menu.update_multicolor(self.multicolor)
+        #self.menu.update_multicolor(self.multicolor)
         self.menu.go_back()
 
     def change_multicolor(self, choice, location, value):
