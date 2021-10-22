@@ -379,11 +379,15 @@ function get_current_sequence_setting(home = true) {
 
                     if (is_editing_sequence == "true") {
                         var new_multicolor = {};
+                        new_multicolor["index"] = index
                         new_multicolor["color"] = multicolor_hex
                         new_multicolor["range"] = response.multicolor_range[index]
                         console.log(new_multicolor)
                         console.log(JSON.stringify(new_multicolor))
-                        change_setting("add_multicolor_and_set_value", JSON.stringify(new_multicolor), "", "");
+                        setTimeout(function(){
+                            change_setting("add_multicolor_and_set_value", JSON.stringify(new_multicolor), "", "");
+                            }, index * 300);
+
                     }
 
                 });

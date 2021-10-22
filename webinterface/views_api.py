@@ -14,6 +14,7 @@ import datetime
 import os
 import math
 from zipfile import ZipFile
+import json
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -256,8 +257,16 @@ def change_setting():
         return jsonify(success=True, reload=True)
 
     if setting_name == "add_multicolor_and_set_value":
-        #webinterface.ledsettings.addcolor()
-        print(value)
+        settings = json.loads(value)
+
+        rgb = wc.hex_to_rgb("#" + settings["color"])
+
+        webinterface.ledsettings.multicolor.append([int(rgb[0]), int(rgb[1]), int(rgb[2])])
+        webinterface.ledsettings.multicolor_range.append([int(settings["range"][0]), int(settings["range"][1])])
+
+        webinterface.usersettings.change_setting_value("multicolor", webinterface.ledsettings.multicolor)
+        webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
+
         return jsonify(success=True)
 
     if setting_name == "remove_multicolor":
@@ -287,7 +296,11 @@ def change_setting():
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "remove_all_multicolors":
-        #webinterface.ledsettings.multicolor.clear()
+        webinterface.ledsettings.multicolor.clear()
+        webinterface.ledsettings.multicolor_range.clear()
+
+        webinterface.usersettings.change_setting_value("multicolor", webinterface.ledsettings.multicolor)
+        webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
         return jsonify(success=True)
 
 
