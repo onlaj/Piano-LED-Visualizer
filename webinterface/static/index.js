@@ -379,14 +379,12 @@ function get_current_sequence_setting(home = true) {
 
                     if (is_editing_sequence == "true") {
                         var new_multicolor = {};
-                        new_multicolor["index"] = index
-                        new_multicolor["color"] = multicolor_hex
-                        new_multicolor["range"] = response.multicolor_range[index]
-                        console.log(new_multicolor)
-                        console.log(JSON.stringify(new_multicolor))
-                        setTimeout(function(){
+                        new_multicolor["index"] = index;
+                        new_multicolor["color"] = multicolor_hex;
+                        new_multicolor["range"] = response.multicolor_range[index];
+                        setTimeout(function () {
                             change_setting("add_multicolor_and_set_value", JSON.stringify(new_multicolor), "", "");
-                            }, index * 300);
+                        }, index * 300);
 
                     }
 
@@ -558,7 +556,6 @@ function get_current_sequence_setting(home = true) {
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">in a scale</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">not in a scale</p></div>';
-                console.log(response.key_not_in_scale_color)
                 if (is_editing_sequence == "true") {
                     remove_color_modes();
                     document.getElementById('Scale').hidden = false;
