@@ -133,6 +133,47 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                 </div>
             </div>
 
+            <div class="text-center flex flex-wrap mb-4">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Sequence name
+                    </label>
+            <svg onclick="this.nextElementSibling.classList.remove('pointer-events-none');
+                        this.nextElementSibling.focus();
+                        this.nextElementSibling.classList.add('text-gray-400');
+                        this.nextElementSibling.nextElementSibling.classList.remove('hidden');
+                        this.nextElementSibling.nextElementSibling.nextElementSibling.classList.remove('hidden');"
+                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 cursor-pointer" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+            </svg>
+            <input id="sequence_name" class="w-4/5 bg-gray-100 dark:bg-gray-600 pointer-events-none text-left song_name truncate"
+                   type="text"
+                   value="{{key}}">
+
+            <svg onclick="sequence_element = document.getElementById('sequences_list_2');
+                current_sequence_name = sequence_element.options[sequence_element.selectedIndex].text;
+                change_setting('change_sequence_name', current_sequence_name, this.previousElementSibling.value);
+                                this.classList.add('hidden');
+                                this.previousElementSibling.classList.add('pointer-events-none');
+                                this.previousElementSibling.classList.remove('text-gray-400');
+                                this.nextElementSibling.classList.add('hidden');"
+                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden cursor-pointer" fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <svg onclick="this.classList.add('hidden');
+                      this.previousElementSibling.previousElementSibling.classList.add('pointer-events-none');
+                      this.previousElementSibling.previousElementSibling.classList.remove('text-gray-400');
+                      this.previousElementSibling.classList.add('hidden');"
+                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-6 hidden cursor-pointer" fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </div>
+
             {% include 'ledcolor.html' %}
             {% include 'lightmode.html' %}
         </div>

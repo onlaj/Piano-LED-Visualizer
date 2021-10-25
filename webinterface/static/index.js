@@ -905,7 +905,10 @@ function toggle_edit_sequence() {
 
 function get_steps_list() {
     var xhttp = new XMLHttpRequest();
-    var sequence = document.getElementById('sequences_list_2').value;
+    var sequence_element = document.getElementById('sequences_list_2');
+    var sequence = sequence_element.value;
+
+    document.getElementById('sequence_name').value = sequence_element.options[sequence_element.selectedIndex].text;
     if (sequence == 0) {
         return false;
     }
@@ -926,7 +929,7 @@ function get_steps_list() {
             });
             document.getElementById("control_number").value = response.control_number;
             document.getElementById("next_step").value = response.next_step;
-            set_step_properties(document.getElementById('sequences_list_2').value,
+            set_step_properties(sequence_element.value,
                 document.getElementById('sequence_step').value)
         }
     };
