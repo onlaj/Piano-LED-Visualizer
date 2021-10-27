@@ -143,7 +143,7 @@ def change_setting():
     if (second_value == "no_reload"):
         reload_sequence = False
 
-    if(disable_sequence == "true"):
+    if (disable_sequence == "true"):
         webinterface.ledsettings.__init__(webinterface.usersettings)
         webinterface.ledsettings.sequence_active = False
 
@@ -151,7 +151,6 @@ def change_setting():
         fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
 
     if setting_name == "led_color":
-
         rgb = wc.hex_to_rgb("#" + value)
 
         webinterface.ledsettings.color_mode = "Single"
@@ -245,7 +244,7 @@ def change_setting():
 
     if setting_name == "color_mode":
         reload_sequence = True
-        if(second_value == "no_reload"):
+        if (second_value == "no_reload"):
             reload_sequence = False
 
         webinterface.ledsettings.color_mode = value
@@ -307,7 +306,6 @@ def change_setting():
         webinterface.usersettings.change_setting_value("multicolor", webinterface.ledsettings.multicolor)
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
         return jsonify(success=True)
-
 
     if setting_name == "rainbow_offset":
         webinterface.ledsettings.rainbow_offset = int(value)
@@ -427,6 +425,19 @@ def change_setting():
             webinterface.ledsettings.sequence_active = False
         else:
             webinterface.ledsettings.set_sequence(int(value) - 1, 0)
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+    if setting_name == "change_sequence_name":
+        sequences_tree = minidom.parse("sequences.xml")
+        sequence_to_edit = "sequence_" + str(value)
+
+        sequences_tree.getElementsByTagName(sequence_to_edit)[
+            0].getElementsByTagName("settings")[
+            0].getElementsByTagName("sequence_name")[0].firstChild.nodeValue = str(second_value)
+
+        with open("sequences.xml", "w", encoding="utf8") as outfile:
+            outfile.write(sequences_tree.toxml())
+
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "screen_on":
@@ -824,6 +835,7 @@ def get_sequences():
 
     return jsonify(response)
 
+
 @webinterface.route('/api/get_steps_list', methods=['GET'])
 def get_steps_list():
     response = {}
@@ -833,8 +845,8 @@ def get_steps_list():
     i = 0
 
     for step in sequences_tree.getElementsByTagName("sequence_" + str(sequence))[0].childNodes:
-        if(step.nodeType == 1):
-            if(step.nodeName == "settings"):
+        if (step.nodeType == 1):
+            if (step.nodeName == "settings"):
                 response["control_number"] = step.getElementsByTagName("control_number")[0].firstChild.nodeValue
                 response["next_step"] = step.getElementsByTagName("next_step")[0].firstChild.nodeValue
             else:
@@ -842,6 +854,7 @@ def get_steps_list():
 
     response["steps_list"] = steps_list
     return jsonify(response)
+
 
 @webinterface.route('/api/set_step_properties', methods=['GET'])
 def set_step_properties():
