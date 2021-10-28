@@ -105,7 +105,10 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                         Activation method
                     </label>
                     <div class="relative pr-2">
-                        <select id="control_number" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+                        <select onchange="change_setting('change_step_activation_method',
+                            document.getElementById('sequences_list_2').value,
+                            this.value);"
+                                id="control_number" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
                 py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                             <option value="0">Button press</option>
                             <option value="64">Sustain Pedal</option>
