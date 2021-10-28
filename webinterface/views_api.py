@@ -440,6 +440,19 @@ def change_setting():
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
+    if setting_name == "change_step_value":
+        sequences_tree = minidom.parse("sequences.xml")
+        sequence_to_edit = "sequence_" + str(value)
+
+        sequences_tree.getElementsByTagName(sequence_to_edit)[
+            0].getElementsByTagName("settings")[
+            0].getElementsByTagName("next_step")[0].firstChild.nodeValue = str(second_value)
+
+        with open("sequences.xml", "w", encoding="utf8") as outfile:
+            outfile.write(sequences_tree.toxml())
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "screen_on":
         if (int(value) == 0):
             webinterface.menu.disable_screen()
