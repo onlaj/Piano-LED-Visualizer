@@ -436,7 +436,7 @@ def change_setting():
             0].getElementsByTagName("sequence_name")[0].firstChild.nodeValue = str(second_value)
 
         with open("sequences.xml", "w", encoding="utf8") as outfile:
-            outfile.write(sequences_tree.toxml())
+            outfile.write(sequences_tree.toprettyxml(indent="", newl=''))
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
@@ -449,7 +449,7 @@ def change_setting():
             0].getElementsByTagName("next_step")[0].firstChild.nodeValue = str(second_value)
 
         with open("sequences.xml", "w", encoding="utf8") as outfile:
-            outfile.write(sequences_tree.toxml())
+            outfile.write(sequences_tree.toprettyxml(indent="", newl=''))
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
@@ -462,7 +462,7 @@ def change_setting():
             0].getElementsByTagName("control_number")[0].firstChild.nodeValue = str(second_value)
 
         with open("sequences.xml", "w", encoding="utf8") as outfile:
-            outfile.write(sequences_tree.toxml())
+            outfile.write(sequences_tree.toprettyxml(indent="", newl=''))
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
@@ -518,7 +518,7 @@ def change_setting():
         sequences_tree.getElementsByTagName("list")[0].appendChild(element)
 
         with open("sequences.xml", "w", encoding="utf8") as outfile:
-            outfile.write(sequences_tree.toxml())
+            outfile.write(sequences_tree.toprettyxml(indent="", newl=''))
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
