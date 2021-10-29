@@ -466,6 +466,62 @@ def change_setting():
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
+    if setting_name == "add_sequence":
+        sequences_tree = minidom.parse("sequences.xml")
+
+        sequences_amount = 1
+        while True:
+            if(len(sequences_tree.getElementsByTagName("sequence_" + str(sequences_amount))) == 0):
+                break
+            sequences_amount += 1
+
+        settings = sequences_tree.createElement("settings")
+
+        control_number = sequences_tree.createElement("control_number")
+        control_number.appendChild(sequences_tree.createTextNode("0"))
+        settings.appendChild(control_number)
+
+        next_step = sequences_tree.createElement("next_step")
+        next_step.appendChild(sequences_tree.createTextNode("1"))
+        settings.appendChild(next_step)
+
+        sequence_name = sequences_tree.createElement("sequence_name")
+        sequence_name.appendChild(sequences_tree.createTextNode("Sequence " + str(sequences_amount)))
+        settings.appendChild(sequence_name)
+
+        step = sequences_tree.createElement("step_1")
+
+        color = sequences_tree.createElement("color")
+        color.appendChild(sequences_tree.createTextNode("RGB"))
+        step.appendChild(color)
+
+        red = sequences_tree.createElement("Red")
+        red.appendChild(sequences_tree.createTextNode("255"))
+        step.appendChild(red)
+
+        green = sequences_tree.createElement("Green")
+        green.appendChild(sequences_tree.createTextNode("255"))
+        step.appendChild(green)
+
+        blue = sequences_tree.createElement("Blue")
+        blue.appendChild(sequences_tree.createTextNode("255"))
+        step.appendChild(blue)
+
+        light_mode = sequences_tree.createElement("light_mode")
+        light_mode.appendChild(sequences_tree.createTextNode("Normal"))
+        step.appendChild(light_mode)
+
+        element = sequences_tree.createElement("sequence_" + str(sequences_amount))
+        element.appendChild(settings)
+        element.appendChild(step)
+
+        sequences_tree.getElementsByTagName("list")[0].appendChild(element)
+
+        with open("sequences.xml", "w", encoding="utf8") as outfile:
+            outfile.write(sequences_tree.toxml())
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "screen_on":
         if (int(value) == 0):
             webinterface.menu.disable_screen()

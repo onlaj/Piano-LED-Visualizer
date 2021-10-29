@@ -79,6 +79,57 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                             </svg>
                         </div>
                     </div>
+                    <div class="flex flex-wrap mb-2">
+                        <div class="w-full md:w-1/2 md:mb-0">
+                            <div class="pr-2">
+                                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
+                                dark:text-gray-400">
+                                    Add
+                                </label>
+                                <button onclick="this.classList.add('hidden');
+                                this.nextElementSibling.classList.remove('hidden')"
+                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                        h-4 py-2 px-2
+                                        rounded-2xl inline-flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-full justify-items-center text-green-400"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </button>
+                                <button onclick="change_setting('add_sequence', '0');temporary_disable_button(this, 1000);"
+                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                                        rounded-2xl inline-flex items-center hidden">
+                                    <span class="w-full uppercase text-xs">Confirm</span></button>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2 md:mb-0">
+                            <div class="px-2">
+                                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
+                                dark:text-gray-400">
+                                    Remove
+                                </label>
+                                <button onclick="this.classList.add('hidden');
+                                this.nextElementSibling.classList.remove('hidden')"
+                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                        h-4 py-2 px-2
+                                        rounded-2xl inline-flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-full justify-items-center text-red-400"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5
+                                            4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                                <button onclick="change_setting('remove_sequence',
+                                document.getElementById('sequences_list_2').value);
+                                temporary_disable_button(this, 1000);"
+                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                                        rounded-2xl inline-flex items-center hidden">
+                                    <span class="w-full uppercase text-xs">Confirm</span></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="w-full md:w-1/2 md:mb-0">
@@ -96,6 +147,10 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                             </svg>
                         </div>
                     </div>
+                    <div class="flex flex-wrap mb-2">
+                        <div class="w-full md:w-1/2 md:mb-0"></div>
+                        <div class="w-full md:w-1/2 md:mb-0"></div>
+                    </div>
                 </div>
             </div>
 
@@ -105,9 +160,11 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                         Activation method
                     </label>
                     <div class="relative pr-2">
-                        <select onchange="change_setting('change_step_activation_method',
+                        <select onchange="if(document.getElementById('sequences_list_2').value != 0){
+                            change_setting('change_step_activation_method',
                             document.getElementById('sequences_list_2').value,
-                            this.value);"
+                            this.value);
+                        }"
                                 id="control_number" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
                 py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                             <option value="0">Button press</option>
@@ -129,9 +186,11 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                         Next step value
                     </label>
                     <div class="relative pl-2">
-                        <input onchange="change_setting('change_step_value',
+                        <input onchange="if(document.getElementById('sequences_list_2').value != 0){
+                            change_setting('change_step_value',
                             document.getElementById('sequences_list_2').value,
-                            this.value);"
+                            this.value);
+                        }"
                                id="next_step" type="number" value="0" min="-176" max="176"
                                class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2
                                rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
