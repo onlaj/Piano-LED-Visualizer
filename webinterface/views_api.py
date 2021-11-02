@@ -972,7 +972,5 @@ def pretty_print(dom):
     return '\n'.join([line for line in dom.toprettyxml(indent=' ' * 4).split('\n') if line.strip()])
 
 def pretty_save(file_path, sequences_tree):
-    #print(pretty_print(sequences_tree))
-
     with open(file_path, "w", encoding="utf8") as outfile:
         outfile.write(pretty_print(sequences_tree))
