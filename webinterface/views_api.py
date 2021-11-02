@@ -435,8 +435,7 @@ def change_setting():
             0].getElementsByTagName("settings")[
             0].getElementsByTagName("sequence_name")[0].firstChild.nodeValue = str(second_value)
 
-        with open("sequences.xml", "w", encoding="utf8") as outfile:
-            outfile.write(sequences_tree.toprettyxml(indent="", newl=''))
+        pretty_save("sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
@@ -448,8 +447,7 @@ def change_setting():
             0].getElementsByTagName("settings")[
             0].getElementsByTagName("next_step")[0].firstChild.nodeValue = str(second_value)
 
-        with open("sequences.xml", "w", encoding="utf8") as outfile:
-            outfile.write(sequences_tree.toprettyxml(indent="", newl=''))
+        pretty_save("sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
@@ -461,8 +459,7 @@ def change_setting():
             0].getElementsByTagName("settings")[
             0].getElementsByTagName("control_number")[0].firstChild.nodeValue = str(second_value)
 
-        with open("sequences.xml", "w", encoding="utf8") as outfile:
-            outfile.write(sequences_tree.toprettyxml(indent="", newl=''))
+        pretty_save("sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
@@ -517,10 +514,34 @@ def change_setting():
 
         sequences_tree.getElementsByTagName("list")[0].appendChild(element)
 
-        with open("sequences.xml", "w", encoding="utf8") as outfile:
-            outfile.write(sequences_tree.toprettyxml(indent="", newl=''))
+        pretty_save("sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
+
+
+    if setting_name == "remove_sequence":
+        sequences_tree = minidom.parse("sequences.xml")
+
+        #removing sequence node
+        nodes = sequences_tree.getElementsByTagName("sequence_" + str(value))
+        for node in nodes:
+            parent = node.parentNode
+            parent.removeChild(node)
+
+        #changing nodes tag names
+        i = 1
+        for sequence in sequences_tree.getElementsByTagName("list")[0].childNodes:
+            if (sequence.nodeType == 1):
+                #sequences_tree.getElementsByTagName("sequence_" + str(value))
+                print(sequence.nodeName)
+                #sequence.nodeName = "sequence_"+str(i)
+                sequences_tree.getElementsByTagName(sequence.nodeName)[0].tagName = "sequence_"+str(i)
+                i += 1
+
+        pretty_save("sequences.xml", sequences_tree)
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
 
     if setting_name == "screen_on":
         if (int(value) == 0):
@@ -945,3 +966,13 @@ def set_step_properties():
     webinterface.ledsettings.set_sequence(sequence, step, True)
 
     return jsonify(success=True)
+
+
+def pretty_print(dom):
+    return '\n'.join([line for line in dom.toprettyxml(indent=' ' * 4).split('\n') if line.strip()])
+
+def pretty_save(file_path, sequences_tree):
+    #print(pretty_print(sequences_tree))
+
+    with open(file_path, "w", encoding="utf8") as outfile:
+        outfile.write(pretty_print(sequences_tree))
