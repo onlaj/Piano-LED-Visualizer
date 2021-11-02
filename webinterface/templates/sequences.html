@@ -217,12 +217,14 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                        type="text"
                        value="{{key}}">
 
-                <svg onclick="change_setting('change_sequence_name', document.getElementById('sequences_list_2').value,
+                <svg onclick="if(document.getElementById('sequences_list_2').value != 0){
+                    change_setting('change_sequence_name', document.getElementById('sequences_list_2').value,
                                 this.previousElementSibling.value);
                                 this.classList.add('hidden');
                                 this.previousElementSibling.classList.add('pointer-events-none');
                                 this.previousElementSibling.classList.remove('text-gray-400');
-                                this.nextElementSibling.classList.add('hidden');"
+                                this.nextElementSibling.classList.add('hidden');
+                }"
                      xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden cursor-pointer" fill="none"
                      viewBox="0 0 24 24"
                      stroke="currentColor">

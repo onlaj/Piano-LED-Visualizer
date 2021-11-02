@@ -532,9 +532,6 @@ def change_setting():
         i = 1
         for sequence in sequences_tree.getElementsByTagName("list")[0].childNodes:
             if (sequence.nodeType == 1):
-                #sequences_tree.getElementsByTagName("sequence_" + str(value))
-                print(sequence.nodeName)
-                #sequence.nodeName = "sequence_"+str(i)
                 sequences_tree.getElementsByTagName(sequence.nodeName)[0].tagName = "sequence_"+str(i)
                 i += 1
 
