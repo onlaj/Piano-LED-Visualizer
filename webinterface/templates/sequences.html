@@ -109,8 +109,10 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                 dark:text-gray-400">
                                     Remove
                                 </label>
-                                <button onclick="this.classList.add('hidden');
-                                this.nextElementSibling.classList.remove('hidden')"
+                                <button onclick="if(document.getElementById('sequences_list_2').value != 0){
+                                    this.classList.add('hidden');
+                                this.nextElementSibling.classList.remove('hidden')
+                                }"
                                         class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
                                         h-4 py-2 px-2
                                         rounded-2xl inline-flex items-center">
