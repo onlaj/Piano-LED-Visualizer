@@ -54,7 +54,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
     <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div id="sequence_edit"
-             class="w-10 flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400 cursor-pointer pointer-events-auto opacity-100"
+             class="w-10 flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400 cursor-pointer pointer-events-auto opacity-100 animate-pulse"
              onclick="toggle_edit_sequence();">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor">
@@ -91,7 +91,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                         class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
                                         h-4 py-2 px-2
                                         rounded-2xl inline-flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-full justify-items-center text-green-400"
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="h-4 w-full justify-items-center text-green-400"
                                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                               d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -104,7 +105,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                             </div>
                         </div>
                         <div class="w-full md:w-1/2 md:mb-0">
-                            <div class="px-2">
+                            <div class="pr-2">
                                 <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
                                 dark:text-gray-400">
                                     Remove
@@ -116,11 +117,12 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                         class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
                                         h-4 py-2 px-2
                                         rounded-2xl inline-flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-full justify-items-center text-red-400"
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="h-4 w-full justify-items-center text-red-400"
                                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5
-                                            4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5
+                                            4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
                                 </button>
                                 <button onclick="change_setting('remove_sequence',
@@ -150,8 +152,61 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                         </div>
                     </div>
                     <div class="flex flex-wrap mb-2">
-                        <div class="w-full md:w-1/2 md:mb-0"></div>
-                        <div class="w-full md:w-1/2 md:mb-0"></div>
+                        <div class="w-full md:w-1/2 md:mb-0">
+                            <div class="pl-2">
+                                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
+                                dark:text-gray-400">
+                                    Add
+                                </label>
+                                <button onclick="this.classList.add('hidden');
+                                this.nextElementSibling.classList.remove('hidden')"
+                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                        h-4 py-2 px-2
+                                        rounded-2xl inline-flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="h-4 w-full justify-items-center text-green-400"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </button>
+                                <button onclick="if(document.getElementById('sequences_list_2').value != 0){
+                                    change_setting('add_step',
+                                document.getElementById('sequences_list_2').value);temporary_disable_button(this, 1000);}"
+                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                                        rounded-2xl inline-flex items-center hidden">
+                                    <span class="w-full uppercase text-xs">Confirm</span></button>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2 md:mb-0">
+                            <div class="pl-2">
+                                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
+                                dark:text-gray-400">
+                                    Remove
+                                </label>
+                                <button onclick="if(document.getElementById('sequences_list_2').value != 0){
+                                    this.classList.add('hidden');
+                                this.nextElementSibling.classList.remove('hidden')
+                                }"
+                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                        h-4 py-2 px-2
+                                        rounded-2xl inline-flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="h-4 w-full justify-items-center text-red-400"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5
+                                            4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                                <button onclick="change_setting('remove_step',
+                                document.getElementById('sequences_list_2').value, document.getElementById('sequence_step').value);
+                                temporary_disable_button(this, 1000);"
+                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                                        rounded-2xl inline-flex items-center hidden">
+                                    <span class="w-full uppercase text-xs">Confirm</span></button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -245,6 +300,27 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
             {% include 'ledcolor.html' %}
             {% include 'lightmode.html' %}
+
+            <div class="pr-2 mt-4">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
+                                dark:text-gray-400">
+                    Save current settings to step
+                </label>
+                <button onclick="this.classList.add('hidden');
+                                this.nextElementSibling.classList.remove('hidden')" class="w-full h-12 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                        h-4 py-2 px-2
+                                        rounded-2xl inline-flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-full justify-items-center text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    </svg>
+                </button>
+                <button onclick="change_setting('save_led_settings_to_step',
+            document.getElementById('sequences_list_2').value, document.getElementById('sequence_step').value);"
+                        class="w-full h-12 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                                        rounded-2xl inline-flex items-center hidden">
+                    <span class="w-full uppercase text-xs">Confirm</span></button>
+            </div>
+
         </div>
     </div>
 </div>

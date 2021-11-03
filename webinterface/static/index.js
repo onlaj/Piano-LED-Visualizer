@@ -201,6 +201,9 @@ function change_setting(setting_name, value, second_value = false, disable_seque
                 get_current_sequence_setting();
                 get_sequences();
             }
+            if (response.reload_steps_list == true) {
+                get_steps_list();
+            }
         }
     }
     xhttp.open("GET", "/api/change_setting?setting_name=" + setting_name + "&value=" + value
@@ -892,12 +895,14 @@ function toggle_edit_sequence() {
         document.getElementById('sequence_edit').setAttribute("active", false);
         document.getElementById('sequence_edit_block').classList.add("opacity-50");
         document.getElementById('sequence_edit_block').classList.add("pointer-events-none");
+        document.getElementById('sequence_edit').classList.add("animate-pulse");
         document.getElementById('sequence_block').classList.remove("pointer-events-none");
         document.getElementById('sequences_list_2').value = 0;
     } else {
         document.getElementById('sequence_edit').setAttribute("active", true);
         document.getElementById('sequence_edit_block').classList.remove("opacity-50");
         document.getElementById('sequence_edit_block').classList.remove("pointer-events-none");
+        document.getElementById('sequence_edit').classList.remove("animate-pulse");
         document.getElementById('sequence_block').classList.add("pointer-events-none");
         get_sequences();
     }
@@ -907,6 +912,8 @@ function get_steps_list() {
     var xhttp = new XMLHttpRequest();
     var sequence_element = document.getElementById('sequences_list_2');
     var sequence = sequence_element.value;
+
+    current_step = document.getElementById('sequence_step').value;
 
     document.getElementById('sequence_name').value = sequence_element.options[sequence_element.selectedIndex].text;
     if (sequence == 0) {
@@ -929,8 +936,9 @@ function get_steps_list() {
             });
             document.getElementById("control_number").value = response.control_number;
             document.getElementById("next_step").value = response.next_step;
+            document.getElementById('sequence_step').value = current_step;
             set_step_properties(sequence_element.value,
-                document.getElementById('sequence_step').value)
+                document.getElementById('sequence_step').value);
         }
     };
     xhttp.open("GET", "/api/get_steps_list?sequence=" + sequence, true);

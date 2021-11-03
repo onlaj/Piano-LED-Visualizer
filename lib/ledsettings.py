@@ -322,7 +322,7 @@ class LedSettings:
                         self.fadingspeed = 6
                     elif self.fadingspeed == "Very slow":
                         self.fadingspeed = 3
-            if self.color_mode == "RGB":
+            if self.color_mode == "RGB" or self.color_mode == "Single":
                 self.color_mode = "Single"
                 self.red = int(self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                                    0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
