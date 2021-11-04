@@ -97,7 +97,7 @@ class LedSettings:
         self.usersettings.change_setting_value("multicolor", self.multicolor)
         self.usersettings.change_setting_value("multicolor_range", self.multicolor_range)
 
-        self.menu.update_multicolor(self.multicolor)
+        #self.menu.update_multicolor(self.multicolor)
 
     def deletecolor(self, key):
         del self.multicolor[int(key) - 1]
@@ -106,7 +106,7 @@ class LedSettings:
         self.usersettings.change_setting_value("multicolor", self.multicolor)
         self.usersettings.change_setting_value("multicolor_range", self.multicolor_range)
 
-        self.menu.update_multicolor(self.multicolor)
+        #self.menu.update_multicolor(self.multicolor)
         self.menu.go_back()
 
     def change_multicolor(self, choice, location, value):
@@ -254,19 +254,23 @@ class LedSettings:
     def get_adjacent_colors(self):
         return str(self.adjacent_red) + ", " + str(self.adjacent_green) + ", " + str(self.adjacent_blue)
 
-    def set_sequence(self, sequence, step):
+    def set_sequence(self, sequence, step, direct_step = False):
         try:
-            if step != 1:
-                self.step_number = 1
+            if int(step) == 0 or direct_step == True:
+                if direct_step == True:
+                    self.step_number = int(step) + 1
+                else:
+                    self.step_number = 1
                 self.sequences_tree = minidom.parse("sequences.xml")
 
-                self.sequence_number = str(sequence + 1)
+                self.sequence_number = str(int(sequence) + 1)
 
                 self.next_step = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                     0].getElementsByTagName("next_step")[0].firstChild.nodeValue
                 self.control_number = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                     0].getElementsByTagName("control_number")[0].firstChild.nodeValue
                 self.count_steps = 1
+                #if(direct_step == False):
                 self.sequence_active = True
                 self.sequence_active_name = sequence
                 while True:
@@ -279,11 +283,9 @@ class LedSettings:
                         self.count_steps -= 1
                         break
             else:
-                # print("step_number: "+str(self.step_number)+" count steps: "+str(self.count_steps))
                 self.step_number += 1
                 if self.step_number > self.count_steps:
                     self.step_number = 1
-
             self.color_mode = \
                 self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                     0].getElementsByTagName(
@@ -320,7 +322,7 @@ class LedSettings:
                         self.fadingspeed = 6
                     elif self.fadingspeed == "Very slow":
                         self.fadingspeed = 3
-            if self.color_mode == "RGB":
+            if self.color_mode == "RGB" or self.color_mode == "Single":
                 self.color_mode = "Single"
                 self.red = int(self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                                    0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
@@ -408,6 +410,38 @@ class LedSettings:
                     self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
                         "gradien_end_blue")[0].firstChild.nodeValue)
+
+            if self.color_mode == "Scale":
+                self.key_in_scale["red"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_in_scale_red")[0].firstChild.nodeValue)
+                self.key_in_scale["green"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_in_scale_green")[0].firstChild.nodeValue)
+                self.key_in_scale["blue"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_in_scale_blue")[0].firstChild.nodeValue)
+
+                self.key_not_in_scale["red"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_not_in_scale_red")[0].firstChild.nodeValue)
+                self.key_not_in_scale["green"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_not_in_scale_green")[0].firstChild.nodeValue)
+                self.key_not_in_scale["blue"] = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "key_not_in_scale_blue")[0].firstChild.nodeValue)
+
+                self.scale_key = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName("scale_key")[
+                        0].firstChild.nodeValue)
 
             if self.color_mode == "Multicolor":
                 self.multicolor = []

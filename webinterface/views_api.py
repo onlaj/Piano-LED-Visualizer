@@ -14,6 +14,8 @@ import datetime
 import os
 import math
 from zipfile import ZipFile
+import json
+import ast
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -136,6 +138,15 @@ def change_setting():
     setting_name = request.args.get('setting_name')
     value = request.args.get('value')
     second_value = request.args.get('second_value')
+    disable_sequence = request.args.get('disable_sequence')
+
+    reload_sequence = True
+    if (second_value == "no_reload"):
+        reload_sequence = False
+
+    if (disable_sequence == "true"):
+        webinterface.ledsettings.__init__(webinterface.usersettings)
+        webinterface.ledsettings.sequence_active = False
 
     if setting_name == "clean_ledstrip":
         fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
@@ -153,6 +164,8 @@ def change_setting():
         webinterface.usersettings.change_setting_value("red", rgb[0])
         webinterface.usersettings.change_setting_value("green", rgb[1])
         webinterface.usersettings.change_setting_value("blue", rgb[2])
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "light_mode":
         webinterface.ledsettings.mode = value
@@ -231,12 +244,35 @@ def change_setting():
         webinterface.ledstrip.change_reverse(int(value), True)
 
     if setting_name == "color_mode":
+        reload_sequence = True
+        if (second_value == "no_reload"):
+            reload_sequence = False
+
         webinterface.ledsettings.color_mode = value
         webinterface.usersettings.change_setting_value("color_mode", webinterface.ledsettings.color_mode)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "add_multicolor":
         webinterface.ledsettings.addcolor()
         return jsonify(success=True, reload=True)
+
+    if setting_name == "add_multicolor_and_set_value":
+        settings = json.loads(value)
+
+        webinterface.ledsettings.multicolor.clear()
+        webinterface.ledsettings.multicolor_range.clear()
+
+        for key, value in settings.items():
+            rgb = wc.hex_to_rgb("#" + value["color"])
+
+            webinterface.ledsettings.multicolor.append([int(rgb[0]), int(rgb[1]), int(rgb[2])])
+            webinterface.ledsettings.multicolor_range.append([int(value["range"][0]), int(value["range"][1])])
+
+        webinterface.usersettings.change_setting_value("multicolor", webinterface.ledsettings.multicolor)
+        webinterface.usersettings.change_setting_value("multicolor_range",
+                                                       webinterface.ledsettings.multicolor_range)
+
+        return jsonify(success=True)
 
     if setting_name == "remove_multicolor":
         webinterface.ledsettings.deletecolor(int(value) + 1)
@@ -250,28 +286,45 @@ def change_setting():
 
         webinterface.usersettings.change_setting_value("multicolor", webinterface.ledsettings.multicolor)
 
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "multicolor_range_left":
         webinterface.ledsettings.multicolor_range[int(second_value)][0] = int(value)
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "multicolor_range_right":
         webinterface.ledsettings.multicolor_range[int(second_value)][1] = int(value)
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
 
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+    if setting_name == "remove_all_multicolors":
+        webinterface.ledsettings.multicolor.clear()
+        webinterface.ledsettings.multicolor_range.clear()
+
+        webinterface.usersettings.change_setting_value("multicolor", webinterface.ledsettings.multicolor)
+        webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
+        return jsonify(success=True)
+
     if setting_name == "rainbow_offset":
         webinterface.ledsettings.rainbow_offset = int(value)
         webinterface.usersettings.change_setting_value("rainbow_offset",
                                                        int(webinterface.ledsettings.rainbow_offset))
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "rainbow_scale":
         webinterface.ledsettings.rainbow_scale = int(value)
         webinterface.usersettings.change_setting_value("rainbow_scale",
                                                        int(webinterface.ledsettings.rainbow_scale))
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "rainbow_timeshift":
         webinterface.ledsettings.rainbow_timeshift = int(value)
         webinterface.usersettings.change_setting_value("rainbow_timeshift",
                                                        int(webinterface.ledsettings.rainbow_timeshift))
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "speed_slowest_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -283,6 +336,8 @@ def change_setting():
         webinterface.usersettings.change_setting_value("speed_slowest_green", rgb[1])
         webinterface.usersettings.change_setting_value("speed_slowest_blue", rgb[2])
 
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "speed_fastest_color":
         rgb = wc.hex_to_rgb("#" + value)
         webinterface.ledsettings.speed_fastest["red"] = rgb[0]
@@ -292,6 +347,8 @@ def change_setting():
         webinterface.usersettings.change_setting_value("speed_fastest_red", rgb[0])
         webinterface.usersettings.change_setting_value("speed_fastest_green", rgb[1])
         webinterface.usersettings.change_setting_value("speed_fastest_blue", rgb[2])
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "gradient_start_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -303,6 +360,8 @@ def change_setting():
         webinterface.usersettings.change_setting_value("gradient_start_green", rgb[1])
         webinterface.usersettings.change_setting_value("gradient_start_blue", rgb[2])
 
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "gradient_end_color":
         rgb = wc.hex_to_rgb("#" + value)
         webinterface.ledsettings.gradient_end["red"] = rgb[0]
@@ -313,13 +372,19 @@ def change_setting():
         webinterface.usersettings.change_setting_value("gradient_end_green", rgb[1])
         webinterface.usersettings.change_setting_value("gradient_end_blue", rgb[2])
 
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "speed_max_notes":
         webinterface.ledsettings.speed_max_notes = int(value)
         webinterface.usersettings.change_setting_value("speed_max_notes", int(value))
 
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "speed_period_in_seconds":
         webinterface.ledsettings.speed_period_in_seconds = float(value)
         webinterface.usersettings.change_setting_value("speed_period_in_seconds", float(value))
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "key_in_scale_color":
         rgb = wc.hex_to_rgb("#" + value)
@@ -331,6 +396,8 @@ def change_setting():
         webinterface.usersettings.change_setting_value("key_in_scale_green", rgb[1])
         webinterface.usersettings.change_setting_value("key_in_scale_blue", rgb[2])
 
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "key_not_in_scale_color":
         rgb = wc.hex_to_rgb("#" + value)
         webinterface.ledsettings.key_not_in_scale["red"] = rgb[0]
@@ -341,24 +408,416 @@ def change_setting():
         webinterface.usersettings.change_setting_value("key_not_in_scale_green", rgb[1])
         webinterface.usersettings.change_setting_value("key_not_in_scale_blue", rgb[2])
 
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "scale_key":
         webinterface.ledsettings.scale_key = int(value)
         webinterface.usersettings.change_setting_value("scale_key", int(value))
 
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "next_step":
-        webinterface.ledsettings.set_sequence(0, 1)
-        return jsonify(success=True)
+        webinterface.ledsettings.set_sequence(0, 1, False)
+        return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "set_sequence":
-        if(int(value) == 0):
+        if (int(value) == 0):
             webinterface.ledsettings.__init__(webinterface.usersettings)
             webinterface.ledsettings.sequence_active = False
         else:
             webinterface.ledsettings.set_sequence(int(value) - 1, 0)
-        return jsonify(success=True)
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+    if setting_name == "change_sequence_name":
+        sequences_tree = minidom.parse("sequences.xml")
+        sequence_to_edit = "sequence_" + str(value)
+
+        sequences_tree.getElementsByTagName(sequence_to_edit)[
+            0].getElementsByTagName("settings")[
+            0].getElementsByTagName("sequence_name")[0].firstChild.nodeValue = str(second_value)
+
+        pretty_save("sequences.xml", sequences_tree)
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+    if setting_name == "change_step_value":
+        sequences_tree = minidom.parse("sequences.xml")
+        sequence_to_edit = "sequence_" + str(value)
+
+        sequences_tree.getElementsByTagName(sequence_to_edit)[
+            0].getElementsByTagName("settings")[
+            0].getElementsByTagName("next_step")[0].firstChild.nodeValue = str(second_value)
+
+        pretty_save("sequences.xml", sequences_tree)
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+    if setting_name == "change_step_activation_method":
+        sequences_tree = minidom.parse("sequences.xml")
+        sequence_to_edit = "sequence_" + str(value)
+
+        sequences_tree.getElementsByTagName(sequence_to_edit)[
+            0].getElementsByTagName("settings")[
+            0].getElementsByTagName("control_number")[0].firstChild.nodeValue = str(second_value)
+
+        pretty_save("sequences.xml", sequences_tree)
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+    if setting_name == "add_sequence":
+        sequences_tree = minidom.parse("sequences.xml")
+
+        sequences_amount = 1
+        while True:
+            if(len(sequences_tree.getElementsByTagName("sequence_" + str(sequences_amount))) == 0):
+                break
+            sequences_amount += 1
+
+        settings = sequences_tree.createElement("settings")
+
+        control_number = sequences_tree.createElement("control_number")
+        control_number.appendChild(sequences_tree.createTextNode("0"))
+        settings.appendChild(control_number)
+
+        next_step = sequences_tree.createElement("next_step")
+        next_step.appendChild(sequences_tree.createTextNode("1"))
+        settings.appendChild(next_step)
+
+        sequence_name = sequences_tree.createElement("sequence_name")
+        sequence_name.appendChild(sequences_tree.createTextNode("Sequence " + str(sequences_amount)))
+        settings.appendChild(sequence_name)
+
+        step = sequences_tree.createElement("step_1")
+
+        color = sequences_tree.createElement("color")
+        color.appendChild(sequences_tree.createTextNode("RGB"))
+        step.appendChild(color)
+
+        red = sequences_tree.createElement("Red")
+        red.appendChild(sequences_tree.createTextNode("255"))
+        step.appendChild(red)
+
+        green = sequences_tree.createElement("Green")
+        green.appendChild(sequences_tree.createTextNode("255"))
+        step.appendChild(green)
+
+        blue = sequences_tree.createElement("Blue")
+        blue.appendChild(sequences_tree.createTextNode("255"))
+        step.appendChild(blue)
+
+        light_mode = sequences_tree.createElement("light_mode")
+        light_mode.appendChild(sequences_tree.createTextNode("Normal"))
+        step.appendChild(light_mode)
+
+        element = sequences_tree.createElement("sequence_" + str(sequences_amount))
+        element.appendChild(settings)
+        element.appendChild(step)
+
+        sequences_tree.getElementsByTagName("list")[0].appendChild(element)
+
+        pretty_save("sequences.xml", sequences_tree)
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+
+    if setting_name == "remove_sequence":
+        sequences_tree = minidom.parse("sequences.xml")
+
+        #removing sequence node
+        nodes = sequences_tree.getElementsByTagName("sequence_" + str(value))
+        for node in nodes:
+            parent = node.parentNode
+            parent.removeChild(node)
+
+        #changing nodes tag names
+        i = 1
+        for sequence in sequences_tree.getElementsByTagName("list")[0].childNodes:
+            if (sequence.nodeType == 1):
+                sequences_tree.getElementsByTagName(sequence.nodeName)[0].tagName = "sequence_"+str(i)
+                i += 1
+
+        pretty_save("sequences.xml", sequences_tree)
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+    if setting_name == "add_step":
+        sequences_tree = minidom.parse("sequences.xml")
+
+        step_amount = 1
+        while True:
+            if(len(sequences_tree.getElementsByTagName("sequence_"+str(value))[0].getElementsByTagName("step_" + str(step_amount))) == 0):
+                break
+            step_amount += 1
+
+        step = sequences_tree.createElement("step_"+str(step_amount))
+
+        color = sequences_tree.createElement("color")
+
+        color.appendChild(sequences_tree.createTextNode("RGB"))
+        step.appendChild(color)
+
+        red = sequences_tree.createElement("Red")
+        red.appendChild(sequences_tree.createTextNode("255"))
+        step.appendChild(red)
+
+        green = sequences_tree.createElement("Green")
+        green.appendChild(sequences_tree.createTextNode("255"))
+        step.appendChild(green)
+
+        blue = sequences_tree.createElement("Blue")
+        blue.appendChild(sequences_tree.createTextNode("255"))
+        step.appendChild(blue)
+
+        light_mode = sequences_tree.createElement("light_mode")
+        light_mode.appendChild(sequences_tree.createTextNode("Normal"))
+        step.appendChild(light_mode)
+
+        sequences_tree.getElementsByTagName("sequence_"+str(value))[0].appendChild(step)
+
+        pretty_save("sequences.xml", sequences_tree)
+
+        return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True)
+
+    #remove node list with a tag name "step_" + str(value), and change tag names to maintain order
+    if setting_name == "remove_step":
+
+        second_value = int(second_value)
+        second_value += 1
+
+        sequences_tree = minidom.parse("sequences.xml")
+
+        #removing step node
+        nodes = sequences_tree.getElementsByTagName("sequence_"+str(value))[0].getElementsByTagName("step_" + str(second_value))
+        for node in nodes:
+            parent = node.parentNode
+            parent.removeChild(node)
+
+        #changing nodes tag names
+        i = 1
+        for step in sequences_tree.getElementsByTagName("sequence_" + str(value))[0].childNodes:
+            if (step.nodeType == 1 and step.tagName != "settings"):
+                sequences_tree.getElementsByTagName("sequence_" + str(value))[0].getElementsByTagName(step.nodeName)[0].tagName = "step_"+str(i)
+                i += 1
+
+        pretty_save("sequences.xml", sequences_tree)
+
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+    #saving current led settings as sequence step
+    if setting_name == "save_led_settings_to_step":
+
+        #remove node and child under "sequence_" + str(value) and "step_" + str(second_value)
+        sequences_tree = minidom.parse("sequences.xml")
+
+        second_value = int(second_value)
+        second_value += 1
+
+        nodes = sequences_tree.getElementsByTagName("sequence_"+str(value))[0].getElementsByTagName("step_" + str(second_value))
+        for node in nodes:
+            parent = node.parentNode
+            parent.removeChild(node)
+
+        #create new step node
+        step = sequences_tree.createElement("step_"+str(second_value))
+
+        #load color mode from webinterface.ledsettings and put it into step node
+        color_mode = sequences_tree.createElement("color")
+        color_mode.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.color_mode)))
+        step.appendChild(color_mode)
+
+        #load mode from webinterface.ledsettings and put it into step node
+        mode = sequences_tree.createElement("light_mode")
+        mode.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.mode)))
+        step.appendChild(mode)
+
+        #if mode is equal "Fading" or "Velocity" load mode from webinterface.ledsettings and put it into step node
+        if (webinterface.ledsettings.mode == "Fading" or webinterface.ledsettings.mode == "Velocity"):
+            fadingspeed = sequences_tree.createElement("fadingspeed")
+
+            #depending on fadingspeed name set different fadingspeed value
+            if (webinterface.ledsettings.fadingspeed == "Slow"):
+                fadingspeed.appendChild(sequences_tree.createTextNode("10"))
+            elif (webinterface.ledsettings.fadingspeed == "Medium"):
+                fadingspeed.appendChild(sequences_tree.createTextNode("20"))
+            elif (webinterface.ledsettings.fadingspeed == "Fast"):
+                fadingspeed.appendChild(sequences_tree.createTextNode("40"))
+            elif (webinterface.ledsettings.fadingspeed == "Very fast"):
+                fadingspeed.appendChild(sequences_tree.createTextNode("50"))
+            elif (webinterface.ledsettings.fadingspeed == "Instant"):
+                fadingspeed.appendChild(sequences_tree.createTextNode("1000"))
+            elif (webinterface.ledsettings.fadingspeed == "Very slow"):
+                fadingspeed.appendChild(sequences_tree.createTextNode("2"))
+
+            step.appendChild(fadingspeed)
+
+
+        #if color_mode is equal to "Single" load color from webinterface.ledsettings and put it into step node
+        if (webinterface.ledsettings.color_mode == "Single"):
+            red = sequences_tree.createElement("Red")
+            red.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.red)))
+            step.appendChild(red)
+
+            green = sequences_tree.createElement("Green")
+            green.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.green)))
+            step.appendChild(green)
+
+            blue = sequences_tree.createElement("Blue")
+            blue.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.blue)))
+            step.appendChild(blue)
+
+        #if color_mode is equal to "Multicolor" load colors from webinterface.ledsettings and put it into step node
+        if (webinterface.ledsettings.color_mode == "Multicolor"):
+            # load value from webinterface.ledsettings.multicolor
+            multicolor = webinterface.ledsettings.multicolor
+
+            # loop through multicolor object and add each color to step node under "sequence_"+str(value) with tag name "color_"+str(i)
+            for i in range(len(multicolor)):
+                color = sequences_tree.createElement("color_" + str(i + 1))
+                new_multicolor = str(multicolor[i])
+                new_multicolor = new_multicolor.replace("[", "")
+                new_multicolor = new_multicolor.replace("]", "")
+
+                color.appendChild(sequences_tree.createTextNode(new_multicolor))
+                step.appendChild(color)
+
+            # same as above but with multicolor_range and "color_range_"+str(i)
+            multicolor_range = webinterface.ledsettings.multicolor_range
+            for i in range(len(multicolor_range)):
+                color_range = sequences_tree.createElement("color_range_" + str(i + 1))
+                new_multicolor_range = str(multicolor_range[i])
+
+                new_multicolor_range = new_multicolor_range.replace("[", "")
+                new_multicolor_range = new_multicolor_range.replace("]", "")
+                color_range.appendChild(sequences_tree.createTextNode(new_multicolor_range))
+                step.appendChild(color_range)
+
+        #if color_mode is equal to "Rainbow" load colors from webinterface.ledsettings and put it into step node
+        if (webinterface.ledsettings.color_mode == "Rainbow"):
+
+            #load values rainbow_offset, rainbow_scale and rainbow_timeshift from webinterface.ledsettings and put them into step node under Offset, Scale and Timeshift
+            rainbow_offset = sequences_tree.createElement("Offset")
+            rainbow_offset.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.rainbow_offset)))
+            step.appendChild(rainbow_offset)
+
+            rainbow_scale = sequences_tree.createElement("Scale")
+            rainbow_scale.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.rainbow_scale)))
+            step.appendChild(rainbow_scale)
+
+            rainbow_timeshift = sequences_tree.createElement("Timeshift")
+            rainbow_timeshift.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.rainbow_timeshift)))
+            step.appendChild(rainbow_timeshift)
+
+        #if color_mode is equal to "Speed" load colors from webinterface.ledsettings and put it into step node
+        if (webinterface.ledsettings.color_mode == "Speed"):
+            #load values speed_slowest["red"] etc from webinterface.ledsettings and put them under speed_slowest_red etc
+            speed_slowest_red = sequences_tree.createElement("speed_slowest_red")
+            speed_slowest_red.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.speed_slowest["red"])))
+            step.appendChild(speed_slowest_red)
+
+            speed_slowest_green = sequences_tree.createElement("speed_slowest_green")
+            speed_slowest_green.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.speed_slowest["green"])))
+            step.appendChild(speed_slowest_green)
+
+            speed_slowest_blue = sequences_tree.createElement("speed_slowest_blue")
+            speed_slowest_blue.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.speed_slowest["blue"])))
+            step.appendChild(speed_slowest_blue)
+
+            #same as above but with "fastest"
+            speed_fastest_red = sequences_tree.createElement("speed_fastest_red")
+            speed_fastest_red.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.speed_fastest["red"])))
+            step.appendChild(speed_fastest_red)
+
+            speed_fastest_green = sequences_tree.createElement("speed_fastest_green")
+            speed_fastest_green.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.speed_fastest["green"])))
+            step.appendChild(speed_fastest_green)
+
+            speed_fastest_blue = sequences_tree.createElement("speed_fastest_blue")
+            speed_fastest_blue.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.speed_fastest["blue"])))
+            step.appendChild(speed_fastest_blue)
+
+            #load "speed_max_notes" and "speed_period_in_seconds" values from webinterface.ledsettings
+            #and put them under speed_max_notes and speed_period_in_seconds
+
+            speed_max_notes = sequences_tree.createElement("speed_max_notes")
+            speed_max_notes.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.speed_max_notes)))
+            step.appendChild(speed_max_notes)
+
+            speed_period_in_seconds = sequences_tree.createElement("speed_period_in_seconds")
+            speed_period_in_seconds.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.speed_period_in_seconds)))
+            step.appendChild(speed_period_in_seconds)
+
+        #if color_mode is equal to "Gradient" load colors from webinterface.ledsettings and put it into step node
+        if (webinterface.ledsettings.color_mode == "Gradient"):
+            #load values gradient_start_red etc from webinterface.ledsettings and put them under gradient_start_red etc
+            gradient_start_red = sequences_tree.createElement("gradient_start_red")
+            gradient_start_red.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.gradient_start["red"])))
+            step.appendChild(gradient_start_red)
+
+            gradient_start_green = sequences_tree.createElement("gradient_start_green")
+            gradient_start_green.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.gradient_start["green"])))
+            step.appendChild(gradient_start_green)
+
+            gradient_start_blue = sequences_tree.createElement("gradient_start_blue")
+            gradient_start_blue.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.gradient_start["blue"])))
+            step.appendChild(gradient_start_blue)
+
+            #same as above but with gradient_end
+            gradient_end_red = sequences_tree.createElement("gradient_end_red")
+            gradient_end_red.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.gradient_end["red"])))
+            step.appendChild(gradient_end_red)
+
+            gradient_end_green = sequences_tree.createElement("gradient_end_green")
+            gradient_end_green.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.gradient_end["green"])))
+            step.appendChild(gradient_end_green)
+
+            gradient_end_blue = sequences_tree.createElement("gradient_end_blue")
+            gradient_end_blue.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.gradient_end["blue"])))
+            step.appendChild(gradient_end_blue)
+
+        #if color_mode is equal to "Scale" load colors from webinterface.ledsettings and put it into step node
+        if (webinterface.ledsettings.color_mode == "Scale"):
+            #load values key_in_scale_red etc from webinterface.ledsettings and put them under key_in_scale_red etc
+            key_in_scale_red = sequences_tree.createElement("key_in_scale_red")
+            key_in_scale_red.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.key_in_scale["red"])))
+            step.appendChild(key_in_scale_red)
+
+            key_in_scale_green = sequences_tree.createElement("key_in_scale_green")
+            key_in_scale_green.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.key_in_scale["green"])))
+            step.appendChild(key_in_scale_green)
+
+            key_in_scale_blue = sequences_tree.createElement("key_in_scale_blue")
+            key_in_scale_blue.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.key_in_scale["blue"])))
+            step.appendChild(key_in_scale_blue)
+
+            #same as above but with key_not_in_scale
+            key_not_in_scale_red = sequences_tree.createElement("key_not_in_scale_red")
+            key_not_in_scale_red.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.key_not_in_scale["red"])))
+            step.appendChild(key_not_in_scale_red)
+
+            key_not_in_scale_green = sequences_tree.createElement("key_not_in_scale_green")
+            key_not_in_scale_green.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.key_not_in_scale["green"])))
+            step.appendChild(key_not_in_scale_green)
+
+            key_not_in_scale_blue = sequences_tree.createElement("key_not_in_scale_blue")
+            key_not_in_scale_blue.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.key_not_in_scale["blue"])))
+            step.appendChild(key_not_in_scale_blue)
+
+        try:
+            sequences_tree.getElementsByTagName("sequence_" + str(value))[
+                0].insertBefore(step,
+                                sequences_tree.getElementsByTagName("sequence_" + str(value))[
+                                    0].getElementsByTagName("step_" + str(second_value + 1))[0])
+        except:
+            sequences_tree.getElementsByTagName("sequence_" + str(value))[0].appendChild(step)
+
+
+        pretty_save("sequences.xml", sequences_tree)
+
+        return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True)
+
 
     if setting_name == "screen_on":
-        if(int(value) == 0):
+        if (int(value) == 0):
             webinterface.menu.disable_screen()
         else:
             webinterface.menu.enable_screen()
@@ -404,17 +863,17 @@ def change_setting():
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "change_song_name":
-        if os.path.exists("Songs/"+second_value):
-            return jsonify(success=False, reload_songs=True, error=second_value+" already exists")
+        if os.path.exists("Songs/" + second_value):
+            return jsonify(success=False, reload_songs=True, error=second_value + " already exists")
 
         if "_main" in value:
             search_name = value.replace("_main.mid", "")
             for fname in os.listdir('Songs'):
                 if search_name in fname:
-                    new_name = second_value.replace(".mid", "")+fname.replace(search_name, "")
+                    new_name = second_value.replace(".mid", "") + fname.replace(search_name, "")
                     os.rename('Songs/' + fname, 'Songs/' + new_name)
         else:
-            os.rename('Songs/'+value, 'Songs/'+second_value)
+            os.rename('Songs/' + value, 'Songs/' + second_value)
 
         return jsonify(success=True, reload_songs=True)
 
@@ -423,35 +882,37 @@ def change_setting():
             name_no_suffix = value.replace("_main.mid", "")
             for fname in os.listdir('Songs'):
                 if name_no_suffix in fname:
-                    os.remove("Songs/"+fname)
+                    os.remove("Songs/" + fname)
         else:
-            os.remove("Songs/"+value)
+            os.remove("Songs/" + value)
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "download_song":
         if "_main" in value:
-            zipObj = ZipFile("Songs/"+value.replace(".mid", "")+".zip", 'w')
+            zipObj = ZipFile("Songs/" + value.replace(".mid", "") + ".zip", 'w')
             name_no_suffix = value.replace("_main.mid", "")
             songs_count = 0
             for fname in os.listdir('Songs'):
                 if name_no_suffix in fname and ".zip" not in fname:
                     songs_count += 1
-                    zipObj.write("Songs/"+fname)
+                    zipObj.write("Songs/" + fname)
             zipObj.close()
             if songs_count == 1:
-                os.remove("Songs/"+value.replace(".mid", "")+".zip")
+                os.remove("Songs/" + value.replace(".mid", "") + ".zip")
                 return send_file("../Songs/" + value, mimetype='application/x-csv', attachment_filename=value,
                                  as_attachment=True)
             else:
-                return send_file("../Songs/"+value.replace(".mid", "")+".zip", mimetype='application/x-csv',
-                                 attachment_filename=value.replace(".mid", "")+".zip", as_attachment=True)
+                return send_file("../Songs/" + value.replace(".mid", "") + ".zip", mimetype='application/x-csv',
+                                 attachment_filename=value.replace(".mid", "") + ".zip", as_attachment=True)
         else:
-            return send_file("../Songs/"+value, mimetype='application/x-csv', attachment_filename=value, as_attachment=True)
+            return send_file("../Songs/" + value, mimetype='application/x-csv', attachment_filename=value,
+                             as_attachment=True)
 
     if setting_name == "start_midi_play":
         webinterface.saving.t = threading.Thread(target=play_midi, args=(value, webinterface.midiports,
                                                                          webinterface.saving, webinterface.menu,
-                                                                         webinterface.ledsettings, webinterface.ledstrip))
+                                                                         webinterface.ledsettings,
+                                                                         webinterface.ledstrip))
         webinterface.saving.t.start()
 
         return jsonify(success=True, reload_songs=True)
@@ -462,9 +923,77 @@ def change_setting():
 
         return jsonify(success=True, reload_songs=True)
 
-
-
     return jsonify(success=True)
+
+
+@webinterface.route('/api/get_sequence_setting', methods=['GET'])
+def get_sequence_setting():
+    response = {}
+
+    color_mode = webinterface.ledsettings.color_mode
+
+    light_mode = webinterface.ledsettings.mode
+
+    red = webinterface.ledsettings.red
+    green = webinterface.ledsettings.green
+    blue = webinterface.ledsettings.blue
+    led_color = wc.rgb_to_hex((int(red), int(green), int(blue)))
+
+    multicolor = webinterface.ledsettings.multicolor
+    multicolor_range = webinterface.ledsettings.multicolor_range
+
+    rainbow_scale = webinterface.ledsettings.rainbow_scale
+    rainbow_offset = webinterface.ledsettings.rainbow_offset
+    rainbow_timeshift = webinterface.ledsettings.rainbow_timeshift
+
+    speed_slowest_red = webinterface.ledsettings.speed_slowest["red"]
+    speed_slowest_green = webinterface.ledsettings.speed_slowest["green"]
+    speed_slowest_blue = webinterface.ledsettings.speed_slowest["blue"]
+    speed_slowest_color = wc.rgb_to_hex((int(speed_slowest_red), int(speed_slowest_green), int(speed_slowest_blue)))
+    response["speed_slowest_color"] = speed_slowest_color
+
+    speed_fastest_red = webinterface.ledsettings.speed_fastest["red"]
+    speed_fastest_green = webinterface.ledsettings.speed_fastest["green"]
+    speed_fastest_blue = webinterface.ledsettings.speed_fastest["blue"]
+    speed_fastest_color = wc.rgb_to_hex((int(speed_fastest_red), int(speed_fastest_green), int(speed_fastest_blue)))
+    response["speed_fastest_color"] = speed_fastest_color
+
+    gradient_start_red = webinterface.ledsettings.gradient_start["red"]
+    gradient_start_green = webinterface.ledsettings.gradient_start["green"]
+    gradient_start_blue = webinterface.ledsettings.gradient_start["blue"]
+    gradient_start_color = wc.rgb_to_hex((int(gradient_start_red), int(gradient_start_green), int(gradient_start_blue)))
+    response["gradient_start_color"] = gradient_start_color
+
+    gradient_end_red = webinterface.ledsettings.gradient_end["red"]
+    gradient_end_green = webinterface.ledsettings.gradient_end["green"]
+    gradient_end_blue = webinterface.ledsettings.gradient_end["blue"]
+    gradient_end_color = wc.rgb_to_hex((int(gradient_end_red), int(gradient_end_green), int(gradient_end_blue)))
+    response["gradient_end_color"] = gradient_end_color
+
+    key_in_scale_red = webinterface.ledsettings.key_in_scale["red"]
+    key_in_scale_green = webinterface.ledsettings.key_in_scale["green"]
+    key_in_scale_blue = webinterface.ledsettings.key_in_scale["blue"]
+    key_in_scale_color = wc.rgb_to_hex((int(key_in_scale_red), int(key_in_scale_green), int(key_in_scale_blue)))
+    response["key_in_scale_color"] = key_in_scale_color
+
+    key_not_in_scale_red = webinterface.ledsettings.key_not_in_scale["red"]
+    key_not_in_scale_green = webinterface.ledsettings.key_not_in_scale["green"]
+    key_not_in_scale_blue = webinterface.ledsettings.key_not_in_scale["blue"]
+    key_not_in_scale_color = wc.rgb_to_hex(
+        (int(key_not_in_scale_red), int(key_not_in_scale_green), int(key_not_in_scale_blue)))
+    response["key_not_in_scale_color"] = key_not_in_scale_color
+
+    response["scale_key"] = webinterface.ledsettings.scale_key
+
+    response["led_color"] = led_color
+    response["color_mode"] = color_mode
+    response["light_mode"] = light_mode
+    response["multicolor"] = multicolor
+    response["multicolor_range"] = multicolor_range
+    response["rainbow_scale"] = rainbow_scale
+    response["rainbow_offset"] = rainbow_offset
+    response["rainbow_timeshift"] = rainbow_timeshift
+    return jsonify(response)
 
 
 @webinterface.route('/api/get_settings', methods=['GET'])
@@ -561,6 +1090,7 @@ def get_settings():
 
     return jsonify(response)
 
+
 @webinterface.route('/api/get_recording_status', methods=['GET'])
 def get_recording_status():
     response = {}
@@ -582,7 +1112,7 @@ def get_songs():
     sortby = request.args.get('sortby')
     search = request.args.get('search')
 
-    start = int(page)*int(length)
+    start = int(page) * int(length)
 
     songs_list_dict = {}
 
@@ -616,7 +1146,7 @@ def get_songs():
 
     for song in songs_list:
         song = song.replace("Songs/", "")
-        date = os.path.getmtime("Songs/"+song)
+        date = os.path.getmtime("Songs/" + song)
         if "_#" in song or not song.endswith('.mid'):
             continue
 
@@ -625,13 +1155,14 @@ def get_songs():
                 continue
 
         i += 1
-        if(i > int(start)):
+        if (i > int(start)):
             songs_list_dict[song] = date
 
         if len(songs_list_dict) >= int(length):
             break
 
-    return render_template('songs_list.html', len=len(songs_list_dict), songs_list_dict=songs_list_dict, page=page, max_page=max_page, total_songs=total_songs)
+    return render_template('songs_list.html', len=len(songs_list_dict), songs_list_dict=songs_list_dict, page=page,
+                           max_page=max_page, total_songs=total_songs)
 
 
 @webinterface.route('/api/get_ports', methods=['GET'])
@@ -669,13 +1200,50 @@ def get_sequences():
     while True:
         try:
             i += 1
-            sequences_list.append(\
-                            sequences_tree.getElementsByTagName("sequence_" + str(i))[0].getElementsByTagName(
-                                "sequence_name")[
-                                0].firstChild.nodeValue)
+            sequences_list.append(
+                sequences_tree.getElementsByTagName("sequence_" + str(i))[0].getElementsByTagName(
+                    "sequence_name")[
+                    0].firstChild.nodeValue)
         except:
             break
     response["sequences_list"] = sequences_list
     response["sequence_number"] = webinterface.ledsettings.sequence_number
 
     return jsonify(response)
+
+
+@webinterface.route('/api/get_steps_list', methods=['GET'])
+def get_steps_list():
+    response = {}
+    sequence = request.args.get('sequence')
+    sequences_tree = minidom.parse("sequences.xml")
+    steps_list = []
+    i = 0
+
+    for step in sequences_tree.getElementsByTagName("sequence_" + str(sequence))[0].childNodes:
+        if (step.nodeType == 1):
+            if (step.nodeName == "settings"):
+                response["control_number"] = step.getElementsByTagName("control_number")[0].firstChild.nodeValue
+                response["next_step"] = step.getElementsByTagName("next_step")[0].firstChild.nodeValue
+            else:
+                steps_list.append(step.nodeName)
+
+    response["steps_list"] = steps_list
+    return jsonify(response)
+
+
+@webinterface.route('/api/set_step_properties', methods=['GET'])
+def set_step_properties():
+    sequence = request.args.get('sequence')
+    step = request.args.get('step')
+    webinterface.ledsettings.set_sequence(sequence, step, True)
+
+    return jsonify(success=True)
+
+
+def pretty_print(dom):
+    return '\n'.join([line for line in dom.toprettyxml(indent=' ' * 4).split('\n') if line.strip()])
+
+def pretty_save(file_path, sequences_tree):
+    with open(file_path, "w", encoding="utf8") as outfile:
+        outfile.write(pretty_print(sequences_tree))
