@@ -298,28 +298,29 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                 </svg>
             </div>
 
-            {% include 'ledcolor.html' %}
-            {% include 'lightmode.html' %}
-
-            <div class="pr-2 mt-4">
+            <div class="m-4">
                 <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
                                 dark:text-gray-400">
                     Save current settings to step
                 </label>
                 <button onclick="this.classList.add('hidden');
-                                this.nextElementSibling.classList.remove('hidden')" class="w-full h-12 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                this.nextElementSibling.classList.remove('hidden')" class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
                                         h-4 py-2 px-2
                                         rounded-2xl inline-flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-full justify-items-center text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-full justify-items-center text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                 </button>
                 <button onclick="change_setting('save_led_settings_to_step',
-            document.getElementById('sequences_list_2').value, document.getElementById('sequence_step').value);"
-                        class="w-full h-12 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+            document.getElementById('sequences_list_2').value, document.getElementById('sequence_step').value);
+                temporary_disable_button(this, 1000);"
+                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
                                         rounded-2xl inline-flex items-center hidden">
                     <span class="w-full uppercase text-xs">Confirm</span></button>
             </div>
+
+            {% include 'ledcolor.html' %}
+            {% include 'lightmode.html' %}
 
         </div>
     </div>
