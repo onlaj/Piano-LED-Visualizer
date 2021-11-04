@@ -38,7 +38,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
         <button id="next_step_button" onclick="change_setting('next_step', '0')" class="z-10 transform
         shadow-xl w-full h-20 bg-gray-100 dark:bg-gray-600 font-bold rounded-lg mt-4">
             <div class="absolute top-0 right-0 pt-2 flex items-center px-2 text-gray-700 dark:text-gray-200"
-                 onclick="event.stopPropagation();this.parentElement.classList.toggle('big-button');document.getElementById('sequence_block').classList.toggle('height-80vw');">
+                 onclick="event.stopPropagation();this.parentElement.classList.toggle('big-button');
+                 document.getElementById('sequence_block').classList.toggle('height-80vw');">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                      stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -54,7 +55,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
     <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div id="sequence_edit"
-             class="w-10 flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400 cursor-pointer pointer-events-auto opacity-100 animate-pulse"
+             class="w-10 flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400 cursor-pointer
+             pointer-events-auto opacity-100 animate-pulse"
              onclick="toggle_edit_sequence();">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor">
@@ -304,11 +306,13 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                     Save current settings to step
                 </label>
                 <button onclick="this.classList.add('hidden');
-                                this.nextElementSibling.classList.remove('hidden')" class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                this.nextElementSibling.classList.remove('hidden')"
+                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
                                         h-4 py-2 px-2
                                         rounded-2xl inline-flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-full justify-items-center text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-full justify-items-center text-green-400"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
                 </button>
                 <button onclick="change_setting('save_led_settings_to_step',

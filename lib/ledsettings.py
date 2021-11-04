@@ -6,6 +6,7 @@ from xml.dom import minidom
 from lib.functions import fastColorWipe, find_between, clamp
 from neopixel import Color
 
+
 class LedSettings:
     def __init__(self, usersettings):
 
@@ -81,9 +82,8 @@ class LedSettings:
 
         self.sequence_number = 0
 
-        #if self.mode == "Disabled" and self.color_mode != "disabled":
+        # if self.mode == "Disabled" and self.color_mode != "disabled":
         #    usersettings.change_setting_value("color_mode", "disabled")
-            
 
     def add_instance(self, menu, ledstrip):
         self.menu = menu
@@ -97,7 +97,7 @@ class LedSettings:
         self.usersettings.change_setting_value("multicolor", self.multicolor)
         self.usersettings.change_setting_value("multicolor_range", self.multicolor_range)
 
-        #self.menu.update_multicolor(self.multicolor)
+        # self.menu.update_multicolor(self.multicolor)
 
     def deletecolor(self, key):
         del self.multicolor[int(key) - 1]
@@ -106,7 +106,7 @@ class LedSettings:
         self.usersettings.change_setting_value("multicolor", self.multicolor)
         self.usersettings.change_setting_value("multicolor_range", self.multicolor_range)
 
-        #self.menu.update_multicolor(self.multicolor)
+        # self.menu.update_multicolor(self.multicolor)
         self.menu.go_back()
 
     def change_multicolor(self, choice, location, value):
@@ -254,7 +254,7 @@ class LedSettings:
     def get_adjacent_colors(self):
         return str(self.adjacent_red) + ", " + str(self.adjacent_green) + ", " + str(self.adjacent_blue)
 
-    def set_sequence(self, sequence, step, direct_step = False):
+    def set_sequence(self, sequence, step, direct_step=False):
         try:
             if int(step) == 0 or direct_step == True:
                 if direct_step == True:
@@ -270,7 +270,7 @@ class LedSettings:
                 self.control_number = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                     0].getElementsByTagName("control_number")[0].firstChild.nodeValue
                 self.count_steps = 1
-                #if(direct_step == False):
+                # if(direct_step == False):
                 self.sequence_active = True
                 self.sequence_active_name = sequence
                 while True:
