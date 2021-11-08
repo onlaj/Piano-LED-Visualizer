@@ -953,6 +953,8 @@ def get_sequence_setting():
 
     light_mode = webinterface.ledsettings.mode
 
+    fading_speed = webinterface.ledsettings.fadingspeed
+
     red = webinterface.ledsettings.red
     green = webinterface.ledsettings.green
     blue = webinterface.ledsettings.blue
@@ -1007,6 +1009,7 @@ def get_sequence_setting():
     response["led_color"] = led_color
     response["color_mode"] = color_mode
     response["light_mode"] = light_mode
+    response["fading_speed"] = fading_speed
     response["multicolor"] = multicolor
     response["multicolor_range"] = multicolor_range
     response["rainbow_scale"] = rainbow_scale
@@ -1035,12 +1038,15 @@ def get_settings():
     sides_color = wc.rgb_to_hex((int(sides_red), int(sides_green), int(sides_blue)))
 
     light_mode = webinterface.usersettings.get_setting_value("mode")
+    fading_speed = webinterface.usersettings.get_setting_value("fadingspeed")
 
     brightness = webinterface.usersettings.get_setting_value("brightness_percent")
     backlight_brightness = webinterface.usersettings.get_setting_value("backlight_brightness_percent")
 
     response["led_color"] = led_color
     response["light_mode"] = light_mode
+    response["fading_speed"] = fading_speed
+
     response["brightness"] = brightness
     response["backlight_brightness"] = backlight_brightness
     response["backlight_color"] = backlight_color
