@@ -1210,6 +1210,7 @@ def switch_ports():
     secondary_input = webinterface.usersettings.get_setting_value("secondary_input_port")
     webinterface.midiports.change_port("inport", secondary_input)
     webinterface.usersettings.change_setting_value("secondary_input_port", active_input)
+    webinterface.usersettings.change_setting_value("input_port", secondary_input)
 
     fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
 
