@@ -343,3 +343,12 @@ input[type=number]::-webkit-outer-spin-button {
       transform: translate(0, 0);
   }
 }
+
+.tooltip{
+  visibility: hidden;
+  position: absolute;
+}
+.has-tooltip:hover .tooltip {
+  visibility: visible;
+  z-index: 100;
+}

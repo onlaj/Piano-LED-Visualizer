@@ -241,8 +241,25 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                 </div>
 
                 <div class="w-full md:w-1/2 md:mb-0">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        Next step value
+                    <label class="block tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+
+                        <div class="flex">
+                        <div class="uppercase">Next step value</div>
+                        <div class='has-tooltip'>
+                        <span class='inline-bloc tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
+                            This value decides if next step is activated when you press or release the pedal.
+                            <br>For example if you want to change settings after fully pressing Sostenuto pedal you should set it to 126
+                            <br>(127 is the maximum value when pedal is fully pressed).
+                            <br>When you want to change settings when fully releasing pedal set it to -1.
+                        </span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                    </div>
                     </label>
                     <div class="relative pl-2">
                         <input onchange="if(document.getElementById('sequences_list_2').value != 0){
