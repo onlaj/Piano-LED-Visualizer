@@ -19,14 +19,19 @@ class SaveMIDI:
         self.messages_to_save = dict()
         self.messages_to_save["main"] = []
         self.restart_time()
+        self.first_note_time = 0
 
     def cancel_recording(self):
         self.isrecording = False
         self.menu.render_message("Recording canceled", "", 1500)
 
     def add_track(self, status, note, velocity, time_value, hex_color="main"):
+        if self.first_note_time == 0:
+            self.first_note_time = time_value
+
         if hex_color not in self.messages_to_save:
             self.messages_to_save[str(hex_color)] = []
+            self.messages_to_save[str(hex_color)].append(["note", self.first_note_time, "note_off", 0, 0])
 
         if status == "note_off":
             for key, note_off_message in self.messages_to_save.items():
