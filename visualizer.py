@@ -24,7 +24,11 @@ os.chdir(sys.path[0])
 # Ensure there is only one instance of the script running.
 fh = 0
 
-# make sure connectall.rb file is updated
+# make sure connectall.rb file exists and is updated
+if not os.path.exists('/usr/local/bin/connectall.rb'):
+    print("Connectall.rb script not found, creating...")
+    os.mknod('/usr/local/bin/connectall.rb')
+
 if filecmp.cmp('/usr/local/bin/connectall.rb', 'connectall.rb') is not True:
     print("Connectall.rb script is outdated, updating...")
     copyfile('connectall.rb', '/usr/local/bin/connectall.rb')
