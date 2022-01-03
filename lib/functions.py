@@ -95,7 +95,7 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     saving.is_playing_midi.clear()
 
 
-def screensaver(menu, midiports, saving, ledstrip):
+def screensaver(menu, midiports, saving, ledstrip, ledsettings):
     KEY2 = 20
     GPIO.setup(KEY2, GPIO.IN, GPIO.PUD_UP)
 
@@ -135,25 +135,40 @@ def screensaver(menu, midiports, saving, ledstrip):
                 int(menu.led_animation_delay) * 60)) and menu.screensaver_is_running == False:
             menu.screensaver_is_running = True
             if menu.led_animation == "Theater Chase":
-                menu.t = threading.Thread(target=theaterChase, args=(ledstrip.strip, 1))
+                menu.t = threading.Thread(target=theaterChase, args=(ledstrip.strip,
+                                                                          Color(127, 127, 127),
+                                                                          ledsettings,
+                                                                          menu))
                 menu.t.start()
             if menu.led_animation == "Breathing Slow":
-                menu.t = threading.Thread(target=breathing, args=(ledstrip.strip, 25))
+                menu.t = threading.Thread(target=breathing, args=(ledstrip.strip,
+                                                                      ledsettings,
+                                                                      menu, 25))
                 menu.t.start()
             if menu.led_animation == "Rainbow Slow":
-                menu.t = threading.Thread(target=rainbow, args=(ledstrip.strip, 10))
+                menu.t = threading.Thread(target=rainbow, args=(ledstrip.strip,
+                                                                    ledsettings,
+                                                                    menu, 50))
                 menu.t.start()
             if menu.led_animation == "Rainbow Cycle Slow":
-                menu.t = threading.Thread(target=rainbowCycle, args=(ledstrip.strip, 10))
+                menu.t = threading.Thread(target=rainbowCycle, args=(ledstrip.strip,
+                                                                         ledsettings,
+                                                                         menu, 50))
                 menu.t.start()
             if menu.led_animation == "Theater Chase Rainbow":
-                menu.t = threading.Thread(target=theaterChaseRainbow, args=(ledstrip.strip, 5))
+                menu.t = threading.Thread(target=theaterChaseRainbow, args=(ledstrip.strip,
+                                                                            ledsettings,
+                                                                            menu, 5))
                 menu.t.start()
             if menu.led_animation == "Sound of da police":
-                menu.t = threading.Thread(target=sound_of_da_police, args=(ledstrip.strip, 1))
+                menu.t = threading.Thread(target=sound_of_da_police, args=(ledstrip.strip,
+                                                                           ledsettings,
+                                                                           menu, 1))
                 menu.t.start()
             if menu.led_animation == "Scanner":
-                menu.t = threading.Thread(target=scanner, args=(ledstrip.strip, 1))
+                menu.t = threading.Thread(target=scanner, args=(ledstrip.strip,
+                                                                ledsettings,
+                                                                menu, 1))
                 menu.t.start()
 
         hour = datetime.datetime.now().strftime("%H:%M:%S")

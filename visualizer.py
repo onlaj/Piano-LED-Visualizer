@@ -132,7 +132,7 @@ while True:
     # screensaver
     if int(menu.screensaver_delay) > 0:
         if (time.time() - midiports.last_activity) > (int(menu.screensaver_delay) * 60):
-            screensaver(menu, midiports, saving, ledstrip)
+            screensaver(menu, midiports, saving, ledstrip, ledsettings)
     try:
         elapsed_time = time.time() - saving.start_time
     except:
