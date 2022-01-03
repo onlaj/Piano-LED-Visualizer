@@ -7,6 +7,9 @@ import time
 import socket
 import RPi.GPIO as GPIO
 
+SENSECOVER = 12
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(SENSECOVER, GPIO.IN, GPIO.PUD_UP)
 
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -328,6 +331,16 @@ def theaterChase(strip, color, ledsettings, menu, wait_ms=25):
     menu.screensaver_is_running = True
 
     while menu.screensaver_is_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
         red = int(ledsettings.get_color("Red"))
         green = int(ledsettings.get_color("Green"))
         blue = int(ledsettings.get_color("Blue"))
@@ -369,6 +382,16 @@ def rainbow(strip, ledsettings, menu, wait_ms=20):
     j = 0
     menu.screensaver_is_running = True
     while menu.screensaver_is_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, wheel(j & 255))
         j += 1
@@ -391,6 +414,16 @@ def rainbowCycle(strip, ledsettings, menu, wait_ms=20):
     j = 0
     menu.screensaver_is_running = True
     while menu.screensaver_is_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255))
         j += 1
@@ -413,6 +446,16 @@ def theaterChaseRainbow(strip, ledsettings, menu, wait_ms=25):
     j = 0
     menu.screensaver_is_running = True
     while menu.screensaver_is_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
         for q in range(5):
             for i in range(0, strip.numPixels(), 5):
                 strip.setPixelColor(i + q, wheel((i + j) % 255))
@@ -440,6 +483,16 @@ def breathing(strip, ledsettings, menu, wait_ms=2):
     multiplier = 24
     direction = 2
     while menu.screensaver_is_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
         if multiplier >= 98 or multiplier < 24:
             direction *= -1
         multiplier += direction
@@ -469,6 +522,16 @@ def sound_of_da_police(strip, ledsettings, menu, wait_ms=5):
     r_start = 0
     l_start = 196
     while menu.screensaver_is_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
         r_start += 14
         l_start -= 14
         for i in range(strip.numPixels()):
@@ -504,6 +567,16 @@ def scanner(strip, ledsettings, menu, wait_ms=1):
     green_fixed = ledsettings.get_color("Green")
     blue_fixed = ledsettings.get_color("Blue")
     while menu.screensaver_is_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
         position += direction
         for i in range(strip.numPixels()):
             if i > (position - scanner_length) and i < (position + scanner_length):

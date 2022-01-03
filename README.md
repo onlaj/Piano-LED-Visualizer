@@ -53,6 +53,8 @@ If you want to make your RPi autoconnect to Wi-Fi you need to follow [this guide
 ## Connecting LED Strip to Raspberry Pi and enabling SPI
 There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*
 
+Optionally, you can connect a switch to BCM pin 12 and GND. Attach the switch to the key cover, if available. When it is closed, the animations are automatically switched off.
+
 If you are wondering how to connect wires to RPI if screen hat is taking all pins here is a [picture](https://i.imgur.com/7KhwM7r.jpg) of how I did it. There should be a gap between RPI and screen so you can solder your wires or just wrap cables around the pins and separate them with heat shrink bands.
 
 After connecting all cables as described above everything should fit nicely to case. Scroll down to see some photos of the setup I made
