@@ -41,6 +41,8 @@ class LedSettings:
 
         self.skipped_notes = usersettings.get_setting_value("skipped_notes")
 
+        self.note_offsets = ast.literal_eval(usersettings.get_setting_value("note_offsets"))
+
         self.notes_in_last_period = []
         self.speed_period_in_seconds = 0.8
 
