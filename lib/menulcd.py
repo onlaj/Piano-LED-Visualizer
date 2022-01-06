@@ -871,7 +871,7 @@ class MenuLCD:
 
         if location == "Other_Settings":
             if choice == "System Info":
-                screensaver(self, self.midiports, self.saving, self.ledstrip)
+                screensaver(self, self.midiports, self.saving, self.ledstrip, self.ledsettings)
 
         if location == "Rainbow_Colors":
             self.ledsettings.color_mode = "Rainbow"
