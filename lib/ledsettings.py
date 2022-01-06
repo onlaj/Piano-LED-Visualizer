@@ -92,6 +92,24 @@ class LedSettings:
         self.ledstrip = ledstrip
         menu.update_multicolor(self.multicolor)
 
+    def add_note_offset(self):
+        self.note_offsets.insert(0, [100, 1])
+        self.usersettings.change_setting_value("note_offsets", self.note_offsets)
+
+    def append_note_offset(self):
+        self.note_offsets.append([1, 1])
+        self.usersettings.change_setting_value("note_offsets", self.note_offsets)
+
+    def del_note_offset(self, slot):
+        del self.note_offsets[int(slot) - 1]
+        self.usersettings.change_setting_value("note_offsets", self.note_offsets)
+
+    def update_note_offset(self, slot, data):
+        pair = data.split(",")
+        self.note_offsets[int(slot) - 1][0] = int(pair[0])
+        self.note_offsets[int(slot) - 1][1] = int(pair[1])
+        self.usersettings.change_setting_value("note_offsets", self.note_offsets)
+
     def addcolor(self):
         self.multicolor.append([0, 255, 0])
         self.multicolor_range.append([20, 108])
