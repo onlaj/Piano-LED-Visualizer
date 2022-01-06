@@ -845,10 +845,10 @@ def change_setting():
         webinterface.usersettings.reset_to_default()
 
     if setting_name == "restart_rpi":
-        call("sudo reboot now", shell=True)
+        call("sudo /sbin/reboot now", shell=True)
 
     if setting_name == "turnoff_rpi":
-        call("sudo shutdown -h now", shell=True)
+        call("sudo /sbin/shutdown -h now", shell=True)
 
     if setting_name == "update_rpi":
         call("sudo git reset --hard HEAD", shell=True)
