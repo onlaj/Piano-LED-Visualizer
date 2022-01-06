@@ -33,7 +33,6 @@ class MenuLCD:
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), "GREEN")
         self.draw = ImageDraw.Draw(self.image)
         self.LCD.LCD_ShowImage(self.image, 0, 0)
-        self.xml_file_name = xml_file_name
         self.DOMTree = minidom.parse(xml_file_name)
         self.currentlocation = "menu"
         self.scroll_hold = 0
@@ -79,21 +78,30 @@ class MenuLCD:
             self.screensaver_settings[setting] = "1"
 
     def update_songs(self):
+        # Assume the first node is "Choose song"
+        replace_node = self.DOMTree.getElementsByTagName("Play_MIDI")[0]
+        choose_song_mc = self.DOMTree.createElement("Play_MIDI")
+        choose_song_mc.appendChild(self.DOMTree.createTextNode(""))
+        choose_song_mc.setAttribute("text", "Choose song")
+        replace_node.parentNode.replaceChild(choose_song_mc, replace_node)
+        # Assume the first node is "Load song"
+        replace_node = self.DOMTree.getElementsByTagName("Learn_MIDI")[0]
+        load_song_mc = self.DOMTree.createElement("Learn_MIDI")
+        load_song_mc.appendChild(self.DOMTree.createTextNode(""))
+        load_song_mc.setAttribute("text", "Load song")
+        replace_node.parentNode.replaceChild(load_song_mc, replace_node)
         songs_list = os.listdir("Songs")
-        self.DOMTree = minidom.parse(self.xml_file_name)
         for song in songs_list:
             # List of songs for Play_MIDI
             element = self.DOMTree.createElement("Choose_song")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", song)
-            mc = self.DOMTree.getElementsByTagName("Play_MIDI")[0]
-            mc.appendChild(element)
+            choose_song_mc.appendChild(element)
             # List of songs for Learn_MIDI
             element = self.DOMTree.createElement("Load_song")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", song)
-            mc = self.DOMTree.getElementsByTagName("Learn_MIDI")[0]
-            mc.appendChild(element)
+            load_song_mc.appendChild(element)
 
     def update_sequence_list(self):
         try:
