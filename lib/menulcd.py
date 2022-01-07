@@ -106,6 +106,12 @@ class MenuLCD:
             load_song_mc.appendChild(element)
 
     def update_sequence_list(self):
+        seq_mc = self.DOMTree.createElement("LED_Strip_Settings")
+        seq_mc.appendChild(self.DOMTree.createTextNode(""))
+        seq_mc.setAttribute("text", "Sequences")
+        mc = self.DOMTree.getElementsByTagName("Sequences")[0]
+        mc.parentNode.parentNode.replaceChild(seq_mc, mc.parentNode)
+        ret = True
         try:
             sequences_tree = minidom.parse("sequences.xml")
             self.update_songs()
@@ -120,18 +126,33 @@ class MenuLCD:
                     element = self.DOMTree.createElement("Sequences")
                     element.appendChild(self.DOMTree.createTextNode(""))
                     element.setAttribute("text", str(sequence_name))
-                    mc = self.DOMTree.getElementsByTagName("LED_Strip_Settings")[0]
-                    mc.appendChild(element)
-
+                    seq_mc.appendChild(element)
                 except:
                     break
         except:
-            self.render_message("Something went wrong", "Check your sequences file", 1500)
+            ret = False
+        element = self.DOMTree.createElement("Sequences")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Update")
+        seq_mc.appendChild(element)
+        return ret
 
     def update_ports(self):
         ports = mido.get_input_names()
         ports = list(dict.fromkeys(ports))
         self.update_sequence_list()
+        # Replace Input and Playback with empty elements
+        element = self.DOMTree.createElement("Ports_Settings")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Input")
+        mc = self.DOMTree.getElementsByTagName("Ports_Settings")[0]
+        mc.parentNode.replaceChild(element, mc)
+        element = self.DOMTree.createElement("Ports_Settings")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Playback")
+        mc = self.DOMTree.getElementsByTagName("Ports_Settings")[1]
+        mc.parentNode.replaceChild(element, mc)
+
         for port in ports:
             element = self.DOMTree.createElement("Input")
             element.appendChild(self.DOMTree.createTextNode(""))
@@ -142,7 +163,7 @@ class MenuLCD:
             element = self.DOMTree.createElement("Playback")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", port)
-            mc = self.DOMTree.getElementsByTagName("Ports_Settings")[2]
+            mc = self.DOMTree.getElementsByTagName("Ports_Settings")[1]
             mc.appendChild(element)
 
     def update_led_note_offsets(self):
@@ -999,6 +1020,7 @@ class MenuLCD:
                 refresh_result = self.update_sequence_list()
                 if not refresh_result:
                     self.render_message("Something went wrong", "Make sure your sequence file is correct", 1500)
+                self.show()
             else:
                 self.ledsettings.set_sequence(self.pointer_position, 0)
 
