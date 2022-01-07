@@ -606,7 +606,7 @@ def change_setting():
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     # saving current led settings as sequence step
-    if setting_name == "save_led_settings_to_step":
+    if setting_name == "save_led_settings_to_step" and second_value != "":
 
         # remove node and child under "sequence_" + str(value) and "step_" + str(second_value)
         sequences_tree = minidom.parse("sequences.xml")
