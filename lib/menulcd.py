@@ -2,6 +2,7 @@ import os
 
 from subprocess import call
 from xml.dom import minidom
+from lib.ledsettings import LedSettings
 
 import webcolors as wc
 from PIL import ImageFont, Image, ImageDraw
@@ -185,14 +186,20 @@ class MenuLCD:
         i = 0
         self.update_ports()
         rgb_names = ["Red", "Green", "Blue"]
+        mc = self.DOMTree.getElementsByTagName("Multicolor")[0]
+        mc_multicolor = self.DOMTree.createElement("LED_Color")
+        mc_multicolor.appendChild(self.DOMTree.createTextNode(""))
+        mc_multicolor.setAttribute("text", "Multicolor")
+        parent = mc.parentNode.parentNode
+        parent.replaceChild(mc_multicolor, mc.parentNode)
         for color in colors_list:
             i = i + 1
 
             element = self.DOMTree.createElement("Multicolor")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", "Color" + str(i))
-            mc = self.DOMTree.getElementsByTagName("LED_Color")[0]
-            mc.appendChild(element)
+            #mc = self.DOMTree.getElementsByTagName("LED_Color")[0]
+            mc_multicolor.appendChild(element)
 
             element = self.DOMTree.createElement("Color" + str(i))
             element.appendChild(self.DOMTree.createTextNode(""))
@@ -232,6 +239,11 @@ class MenuLCD:
                 element.setAttribute("text", rgb_name)
                 mc = self.DOMTree.getElementsByTagName("Color" + str(i))[0]
                 mc.appendChild(element)
+        # Add in the Add Color from the replaced child
+        element = self.DOMTree.createElement("Multicolor")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Add Color")
+        mc_multicolor.appendChild(element)
 
     def scale(self, size):
         return int(round(size * self.LCD.font_scale))

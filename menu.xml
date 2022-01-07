@@ -25,7 +25,6 @@
 			</LED_Color>
 			<LED_Color text="Multicolor">
 				<Multicolor text="Add Color"></Multicolor>
-				<Multicolor text="Confirm"></Multicolor>
 			</LED_Color>			
 			<LED_Color text="Rainbow Colors">
 				<Rainbow_Colors text="Offset"></Rainbow_Colors>
