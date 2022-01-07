@@ -42,6 +42,7 @@ class MenuLCD:
         self.text_color = usersettings.get_setting_value("text_color")
         self.update_songs()
         self.update_ports()
+        self.update_led_note_offsets()
         self.speed_multiplier = 1
 
         self.screensaver_settings = dict()
@@ -142,6 +143,43 @@ class MenuLCD:
             element.setAttribute("text", port)
             mc = self.DOMTree.getElementsByTagName("Ports_Settings")[2]
             mc.appendChild(element)
+
+    def update_led_note_offsets(self):
+        note_offsets = self.ledsettings.note_offsets
+        mc = self.DOMTree.getElementsByTagName("LED_Note_Offsets")[0]
+        mc_note_offsets = self.DOMTree.createElement("LED_Strip_Settings")
+        mc_note_offsets.appendChild(self.DOMTree.createTextNode(""))
+        mc_note_offsets.setAttribute("text", "LED Note Offsets")
+        parent = mc.parentNode.parentNode
+        parent.replaceChild(mc_note_offsets, mc.parentNode)
+        element = self.DOMTree.createElement("LED_Note_Offsets")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Add Note Offset")
+        mc_note_offsets.appendChild(element)
+        i = 0
+        for note_offset in note_offsets:
+            i += 1
+            element = self.DOMTree.createElement("LED_Note_Offsets")
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text", "Offset%s" % i)
+            mc_note_offsets.appendChild(element)
+            op_element = self.DOMTree.createElement("Offset%s" % i)
+            op_element.appendChild(self.DOMTree.createTextNode(""))
+            op_element.setAttribute("text", "LED Number")
+            element.appendChild(op_element)
+            op_element = self.DOMTree.createElement("Offset%s" % i)
+            op_element.appendChild(self.DOMTree.createTextNode(""))
+            op_element.setAttribute("text", "LED Offset")
+            element.appendChild(op_element)
+            op_element = self.DOMTree.createElement("Offset%s" % i)
+            op_element.appendChild(self.DOMTree.createTextNode(""))
+            op_element.setAttribute("text", "Delete")
+            element.appendChild(op_element)
+        if i > 0:
+            element = self.DOMTree.createElement("LED_Note_Offsets")
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text", "Append Note Offset")
+            mc_note_offsets.appendChild(element)
 
     def update_multicolor(self, colors_list):
         i = 0
@@ -502,6 +540,22 @@ class MenuLCD:
         if self.currentlocation == "Reverse":
             self.draw.text((self.scale(10), self.scale(35)), str(self.ledstrip.reverse), fill=self.text_color,
                            font=self.font)
+
+        if self.current_choice == "LED Number" and self.currentlocation.startswith("Offset"):
+                try:
+                    self.draw.text((self.scale(10), self.scale(50)), str(
+                        self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][0]),
+                                   fill=self.text_color, font=self.font)
+                except:
+                    pass
+
+        if self.current_choice == "LED Offset" and self.currentlocation.startswith("Offset"):
+                try:
+                    self.draw.text((self.scale(10), self.scale(50)), str(
+                        self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][1]),
+                                   fill=self.text_color, font=self.font)
+                except:
+                    pass
 
         if "Key_range" in self.currentlocation:
             if self.current_choice == "Start":
@@ -888,8 +942,24 @@ class MenuLCD:
         if choice == "Add Color":
             self.ledsettings.addcolor()
 
+        if choice == "Add Note Offset":
+            self.ledsettings.add_note_offset()
+            self.update_led_note_offsets()
+            self.show()
+
+        if choice == "Append Note Offset":
+            self.ledsettings.append_note_offset()
+            self.update_led_note_offsets()
+            self.show()
+
         if choice == "Delete":
-            self.ledsettings.deletecolor(location.replace('Color', ''))
+            if location.startswith('Offset'):
+                self.ledsettings.del_note_offset(location.replace('Offset','').split('_')[0])
+                self.update_led_note_offsets()
+                self.go_back()
+                self.show()
+            else:
+                self.ledsettings.deletecolor(location.replace('Color', ''))
 
         if location == "Multicolor" and choice == "Confirm":
             self.ledsettings.color_mode = "Multicolor"
@@ -1007,6 +1077,11 @@ class MenuLCD:
             self.ledsettings.change_multicolor_range(self.current_choice, self.currentlocation,
                                                      value * self.speed_multiplier)
             self.ledsettings.light_keys_in_range(self.currentlocation)
+
+        if self.current_choice == "LED Number" and self.currentlocation.startswith("Offset"):
+            self.ledsettings.update_note_offset_lcd(self.current_choice, self.currentlocation, value * self.speed_multiplier)
+        if self.current_choice == "LED Offset" and self.currentlocation.startswith("Offset"):
+            self.ledsettings.update_note_offset_lcd(self.current_choice, self.currentlocation, value * self.speed_multiplier)
 
         if self.current_choice == "Offset":
             self.ledsettings.rainbow_offset = self.ledsettings.rainbow_offset + value * 5 * self.speed_multiplier

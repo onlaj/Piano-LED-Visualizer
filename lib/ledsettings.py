@@ -110,6 +110,14 @@ class LedSettings:
         self.note_offsets[int(slot) - 1][1] = int(pair[1])
         self.usersettings.change_setting_value("note_offsets", self.note_offsets)
 
+    def update_note_offset_lcd(self, current_choice, currentlocation, value):
+        slot = int(currentlocation.replace('Offset', '')) - 1
+        if current_choice == "LED Number":
+            self.note_offsets[slot][0] += value
+        else:
+            self.note_offsets[slot][1] += value
+        self.usersettings.change_setting_value("note_offsets", self.note_offsets)
+
     def addcolor(self):
         self.multicolor.append([0, 255, 0])
         self.multicolor_range.append([20, 108])

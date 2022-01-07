@@ -149,6 +149,9 @@
 		<LED_Strip_Settings text="Reverse">
 			<Reverse text="Number"></Reverse>
 		</LED_Strip_Settings>
+		<LED_Strip_Settings text="LED Note Offsets">
+			<LED_Note_Offsets text="Add Note Offset"></LED_Note_Offsets>
+		</LED_Strip_Settings>
 	</menu>
 	<menu text="Play MIDI">
 		<Play_MIDI text="Choose song"></Play_MIDI>
