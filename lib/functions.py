@@ -256,13 +256,13 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
 
 
 # Get note position on the strip
-def get_note_position(note, ledstrip):
-    if note > 92:
-        note_offset = 2
-    elif note > 55:
-        note_offset = 1
-    else:
-        note_offset = 0
+def get_note_position(note, ledstrip, ledsettings):
+    note_offsets = ledsettings.note_offsets
+    note_offset = 0
+    for i in range(0, len(note_offsets)):
+        if note > note_offsets[i][0]:
+            note_offset = note_offsets[i][1]
+            break
     note_offset -= ledstrip.shift
     note_pos_raw = 2 * (note - 20) - note_offset
     if ledstrip.reverse:

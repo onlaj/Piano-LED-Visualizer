@@ -210,7 +210,7 @@ class LearnMIDI:
                 if not msg.is_meta:
                     # Calculate note position on the strip and display
                     if msg.type == 'note_on' or msg.type == 'note_off':
-                        note_position = get_note_position(msg.note, self.ledstrip)
+                        note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
                         brightness = msg.velocity / 127
                         if msg.channel == 1:
                             red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
