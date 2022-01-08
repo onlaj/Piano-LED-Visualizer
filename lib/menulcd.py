@@ -523,7 +523,7 @@ class MenuLCD:
 
         # displaying speed values
         if self.currentlocation == "Period":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.speed_period_in_seconds),
+            self.draw.text((self.scale(10), self.scale(70)), f"{self.ledsettings.speed_period_in_seconds:.1f}",
                            fill=self.text_color, font=self.font)
 
         if self.currentlocation == "Max_notes_in_period":
