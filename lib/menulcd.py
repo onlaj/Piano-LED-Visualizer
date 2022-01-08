@@ -260,10 +260,14 @@ class MenuLCD:
                 element.setAttribute("text", rgb_name)
                 mc = self.DOMTree.getElementsByTagName("Color" + str(i))[0]
                 mc.appendChild(element)
-        # Add in the Add Color from the replaced child
+        # Add in the "Add Color" and "Confirm" into the replaced child
         element = self.DOMTree.createElement("Multicolor")
         element.appendChild(self.DOMTree.createTextNode(""))
         element.setAttribute("text", "Add Color")
+        mc_multicolor.appendChild(element)
+        element = self.DOMTree.createElement("Multicolor")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Confirm")
         mc_multicolor.appendChild(element)
 
     def scale(self, size):
