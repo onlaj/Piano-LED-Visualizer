@@ -939,14 +939,14 @@ class MenuLCD:
         if location == "Shutdown":
             if choice == "Confirm":
                 self.render_message("", "Shutting down...", 5000)
-                call("sudo shutdown -h now", shell=True)
+                call("sudo /sbin/shutdown -h now", shell=True)
             else:
                 self.go_back()
 
         if location == "Reboot":
             if choice == "Confirm":
                 self.render_message("", "Rebooting...", 5000)
-                call("sudo reboot now", shell=True)
+                call("sudo /sbin/reboot now", shell=True)
             else:
                 self.go_back()
 
