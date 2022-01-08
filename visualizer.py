@@ -125,7 +125,7 @@ def start_webserver():
 
 if args.webinterface != "false":
     print ("Starting webinterface")
-    processThread = threading.Thread(target=start_webserver)
+    processThread = threading.Thread(target=start_webserver, daemon=True)
     processThread.start()
 
 while True:
