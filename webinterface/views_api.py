@@ -231,6 +231,25 @@ def change_setting():
         webinterface.usersettings.change_setting_value("skipped_notes", value)
         webinterface.ledsettings.skipped_notes = value
 
+    if setting_name == "add_note_offset":
+        webinterface.ledsettings.add_note_offset()
+        return jsonify(success=True, reload=True)
+
+    if setting_name == "append_note_offset":
+        webinterface.ledsettings.append_note_offset()
+        return jsonify(success=True, reload=True)
+
+    if setting_name == "remove_note_offset":
+        webinterface.ledsettings.del_note_offset(int(value) + 1)
+        return jsonify(success=True, reload=True)
+
+    if setting_name == "note_offsets":
+        webinterface.usersettings.change_setting_value("note_offsets", value)
+
+    if setting_name == "update_note_offset":
+        webinterface.ledsettings.update_note_offset(int(value) + 1, second_value)
+        return jsonify(success=True, reload=True)
+
     if setting_name == "led_count":
         webinterface.usersettings.change_setting_value("led_count", int(value))
         webinterface.ledstrip.change_led_count(int(value), True)
@@ -1058,6 +1077,7 @@ def get_settings():
     response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
 
     response["skipped_notes"] = webinterface.usersettings.get_setting_value("skipped_notes")
+    response["note_offsets"] = webinterface.usersettings.get_setting_value("note_offsets")
     response["led_count"] = webinterface.usersettings.get_setting_value("led_count")
     response["led_shift"] = webinterface.usersettings.get_setting_value("shift")
     response["led_reverse"] = webinterface.usersettings.get_setting_value("reverse")

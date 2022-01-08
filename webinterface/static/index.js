@@ -271,6 +271,8 @@ function get_settings(home = true) {
 
                 show_multicolors(response.multicolor, response.multicolor_range);
 
+                show_note_offsets(response.note_offsets);
+
                 document.getElementById("rainbow_offset").value = response.rainbow_offset;
                 document.getElementById("rainbow_scale").value = response.rainbow_scale;
                 document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
@@ -1212,6 +1214,64 @@ function show_multicolors(colors, ranges) {
     }
     if (i >= 3) {
         multicolor_element.innerHTML += add_button;
+    }
+}
+
+function show_note_offsets(note_offsets) {
+    try {
+        note_offsets = JSON.parse(note_offsets);
+    } catch (e) {
+    }
+
+    offset_element = document.getElementById("NoteOffsetEntry");
+    var i = 0
+    offset_element.innerHTML = "";
+    var add_button = "<button onclick=\"this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')\" " +
+        "id=\"note_offsets_add\" class=\"w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 " +
+        "rounded-2xl inline-flex items-center\">\n" +
+        "   <svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-full justify-items-center text-green-400\" " +
+        "fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n" +
+        "      <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 9v3m0 " +
+        "0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z\"></path>\n" +
+        "   </svg>\n" +
+        "</button>\n" +
+        "<button onclick=\"change_setting('add_note_offset', '0')\" id=\"note_offsets_add\" " +
+        "class=\"hidden w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 " +
+        "rounded-2xl inline-flex items-center\">\n" +
+        "<span class=\"w-full text-green-400\">Click to confirm</span></button>"
+    offset_element.classList.remove("pointer-events-none", "opacity-50");
+    offset_element.innerHTML += add_button;
+    for (const element of note_offsets) {
+        offset_element.innerHTML += '<div class="mb-2 bg-gray-100 dark:bg-gray-600" id="noteoffset_' + i + '">' +
+            '<label class="ml-2 inline block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">\n' +
+            '                    Note Offset ' + parseInt(i + 1) + '\n' +
+            '                </label><div onclick=\'this.classList.add("hidden");' +
+            'this.nextElementSibling.classList.remove("hidden")\' class="inline float-right text-red-400">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">\n' +
+            '  <path stroke-linecap="round" stroke-linejoin="round" ' +
+            'stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 ' +
+            '4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />\n' +
+            '</svg>' +
+            '</div><div onclick=\'change_setting("remove_note_offset", "' + i + '");' +
+            'document.getElementById("NoteOffsetEntry").classList.add("pointer-events-none","opacity-50")\' ' +
+            'class="hidden inline float-right text-red-400">Click to confirm</div>' +
+            '                <div id="note_offset_' + i + '" class="justify-center flex" ' +
+            'onchange=\'change_setting("update_note_offset", "' + i + '", document.getElementById("note_offset_' + i + '_num").value' +
+            '                          + "," + document.getElementById("note_offset_' + i + '_off").value);\'>\n' +
+            '                    <span class="w-1/20 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-red-400">Light Number:</span>\n' +
+            '                    <input id="note_offset_' + i + '_num" type="number" value="' + element[0] + '" min="0" max="255"\n' +
+            '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
+            '                    <span class="w-1/20 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-green-400">Offset:</span>\n' +
+            '                    <input id="note_offset_' + i + '_off" type="number" value="' + element[1] + '" min="0" max="255"\n' +
+            '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
+            '                </div>' +
+            '               </div>';
+        i++;
+    }
+    if (i >= 1) {
+        end_button = add_button.replace("add_note_offset", "append_note_offset")
+        end_button = end_button.replace("note_offsets_add", "note_offsets_add2")
+        offset_element.innerHTML += end_button;
     }
 }
 

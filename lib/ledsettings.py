@@ -41,6 +41,8 @@ class LedSettings:
 
         self.skipped_notes = usersettings.get_setting_value("skipped_notes")
 
+        self.note_offsets = ast.literal_eval(usersettings.get_setting_value("note_offsets"))
+
         self.notes_in_last_period = []
         self.speed_period_in_seconds = 0.8
 
@@ -90,6 +92,32 @@ class LedSettings:
         self.ledstrip = ledstrip
         menu.update_multicolor(self.multicolor)
 
+    def add_note_offset(self):
+        self.note_offsets.insert(0, [100, 1])
+        self.usersettings.change_setting_value("note_offsets", self.note_offsets)
+
+    def append_note_offset(self):
+        self.note_offsets.append([1, 1])
+        self.usersettings.change_setting_value("note_offsets", self.note_offsets)
+
+    def del_note_offset(self, slot):
+        del self.note_offsets[int(slot) - 1]
+        self.usersettings.change_setting_value("note_offsets", self.note_offsets)
+
+    def update_note_offset(self, slot, data):
+        pair = data.split(",")
+        self.note_offsets[int(slot) - 1][0] = int(pair[0])
+        self.note_offsets[int(slot) - 1][1] = int(pair[1])
+        self.usersettings.change_setting_value("note_offsets", self.note_offsets)
+
+    def update_note_offset_lcd(self, current_choice, currentlocation, value):
+        slot = int(currentlocation.replace('Offset', '')) - 1
+        if current_choice == "LED Number":
+            self.note_offsets[slot][0] += value
+        else:
+            self.note_offsets[slot][1] += value
+        self.usersettings.change_setting_value("note_offsets", self.note_offsets)
+
     def addcolor(self):
         self.multicolor.append([0, 255, 0])
         self.multicolor_range.append([20, 108])
@@ -97,7 +125,8 @@ class LedSettings:
         self.usersettings.change_setting_value("multicolor", self.multicolor)
         self.usersettings.change_setting_value("multicolor_range", self.multicolor_range)
 
-        # self.menu.update_multicolor(self.multicolor)
+        self.menu.update_multicolor(self.multicolor)
+        self.menu.show()
 
     def deletecolor(self, key):
         del self.multicolor[int(key) - 1]
@@ -106,8 +135,9 @@ class LedSettings:
         self.usersettings.change_setting_value("multicolor", self.multicolor)
         self.usersettings.change_setting_value("multicolor_range", self.multicolor_range)
 
-        # self.menu.update_multicolor(self.multicolor)
+        self.menu.update_multicolor(self.multicolor)
         self.menu.go_back()
+        self.menu.show()
 
     def change_multicolor(self, choice, location, value):
         self.sequence_active = False

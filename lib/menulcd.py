@@ -2,6 +2,7 @@ import os
 
 from subprocess import call
 from xml.dom import minidom
+from lib.ledsettings import LedSettings
 
 import webcolors as wc
 from PIL import ImageFont, Image, ImageDraw
@@ -33,7 +34,6 @@ class MenuLCD:
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), "GREEN")
         self.draw = ImageDraw.Draw(self.image)
         self.LCD.LCD_ShowImage(self.image, 0, 0)
-        self.xml_file_name = xml_file_name
         self.DOMTree = minidom.parse(xml_file_name)
         self.currentlocation = "menu"
         self.scroll_hold = 0
@@ -43,6 +43,7 @@ class MenuLCD:
         self.text_color = usersettings.get_setting_value("text_color")
         self.update_songs()
         self.update_ports()
+        self.update_led_note_offsets()
         self.speed_multiplier = 1
 
         self.screensaver_settings = dict()
@@ -79,23 +80,38 @@ class MenuLCD:
             self.screensaver_settings[setting] = "1"
 
     def update_songs(self):
+        # Assume the first node is "Choose song"
+        replace_node = self.DOMTree.getElementsByTagName("Play_MIDI")[0]
+        choose_song_mc = self.DOMTree.createElement("Play_MIDI")
+        choose_song_mc.appendChild(self.DOMTree.createTextNode(""))
+        choose_song_mc.setAttribute("text", "Choose song")
+        replace_node.parentNode.replaceChild(choose_song_mc, replace_node)
+        # Assume the first node is "Load song"
+        replace_node = self.DOMTree.getElementsByTagName("Learn_MIDI")[0]
+        load_song_mc = self.DOMTree.createElement("Learn_MIDI")
+        load_song_mc.appendChild(self.DOMTree.createTextNode(""))
+        load_song_mc.setAttribute("text", "Load song")
+        replace_node.parentNode.replaceChild(load_song_mc, replace_node)
         songs_list = os.listdir("Songs")
-        self.DOMTree = minidom.parse(self.xml_file_name)
         for song in songs_list:
             # List of songs for Play_MIDI
             element = self.DOMTree.createElement("Choose_song")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", song)
-            mc = self.DOMTree.getElementsByTagName("Play_MIDI")[0]
-            mc.appendChild(element)
+            choose_song_mc.appendChild(element)
             # List of songs for Learn_MIDI
             element = self.DOMTree.createElement("Load_song")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", song)
-            mc = self.DOMTree.getElementsByTagName("Learn_MIDI")[0]
-            mc.appendChild(element)
+            load_song_mc.appendChild(element)
 
     def update_sequence_list(self):
+        seq_mc = self.DOMTree.createElement("LED_Strip_Settings")
+        seq_mc.appendChild(self.DOMTree.createTextNode(""))
+        seq_mc.setAttribute("text", "Sequences")
+        mc = self.DOMTree.getElementsByTagName("Sequences")[0]
+        mc.parentNode.parentNode.replaceChild(seq_mc, mc.parentNode)
+        ret = True
         try:
             sequences_tree = minidom.parse("sequences.xml")
             self.update_songs()
@@ -110,18 +126,33 @@ class MenuLCD:
                     element = self.DOMTree.createElement("Sequences")
                     element.appendChild(self.DOMTree.createTextNode(""))
                     element.setAttribute("text", str(sequence_name))
-                    mc = self.DOMTree.getElementsByTagName("LED_Strip_Settings")[0]
-                    mc.appendChild(element)
-
+                    seq_mc.appendChild(element)
                 except:
                     break
         except:
-            self.render_message("Something went wrong", "Check your sequences file", 1500)
+            ret = False
+        element = self.DOMTree.createElement("Sequences")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Update")
+        seq_mc.appendChild(element)
+        return ret
 
     def update_ports(self):
         ports = mido.get_input_names()
         ports = list(dict.fromkeys(ports))
         self.update_sequence_list()
+        # Replace Input and Playback with empty elements
+        element = self.DOMTree.createElement("Ports_Settings")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Input")
+        mc = self.DOMTree.getElementsByTagName("Ports_Settings")[0]
+        mc.parentNode.replaceChild(element, mc)
+        element = self.DOMTree.createElement("Ports_Settings")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Playback")
+        mc = self.DOMTree.getElementsByTagName("Ports_Settings")[1]
+        mc.parentNode.replaceChild(element, mc)
+
         for port in ports:
             element = self.DOMTree.createElement("Input")
             element.appendChild(self.DOMTree.createTextNode(""))
@@ -132,21 +163,64 @@ class MenuLCD:
             element = self.DOMTree.createElement("Playback")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", port)
-            mc = self.DOMTree.getElementsByTagName("Ports_Settings")[2]
+            mc = self.DOMTree.getElementsByTagName("Ports_Settings")[1]
             mc.appendChild(element)
+
+    def update_led_note_offsets(self):
+        note_offsets = self.ledsettings.note_offsets
+        mc = self.DOMTree.getElementsByTagName("LED_Note_Offsets")[0]
+        mc_note_offsets = self.DOMTree.createElement("LED_Strip_Settings")
+        mc_note_offsets.appendChild(self.DOMTree.createTextNode(""))
+        mc_note_offsets.setAttribute("text", "LED Note Offsets")
+        parent = mc.parentNode.parentNode
+        parent.replaceChild(mc_note_offsets, mc.parentNode)
+        element = self.DOMTree.createElement("LED_Note_Offsets")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Add Note Offset")
+        mc_note_offsets.appendChild(element)
+        i = 0
+        for note_offset in note_offsets:
+            i += 1
+            element = self.DOMTree.createElement("LED_Note_Offsets")
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text", "Offset%s" % i)
+            mc_note_offsets.appendChild(element)
+            op_element = self.DOMTree.createElement("Offset%s" % i)
+            op_element.appendChild(self.DOMTree.createTextNode(""))
+            op_element.setAttribute("text", "LED Number")
+            element.appendChild(op_element)
+            op_element = self.DOMTree.createElement("Offset%s" % i)
+            op_element.appendChild(self.DOMTree.createTextNode(""))
+            op_element.setAttribute("text", "LED Offset")
+            element.appendChild(op_element)
+            op_element = self.DOMTree.createElement("Offset%s" % i)
+            op_element.appendChild(self.DOMTree.createTextNode(""))
+            op_element.setAttribute("text", "Delete")
+            element.appendChild(op_element)
+        if i > 0:
+            element = self.DOMTree.createElement("LED_Note_Offsets")
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text", "Append Note Offset")
+            mc_note_offsets.appendChild(element)
 
     def update_multicolor(self, colors_list):
         i = 0
         self.update_ports()
         rgb_names = ["Red", "Green", "Blue"]
+        mc = self.DOMTree.getElementsByTagName("Multicolor")[0]
+        mc_multicolor = self.DOMTree.createElement("LED_Color")
+        mc_multicolor.appendChild(self.DOMTree.createTextNode(""))
+        mc_multicolor.setAttribute("text", "Multicolor")
+        parent = mc.parentNode.parentNode
+        parent.replaceChild(mc_multicolor, mc.parentNode)
         for color in colors_list:
             i = i + 1
 
             element = self.DOMTree.createElement("Multicolor")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", "Color" + str(i))
-            mc = self.DOMTree.getElementsByTagName("LED_Color")[0]
-            mc.appendChild(element)
+            #mc = self.DOMTree.getElementsByTagName("LED_Color")[0]
+            mc_multicolor.appendChild(element)
 
             element = self.DOMTree.createElement("Color" + str(i))
             element.appendChild(self.DOMTree.createTextNode(""))
@@ -186,6 +260,15 @@ class MenuLCD:
                 element.setAttribute("text", rgb_name)
                 mc = self.DOMTree.getElementsByTagName("Color" + str(i))[0]
                 mc.appendChild(element)
+        # Add in the "Add Color" and "Confirm" into the replaced child
+        element = self.DOMTree.createElement("Multicolor")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Add Color")
+        mc_multicolor.appendChild(element)
+        element = self.DOMTree.createElement("Multicolor")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Confirm")
+        mc_multicolor.appendChild(element)
 
     def scale(self, size):
         return int(round(size * self.LCD.font_scale))
@@ -494,6 +577,22 @@ class MenuLCD:
         if self.currentlocation == "Reverse":
             self.draw.text((self.scale(10), self.scale(35)), str(self.ledstrip.reverse), fill=self.text_color,
                            font=self.font)
+
+        if self.current_choice == "LED Number" and self.currentlocation.startswith("Offset"):
+                try:
+                    self.draw.text((self.scale(10), self.scale(50)), str(
+                        self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][0]),
+                                   fill=self.text_color, font=self.font)
+                except:
+                    pass
+
+        if self.current_choice == "LED Offset" and self.currentlocation.startswith("Offset"):
+                try:
+                    self.draw.text((self.scale(10), self.scale(50)), str(
+                        self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][1]),
+                                   fill=self.text_color, font=self.font)
+                except:
+                    pass
 
         if "Key_range" in self.currentlocation:
             if self.current_choice == "Start":
@@ -871,7 +970,7 @@ class MenuLCD:
 
         if location == "Other_Settings":
             if choice == "System Info":
-                screensaver(self, self.midiports, self.saving, self.ledstrip)
+                screensaver(self, self.midiports, self.saving, self.ledstrip, self.ledsettings)
 
         if location == "Rainbow_Colors":
             self.ledsettings.color_mode = "Rainbow"
@@ -880,8 +979,24 @@ class MenuLCD:
         if choice == "Add Color":
             self.ledsettings.addcolor()
 
+        if choice == "Add Note Offset":
+            self.ledsettings.add_note_offset()
+            self.update_led_note_offsets()
+            self.show()
+
+        if choice == "Append Note Offset":
+            self.ledsettings.append_note_offset()
+            self.update_led_note_offsets()
+            self.show()
+
         if choice == "Delete":
-            self.ledsettings.deletecolor(location.replace('Color', ''))
+            if location.startswith('Offset'):
+                self.ledsettings.del_note_offset(location.replace('Offset','').split('_')[0])
+                self.update_led_note_offsets()
+                self.go_back()
+                self.show()
+            else:
+                self.ledsettings.deletecolor(location.replace('Color', ''))
 
         if location == "Multicolor" and choice == "Confirm":
             self.ledsettings.color_mode = "Multicolor"
@@ -909,6 +1024,7 @@ class MenuLCD:
                 refresh_result = self.update_sequence_list()
                 if not refresh_result:
                     self.render_message("Something went wrong", "Make sure your sequence file is correct", 1500)
+                self.show()
             else:
                 self.ledsettings.set_sequence(self.pointer_position, 0)
 
@@ -999,6 +1115,11 @@ class MenuLCD:
             self.ledsettings.change_multicolor_range(self.current_choice, self.currentlocation,
                                                      value * self.speed_multiplier)
             self.ledsettings.light_keys_in_range(self.currentlocation)
+
+        if self.current_choice == "LED Number" and self.currentlocation.startswith("Offset"):
+            self.ledsettings.update_note_offset_lcd(self.current_choice, self.currentlocation, value * self.speed_multiplier)
+        if self.current_choice == "LED Offset" and self.currentlocation.startswith("Offset"):
+            self.ledsettings.update_note_offset_lcd(self.current_choice, self.currentlocation, value * self.speed_multiplier)
 
         if self.current_choice == "Offset":
             self.ledsettings.rainbow_offset = self.ledsettings.rainbow_offset + value * 5 * self.speed_multiplier

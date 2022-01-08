@@ -25,7 +25,6 @@
 			</LED_Color>
 			<LED_Color text="Multicolor">
 				<Multicolor text="Add Color"></Multicolor>
-				<Multicolor text="Confirm"></Multicolor>
 			</LED_Color>			
 			<LED_Color text="Rainbow Colors">
 				<Rainbow_Colors text="Offset"></Rainbow_Colors>
@@ -148,6 +147,9 @@
 		</LED_Strip_Settings>
 		<LED_Strip_Settings text="Reverse">
 			<Reverse text="Number"></Reverse>
+		</LED_Strip_Settings>
+		<LED_Strip_Settings text="LED Note Offsets">
+			<LED_Note_Offsets text="Add Note Offset"></LED_Note_Offsets>
 		</LED_Strip_Settings>
 	</menu>
 	<menu text="Play MIDI">

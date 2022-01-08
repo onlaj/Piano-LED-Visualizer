@@ -64,6 +64,8 @@
 
 	<skipped_notes>None</skipped_notes>
 
+	<note_offsets>[[92, 2], [55, 1]]</note_offsets>
+
 	<time>1</time>
 	<date>1</date>
 	<cpu_chart>1</cpu_chart>
