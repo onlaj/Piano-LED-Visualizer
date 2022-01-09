@@ -1165,7 +1165,8 @@ class MenuLCD:
                                                    self.ledsettings.speed_fastest[self.current_choice.lower()])
 
         if self.currentlocation == "Period":
-            self.ledsettings.speed_period_in_seconds += (value / float(10)) * self.speed_multiplier
+            self.ledsettings.speed_period_in_seconds = round(self.ledsettings.speed_period_in_seconds + (value * .1) *
+                                                             self.speed_multiplier, 1)
             if self.ledsettings.speed_period_in_seconds < 0.1:
                 self.ledsettings.speed_period_in_seconds = 0.1
             self.usersettings.change_setting_value("speed_period_in_seconds", self.ledsettings.speed_period_in_seconds)
