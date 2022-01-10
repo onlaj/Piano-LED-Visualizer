@@ -1262,7 +1262,7 @@ function show_note_offsets(note_offsets) {
             '                    <input id="note_offset_' + i + '_num" type="number" value="' + element[0] + '" min="0" max="255"\n' +
             '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
             '                    <span class="w-1/20 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-green-400">Offset:</span>\n' +
-            '                    <input id="note_offset_' + i + '_off" type="number" value="' + element[1] + '" min="0" max="255"\n' +
+            '                    <input id="note_offset_' + i + '_off" type="number" value="' + element[1] + '" min="-255" max="255"\n' +
             '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
             '                </div>' +
             '               </div>';
