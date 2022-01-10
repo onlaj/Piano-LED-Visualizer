@@ -24,14 +24,20 @@ os.chdir(sys.path[0])
 # Ensure there is only one instance of the script running.
 fh = 0
 
-# make sure connectall.rb file exists and is updated
-if not os.path.exists('/usr/local/bin/connectall.rb'):
-    print("Connectall.rb script not found, creating...")
-    os.mknod('/usr/local/bin/connectall.rb')
+connectall_script = "/usr/local/bin/connectall.rb"
+# Prefer the use of connectall.rb from the same directory
+prog_path = os.path.dirname(os.path.realpath(__file__))
+if os.path.exists(prog_path + "/connectall.rb"):
+    connectall_script = prog_path + "/connectall.rb"
+else :
+    # make sure connectall.rb file exists and is updated
+    if not os.path.exists('/usr/local/bin/connectall.rb'):
+        print("Connectall.rb script not found, creating...")
+        os.mknod('/usr/local/bin/connectall.rb')
 
-if filecmp.cmp('/usr/local/bin/connectall.rb', 'connectall.rb') is not True:
-    print("Connectall.rb script is outdated, updating...")
-    copyfile('connectall.rb', '/usr/local/bin/connectall.rb')
+    if filecmp.cmp('/usr/local/bin/connectall.rb', 'connectall.rb') is not True:
+        print("Connectall.rb script is outdated, updating...")
+        copyfile('connectall.rb', '/usr/local/bin/connectall.rb')
 
 
 def singleton():
@@ -81,7 +87,7 @@ GPIO.setup(KEY3, GPIO.IN, GPIO.PUD_UP)
 GPIO.setup(JPRESS, GPIO.IN, GPIO.PUD_UP)
 
 usersettings = UserSettings()
-midiports = MidiPorts(usersettings)
+midiports = MidiPorts(usersettings, connectall_script)
 ledsettings = LedSettings(usersettings)
 ledstrip = LedStrip(usersettings, ledsettings)
 learning = LearnMIDI(usersettings, ledsettings, midiports, ledstrip)

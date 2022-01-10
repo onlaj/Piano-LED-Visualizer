@@ -2,10 +2,11 @@ import mido
 
 
 class MidiPorts:
-    def __init__(self, usersettings):
+    def __init__(self, usersettings, connectall_script):
         self.usersettings = usersettings
         self.pending_queue = []
         self.last_activity = 0
+        self.connectall_script = connectall_script
 
         # checking if the input port was previously set by the user
         port = self.usersettings.get_setting_value("input_port")
