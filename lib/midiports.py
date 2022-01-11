@@ -1,5 +1,6 @@
 import mido
 import subprocess
+import time
 
 class MidiPorts:
     def __init__(self, usersettings):
@@ -78,36 +79,39 @@ class MidiPorts:
 
     def change_port(self, port, portname):
         try:
+            destroy_old = None
             if port == "inport":
-                if self.inport != None:
-                    self.inport.close()
-                    self.inport = None
+                destory_old = self.inport
                 self.inport = mido.open_input(portname)
                 self.usersettings.change_setting_value("input_port", portname)
             elif port == "playport":
-                if self.playport != None:
-                    self.playport.close()
-                    self.playport = None
+                destory_old = self.playport
                 self.playport = mido.open_output(portname)
                 self.usersettings.change_setting_value("play_port", portname)
             self.menu.render_message("Changing " + port + " to:", portname, 1500)
+            if destroy_old != None:
+                destory_old.close()
+            self.menu.show()
         except:
             self.menu.render_message("Can't change " + port + " to:", portname, 1500)
+            self.menu.show()
 
     def reconnect_ports(self):
         try:
-            if self.inport != None:
-                self.inport.close()
-                self.inport = None
+            destroy_old = self.inport
             port = self.usersettings.get_setting_value("input_port")
             self.inport = mido.open_input(port)
+            if destroy_old != None:
+                time.sleep(0.002)
+                destroy_old.close()
         except:
             print("Can't reconnect input port: " + port)
         try:
-            if self.playport != None:
-                self.playport.close()
-                self.playport = None
+            destroy_old = self.playport
             port = self.usersettings.get_setting_value("play_port")
             self.playport = mido.open_output(port)
+            if destroy_old != None:
+                time.sleep(0.002)
+                destroy_old.close()
         except:
             print("Can't reconnect play port: " + port)
