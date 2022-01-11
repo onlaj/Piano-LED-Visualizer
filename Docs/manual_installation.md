@@ -35,7 +35,7 @@ for line in str(ports).splitlines():
             continue
         port = line.split()[0]
         port_list.append(client+":"+port)
- for source in port_list:
+for source in port_list:
     for target in port_list:
         if source != target:
             #print("aconnect %s %s" % (source, target))

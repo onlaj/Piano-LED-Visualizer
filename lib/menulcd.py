@@ -909,7 +909,7 @@ class MenuLCD:
 
             if choice == "Connect ports":
                 self.render_message("Connecting ports", "", 2000)
-                call("sudo ruby %s" % self.midiports.connectall_script, shell=True)
+                self.midiports.connectall()
 
             if choice == "Disconnect ports":
                 self.render_message("Disconnecting ports", "", 1000)
