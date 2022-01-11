@@ -14,46 +14,37 @@ After succesfully booting RPi (and connecting to it by SSH if necessary) we need
 
 ### 2. **Creating autoconnect script** ### 
 *You can skip this part if you don't plan to connect any MIDI device other than a piano.*
-- Create `connectall.rb` file
+- Create `connectall.py` file
 
- `sudo nano /usr/local/bin/connectall.rb`
+ `sudo nano /usr/local/bin/connectall.py`
 - paste the script:
-```ruby
-#!/usr/bin/ruby
+```python
+#!/usr/bin/python3
+import subprocess
 
-t = `aconnect -i -l`
-$devices = {}
-$device = 0
-t.lines.each do |l|
-  match = /client (\d*)\:((?:(?!client).)*)?/.match(l)
-  # we skip empty lines and the "Through" port
-  unless match.nil? || match[1] == '0' || /Through/=~l
-    $device = match[1]
-    $devices[$device] = []
-  end
-  match = /^\s+(\d+)\s/.match(l)
-  if !match.nil? && !$devices[$device].nil?
-    $devices[$device] << match[1]
-  end
-end
-
-$devices.each do |device1, ports1|
-  ports1.each do |port1|
-    $devices.each do |device2, ports2|
-      ports2.each do |port2|
-        # probably not a good idea to connect a port to itself
-        unless device1 == device2 && port1 == port2 
-          system "aconnect #{device1}:#{port1} #{device2}:#{port2}"
-        end
-      end
-    end
-  end
-end
+ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
+port_list = []
+client = "0"
+for line in str(ports).splitlines():
+    if line.startswith("client "):
+        client = line[7:].split(":",2)[0]
+        if client == "0" or "Through" in line:
+            client = "0"
+    else:
+        if client == "0" or line.startswith('\t'):
+            continue
+        port = line.split()[0]
+        port_list.append(client+":"+port)
+for source in port_list:
+    for target in port_list:
+        if source != target:
+            #print("aconnect %s %s" % (source, target))
+            subprocess.call("aconnect %s %s" % (source, target), shell=True)
 ```
 Press CTRL + O to save file, confirm with enter and CTRL + X to exit editor.
 - Change permissions:
 
-    `sudo chmod +x /usr/local/bin/connectall.rb`
+    `sudo chmod +x /usr/local/bin/connectall.py`
 
 - Make the script launch on USB connect:
 
@@ -61,7 +52,7 @@ Press CTRL + O to save file, confirm with enter and CTRL + X to exit editor.
 
 - Paste and save:
 
-    `ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/local/bin/connectall.rb"  `
+    `ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/local/bin/connectall.py"  `
 
 - Reload services:
 
@@ -76,7 +67,7 @@ Press CTRL + O to save file, confirm with enter and CTRL + X to exit editor.
 Description=Initial USB MIDI connect
 
 [Service]
-ExecStart=/usr/local/bin/connectall.rb
+ExecStart=/usr/local/bin/connectall.py
 
 [Install]
 WantedBy=multi-user.target
