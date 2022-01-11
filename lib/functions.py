@@ -239,9 +239,9 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
                 saving.start_time = time.time()
                 menu.screen_status = 1
                 GPIO.output(24, 1)
-                menu.show()
                 midiports.reconnect_ports()
                 midiports.last_activity = time.time()
+                menu.show()
                 break
         except:
             pass
@@ -250,8 +250,8 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
             saving.start_time = time.time()
             menu.screen_status = 1
             GPIO.output(24, 1)
-            menu.show()
             midiports.reconnect_ports()
+            menu.show()
             break
 
 
