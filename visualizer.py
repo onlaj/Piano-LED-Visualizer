@@ -53,7 +53,7 @@ print(args)
 if not args.skipupdate:
     # make sure connectall.py file exists and is updated
     if not os.path.exists('/usr/local/bin/connectall.py') or \
-        filecmp.cmp('/usr/local/bin/connectall.', 'connectall.py') is not True:
+        filecmp.cmp('/usr/local/bin/connectall.py', 'connectall.py') is not True:
         print("connectall.py script is outdated, updating...")
         copyfile('connectall.py', '/usr/local/bin/connectall.py')
         os.chmod('/usr/local/bin/connectall.py', 493)
