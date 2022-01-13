@@ -2,7 +2,7 @@
 import subprocess
 
 
-def connect_all():
+def connectall():
     ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
     port_list = []
     client = "0"
@@ -24,4 +24,4 @@ def connect_all():
 
 
 if __name__ == '__main__':
-    connect_all()
+    connectall()

@@ -1,5 +1,7 @@
 import mido
 import subprocess
+import connectall
+
 
 class MidiPorts:
     def __init__(self, usersettings):
@@ -49,24 +51,7 @@ class MidiPorts:
         self.portname = "inport"
 
     def connectall(self):
-        ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
-        port_list = []
-        client = "0"
-        for line in str(ports).splitlines():
-            if line.startswith("client "):
-                client = line[7:].split(":",2)[0]
-                if client == "0" or "Through" in line:
-                    client = "0"
-            else:
-                if client == "0" or line.startswith('\t'):
-                    continue
-                port = line.split()[0]
-                port_list.append(client+":"+port)
-
-        for source in port_list:
-            for target in port_list:
-                if source != target:
-                    subprocess.call("sudo aconnect %s %s" % (source, target), shell=True)
+        connectall.connectall()
 
     def add_instance(self, menu):
         self.menu = menu
