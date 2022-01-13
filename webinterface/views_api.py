@@ -876,7 +876,7 @@ def change_setting():
         call("sudo git pull origin master", shell=True)
 
     if setting_name == "connect_ports":
-        call("sudo ruby %s" % webinterface.midiports.connectall_script, shell=True)
+        webinterface.midiports.connectall()
         return jsonify(success=True, reload_ports=True)
 
     if setting_name == "disconnect_ports":

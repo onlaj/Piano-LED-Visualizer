@@ -1,12 +1,11 @@
 import mido
-
+import subprocess
 
 class MidiPorts:
-    def __init__(self, usersettings, connectall_script):
+    def __init__(self, usersettings):
         self.usersettings = usersettings
         self.pending_queue = []
         self.last_activity = 0
-        self.connectall_script = connectall_script
 
         # checking if the input port was previously set by the user
         port = self.usersettings.get_setting_value("input_port")
@@ -48,6 +47,26 @@ class MidiPorts:
                 print("no play port")
 
         self.portname = "inport"
+
+    def connectall(self):
+        ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
+        port_list = []
+        client = "0"
+        for line in str(ports).splitlines():
+            if line.startswith("client "):
+                client = line[7:].split(":",2)[0]
+                if client == "0" or "Through" in line:
+                    client = "0"
+            else:
+                if client == "0" or line.startswith('\t'):
+                    continue
+                port = line.split()[0]
+                port_list.append(client+":"+port)
+
+        for source in port_list:
+            for target in port_list:
+                if source != target:
+                    subprocess.call("sudo aconnect %s %s" % (source, target), shell=True)
 
     def add_instance(self, menu):
         self.menu = menu
