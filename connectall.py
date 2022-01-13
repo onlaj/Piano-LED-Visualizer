@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import subprocess
 
 ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)

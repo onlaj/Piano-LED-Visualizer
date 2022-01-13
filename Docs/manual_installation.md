@@ -19,7 +19,7 @@ After succesfully booting RPi (and connecting to it by SSH if necessary) we need
  `sudo nano /usr/local/bin/connectall.py`
 - paste the script:
 ```python
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import subprocess
 
 ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
@@ -146,9 +146,9 @@ We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://githu
 `sudo crontab -e`
 - At the bottom of file paste:
 
-`@reboot sudo python3 /home/Piano-LED-Visualizer/visualizer.py &`
+`@reboot sudo /home/Piano-LED-Visualizer/visualizer.py &`
 
 *If you are using WaveShare 1.3inch 240x240 LED Hat instead of 1.44inch 128x128, add this instead:*
-`@reboot sudo python3 /home/Piano-LED-Visualizer/visualizer.py --display 1in3 &`
+`@reboot sudo /home/Piano-LED-Visualizer/visualizer.py --display 1in3 &`
 
 Now you can type `sudo reboot` to test if everything works. After 1-3 minutes you should see Visualizer menu on RPi screen.

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import webcolors as wc
 import sys
 import os
