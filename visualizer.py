@@ -24,16 +24,6 @@ os.chdir(sys.path[0])
 # Ensure there is only one instance of the script running.
 fh = 0
 
-# make sure connectall.rb file exists and is updated
-if not os.path.exists('/usr/local/bin/connectall.rb'):
-    print("Connectall.rb script not found, creating...")
-    os.mknod('/usr/local/bin/connectall.rb')
-
-if filecmp.cmp('/usr/local/bin/connectall.rb', 'connectall.rb') is not True:
-    print("Connectall.rb script is outdated, updating...")
-    copyfile('connectall.rb', '/usr/local/bin/connectall.rb')
-
-
 def singleton():
     global fh
     fh = open(os.path.realpath(__file__), 'r')
@@ -55,9 +45,18 @@ parser.add_argument('-c', '--clear', action='store_true', help='clear the displa
 parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
 parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
 parser.add_argument('-p', '--port', type=int, help="set port for webinterface (80 is default)")
+parser.add_argument('-s', '--skipupdate', action='store_true', help="Do not try to update /usr/local/bin/connectall.py")
 args = parser.parse_args()
 
 print(args)
+
+if not args.skipupdate:
+    # make sure connectall.py file exists and is updated
+    if not os.path.exists('/usr/local/bin/connectall.py') or \
+        filecmp.cmp('/usr/local/bin/connectall.', 'connectall.py') is not True:
+        print("connectall.py script is outdated, updating...")
+        copyfile('connectall.py', '/usr/local/bin/connectall.py')
+        os.chmod('/usr/local/bin/connectall.py', 493)
 
 KEYRIGHT = 26
 KEYLEFT = 5
