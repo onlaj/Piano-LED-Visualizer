@@ -53,6 +53,9 @@ class MidiPorts:
         self.portname = "inport"
 
     def connectall(self):
+        # Reconnect the input and playports on a connectall
+        self.reconnect_ports()
+        # Now connect all the remaining ports
         connectall.connectall()
 
     def add_instance(self, menu):
