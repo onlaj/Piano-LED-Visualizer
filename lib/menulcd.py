@@ -23,10 +23,16 @@ class MenuLCD:
         self.learning = learning
         self.saving = saving
         self.midiports = midiports
+        fontdir = "/usr/share/fonts/truetype/freefont"
+        if args.fontdir != None:
+            fontdir = args.fontdir
+        self.lcd_ttf = fontdir + "/FreeSansBold.ttf"
+        if not os.path.exists(self.lcd_ttf):
+            raise RuntimeError("Cannot locate font file: %s" % self.lcd_ttf)
 
         if args.display == '1in3':
             self.LCD = LCD_1in3.LCD()
-            self.font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf', self.scale(10))
+            self.font = ImageFont.truetype(fontdir + '/FreeMonoBold.ttf', self.scale(10))
         else:
             self.LCD = LCD_1in44.LCD()
             self.font = ImageFont.load_default()
@@ -739,12 +745,12 @@ class MenuLCD:
         top_offset = self.scale(2)
 
         if self.screensaver_settings["time"] == "1":
-            fonthour = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', self.scale(31))
+            fonthour = ImageFont.truetype(self.lcd_ttf, self.scale(31))
             self.draw.text((self.scale(4), top_offset), hour, fill=self.text_color, font=fonthour)
             top_offset += self.scale(31)
 
         if self.screensaver_settings["date"] == "1":
-            font_date = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', self.scale(13))
+            font_date = ImageFont.truetype(self.lcd_ttf, self.scale(13))
             self.draw.text((self.scale(34), top_offset), date, fill=self.text_color, font=font_date)
             top_offset += self.scale(13)
 
@@ -762,7 +768,7 @@ class MenuLCD:
         if info_height_font > self.scale(12):
             info_height_font = self.scale(12)
 
-        font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf', int(info_height_font))
+        font = ImageFont.truetype(self.lcd_ttf, int(info_height_font))
 
         if self.screensaver_settings["cpu"] == "1":
             self.draw.text((self.scale(1), top_offset), "CPU: " + str(cpu) + "% (" + str(cpu_average) + "%)",
@@ -782,7 +788,7 @@ class MenuLCD:
                 info_height_font_network = self.scale(11)
             else:
                 info_height_font_network = int(info_height_font)
-            font_network = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSansBold.ttf',
+            font_network = ImageFont.truetype(self.lcd_ttf,
                                               int(info_height_font_network))
             self.draw.text((self.scale(1), top_offset),
                            "D:" + str("{:.2f}".format(download)) + "Mb/s U:" + str("{:.2f}".format(upload)) + "Mb/s",
