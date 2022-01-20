@@ -395,18 +395,26 @@ while True:
                 ledstrip.keylist[note_position] = 1000 / float(brightness)
             if find_between(str(msg), "channel=", " ") == "12":
                 if ledsettings.skipped_notes != "Finger-based":
-                    ledstrip.strip.setPixelColor(note_position, Color(255, 0, 0))
+                    red = int(learning.hand_colorList[learning.hand_colorR][0])
+                    green = int(learning.hand_colorList[learning.hand_colorR][1])
+                    blue = int(learning.hand_colorList[learning.hand_colorR][2])
+                    s_color = Color(green, red, blue)
+                    ledstrip.strip.setPixelColor(note_position, s_color)
+                    ledstrip.set_adjacent_colors(note_position, s_color, False)
             elif find_between(str(msg), "channel=", " ") == "11":
                 if ledsettings.skipped_notes != "Finger-based":
-                    ledstrip.strip.setPixelColor(note_position, Color(0, 0, 255))
+                    red = int(learning.hand_colorList[learning.hand_colorL][0])
+                    green = int(learning.hand_colorList[learning.hand_colorL][1])
+                    blue = int(learning.hand_colorList[learning.hand_colorL][2])
+                    s_color = Color(green, red, blue)
+                    ledstrip.strip.setPixelColor(note_position, s_color)
+                    ledstrip.set_adjacent_colors(note_position, s_color, False)
             else:
                 if ledsettings.skipped_notes != "Normal":
-                    ledstrip.strip.setPixelColor(note_position, Color(int(int(green) / float(brightness)),
-                                                                      int(int(red) / float(brightness)),
-                                                                      int(int(blue) / float(brightness))))
-                    ledstrip.set_adjacent_colors(note_position, Color(int(int(green) / float(brightness)),
-                                                                      int(int(red) / float(brightness)),
-                                                                      int(int(blue) / float(brightness))), False)
+                    s_color = Color(int(int(green) / float(brightness)), int(int(red) / float(brightness)),
+                                   int(int(blue) / float(brightness)))
+                    ledstrip.strip.setPixelColor(note_position, s_color)
+                    ledstrip.set_adjacent_colors(note_position, s_color, False)
             if saving.isrecording:
                 if ledsettings.color_mode == "Multicolor":
                     saving.add_track("note_on", original_note, velocity, midiports.last_activity,
