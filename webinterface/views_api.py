@@ -961,6 +961,24 @@ def change_setting():
 
         return jsonify(success=True, reload_songs=True)
 
+    if setting_name == "learning_load_song":
+        webinterface.learning.t = threading.Thread(target=webinterface.learning.load_midi, args=(value,))
+        webinterface.learning.t.start()
+
+        return jsonify(success=True)
+
+    if setting_name == "start_learning":
+        webinterface.learning.t = threading.Thread(target=webinterface.learning.learn_midi)
+        webinterface.learning.t.start()
+
+        return jsonify(success=True)
+
+    if setting_name == "stop_learning":
+        webinterface.learning.is_started_midi = False
+        fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
+
+        return jsonify(success=True)
+
     return jsonify(success=True)
 
 
