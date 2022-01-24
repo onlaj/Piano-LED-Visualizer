@@ -967,13 +967,13 @@ def change_setting():
 
         return jsonify(success=True)
 
-    if setting_name == "start_learning":
+    if setting_name == "start_learning_song":
         webinterface.learning.t = threading.Thread(target=webinterface.learning.learn_midi)
         webinterface.learning.t.start()
 
         return jsonify(success=True)
 
-    if setting_name == "stop_learning":
+    if setting_name == "stop_learning_song":
         webinterface.learning.is_started_midi = False
         fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
 
