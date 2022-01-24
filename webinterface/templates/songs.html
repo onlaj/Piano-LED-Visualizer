@@ -236,13 +236,14 @@
             </div>
 
 
-            <div class="flex flex-wrap w-1/2 m-auto">
-                <div class="w-1/2 px-3 md:mb-0 m-auto">
+            <div class="flex flex-wrap w-full md:w-1/2 m-auto">
+                <div class="w-full md:w-1/2 px-3 md:mb-0 m-auto">
                     <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Practice
                     </label>
                     <div class="relative">
-                        <select onchange="change_setting('change_practice', this.value)" id="practice" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+                        <select onchange="change_setting('change_practice', this.value)" id="practice"
+                                class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
                 py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                             <option value="0">Melody</option>
                             <option value="1">Rhythm</option>
@@ -255,7 +256,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-1/2 px-3 md:mb-0 m-auto">
+                <div class="w-full md:w-1/2 px-3 m-auto">
                     <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Tempo (<b id="tempo">100</b>%)
                     </label>
@@ -263,8 +264,11 @@
                         <svg onclick="input = document.getElementById('tempo_slider');
                             input.value = parseInt(input.value) - 1;
                             if(input.value <= 0){input.value = 1};
-                            change_setting('change_tempo', input.value);" class="h-8 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            change_setting('change_tempo', input.value);
+                            document.getElementById('tempo').innerHTML = input.value;" class="h-8 w-6 cursor-pointer"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <div class="w-full justify-center flex text-sm text-gray-600 dark:text-gray-400">
                             1<input onchange="change_setting('change_tempo', this.value);"
@@ -275,8 +279,11 @@
                         <svg onclick="input = document.getElementById('tempo_slider');
                             input.value = parseInt(input.value) + 1;
                             if(input.value >= 201){input.value = 200};
-                            change_setting('change_tempo', input.value);" class="h-8 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            change_setting('change_tempo', input.value);
+                            document.getElementById('tempo').innerHTML = input.value;" class="h-8 w-6 cursor-pointer"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
                 </div>
@@ -284,8 +291,8 @@
 
             </div>
 
-            <div class="flex flex-wrap w-1/2 m-auto">
-                <div class="w-1/2 px-3 md:mb-0 m-auto">
+            <div class="flex flex-wrap w-full md:w-1/2 m-auto">
+                <div class="w-full md:w-1/2 px-3 md:mb-0 m-auto">
                     <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Hands
                     </label>
@@ -303,7 +310,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-1/2 px-3 md:mb-0 m-auto">
+                <div class="w-full md:w-1/2 px-3 md:mb-0 m-auto">
                     <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Mute hands
                     </label>
@@ -323,8 +330,8 @@
                 </div>
             </div>
 
-            <div class="flex flex-wrap w-1/2 m-auto">
-                <div class="w-1/2 px-3 md:mb-0 m-auto">
+            <div class="flex flex-wrap w-full md:w-1/2 m-auto">
+                <div class="w-full md:w-1/2 px-3 md:mb-0 m-auto">
                     <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Start point (%)
                     </label>
@@ -332,7 +339,7 @@
                            class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2
                            rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                 </div>
-                <div class="w-1/2 px-3 md:mb-0 m-auto">
+                <div class="w-full md:w-1/2 px-3 md:mb-0 m-auto">
                     <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         End point (%)
                     </label>
