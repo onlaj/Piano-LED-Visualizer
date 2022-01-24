@@ -200,17 +200,18 @@
 
         <div id="learn_midi_wrapper" class="contents hidden">
             <div class="flex m-auto">
-
                 <div class="p-2">
                     <button id="start_learning" onclick="change_setting('start_learning_song', '');
                         this.classList.add('hidden');
                         this.nextElementSibling.classList.remove('hidden');"
                             class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
                         <span class="flex uppercase text-xs m-auto ">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             <div class="align-middle">Start learning</div>
                         </span>
@@ -233,6 +234,115 @@
                     </button>
                 </div>
             </div>
+
+
+            <div class="flex flex-wrap w-1/2 m-auto">
+                <div class="w-1/2 px-3 md:mb-0 m-auto">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Practice
+                    </label>
+                    <div class="relative">
+                        <select onchange="change_setting('change_practice', this.value)" id="practice" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+                py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                            <option value="0">Melody</option>
+                            <option value="1">Rhythm</option>
+                            <option value="2">Listen</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-1/2 px-3 md:mb-0 m-auto">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Tempo (<b id="tempo">100</b>%)
+                    </label>
+                    <div class="justify-center flex">
+                        <svg onclick="input = document.getElementById('tempo_slider');
+                            input.value = parseInt(input.value) - 1;
+                            if(input.value <= 0){input.value = 1};
+                            change_setting('change_tempo', input.value);" class="h-8 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div class="w-full justify-center flex text-sm text-gray-600 dark:text-gray-400">
+                            1<input onchange="change_setting('change_tempo', this.value);"
+                                    oninput="document.getElementById('tempo_slider').value = this.value;
+                                    document.getElementById('tempo').innerHTML = this.value;"
+                                    id="tempo_slider" class="w-1/2 mx-2" type="range" value="100" min="1" max="200">200
+                        </div>
+                        <svg onclick="input = document.getElementById('tempo_slider');
+                            input.value = parseInt(input.value) + 1;
+                            if(input.value >= 201){input.value = 200};
+                            change_setting('change_tempo', input.value);" class="h-8 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="flex flex-wrap w-1/2 m-auto">
+                <div class="w-1/2 px-3 md:mb-0 m-auto">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Hands
+                    </label>
+                    <div class="relative">
+                        <select id="hands" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+                py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                            <option value="0">Both</option>
+                            <option value="1">Right</option>
+                            <option value="2">Left</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-1/2 px-3 md:mb-0 m-auto">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Mute hands
+                    </label>
+                    <div class="relative">
+                        <select id="mute_hands" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+                py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                            <option value="0">Off</option>
+                            <option value="1">Right</option>
+                            <option value="2">Left</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap w-1/2 m-auto">
+                <div class="w-1/2 px-3 md:mb-0 m-auto">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Start point (%)
+                    </label>
+                    <input id="start_point" type="number" value="0" min="0" max="100"
+                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2
+                           rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                </div>
+                <div class="w-1/2 px-3 md:mb-0 m-auto">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        End point (%)
+                    </label>
+                    <input id="end_point" type="number" value="100" min="0" max="100"
+                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2
+                           rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                </div>
+            </div>
+
+
         </div>
 
 
