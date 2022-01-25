@@ -8,6 +8,8 @@ let beats_per_measure = 4;
 let count = 0;
 let is_playing = 0;
 
+var myTimeout = '';
+
 
 const tick1 = new Audio('/static/tick2.mp3');
 tick1.volume = 0.2;
@@ -1037,6 +1039,101 @@ function get_recording_status() {
     xhttp.open("GET", "/api/get_recording_status", true);
     xhttp.send();
 }
+
+function get_learning_status(loop_call = false) {
+    var xhttp = new XMLHttpRequest();
+    var delay_between_requests = 500;
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            response = JSON.parse(this.responseText);
+
+            clearTimeout(myTimeout);
+            document.getElementById("start_learning").classList.add("pointer-events-none", "opacity-50");
+            switch (response.loading) {
+                case 1:
+                    myTimeout = setTimeout(get_learning_status, delay_between_requests, true);
+                    break;
+                case 1:
+                    myTimeout = setTimeout(get_learning_status, delay_between_requests, true);
+                    document.getElementById("start_learning").innerHTML = '<span class="flex uppercase text-xs m-auto ">' +
+                        '<div id="learning_status" class="align-middle text-center">Loading...</div></span>';
+                    break;
+                case 2:
+                    myTimeout = setTimeout(get_learning_status, delay_between_requests, true);
+                    document.getElementById("start_learning").innerHTML = '<span class="flex uppercase text-xs m-auto ">' +
+                        '<div id="learning_status" class="align-middle text-center">Processing...</div></span>';
+                    break;
+                case 3:
+                    myTimeout = setTimeout(get_learning_status, delay_between_requests, true);
+                    document.getElementById("start_learning").innerHTML = '<span class="flex uppercase text-xs m-auto ">' +
+                        '<div id="learning_status" class="align-middle text-center">Merging...</div></span>';
+                    break;
+                case 4:
+                    document.getElementById("start_learning").classList.remove("pointer-events-none", "opacity-50");
+                    document.getElementById("start_learning").innerHTML = '<span class="flex uppercase text-xs m-auto ">' +
+                        '<div id="learning_status" class="align-middle text-center">Start learning</div></span>';
+                    break;
+                case 5:
+                    document.getElementById("start_learning").innerHTML = '<span class="flex uppercase text-xs m-auto ">' +
+                        '<div id="learning_status" class="align-middle text-center">Error!</div></span>';
+                    break;
+                default:
+                    break;
+            }
+
+
+            if(response.loading === 4 || loop_call === false) {
+
+                document.getElementById("practice").value = response.practice;
+                document.getElementById("tempo_slider").value = response.set_tempo;
+                document.getElementById("hands").value = response.hands;
+                document.getElementById("mute_hand").value = response.mute_hand;
+
+                document.getElementById("start_point").innerHTML = response.start_point;
+                document.getElementById("end_point").innerHTML = response.end_point;
+
+                var min = 0
+                var max = 100
+
+                var value_left = response.start_point;
+                var value_right = response.end_point;
+
+                var value_left_percent = (100 / (max - min)) * value_left - (100 / (max - min)) * min;
+                var value_right_percent = (100 / (max - min)) * value_right - (100 / (max - min)) * min;
+
+                var value_right_percent_reverse = 100 - value_right_percent;
+
+                document.getElementById("learning_slider_wrapper").innerHTML = '<div slider="" id="slider-distance">\n' +
+                    '<div>\n' +
+                    '   <div inverse-left="" style="width:' + value_left_percent + '%;"></div>\n' +
+                    '   <div inverse-right="" style="width:' + value_right_percent_reverse + '%;"></div>\n' +
+                    '   <div range="" style="left:' + value_left_percent + '%;right:' + value_right_percent_reverse + '%;"></div>\n' +
+                    '   <span thumb="" style="left:' + value_left_percent + '%;"></span>\n' +
+                    '   <span thumb="" style="left:' + value_right_percent + '%;"></span>\n' +
+                    '   <div sign="" style="left:' + value_left_percent + '%;">\n' +
+                    '       <span id="value1">' + value_left + '</span>\n' +
+                    '   </div>\n' +
+                    '   <div sign="" style="left:' + value_right_percent + '%;">\n' +
+                    '       <span id="value2">' + value_right + '</span>\n' +
+                    '   </div>\n' +
+                    '</div>\n' +
+                    '<input id="learning_start_point" type="range" tabindex="0" value="' + value_left + '" max="100" min="0" step="1"\n' +
+                    '   oninput="show_left_slider(this)" onchange="change_setting(\'learning_start_point\', this.value);\n' +
+                    '   document.getElementById(\'start_point\').innerHTML = this.value">\n' +
+                    '<input id="learning_end_point" type="range" tabindex="0" value="' + value_right + '" max="100" min="0" step="1"\n' +
+                    '   oninput="show_right_slider(this)" onchange="change_setting(\'learning_end_point\', this.value);\n' +
+                    '   document.getElementById(\'end_point\').innerHTML = this.value">\n' +
+                    '</div>';
+            }
+
+        }
+
+    };
+    xhttp.open("GET", "/api/get_learning_status", true);
+    xhttp.send();
+}
+
 
 function get_songs() {
     if (document.getElementById("songs_page")) {

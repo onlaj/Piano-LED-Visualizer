@@ -962,6 +962,7 @@ def change_setting():
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "learning_load_song":
+        webinterface.learning.loading = 1
         webinterface.learning.t = threading.Thread(target=webinterface.learning.load_midi, args=(value,))
         webinterface.learning.t.start()
 
@@ -1214,6 +1215,21 @@ def get_recording_status():
     response["isrecording"] = webinterface.saving.isrecording
 
     response["isplaying"] = webinterface.saving.is_playing_midi
+
+    return jsonify(response)
+
+@webinterface.route('/api/get_learning_status', methods=['GET'])
+def get_learning_status():
+    response = {}
+    response["loading"] = webinterface.learning.loading
+    response["practice"] = webinterface.usersettings.get_setting_value("practice")
+    response["hands"] = webinterface.usersettings.get_setting_value("hands")
+    response["mute_hand"] = webinterface.usersettings.get_setting_value("mute_hand")
+    response["start_point"] = webinterface.usersettings.get_setting_value("start_point")
+    response["end_point"] = webinterface.usersettings.get_setting_value("end_point")
+    response["set_tempo"] = webinterface.usersettings.get_setting_value("set_tempo")
+    response["hand_colorR"] = webinterface.usersettings.get_setting_value("hand_colorR")
+    response["hand_colorL"] = webinterface.usersettings.get_setting_value("hand_colorL")
 
     return jsonify(response)
 
