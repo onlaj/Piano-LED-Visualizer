@@ -263,7 +263,7 @@
                     <div class="justify-center flex">
                         <svg onclick="input = document.getElementById('tempo_slider');
                             input.value = parseInt(input.value) - 1;
-                            if(input.value <= 0){input.value = 1};
+                            if(input.value <= 9){input.value = 1};
                             change_setting('change_tempo', input.value);
                             document.getElementById('tempo').innerHTML = input.value;" class="h-8 w-6 cursor-pointer"
                              fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -271,10 +271,10 @@
                                   d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <div class="w-full justify-center flex text-sm text-gray-600 dark:text-gray-400">
-                            1<input onchange="change_setting('change_tempo', this.value);"
+                            10<input onchange="change_setting('change_tempo', this.value);"
                                     oninput="document.getElementById('tempo_slider').value = this.value;
                                     document.getElementById('tempo').innerHTML = this.value;"
-                                    id="tempo_slider" class="w-1/2 mx-2" type="range" value="100" min="1" max="200">200
+                                    id="tempo_slider" class="w-1/2 mx-2" type="range" value="100" min="10" max="200">200
                         </div>
                         <svg onclick="input = document.getElementById('tempo_slider');
                             input.value = parseInt(input.value) + 1;
@@ -297,7 +297,7 @@
                         Hands
                     </label>
                     <div class="relative">
-                        <select id="hands" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+                        <select onchange="change_setting('change_hands', this.value)" id="hands" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
                 py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                             <option value="0">Both</option>
                             <option value="1">Right</option>
@@ -315,7 +315,7 @@
                         Mute hands
                     </label>
                     <div class="relative">
-                        <select id="mute_hands" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+                        <select onchange="change_setting('change_mute_hand', this.value)" id="mute_hands" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
                 py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                             <option value="0">Off</option>
                             <option value="1">Right</option>

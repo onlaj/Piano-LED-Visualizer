@@ -1,7 +1,7 @@
 from webinterface import webinterface
 from flask import render_template, send_file, redirect, request, url_for, jsonify
 from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
-    rainbow, rainbowCycle, fastColorWipe, play_midi
+    rainbow, rainbowCycle, fastColorWipe, play_midi, clamp
 import psutil
 import threading
 from neopixel import *
@@ -978,6 +978,57 @@ def change_setting():
         fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
 
         return jsonify(success=True)
+
+    if setting_name == "change_practice":
+        value = int(value)
+        webinterface.learning.practice = value
+        webinterface.learning.practice = clamp(webinterface.learning.practice, 0, len(webinterface.learning.practiceList) - 1)
+        webinterface.usersettings.change_setting_value("practice", webinterface.learning.practice)
+
+        return jsonify(success=True)
+
+    if setting_name == "change_tempo":
+        value = int(value)
+        webinterface.learning.set_tempo = value
+        webinterface.learning.set_tempo = clamp(webinterface.learning.set_tempo, 10, 200)
+        webinterface.usersettings.change_setting_value("set_tempo", webinterface.learning.set_tempo)
+
+        return jsonify(success=True)
+
+    if setting_name == "change_hands":
+        value = int(value)
+        webinterface.learning.hands = value
+        webinterface.learning.hands = clamp(webinterface.learning.hands, 0, len(webinterface.learning.handsList) - 1)
+        webinterface.usersettings.change_setting_value("hands", webinterface.learning.hands)
+
+        return jsonify(success=True)
+
+    if setting_name == "change_mute_hand":
+        value = int(value)
+        webinterface.learning.mute_hand = value
+        webinterface.learning.mute_hand = clamp(webinterface.learning.mute_hand, 0, len(webinterface.learning.mute_handList) - 1)
+        webinterface.usersettings.change_setting_value("mute_hand", webinterface.learning.mute_hand)
+
+        return jsonify(success=True)
+
+    if setting_name == "learning_start_point":
+        value = int(value)
+        webinterface.learning.start_point = value
+        webinterface.learning.start_point = clamp(webinterface.learning.start_point, 0, webinterface.learning.end_point - 10)
+        webinterface.usersettings.change_setting_value("start_point", webinterface.learning.start_point)
+        webinterface.learning.restart_learning()
+
+        return jsonify(success=True)
+
+    if setting_name == "learning_end_point":
+        value = int(value)
+        webinterface.learning.end_point = value
+        webinterface.learning.end_point = clamp(webinterface.learning.end_point, webinterface.learning.start_point + 10, 100)
+        webinterface.usersettings.change_setting_value("end_point", webinterface.learning.end_point)
+        webinterface.learning.restart_learning()
+
+        return jsonify(success=True)
+
 
     return jsonify(success=True)
 
