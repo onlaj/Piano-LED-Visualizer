@@ -1030,6 +1030,22 @@ def change_setting():
 
         return jsonify(success=True)
 
+    if setting_name == "change_handL_color":
+        value = int(value)
+        webinterface.learning.hand_colorL += value
+        webinterface.learning.hand_colorL = clamp(webinterface.learning.hand_colorL, 0, len(webinterface.learning.hand_colorList) - 1)
+        webinterface.usersettings.change_setting_value("hand_colorL", webinterface.learning.hand_colorL)
+
+        return jsonify(success=True, reload_learning_settings=True)
+
+    if setting_name == "change_handR_color":
+        value = int(value)
+        webinterface.learning.hand_colorR += value
+        webinterface.learning.hand_colorR = clamp(webinterface.learning.hand_colorR, 0, len(webinterface.learning.hand_colorList) - 1)
+        webinterface.usersettings.change_setting_value("hand_colorR", webinterface.learning.hand_colorR)
+
+        return jsonify(success=True, reload_learning_settings=True)
+
 
     return jsonify(success=True)
 
@@ -1230,6 +1246,7 @@ def get_learning_status():
     response["set_tempo"] = webinterface.usersettings.get_setting_value("set_tempo")
     response["hand_colorR"] = webinterface.usersettings.get_setting_value("hand_colorR")
     response["hand_colorL"] = webinterface.usersettings.get_setting_value("hand_colorL")
+    response["hand_colorList"] = ast.literal_eval(webinterface.usersettings.get_setting_value("hand_colorList"))
 
     return jsonify(response)
 

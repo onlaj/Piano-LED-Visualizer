@@ -360,6 +360,46 @@
 
             </div>
 
+            <div class="flex flex-wrap w-full md:w-1/2 m-auto">
+                <div class="w-full md:w-1/2 px-3 m-auto">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Left hand color
+                    </label>
+                    <div class="justify-center flex">
+                        <svg onclick="change_setting('change_handL_color', -1)" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        <div class="w-full justify-center flex text-sm text-gray-600 dark:text-gray-400">
+                            <svg class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <rect id="hand_colorL" width="30" height="30" style="fill:rgb(0,0,255);" />
+                            </svg>
+                        </div>
+                        <svg onclick="change_setting('change_handL_color', 1)" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/2 px-3 m-auto">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                        Right hand color
+                    </label>
+                    <div class="justify-center flex">
+                        <svg onclick="change_setting('change_handR_color', -1)" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        <div class="w-full justify-center flex text-sm text-gray-600 dark:text-gray-400">
+                            <svg class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <rect id="hand_colorR" width="30" height="30" style="fill:rgb(0,0,255);" />
+                            </svg>
+                        </div>
+                        <svg onclick="change_setting('change_handR_color', 1)" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
 
         </div>
 

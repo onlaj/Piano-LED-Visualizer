@@ -8,7 +8,8 @@ let beats_per_measure = 4;
 let count = 0;
 let is_playing = 0;
 
-var myTimeout = '';
+var learning_status_timeout = '';
+var hand_colorList = '';
 
 
 const tick1 = new Audio('/static/tick2.mp3');
@@ -205,6 +206,9 @@ function change_setting(setting_name, value, second_value = false, disable_seque
             }
             if (response.reload_steps_list == true) {
                 get_steps_list();
+            }
+            if (response.reload_learning_settings == true) {
+                get_learning_status();
             }
         }
     }
@@ -1048,24 +1052,24 @@ function get_learning_status(loop_call = false) {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(this.responseText);
 
-            clearTimeout(myTimeout);
+            clearTimeout(learning_status_timeout);
             document.getElementById("start_learning").classList.add("pointer-events-none", "opacity-50");
             switch (response.loading) {
-                case 1:
-                    myTimeout = setTimeout(get_learning_status, delay_between_requests, true);
+                case 0:
+                    learning_status_timeout = setTimeout(get_learning_status, delay_between_requests, true);
                     break;
                 case 1:
-                    myTimeout = setTimeout(get_learning_status, delay_between_requests, true);
+                    learning_status_timeout = setTimeout(get_learning_status, delay_between_requests, true);
                     document.getElementById("start_learning").innerHTML = '<span class="flex uppercase text-xs m-auto ">' +
                         '<div id="learning_status" class="align-middle text-center">Loading...</div></span>';
                     break;
                 case 2:
-                    myTimeout = setTimeout(get_learning_status, delay_between_requests, true);
+                    learning_status_timeout = setTimeout(get_learning_status, delay_between_requests, true);
                     document.getElementById("start_learning").innerHTML = '<span class="flex uppercase text-xs m-auto ">' +
                         '<div id="learning_status" class="align-middle text-center">Processing...</div></span>';
                     break;
                 case 3:
-                    myTimeout = setTimeout(get_learning_status, delay_between_requests, true);
+                    learning_status_timeout = setTimeout(get_learning_status, delay_between_requests, true);
                     document.getElementById("start_learning").innerHTML = '<span class="flex uppercase text-xs m-auto ">' +
                         '<div id="learning_status" class="align-middle text-center">Merging...</div></span>';
                     break;
@@ -1092,6 +1096,16 @@ function get_learning_status(loop_call = false) {
 
                 document.getElementById("start_point").innerHTML = response.start_point;
                 document.getElementById("end_point").innerHTML = response.end_point;
+
+                hand_colorList = response.hand_colorList;
+                hand_colorR = response.hand_colorR;
+                hand_colorL = response.hand_colorL;
+
+                hand_colorR_RGB = response.hand_colorList[hand_colorR][0]+", "+response.hand_colorList[hand_colorR][1]+", "+response.hand_colorList[hand_colorR][2];
+                hand_colorL_RGB = response.hand_colorList[hand_colorL][0]+", "+response.hand_colorList[hand_colorL][1]+", "+response.hand_colorList[hand_colorL][2];
+
+                document.getElementById("hand_colorR").style.fill = 'rgb('+hand_colorR_RGB+')';
+                document.getElementById("hand_colorL").style.fill = 'rgb('+hand_colorL_RGB+')';
 
                 var min = 0
                 var max = 100
