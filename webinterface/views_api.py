@@ -1,7 +1,7 @@
 from webinterface import webinterface
 from flask import render_template, send_file, redirect, request, url_for, jsonify
 from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
-    rainbow, rainbowCycle, fastColorWipe, play_midi
+    rainbow, rainbowCycle, fastColorWipe, play_midi, clamp
 import psutil
 import threading
 from neopixel import *
@@ -961,6 +961,92 @@ def change_setting():
 
         return jsonify(success=True, reload_songs=True)
 
+    if setting_name == "learning_load_song":
+        webinterface.learning.loading = 1
+        webinterface.learning.t = threading.Thread(target=webinterface.learning.load_midi, args=(value,))
+        webinterface.learning.t.start()
+
+        return jsonify(success=True)
+
+    if setting_name == "start_learning_song":
+        webinterface.learning.t = threading.Thread(target=webinterface.learning.learn_midi)
+        webinterface.learning.t.start()
+
+        return jsonify(success=True)
+
+    if setting_name == "stop_learning_song":
+        webinterface.learning.is_started_midi = False
+        fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
+
+        return jsonify(success=True)
+
+    if setting_name == "change_practice":
+        value = int(value)
+        webinterface.learning.practice = value
+        webinterface.learning.practice = clamp(webinterface.learning.practice, 0, len(webinterface.learning.practiceList) - 1)
+        webinterface.usersettings.change_setting_value("practice", webinterface.learning.practice)
+
+        return jsonify(success=True)
+
+    if setting_name == "change_tempo":
+        value = int(value)
+        webinterface.learning.set_tempo = value
+        webinterface.learning.set_tempo = clamp(webinterface.learning.set_tempo, 10, 200)
+        webinterface.usersettings.change_setting_value("set_tempo", webinterface.learning.set_tempo)
+
+        return jsonify(success=True)
+
+    if setting_name == "change_hands":
+        value = int(value)
+        webinterface.learning.hands = value
+        webinterface.learning.hands = clamp(webinterface.learning.hands, 0, len(webinterface.learning.handsList) - 1)
+        webinterface.usersettings.change_setting_value("hands", webinterface.learning.hands)
+
+        return jsonify(success=True)
+
+    if setting_name == "change_mute_hand":
+        value = int(value)
+        webinterface.learning.mute_hand = value
+        webinterface.learning.mute_hand = clamp(webinterface.learning.mute_hand, 0, len(webinterface.learning.mute_handList) - 1)
+        webinterface.usersettings.change_setting_value("mute_hand", webinterface.learning.mute_hand)
+
+        return jsonify(success=True)
+
+    if setting_name == "learning_start_point":
+        value = int(value)
+        webinterface.learning.start_point = value
+        webinterface.learning.start_point = clamp(webinterface.learning.start_point, 0, webinterface.learning.end_point - 10)
+        webinterface.usersettings.change_setting_value("start_point", webinterface.learning.start_point)
+        webinterface.learning.restart_learning()
+
+        return jsonify(success=True)
+
+    if setting_name == "learning_end_point":
+        value = int(value)
+        webinterface.learning.end_point = value
+        webinterface.learning.end_point = clamp(webinterface.learning.end_point, webinterface.learning.start_point + 10, 100)
+        webinterface.usersettings.change_setting_value("end_point", webinterface.learning.end_point)
+        webinterface.learning.restart_learning()
+
+        return jsonify(success=True)
+
+    if setting_name == "change_handL_color":
+        value = int(value)
+        webinterface.learning.hand_colorL += value
+        webinterface.learning.hand_colorL = clamp(webinterface.learning.hand_colorL, 0, len(webinterface.learning.hand_colorList) - 1)
+        webinterface.usersettings.change_setting_value("hand_colorL", webinterface.learning.hand_colorL)
+
+        return jsonify(success=True, reload_learning_settings=True)
+
+    if setting_name == "change_handR_color":
+        value = int(value)
+        webinterface.learning.hand_colorR += value
+        webinterface.learning.hand_colorR = clamp(webinterface.learning.hand_colorR, 0, len(webinterface.learning.hand_colorList) - 1)
+        webinterface.usersettings.change_setting_value("hand_colorR", webinterface.learning.hand_colorR)
+
+        return jsonify(success=True, reload_learning_settings=True)
+
+
     return jsonify(success=True)
 
 
@@ -1145,6 +1231,22 @@ def get_recording_status():
     response["isrecording"] = webinterface.saving.isrecording
 
     response["isplaying"] = webinterface.saving.is_playing_midi
+
+    return jsonify(response)
+
+@webinterface.route('/api/get_learning_status', methods=['GET'])
+def get_learning_status():
+    response = {}
+    response["loading"] = webinterface.learning.loading
+    response["practice"] = webinterface.usersettings.get_setting_value("practice")
+    response["hands"] = webinterface.usersettings.get_setting_value("hands")
+    response["mute_hand"] = webinterface.usersettings.get_setting_value("mute_hand")
+    response["start_point"] = webinterface.usersettings.get_setting_value("start_point")
+    response["end_point"] = webinterface.usersettings.get_setting_value("end_point")
+    response["set_tempo"] = webinterface.usersettings.get_setting_value("set_tempo")
+    response["hand_colorR"] = webinterface.usersettings.get_setting_value("hand_colorR")
+    response["hand_colorL"] = webinterface.usersettings.get_setting_value("hand_colorL")
+    response["hand_colorList"] = ast.literal_eval(webinterface.usersettings.get_setting_value("hand_colorList"))
 
     return jsonify(response)
 
