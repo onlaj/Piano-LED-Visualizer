@@ -33,12 +33,13 @@ class MenuLCD:
         if args.display == '1in3':
             self.LCD = LCD_1in3.LCD()
             self.font = ImageFont.truetype(fontdir + '/FreeMonoBold.ttf', self.scale(10))
+            self.image = Image.open('webinterface/static/logo240_240.bmp')
         else:
             self.LCD = LCD_1in44.LCD()
             self.font = ImageFont.load_default()
+            self.image = Image.open('webinterface/static/logo128_128.bmp')
+
         self.LCD.LCD_Init()
-        self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), "GREEN")
-        self.draw = ImageDraw.Draw(self.image)
         self.LCD.LCD_ShowImage(self.image, 0, 0)
         self.DOMTree = minidom.parse(xml_file_name)
         self.currentlocation = "menu"
