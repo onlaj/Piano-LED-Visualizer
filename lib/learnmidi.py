@@ -39,6 +39,8 @@ class LearnMIDI:
         self.is_started_midi = False
         self.t = 0
 
+        self.current_idx = 0
+
     def add_instance(self, menu):
         self.menu = menu
 
@@ -167,8 +169,12 @@ class LearnMIDI:
 
             start_idx = int(self.start_point * len(self.song_tracks) / 100)
             end_idx = int(self.end_point * len(self.song_tracks) / 100)
+
+            self.current_idx = start_idx
+
             for msg in self.song_tracks[start_idx:end_idx]:
                 # Exit thread if learning is stopped
+
                 if not self.is_started_midi:
                     break
 
@@ -237,5 +243,7 @@ class LearnMIDI:
                             # send midi sound for Right hand
                             self.practice == 2):  # send midi sound for Listen only
                         self.midiports.playport.send(msg)
+
+                self.current_idx += 1
         except Exception as e:
             self.is_started_midi = False
