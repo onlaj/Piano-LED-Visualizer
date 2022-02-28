@@ -1031,7 +1031,7 @@ def change_setting():
         return jsonify(success=True)
 
     if setting_name == "set_current_time_as_start_point":
-        webinterface.learning.start_point = int(webinterface.learning.current_idx * 100 / len(webinterface.learning.song_tracks))
+        webinterface.learning.start_point = round(float(webinterface.learning.current_idx * 100 / float(len(webinterface.learning.song_tracks))), 3)
         webinterface.learning.start_point = clamp(webinterface.learning.start_point, 0, webinterface.learning.end_point - 1)
         webinterface.usersettings.change_setting_value("start_point", webinterface.learning.start_point)
         webinterface.learning.restart_learning()
@@ -1039,7 +1039,7 @@ def change_setting():
         return jsonify(success=True, reload_learning_settings=True)
 
     if setting_name == "set_current_time_as_end_point":
-        webinterface.learning.end_point = int(webinterface.learning.current_idx * 100 / len(webinterface.learning.song_tracks))
+        webinterface.learning.end_point = round(float(webinterface.learning.current_idx * 100 / float(len(webinterface.learning.song_tracks))), 3)
         webinterface.learning.end_point = clamp(webinterface.learning.end_point, webinterface.learning.start_point + 1, 100)
         webinterface.usersettings.change_setting_value("end_point", webinterface.learning.end_point)
         webinterface.learning.restart_learning()
