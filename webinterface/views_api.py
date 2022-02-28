@@ -1015,7 +1015,7 @@ def change_setting():
     if setting_name == "learning_start_point":
         value = int(value)
         webinterface.learning.start_point = value
-        webinterface.learning.start_point = clamp(webinterface.learning.start_point, 0, webinterface.learning.end_point - 10)
+        webinterface.learning.start_point = clamp(webinterface.learning.start_point, 0, webinterface.learning.end_point - 1)
         webinterface.usersettings.change_setting_value("start_point", webinterface.learning.start_point)
         webinterface.learning.restart_learning()
 
@@ -1024,7 +1024,7 @@ def change_setting():
     if setting_name == "learning_end_point":
         value = int(value)
         webinterface.learning.end_point = value
-        webinterface.learning.end_point = clamp(webinterface.learning.end_point, webinterface.learning.start_point + 10, 100)
+        webinterface.learning.end_point = clamp(webinterface.learning.end_point, webinterface.learning.start_point + 1, 100)
         webinterface.usersettings.change_setting_value("end_point", webinterface.learning.end_point)
         webinterface.learning.restart_learning()
 
@@ -1061,6 +1061,13 @@ def change_setting():
         webinterface.usersettings.change_setting_value("hand_colorR", webinterface.learning.hand_colorR)
 
         return jsonify(success=True, reload_learning_settings=True)
+
+    if setting_name == "change_learning_loop":
+        value = int(value == 'true')
+        webinterface.learning.is_loop_active = value
+        webinterface.usersettings.change_setting_value("is_loop_active", webinterface.learning.is_loop_active)
+
+        return jsonify(success=True)
 
 
     return jsonify(success=True)
@@ -1263,6 +1270,7 @@ def get_learning_status():
     response["hand_colorR"] = webinterface.usersettings.get_setting_value("hand_colorR")
     response["hand_colorL"] = webinterface.usersettings.get_setting_value("hand_colorL")
     response["hand_colorList"] = ast.literal_eval(webinterface.usersettings.get_setting_value("hand_colorList"))
+    response["is_loop_active"] = ast.literal_eval(webinterface.usersettings.get_setting_value("is_loop_active"))
 
     return jsonify(response)
 

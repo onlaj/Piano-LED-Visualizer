@@ -228,6 +228,14 @@
                         </span>
                     </button>
                 </div>
+                <div class="p-2 mt-2">
+                    <label class="inline-flex items-center">
+                        <input id="is_loop_active" onchange="change_setting('change_learning_loop', this.checked)"
+                               class="w-4 h-4 mr-2 border border-gray-300 rounded"
+                               type="checkbox"/>
+                        Loop
+                    </label>
+                </div>
             </div>
 
 
@@ -267,9 +275,9 @@
                         </svg>
                         <div class="w-full justify-center flex text-sm text-gray-600 dark:text-gray-400">
                             10<input onchange="change_setting('change_tempo', this.value);"
-                                    oninput="document.getElementById('tempo_slider').value = this.value;
+                                     oninput="document.getElementById('tempo_slider').value = this.value;
                                     document.getElementById('tempo').innerHTML = this.value;"
-                                    id="tempo_slider" class="w-1/2 mx-2" type="range" value="100" min="10" max="200">200
+                                     id="tempo_slider" class="w-1/2 mx-2" type="range" value="100" min="10" max="200">200
                         </div>
                         <svg onclick="input = document.getElementById('tempo_slider');
                             input.value = parseInt(input.value) + 1;
@@ -359,10 +367,10 @@
                         </span>
                             <svg onclick="change_setting('set_current_time_as_start_point', '')"
                                  xmlns="http://www.w3.org/2000/svg"
-                             class="h-5 w-5 text-gray-800 dark:text-gray-200 cursor-pointer"
-                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                                 class="h-5 w-5 text-gray-800 dark:text-gray-200 cursor-pointer"
+                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/>
                             </svg>
                         </div>
 
@@ -375,10 +383,10 @@
                         </span>
                             <svg onclick="change_setting('set_current_time_as_end_point', '')"
                                  xmlns="http://www.w3.org/2000/svg"
-                             class="h-5 w-5 text-gray-800 dark:text-gray-200 cursor-pointer"
-                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                                 class="h-5 w-5 text-gray-800 dark:text-gray-200 cursor-pointer"
+                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/>
                             </svg>
                         </div>
                     </label>
@@ -392,16 +400,18 @@
                         Left hand color
                     </label>
                     <div class="justify-center flex">
-                        <svg onclick="change_setting('change_handL_color', -1)" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        <svg onclick="change_setting('change_handL_color', -1)" xmlns="http://www.w3.org/2000/svg"
+                             class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
                         <div class="w-full justify-center flex text-sm text-gray-600 dark:text-gray-400">
                             <svg class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <rect id="hand_colorL" width="30" height="30" style="fill:rgb(0,0,255);" />
+                                <rect id="hand_colorL" width="30" height="30" style="fill:rgb(0,0,255);"/>
                             </svg>
                         </div>
-                        <svg onclick="change_setting('change_handL_color', 1)" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        <svg onclick="change_setting('change_handL_color', 1)" xmlns="http://www.w3.org/2000/svg"
+                             class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
                     </div>
                 </div>
@@ -411,16 +421,18 @@
                         Right hand color
                     </label>
                     <div class="justify-center flex">
-                        <svg onclick="change_setting('change_handR_color', -1)" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        <svg onclick="change_setting('change_handR_color', -1)" xmlns="http://www.w3.org/2000/svg"
+                             class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
                         <div class="w-full justify-center flex text-sm text-gray-600 dark:text-gray-400">
                             <svg class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <rect id="hand_colorR" width="30" height="30" style="fill:rgb(0,0,255);" />
+                                <rect id="hand_colorR" width="30" height="30" style="fill:rgb(0,0,255);"/>
                             </svg>
                         </div>
-                        <svg onclick="change_setting('change_handR_color', 1)" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        <svg onclick="change_setting('change_handR_color', 1)" xmlns="http://www.w3.org/2000/svg"
+                             class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
                     </div>
                 </div>

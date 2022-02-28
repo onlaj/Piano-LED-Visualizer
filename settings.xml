@@ -101,5 +101,7 @@
 	<hand_colorR>0</hand_colorR>
 	<hand_colorL>1</hand_colorL>
 
+	<is_loop_active>1</is_loop_active>
+
 
 </settings>

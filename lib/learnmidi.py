@@ -25,6 +25,8 @@ class LearnMIDI:
         self.hand_colorR = int(usersettings.get_setting_value("hand_colorR"))
         self.hand_colorL = int(usersettings.get_setting_value("hand_colorL"))
 
+        self.is_loop_active = int(usersettings.get_setting_value("is_loop_active"))
+
         self.loadingList = ['', 'Load..', 'Proces', 'Merge', 'Done', 'Error!']
         self.learningList = ['Start', 'Stop']
         self.practiceList = ['Melody', 'Rhythm', 'Listen']
@@ -144,6 +146,7 @@ class LearnMIDI:
 
 
     def learn_midi(self):
+        loops_count = 0
         # Preliminary checks
         if self.is_started_midi:
             return
@@ -162,88 +165,95 @@ class LearnMIDI:
 
         self.t = threading.currentThread()
 
-        try:
-            fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
-            time_prev = time.time()
-            notes_to_press = []
-
-            start_idx = int(self.start_point * len(self.song_tracks) / 100)
-            end_idx = int(self.end_point * len(self.song_tracks) / 100)
-
-            self.current_idx = start_idx
-
-            for msg in self.song_tracks[start_idx:end_idx]:
-                # Exit thread if learning is stopped
-
-                if not self.is_started_midi:
-                    break
-
-                # Get time delay
-                tDelay = mido.tick2second(msg.time, self.ticks_per_beat, self.song_tempo * 100 / self.set_tempo)
-
-                # Check notes to press
-                if not msg.is_meta:
-                    if tDelay > 0 and (
-                            msg.type == 'note_on' or msg.type == 'note_off') and notes_to_press and self.practice == 0:
-                        notes_pressed = []
-                        while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
-                            for msg_in in self.midiports.inport.iter_pending():
-                                note = int(find_between(str(msg_in), "note=", " "))
-                                if "note_off" in str(msg_in):
-                                    velocity = 0
-                                else:
-                                    velocity = int(find_between(str(msg_in), "velocity=", " "))
-                                if velocity > 0:
-                                    if note not in notes_pressed:
-                                        notes_pressed.append(note)
-                                else:
-                                    try:
-                                        notes_pressed.remove(note)
-                                    except ValueError:
-                                        pass  # do nothing
-
-                        # Turn off the pressed LEDs
-                        fastColorWipe(self.ledstrip.strip, True, self.ledsettings)  # ideally clear only pressed notes!
-                        notes_to_press.clear()
-
-                # Realize time delay, consider also the time lost during computation
-                delay = max(0, tDelay - (
-                        time.time() - time_prev) - 0.003)  # 0.003 sec calibratable to acount for extra time loss
-                time.sleep(delay)
+        keep_looping = True
+        while(keep_looping):
+            time.sleep(1)
+            try:
+                fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
                 time_prev = time.time()
+                notes_to_press = []
 
-                # Light-up LEDs with the notes to press
-                if not msg.is_meta:
-                    # Calculate note position on the strip and display
-                    if msg.type == 'note_on' or msg.type == 'note_off':
-                        note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
-                        brightness = msg.velocity / 127
-                        if msg.channel == 1:
-                            red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
-                            green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
-                            blue = int(self.hand_colorList[self.hand_colorR][2] * brightness)
-                        if msg.channel == 2:
-                            red = int(self.hand_colorList[self.hand_colorL][0] * brightness)
-                            green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
-                            blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
-                        self.ledstrip.strip.setPixelColor(note_position, Color(green, red, blue))
-                        self.ledstrip.strip.show()
+                start_idx = int(self.start_point * len(self.song_tracks) / 100)
+                end_idx = int(self.end_point * len(self.song_tracks) / 100)
 
-                    # Save notes to press
-                    if msg.type == 'note_on' and msg.velocity > 0 and (
-                            msg.channel == self.hands or self.hands == 0):
-                        notes_to_press.append(msg.note)
+                self.current_idx = start_idx
 
-                    # Play selected Track
-                    if ((
-                            self.hands == 1 and self.mute_hand != 2 and msg.channel == 2) or
-                            # send midi sound for Left hand
-                            (
-                                    self.hands == 2 and self.mute_hand != 1 and msg.channel == 1) or
-                            # send midi sound for Right hand
-                            self.practice == 2):  # send midi sound for Listen only
-                        self.midiports.playport.send(msg)
+                for msg in self.song_tracks[start_idx:end_idx]:
+                    # Exit thread if learning is stopped
 
-                self.current_idx += 1
-        except Exception as e:
-            self.is_started_midi = False
+                    if not self.is_started_midi:
+                        break
+
+                    # Get time delay
+                    tDelay = mido.tick2second(msg.time, self.ticks_per_beat, self.song_tempo * 100 / self.set_tempo)
+
+                    # Check notes to press
+                    if not msg.is_meta:
+                        if tDelay > 0 and (
+                                msg.type == 'note_on' or msg.type == 'note_off') and notes_to_press and self.practice == 0:
+                            notes_pressed = []
+                            while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
+                                for msg_in in self.midiports.inport.iter_pending():
+                                    note = int(find_between(str(msg_in), "note=", " "))
+                                    if "note_off" in str(msg_in):
+                                        velocity = 0
+                                    else:
+                                        velocity = int(find_between(str(msg_in), "velocity=", " "))
+                                    if velocity > 0:
+                                        if note not in notes_pressed:
+                                            notes_pressed.append(note)
+                                    else:
+                                        try:
+                                            notes_pressed.remove(note)
+                                        except ValueError:
+                                            pass  # do nothing
+
+                            # Turn off the pressed LEDs
+                            fastColorWipe(self.ledstrip.strip, True, self.ledsettings)  # ideally clear only pressed notes!
+                            notes_to_press.clear()
+
+                    # Realize time delay, consider also the time lost during computation
+                    delay = max(0, tDelay - (
+                            time.time() - time_prev) - 0.003)  # 0.003 sec calibratable to acount for extra time loss
+                    time.sleep(delay)
+                    time_prev = time.time()
+
+                    # Light-up LEDs with the notes to press
+                    if not msg.is_meta:
+                        # Calculate note position on the strip and display
+                        if msg.type == 'note_on' or msg.type == 'note_off':
+                            note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
+                            brightness = msg.velocity / 127
+                            if msg.channel == 1:
+                                red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
+                                green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
+                                blue = int(self.hand_colorList[self.hand_colorR][2] * brightness)
+                            if msg.channel == 2:
+                                red = int(self.hand_colorList[self.hand_colorL][0] * brightness)
+                                green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
+                                blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
+                            self.ledstrip.strip.setPixelColor(note_position, Color(green, red, blue))
+                            self.ledstrip.strip.show()
+
+                        # Save notes to press
+                        if msg.type == 'note_on' and msg.velocity > 0 and (
+                                msg.channel == self.hands or self.hands == 0):
+                            notes_to_press.append(msg.note)
+
+                        # Play selected Track
+                        if ((
+                                self.hands == 1 and self.mute_hand != 2 and msg.channel == 2) or
+                                # send midi sound for Left hand
+                                (
+                                        self.hands == 2 and self.mute_hand != 1 and msg.channel == 1) or
+                                # send midi sound for Right hand
+                                self.practice == 2):  # send midi sound for Listen only
+                            self.midiports.playport.send(msg)
+
+                    self.current_idx += 1
+            except Exception as e:
+                self.is_started_midi = False
+
+            if(not self.is_loop_active or self.is_started_midi == False):
+                keep_looping = False
+
