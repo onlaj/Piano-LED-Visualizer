@@ -17,6 +17,31 @@
 </head>
 
 <body class="bg-gray-800">
+
+<body>
+
+<button onclick="console.log('Contacting server');
+        socket.send('Contacting server');">Click Here</button>
+</body>
+
+<script>
+
+    const socket = new WebSocket('ws://192.168.0.135:8765');
+    socket.addEventListener('open', function (event) {
+        console.log('Connected to server');
+        socket.send('Connection Established');
+    });
+
+    socket.addEventListener('message', function (event) {
+        console.log('Message from server: ', event.data);
+        console.log(event.data);
+    });
+
+
+
+</script>
+
+
 <div id="slider">
     <div class="flex min-h-screen overflow-y-hidden bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
          x-data="setup()" x-init="$refs.loading.classList.add('hidden')">
