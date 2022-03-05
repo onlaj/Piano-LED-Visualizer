@@ -18,14 +18,8 @@
 
 <body class="bg-gray-800">
 
-<body>
-
-<button onclick="console.log('Contacting server');
-        socket.send('Contacting server');">Click Here</button>
-</body>
 
 <script>
-
     const socket = new WebSocket('ws://192.168.0.135:8765');
     socket.addEventListener('open', function (event) {
         console.log('Connected to server');
@@ -35,10 +29,8 @@
     socket.addEventListener('message', function (event) {
         console.log('Message from server: ', event.data);
         console.log(event.data);
+        document.getElementById("socket_wrapper").innerHTML = event.data;
     });
-
-
-
 </script>
 
 

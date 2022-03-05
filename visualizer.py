@@ -104,6 +104,7 @@ last_control_change = 0
 pedal_deadzone = 10
 timeshift_start = time.time()
 
+
 fastColorWipe(ledstrip.strip, True, ledsettings)
 
 
@@ -290,6 +291,9 @@ while True:
         continue
     # loop through incoming midi messages
     for msg in midiports.midipending:
+
+        webinterface.socket_input.append(msg)
+
         midiports.last_activity = time.time()
         note = find_between(str(msg), "note=", " ")
         original_note = note
