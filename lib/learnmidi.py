@@ -3,6 +3,9 @@ import threading
 import time
 
 import mido
+import subprocess
+
+import os
 
 from lib.functions import clamp, fastColorWipe, find_between, get_note_position
 from neopixel import Color
@@ -256,4 +259,12 @@ class LearnMIDI:
 
             if(not self.is_loop_active or self.is_started_midi == False):
                 keep_looping = False
+
+    def convert_midi_to_abc(self, midi_file):
+        if not os.path.isfile('Songs/' + midi_file[:-3] + '.abc') or not os.path.isfile('Songs/' + midi_file[:-3] + '.xml'):
+            subprocess.call(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file[:-3] + '.abc'])
+
+    def install_midi2abc(self):
+        print("Installing midi2abc")
+        subprocess.call(['sudo', 'apt-get', 'install', 'midi2abc'])
 
