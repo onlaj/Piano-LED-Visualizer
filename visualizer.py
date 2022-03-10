@@ -292,7 +292,7 @@ while True:
     # loop through incoming midi messages
     for msg in midiports.midipending:
 
-        webinterface.socket_input.append(msg)
+        #webinterface.socket_input.append(msg)
 
         midiports.last_activity = time.time()
         note = find_between(str(msg), "note=", " ")

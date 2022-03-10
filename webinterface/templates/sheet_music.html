@@ -1,0 +1,49 @@
+
+
+<div id="buttons">
+    <div id="sync">
+        <div id="menu" style="visibility: hidden">
+            <div id="mbar" style="padding: 0.5em;">Menu</div>
+            <label>full screen<input id="fscr" type="checkbox"/></label>
+            <label id="snclbl">enable sync<input id="synbox" type="checkbox" accesskey="e"/></label>
+            <label>speed ctrl<input id="spdctl" type="checkbox"/></label>
+            <label>loop mode<input id="lopctl" type="checkbox"/></label>
+            <label>file buttons<input id="btns" type="checkbox"/></label>
+            <label id="ncrlbl">no cursor<input id="nocsr" type="checkbox"/></label>
+            <label id="lnclbl">note cursor<input id="lncsr" type="checkbox"/></label>
+            <label>center player<input id="ctrmed" type="checkbox"/></label>
+            <label>center score<input id="ctrnot" type="checkbox"/></label>
+            <label>hide player<input id="noplyr" type="checkbox"/></label>
+            <label id="asclbl">autoscale<input id="autscl" type="checkbox"/></label>
+            <label>skip repeats<input id="repskip" type="checkbox"/></label>
+            <label>count in<input id="cntin" type="checkbox"/></label>
+            <label>metronome<input id="metro" type="checkbox"/></label>
+            <label>dotted line<input id="dotted" type="checkbox"/></label>
+            <label id="helpm">help</label>
+        </div>
+        <div id="sync_out">
+            <div id="sync_info"></div>
+            <label style="text-align:center">
+                <button id="save">save</button>
+            </label>
+            <label>wait offset: <input id="woff" type="checkbox"></input></label>
+            <label id="implbl">import: <input id="impbox" type="checkbox"></input></label>
+            <label>jump: <input id="jump" type="checkbox"></input></label>
+            <label>scramble: <input id="encr" type="checkbox"></input></label>
+        </div>
+    </div>
+    <div id="medbts">
+
+        <div class="flex w-full h-screen items-center">
+            <label class="w-40 flex flex-col items-center px-2 py-2 rounded-lg tracking-wide uppercase cursor-pointer">
+                <svg class="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z"/>
+                </svg>
+                <span>Load custom sheet</span>
+                <input type="file" id="fknp" accept=".abc,.xml,.js,.musicxml" tabindex="1" class="hidden"/>
+            </label>
+        </div>
+    </div>
+</div>
+<div style="height: 50px;"></div>
+<div id="notation"></div>

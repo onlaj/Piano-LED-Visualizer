@@ -10,6 +10,14 @@ import os
 from lib.functions import clamp, fastColorWipe, find_between, get_note_position
 from neopixel import Color
 
+import numpy as np
+
+
+def find_nearest(array, target):
+    array = np.asarray(array)
+    idx = (np.abs(array - target)).argmin()
+    return idx
+
 
 class LearnMIDI:
     def __init__(self, usersettings, ledsettings, midiports, ledstrip):
@@ -27,6 +35,9 @@ class LearnMIDI:
         self.set_tempo = int(usersettings.get_setting_value("set_tempo"))
         self.hand_colorR = int(usersettings.get_setting_value("hand_colorR"))
         self.hand_colorL = int(usersettings.get_setting_value("hand_colorL"))
+
+        self.notes_time = []
+        self.socket_send = []
 
         self.is_loop_active = int(usersettings.get_setting_value("is_loop_active"))
 
@@ -116,7 +127,6 @@ class LearnMIDI:
         self.loading = 1  # 1 = Load..
         self.is_started_midi = False  # Stop current learning song
         self.t = threading.currentThread()
-
         try:
             # Load the midi file
             mid = mido.MidiFile('Songs/' + song_path)
@@ -141,6 +151,13 @@ class LearnMIDI:
             # Merge tracks
             self.loading = 3  # 3 = Merge
             self.song_tracks = mido.merge_tracks(mid.tracks)
+            time_passed = 0
+            self.notes_time.clear()
+            for msg in mid:
+                if not msg.is_meta:
+                    time_passed += msg.time
+                    self.notes_time.append(time_passed)
+
             fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
             self.loading = 4  # 4 = Done
         except:
@@ -183,7 +200,7 @@ class LearnMIDI:
 
                 for msg in self.song_tracks[start_idx:end_idx]:
                     # Exit thread if learning is stopped
-
+                    self.socket_send.append(self.notes_time[self.current_idx])
                     if not self.is_started_midi:
                         break
 
@@ -261,10 +278,12 @@ class LearnMIDI:
                 keep_looping = False
 
     def convert_midi_to_abc(self, midi_file):
-        if not os.path.isfile('Songs/' + midi_file[:-3] + '.abc') or not os.path.isfile('Songs/' + midi_file[:-3] + '.xml'):
-            subprocess.call(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file[:-3] + '.abc'])
+        if not os.path.isfile('Songs/' + midi_file.replace(".mid", ".abc")):
+            subprocess.call(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
+        else:
+            print("file already converted")
 
     def install_midi2abc(self):
-        print("Installing midi2abc")
-        subprocess.call(['sudo', 'apt-get', 'install', 'midi2abc'])
+        print("Installing abcmidi")
+        subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi'])
 

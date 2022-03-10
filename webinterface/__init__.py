@@ -21,11 +21,11 @@ def start_server():
     async def echo(websocket):
         while True:
             time.sleep(0.01)
-            for msg in webinterface.socket_input[:]:
-                print("input msg: " + str(msg))
+            for msg in webinterface.learning.socket_send[:]:
+                #print("input msg: " + str(msg))
                 await websocket.send(str(msg))
-                webinterface.socket_input.remove(msg)
-            message = websocket.recv()
+                webinterface.learning.socket_send.remove(msg)
+            #message = websocket.recv()
 
 
     async def main():

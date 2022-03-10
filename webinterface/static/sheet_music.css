@@ -1,0 +1,266 @@
+ul {
+    margin: 0px;
+}
+
+label {
+    display: block;
+}
+
+input {
+    vertical-align: middle;
+}
+
+input[type=checkbox] {
+    margin-top: 7px;
+}
+
+input[type=number] {
+    width: 3.5em;
+}
+
+audio {
+    display: none;
+    margin-right: 5px;
+    vertical-align: middle;
+    z-index: 1;
+    position: relative;
+}
+
+#vid, #vidyub {
+    display: none;
+    margin-right: 5px;
+    vertical-align: middle;
+    height: 100%;
+    z-index: 1;
+    position: relative;
+}
+
+#meddiv {
+    text-align: center;
+    height: 95%;
+    visibility: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#crediv {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+    font-size: small;
+    z-index: 1;
+    position: relative;
+}
+
+#medbts {
+    position: absolute;
+    left: 5px;
+    font-size: small;
+    visibility: hidden;
+}
+
+#medlbl {
+    display: block;
+    margin-top: 5px;
+}
+
+#yvdlbl {
+    display: none;
+    margin-top: 5px;
+}
+
+#drplbl, #yublbl {
+    display: inline-block;
+}
+
+#drplbl:hover, #yublbl:hover:hover {
+    background: #aaa;
+}
+
+#speed {
+    vertical-align: middle;
+}
+
+#help {
+    display: none;
+    background-color: #eee;
+    font-size: small;
+    width: 800px;
+    border: 1px solid black;
+    padding: 5px;
+}
+
+#help td {
+    padding-left: 10px;
+}
+
+#help.showhlp {
+    display: block;
+    position: absolute;
+    right: 3px;
+    top: 5px;
+    z-index: 2;
+}
+
+#helpm {
+    text-align: center;
+    padding: 3px;
+}
+
+#helpm:hover {
+    background-color: #aaa;
+    cursor: pointer;
+}
+
+#sync {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    text-align: right;
+    font-size: small;
+    visibility: hidden;
+    z-index: 2;
+    max-height: 100%;
+    overflow-y: auto;
+    background: #eee;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+}
+
+#sync #sync_out {
+    display: none;
+    background: yellow;
+}
+
+#sync_info {
+    text-align: center;
+}
+
+html, body {
+    margin: 0px;
+    height: 100%;
+    background: white;
+}
+
+body {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+#buttons {
+    height: 100px;
+}
+
+#buttons.video {
+    height: 50%;
+}
+
+#notation {
+    overflow: auto;
+    overflow-y: scroll;
+    height: 800px;
+}
+
+#notation svg {
+    overflow: hidden;
+    display: block;
+}
+
+/* overflow for Edge and IE-11 */
+#err {
+    overflow: auto;
+    margin: 0px;
+    height: 5%;
+    background-color: #eee;
+    visibility: hidden;
+}
+
+#err:hover {
+    height: 50%;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+}
+
+#streep {
+    position: absolute;
+    background-color: #aaa;
+    opacity: 0.0;
+    height: 10px;
+    width: 100%;
+}
+
+#abcfile, #mediafile, #yubfile {
+    display: inline-block;
+}
+
+.dlog {
+    display: none;
+    background-color: lightblue;
+    position: absolute;
+    left: 30%;
+    top: 30%;
+    width: 30%;
+    padding: 10px;
+}
+
+#yubload {
+    top: 10%;
+}
+
+#countin {
+    left: 40%;
+    width: 1em;
+    font-size: 10em;
+    z-index: 2;
+    color: green;
+    background: none;
+}
+
+#menu {
+    background-color: #eee;
+    position: relative;
+}
+
+#menu label, #sync_out label {
+    margin-top: 0.3em;
+}
+
+#menu label:hover, #sync_out label:hover {
+    background: #aaa;
+}
+
+#mbar:hover {
+    background: #aaa;
+    cursor: pointer;
+}
+
+.noheight {
+    height: 0px !important;
+}
+
+.indrag {
+    background: #aaa;
+}
+
+.abcimp {
+    color: red;
+}
+
+.dashed {
+    border-bottom: thin dashed black;
+}
+
+#rollijn {
+    position: absolute;
+    height: 30px;
+    width: 100%;
+    z-index: 1;
+    top: 50%;
+}
+
+#rollijn:hover, .rolgroen {
+    cursor: row-resize;
+    background: rgba(0, 255, 0, 0.3);
+}

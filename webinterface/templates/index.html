@@ -13,6 +13,7 @@
 
     <title>Piano LED Visualizer</title>
     <link href="{{ url_for('static', filename='custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='sheet_music.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='tailwind.css') }}" rel="stylesheet">
 </head>
 
@@ -27,9 +28,7 @@
     });
 
     socket.addEventListener('message', function (event) {
-        console.log('Message from server: ', event.data);
-        console.log(event.data);
-        document.getElementById("socket_wrapper").innerHTML = event.data;
+        window.abc(parseFloat(event.data));
     });
 </script>
 
@@ -351,6 +350,10 @@
 <script src="../static/alpine.min.js" defer></script>
 <script src="../static/index.js" defer></script>
 <script src="../static/html-midi-player.js" defer></script>
+<script src="../static/jquery-1.11.1.min.js" defer></script>
+<script src="../static/abc2svg-1.js" defer></script>
+<script src="../static/abc2web.js" defer></script>
+<script src="../static/xml2abc.js" defer></script>
 <script>
     var homepage_interval = null;
     var download_start = 0;
