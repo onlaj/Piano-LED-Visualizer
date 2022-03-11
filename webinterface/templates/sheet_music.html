@@ -1,5 +1,3 @@
-
-
 <div id="buttons">
     <div id="sync">
         <div id="menu" style="visibility: hidden">
@@ -32,9 +30,8 @@
             <label>scramble: <input id="encr" type="checkbox"></input></label>
         </div>
     </div>
-    <div id="medbts">
-
-        <div class="flex w-full h-screen items-center">
+    <div id="medbts" class="w-full flex-wrap">
+        <button class="flex h-12 items-center outline-none bg-gray-100 dark:bg-gray-600 rounded-2xl inline-flex items-center">
             <label class="w-40 flex flex-col items-center px-2 py-2 rounded-lg tracking-wide uppercase cursor-pointer">
                 <svg class="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                     <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z"/>
@@ -42,6 +39,24 @@
                 <span>Load custom sheet</span>
                 <input type="file" id="fknp" accept=".abc,.xml,.js,.musicxml" tabindex="1" class="hidden"/>
             </label>
+        </button>
+        <div class="block h-12 w-40 text-right float-right">
+            <label class="block text-center uppercase tracking-wide text-xs font-bold text-gray-600 dark:text-gray-400">
+                Offset (ms)
+            </label>
+            <div class="justify-center flex">
+                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) - 10" xmlns="http://www.w3.org/2000/svg"
+                     class="h-8 w-8 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <input onchange="window.sheet_offset = parseInt(this.value);" id="sheet_offset" type="number" value="0" min="-3000" max="3000" step="10"
+                       class="h-8 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl
+                       leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) + 10" xmlns="http://www.w3.org/2000/svg"
+                     class="h-8 w-8 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </div>
         </div>
     </div>
 </div>
