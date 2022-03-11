@@ -150,6 +150,7 @@ class LearnMIDI:
         # Load song from cache
         if self.load_song_from_cache(song_path):
             return
+        print("Cache not found")
 
         try:
             # Load the midi file
@@ -232,7 +233,6 @@ class LearnMIDI:
 
                 for msg in self.song_tracks[start_idx:end_idx]:
                     # Exit thread if learning is stopped
-                    self.socket_send.append(self.notes_time[self.current_idx])
                     if not self.is_started_midi:
                         break
 
@@ -241,6 +241,12 @@ class LearnMIDI:
 
                     # Check notes to press
                     if not msg.is_meta:
+                        try:
+                            self.socket_send.append(self.notes_time[self.current_idx])
+                        except Exception as e:
+                            print(e)
+                        self.current_idx += 1
+
                         if tDelay > 0 and (
                                 msg.type == 'note_on' or msg.type == 'note_off') and notes_to_press and self.practice == 0:
                             notes_pressed = []
@@ -301,8 +307,6 @@ class LearnMIDI:
                                 # send midi sound for Right hand
                                 self.practice == 2):  # send midi sound for Listen only
                             self.midiports.playport.send(msg)
-
-                    self.current_idx += 1
             except Exception as e:
                 self.is_started_midi = False
 
