@@ -948,7 +948,7 @@ def change_setting():
 
     if setting_name == "download_sheet_music":
         print(value)
-        file_types = [".xml", ".musicxml", ".mxl", ".abc"]
+        file_types = [".musicxml", ".xml", ".mxl", ".abc"]
         i = 0
         while i < len(file_types):
             try:

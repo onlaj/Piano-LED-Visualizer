@@ -11,6 +11,7 @@ from lib.functions import clamp, fastColorWipe, find_between, get_note_position
 from neopixel import Color
 
 import numpy as np
+import pickle
 
 
 def find_nearest(array, target):
@@ -127,6 +128,22 @@ class LearnMIDI:
         self.loading = 1  # 1 = Load..
         self.is_started_midi = False  # Stop current learning song
         self.t = threading.currentThread()
+
+        #Load song from cache
+        try:
+            if os.path.isfile('Songs/cache/' + song_path + '.l'):
+                print("Loading song from cache")
+                with open('Songs/cache/' + song_path + '.l', 'rb') as handle:
+                    cache = pickle.load(handle)
+                    self.song_tempo = cache['song_tempo']
+                    self.ticks_per_beat = cache['ticks_per_beat']
+                    self.song_tracks = cache['song_tracks']
+                    self.notes_time = cache['notes_time']
+                    self.loading = 4
+                    return
+        except Exception as e:
+            print(e)
+
         try:
             # Load the midi file
             mid = mido.MidiFile('Songs/' + song_path)
@@ -159,8 +176,16 @@ class LearnMIDI:
                     self.notes_time.append(time_passed)
 
             fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
+
+            # Save to cache
+            with open('Songs/cache/' + song_path + '.l', 'wb') as handle:
+                cache = {'song_tempo': self.song_tempo, 'ticks_per_beat': self.ticks_per_beat,
+                         'notes_time': self.notes_time, 'song_tracks': self.song_tracks,}
+                pickle.dump(cache, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
             self.loading = 4  # 4 = Done
-        except:
+        except Exception as e:
+            print(e)
             self.loading = 5  # 5 = Error!
             self.is_loaded_midi.clear()
 

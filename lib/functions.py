@@ -51,20 +51,12 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
         #length = mid.length
         t0 = False
         total_delay = 0
-        # notes_count = 0
         delay = 0
-        # message_to_print = ''
         for message in mid:
             if song_path in saving.is_playing_midi.keys():
 
                 if not t0:
                     t0 = time.time()
-
-                # if(notes_count >= 100):
-                #     notes_count = 0
-                #     print(repr(message_to_print))
-                #     message_to_print = ''
-                # notes_count += 1
 
                 total_delay += message.time
                 current_time = (time.time() - t0) + message.time
@@ -76,9 +68,6 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
                     delay = message.time
                 if(delay < 0):
                     delay = 0
-
-                #message_to_print += "\n Message: "+str(message)+" Total delay: "+str(total_delay)+" current_time: "+str(current_time)+' message time: ' + str(message.time) + ' actual delay: ' + str(
-                    #delay) + ' drift: ' + str(drift)
 
                 if delay > 0:
                     time.sleep(delay)
