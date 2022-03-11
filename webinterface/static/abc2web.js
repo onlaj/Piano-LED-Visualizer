@@ -164,7 +164,7 @@ Wijzer.prototype.time2x = function (t, rondaf, noAnim) {
     while (tix > 0 && t < times [tix - 1]) tix -= 1;
     if (rondaf && times [tix] - t < 0.3) {      // and times [tix] - t >= 0, by while loop above
         times [tix] = t - TOFF;                 // correct timing !!
-        console.log ('tijdcor: ' + (t - TOFF) + ', maat: ' + tix);
+        //console.log ('tijdcor: ' + (t - TOFF) + ', maat: ' + tix);
         if (tix < times.length - 1) tix += 1;   // t now in the next measure
     }
     if (opt.metro && tix != this.time_ix) metronome (tix, t);
@@ -1539,7 +1539,6 @@ function alignCursor (noAnim) {
 }
 
 window.loadSheet = function (filename) {
-    console.log(filename);
     deNot = document.getElementById ('notation');
     hasSmooth = CSS.supports ('scroll-behavior', 'smooth');
     $('#drpuse').prop ('checked', false);
@@ -1560,13 +1559,11 @@ window.loadSheet = function (filename) {
 	});
 
     $( "#notation" ).click(function() {
-
 	  console.log(elmed.currentTime);
-      //change_setting("change_cursor_time", elmed.currentTime);
 	});
 
-	window.abc = function(time) {
-	  console.log(elmed.currentTime);
+	window.go_to_time = function(time) {
+	  //console.log(elmed.currentTime);
 	  playPause2(false, time);
 	}
 
