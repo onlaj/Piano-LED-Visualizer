@@ -912,6 +912,9 @@ def change_setting():
                     os.rename('Songs/' + fname, 'Songs/' + new_name)
         else:
             os.rename('Songs/' + value, 'Songs/' + second_value)
+            os.rename('Songs/cache/' + value + ".p", 'Songs/cache/' + second_value + ".p")
+
+
 
         return jsonify(success=True, reload_songs=True)
 
@@ -923,11 +926,11 @@ def change_setting():
                     os.remove("Songs/" + fname)
         else:
             os.remove("Songs/" + value)
+            try:
+                os.remove("Songs/cache/" + value + ".p")
+            except:
+                print("No cache file for " + value)
 
-        try:
-            os.remove("Songs/cache/" + value + ".p")
-        except:
-            print("No cache file for " + value)
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "download_song":
