@@ -31,8 +31,6 @@ def shift(l, n):
     return l[n:] + l[:n]
 
 def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
-    #commented parts are for benchmarking
-
     midiports.pending_queue.append(mido.Message('note_on'))
 
     if song_path in saving.is_playing_midi.keys():
@@ -54,7 +52,6 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
         delay = 0
         for message in mid:
             if song_path in saving.is_playing_midi.keys():
-
                 if not t0:
                     t0 = time.time()
 
@@ -80,10 +77,8 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
         print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, total_delay))
         #print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, length))
         # saving.is_playing_midi = False
-
     except:
         menu.render_message(song_path, "Can't play this file", 2000)
-
     saving.is_playing_midi.clear()
 
 

@@ -923,6 +923,11 @@ def change_setting():
                     os.remove("Songs/" + fname)
         else:
             os.remove("Songs/" + value)
+
+        try:
+            os.remove("Songs/cache/" + value + ".p")
+        except:
+            print("No cache file for " + value)
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "download_song":
@@ -947,25 +952,21 @@ def change_setting():
                              as_attachment=True)
 
     if setting_name == "download_sheet_music":
-        print(value)
         file_types = [".musicxml", ".xml", ".mxl", ".abc"]
         i = 0
         while i < len(file_types):
             try:
-                #replace ".mid" with an extension from "file_types"
                 new_name = value.replace(".mid", file_types[i])
-                print("returning file: " + new_name)
                 return send_file("../Songs/" + new_name, mimetype='application/x-csv', attachment_filename=new_name,
                                  as_attachment=True)
             except:
                 i += 1
-        print("no file found")
         webinterface.learning.convert_midi_to_abc(value)
         try:
             return send_file("../Songs/" + value.replace(".mid", ".abc"), mimetype='application/x-csv',
                              attachment_filename=value.replace(".mid", ".abc"), as_attachment=True)
         except:
-            print("converting failed")
+            print("Converting failed")
 
 
     if setting_name == "start_midi_play":

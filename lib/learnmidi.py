@@ -118,6 +118,24 @@ class LearnMIDI:
                 return msg.tempo
         return 500000  # If not found return default tempo
 
+    def load_song_from_cache(self, song_path):
+        # Load song from cache
+        try:
+            if os.path.isfile('Songs/cache/' + song_path + '.p'):
+                print("Loading song from cache")
+                with open('Songs/cache/' + song_path + '.p', 'rb') as handle:
+                    cache = pickle.load(handle)
+                    self.song_tempo = cache['song_tempo']
+                    self.ticks_per_beat = cache['ticks_per_beat']
+                    self.song_tracks = cache['song_tracks']
+                    self.notes_time = cache['notes_time']
+                    self.loading = 4
+                    return True
+            else:
+                return False
+        except Exception as e:
+            print(e)
+
 
     def load_midi(self, song_path):
         if song_path in self.is_loaded_midi.keys():
@@ -129,20 +147,9 @@ class LearnMIDI:
         self.is_started_midi = False  # Stop current learning song
         self.t = threading.currentThread()
 
-        #Load song from cache
-        try:
-            if os.path.isfile('Songs/cache/' + song_path + '.l'):
-                print("Loading song from cache")
-                with open('Songs/cache/' + song_path + '.l', 'rb') as handle:
-                    cache = pickle.load(handle)
-                    self.song_tempo = cache['song_tempo']
-                    self.ticks_per_beat = cache['ticks_per_beat']
-                    self.song_tracks = cache['song_tracks']
-                    self.notes_time = cache['notes_time']
-                    self.loading = 4
-                    return
-        except Exception as e:
-            print(e)
+        # Load song from cache
+        if self.load_song_from_cache(song_path):
+            return
 
         try:
             # Load the midi file
@@ -178,7 +185,7 @@ class LearnMIDI:
             fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
 
             # Save to cache
-            with open('Songs/cache/' + song_path + '.l', 'wb') as handle:
+            with open('Songs/cache/' + song_path + '.p', 'wb') as handle:
                 cache = {'song_tempo': self.song_tempo, 'ticks_per_beat': self.ticks_per_beat,
                          'notes_time': self.notes_time, 'song_tracks': self.song_tracks,}
                 pickle.dump(cache, handle, protocol=pickle.HIGHEST_PROTOCOL)

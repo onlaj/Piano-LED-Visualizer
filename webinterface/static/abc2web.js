@@ -1576,6 +1576,8 @@ window.loadSheet = function (filename) {
             url:'/api/change_setting?setting_name=download_sheet_music&value='+filename,
             success: function (data){
                 readAbcOrXML(data);
+                lineChk ();
+                msc_resize ();
             },
             error: function(){
                 console.log("error");
@@ -1583,6 +1585,7 @@ window.loadSheet = function (filename) {
         });
     }
     load_sheet_file(filename);
+
 
 
     $('#fknp').change (function () { readLocalFile ('btn', []); });
