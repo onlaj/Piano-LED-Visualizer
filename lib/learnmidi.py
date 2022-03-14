@@ -138,6 +138,9 @@ class LearnMIDI:
 
 
     def load_midi(self, song_path):
+        while self.loading < 4 and self.loading > 0:
+            time.sleep(1)
+
         if song_path in self.is_loaded_midi.keys():
             return
 
@@ -315,11 +318,19 @@ class LearnMIDI:
 
     def convert_midi_to_abc(self, midi_file):
         if not os.path.isfile('Songs/' + midi_file.replace(".mid", ".abc")):
-            subprocess.call(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
+            #subprocess.call(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
+            try:
+                subprocess.check_output(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
+            except Exception as e:
+                #check if e contains the string 'No such file or directory'
+                if 'No such file or directory' in str(e):
+                    print("Midiabc not found, installing...")
+                    self.install_midi2abc()
+                    self.convert_midi_to_abc(midi_file)
         else:
             print("file already converted")
 
     def install_midi2abc(self):
         print("Installing abcmidi")
-        subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi'])
+        subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
 

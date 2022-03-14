@@ -22,22 +22,29 @@
 
 <script>
     function establish_socket_connection(try_count) {
-            const socket = new WebSocket('ws://'+window.location.host+':8765');
-            socket.addEventListener('open', function (event) {
-                console.log('Connected to server');
-                socket.send('Connection Established');
-            });
-            socket.addEventListener('message', function (event) {
-                window.go_to_time(parseFloat(event.data));
-            });
-            socket.addEventListener('close', function (event) {
-                console.log('Connection closed, reconnecting...');
-                if (try_count < 10) {
-                    setTimeout(establish_socket_connection, 5000, try_count+1);
-                }
-            });
+        const socket = new WebSocket('ws://' + window.location.host + ':8765');
+        socket.addEventListener('open', function (event) {
+            console.log('Connected to server');
+            socket.send('Connection Established');
+        });
+        socket.addEventListener('message', function (event) {
+            window.go_to_time(parseFloat(event.data));
+        });
+        socket.addEventListener('close', function (event) {
+            console.log('Connection closed, reconnecting...');
+            if (try_count < 10) {
+                setTimeout(establish_socket_connection, 5000, try_count + 1);
+            }
+        });
     }
+
     establish_socket_connection(0);
+
+    window.onbeforeunload = function() {
+        socket.onclose = function () {}; // disable onclose handler first
+        socket.close();
+    };
+
 
 </script>
 

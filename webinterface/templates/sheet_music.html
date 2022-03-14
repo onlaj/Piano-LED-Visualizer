@@ -45,14 +45,14 @@
                 Offset (ms)
             </label>
             <div class="justify-center flex">
-                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) - 10" xmlns="http://www.w3.org/2000/svg"
+                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) - 50" xmlns="http://www.w3.org/2000/svg"
                      class="h-8 w-8 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
                 <input onchange="window.sheet_offset = parseInt(this.value);" id="sheet_offset" type="number" value="0" min="-3000" max="3000" step="10"
                        class="h-8 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl
                        leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) + 10" xmlns="http://www.w3.org/2000/svg"
+                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) + 50" xmlns="http://www.w3.org/2000/svg"
                      class="h-8 w-8 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>

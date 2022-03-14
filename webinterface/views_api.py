@@ -988,7 +988,6 @@ def change_setting():
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "learning_load_song":
-        webinterface.learning.loading = 1
         webinterface.learning.t = threading.Thread(target=webinterface.learning.load_midi, args=(value,))
         webinterface.learning.t.start()
 

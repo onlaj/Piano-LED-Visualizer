@@ -23,10 +23,8 @@ def start_server():
             time.sleep(0.01)
             for msg in webinterface.learning.socket_send[:]:
                 #print("input msg: " + str(msg))
-                try:
-                    await websocket.send(str(msg))
-                except:
-                    pass
+                await websocket.send(str(msg))
+
                 webinterface.learning.socket_send.remove(msg)
             #message = websocket.recv()
 
