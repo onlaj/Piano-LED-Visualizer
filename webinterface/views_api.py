@@ -926,6 +926,14 @@ def change_setting():
                     os.remove("Songs/" + fname)
         else:
             os.remove("Songs/" + value)
+
+            file_types = [".musicxml", ".xml", ".mxl", ".abc"]
+            for file_type in file_types:
+                try:
+                    os.remove("Songs/" + value.replace(".mid", file_type))
+                except:
+                    pass
+
             try:
                 os.remove("Songs/cache/" + value + ".p")
             except:
