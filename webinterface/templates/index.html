@@ -13,10 +13,42 @@
 
     <title>Piano LED Visualizer</title>
     <link href="{{ url_for('static', filename='custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='sheet_music.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='tailwind.css') }}" rel="stylesheet">
 </head>
 
 <body class="bg-gray-800">
+
+
+<script>
+    function establish_socket_connection(try_count) {
+        const socket = new WebSocket('ws://' + window.location.host + ':8765');
+        socket.addEventListener('open', function (event) {
+            console.log('Connected to server');
+            socket.send('Connection Established');
+        });
+        socket.addEventListener('message', function (event) {
+            window.go_to_time(parseFloat(event.data));
+        });
+        socket.addEventListener('close', function (event) {
+            console.log('Connection closed, reconnecting...');
+            if (try_count < 10) {
+                setTimeout(establish_socket_connection, 5000, try_count + 1);
+            }
+        });
+    }
+
+    establish_socket_connection(0);
+
+    window.onbeforeunload = function() {
+        socket.onclose = function () {}; // disable onclose handler first
+        socket.close();
+    };
+
+
+</script>
+
+
 <div id="slider">
     <div class="flex min-h-screen overflow-y-hidden bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
          x-data="setup()" x-init="$refs.loading.classList.add('hidden')">
@@ -334,6 +366,10 @@
 <script src="../static/alpine.min.js" defer></script>
 <script src="../static/index.js" defer></script>
 <script src="../static/html-midi-player.js" defer></script>
+<script src="../static/jquery-1.11.1.min.js" defer></script>
+<script src="../static/abc2svg-1.js" defer></script>
+<script src="../static/abc2web.js" defer></script>
+<script src="../static/xml2abc.js" defer></script>
 <script>
     var homepage_interval = null;
     var download_start = 0;

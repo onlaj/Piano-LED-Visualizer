@@ -9,3 +9,4 @@ spidev
 numpy
 Flask
 waitress
+websockets

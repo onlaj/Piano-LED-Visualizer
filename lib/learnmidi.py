@@ -3,9 +3,21 @@ import threading
 import time
 
 import mido
+import subprocess
+
+import os
 
 from lib.functions import clamp, fastColorWipe, find_between, get_note_position
 from neopixel import Color
+
+import numpy as np
+import pickle
+
+
+def find_nearest(array, target):
+    array = np.asarray(array)
+    idx = (np.abs(array - target)).argmin()
+    return idx
 
 
 class LearnMIDI:
@@ -24,6 +36,9 @@ class LearnMIDI:
         self.set_tempo = int(usersettings.get_setting_value("set_tempo"))
         self.hand_colorR = int(usersettings.get_setting_value("hand_colorR"))
         self.hand_colorL = int(usersettings.get_setting_value("hand_colorL"))
+
+        self.notes_time = []
+        self.socket_send = []
 
         self.is_loop_active = int(usersettings.get_setting_value("is_loop_active"))
 
@@ -103,8 +118,29 @@ class LearnMIDI:
                 return msg.tempo
         return 500000  # If not found return default tempo
 
+    def load_song_from_cache(self, song_path):
+        # Load song from cache
+        try:
+            if os.path.isfile('Songs/cache/' + song_path + '.p'):
+                print("Loading song from cache")
+                with open('Songs/cache/' + song_path + '.p', 'rb') as handle:
+                    cache = pickle.load(handle)
+                    self.song_tempo = cache['song_tempo']
+                    self.ticks_per_beat = cache['ticks_per_beat']
+                    self.song_tracks = cache['song_tracks']
+                    self.notes_time = cache['notes_time']
+                    self.loading = 4
+                    return True
+            else:
+                return False
+        except Exception as e:
+            print(e)
+
 
     def load_midi(self, song_path):
+        while self.loading < 4 and self.loading > 0:
+            time.sleep(1)
+
         if song_path in self.is_loaded_midi.keys():
             return
 
@@ -113,6 +149,11 @@ class LearnMIDI:
         self.loading = 1  # 1 = Load..
         self.is_started_midi = False  # Stop current learning song
         self.t = threading.currentThread()
+
+        # Load song from cache
+        if self.load_song_from_cache(song_path):
+            return
+        print("Cache not found")
 
         try:
             # Load the midi file
@@ -138,9 +179,24 @@ class LearnMIDI:
             # Merge tracks
             self.loading = 3  # 3 = Merge
             self.song_tracks = mido.merge_tracks(mid.tracks)
+            time_passed = 0
+            self.notes_time.clear()
+            for msg in mid:
+                if not msg.is_meta:
+                    time_passed += msg.time
+                    self.notes_time.append(time_passed)
+
             fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
+
+            # Save to cache
+            with open('Songs/cache/' + song_path + '.p', 'wb') as handle:
+                cache = {'song_tempo': self.song_tempo, 'ticks_per_beat': self.ticks_per_beat,
+                         'notes_time': self.notes_time, 'song_tracks': self.song_tracks,}
+                pickle.dump(cache, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
             self.loading = 4  # 4 = Done
-        except:
+        except Exception as e:
+            print(e)
             self.loading = 5  # 5 = Error!
             self.is_loaded_midi.clear()
 
@@ -180,7 +236,6 @@ class LearnMIDI:
 
                 for msg in self.song_tracks[start_idx:end_idx]:
                     # Exit thread if learning is stopped
-
                     if not self.is_started_midi:
                         break
 
@@ -189,6 +244,12 @@ class LearnMIDI:
 
                     # Check notes to press
                     if not msg.is_meta:
+                        try:
+                            self.socket_send.append(self.notes_time[self.current_idx])
+                        except Exception as e:
+                            print(e)
+                        self.current_idx += 1
+
                         if tDelay > 0 and (
                                 msg.type == 'note_on' or msg.type == 'note_off') and notes_to_press and self.practice == 0:
                             notes_pressed = []
@@ -249,11 +310,27 @@ class LearnMIDI:
                                 # send midi sound for Right hand
                                 self.practice == 2):  # send midi sound for Listen only
                             self.midiports.playport.send(msg)
-
-                    self.current_idx += 1
             except Exception as e:
                 self.is_started_midi = False
 
             if(not self.is_loop_active or self.is_started_midi == False):
                 keep_looping = False
+
+    def convert_midi_to_abc(self, midi_file):
+        if not os.path.isfile('Songs/' + midi_file.replace(".mid", ".abc")):
+            #subprocess.call(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
+            try:
+                subprocess.check_output(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
+            except Exception as e:
+                #check if e contains the string 'No such file or directory'
+                if 'No such file or directory' in str(e):
+                    print("Midiabc not found, installing...")
+                    self.install_midi2abc()
+                    self.convert_midi_to_abc(midi_file)
+        else:
+            print("file already converted")
+
+    def install_midi2abc(self):
+        print("Installing abcmidi")
+        subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
 

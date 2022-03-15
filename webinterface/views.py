@@ -1,8 +1,8 @@
 from webinterface import webinterface
-from flask import render_template, flash, redirect, request, url_for, jsonify
+from flask import render_template, flash, redirect, request, url_for, jsonify, send_file
 import os
 
-ALLOWED_EXTENSIONS = {'mid'}
+ALLOWED_EXTENSIONS = {'mid', 'musicxml', 'mxl', 'xml', 'abc'}
 
 
 def allowed_file(filename):

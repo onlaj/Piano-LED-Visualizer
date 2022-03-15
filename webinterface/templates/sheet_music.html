@@ -1,0 +1,81 @@
+<div id="buttons">
+    <div id="sync">
+        <div id="menu" style="visibility: hidden">
+            <div id="mbar" style="padding: 0.5em;">Menu</div>
+            <label>full screen<input id="fscr" type="checkbox"/></label>
+            <label id="snclbl">enable sync<input id="synbox" type="checkbox" accesskey="e"/></label>
+            <label>speed ctrl<input id="spdctl" type="checkbox"/></label>
+            <label>loop mode<input id="lopctl" type="checkbox"/></label>
+            <label>file buttons<input id="btns" type="checkbox"/></label>
+            <label id="ncrlbl">no cursor<input id="nocsr" type="checkbox"/></label>
+            <label id="lnclbl">note cursor<input id="lncsr" type="checkbox"/></label>
+            <label>center player<input id="ctrmed" type="checkbox"/></label>
+            <label>center score<input id="ctrnot" type="checkbox"/></label>
+            <label>hide player<input id="noplyr" type="checkbox"/></label>
+            <label id="asclbl">autoscale<input id="autscl" type="checkbox"/></label>
+            <label>skip repeats<input id="repskip" type="checkbox"/></label>
+            <label>count in<input id="cntin" type="checkbox"/></label>
+            <label>metronome<input id="metro" type="checkbox"/></label>
+            <label>dotted line<input id="dotted" type="checkbox"/></label>
+            <label id="helpm">help</label>
+        </div>
+        <div id="sync_out">
+            <div id="sync_info"></div>
+            <label style="text-align:center">
+                <button id="save">save</button>
+            </label>
+            <label>wait offset: <input id="woff" type="checkbox"></input></label>
+            <label id="implbl">import: <input id="impbox" type="checkbox"></input></label>
+            <label>jump: <input id="jump" type="checkbox"></input></label>
+            <label>scramble: <input id="encr" type="checkbox"></input></label>
+        </div>
+    </div>
+    <div id="medbts" class="w-full flex-wrap">
+        <button class="flex h-12 items-center outline-none bg-gray-100 dark:bg-gray-600 rounded-2xl inline-flex items-center">
+            <label class="w-40 flex flex-col items-center px-2 py-2 rounded-lg tracking-wide uppercase cursor-pointer">
+                <svg class="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z"/>
+                </svg>
+                <span>Load custom sheet</span>
+                <input type="file" id="fknp" accept=".abc,.xml,.js,.musicxml" tabindex="1" class="hidden"/>
+            </label>
+        </button>
+
+        <div class="has-tooltip inline-flex h-12 items-center">
+                        <span class="inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400">
+                            If the automatic conversion does not suit your expectations, you can load your own musical notation.
+                            <br>You can also upload files with supported extensions (.musicxml, .xml, .mxl, .abc). They must have the same name as their midi file.
+                            <br>The highlighted part of the music notation is only an approximate indicator. Use the offset tool to improve synchronization.
+                        </span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+
+        <div class="block h-12 w-40 text-right float-right">
+            <label class="block text-center uppercase tracking-wide text-xs font-bold text-gray-600 dark:text-gray-400">
+                Offset (ms)
+            </label>
+            <div class="justify-center flex">
+                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) - 50"
+                     xmlns="http://www.w3.org/2000/svg"
+                     class="h-8 w-8 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <input onchange="window.sheet_offset = parseInt(this.value);" id="sheet_offset" type="number" value="0"
+                       min="-3000" max="3000" step="10"
+                       class="h-8 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl
+                       leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) + 50"
+                     xmlns="http://www.w3.org/2000/svg"
+                     class="h-8 w-8 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="height: 50px;"></div>
+<div id="notation" style="height:80vh;"></div>

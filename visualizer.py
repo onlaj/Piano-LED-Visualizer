@@ -104,6 +104,7 @@ last_control_change = 0
 pedal_deadzone = 10
 timeshift_start = time.time()
 
+
 fastColorWipe(ledstrip.strip, True, ledsettings)
 
 
@@ -120,7 +121,7 @@ def start_webserver():
     webinterface.menu = menu
     webinterface.jinja_env.auto_reload = True
     webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
-    #webinterface.run(use_reloader=False, debug=True, port=80, host='0.0.0.0')
+    #webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
     serve(webinterface, host='0.0.0.0', port=args.port)
 
 if args.webinterface != "false":
@@ -290,6 +291,9 @@ while True:
         continue
     # loop through incoming midi messages
     for msg in midiports.midipending:
+
+        #webinterface.socket_input.append(msg)
+
         midiports.last_activity = time.time()
         note = find_between(str(msg), "note=", " ")
         original_note = note

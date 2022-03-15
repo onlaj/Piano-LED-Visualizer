@@ -16,7 +16,7 @@ import math
 from zipfile import ZipFile
 import json
 import ast
-
+import time
 
 @webinterface.route('/api/start_animation', methods=['GET'])
 def start_animation():
@@ -912,6 +912,9 @@ def change_setting():
                     os.rename('Songs/' + fname, 'Songs/' + new_name)
         else:
             os.rename('Songs/' + value, 'Songs/' + second_value)
+            os.rename('Songs/cache/' + value + ".p", 'Songs/cache/' + second_value + ".p")
+
+
 
         return jsonify(success=True, reload_songs=True)
 
@@ -923,6 +926,19 @@ def change_setting():
                     os.remove("Songs/" + fname)
         else:
             os.remove("Songs/" + value)
+
+            file_types = [".musicxml", ".xml", ".mxl", ".abc"]
+            for file_type in file_types:
+                try:
+                    os.remove("Songs/" + value.replace(".mid", file_type))
+                except:
+                    pass
+
+            try:
+                os.remove("Songs/cache/" + value + ".p")
+            except:
+                print("No cache file for " + value)
+
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "download_song":
@@ -946,6 +962,24 @@ def change_setting():
             return send_file("../Songs/" + value, mimetype='application/x-csv', attachment_filename=value,
                              as_attachment=True)
 
+    if setting_name == "download_sheet_music":
+        file_types = [".musicxml", ".xml", ".mxl", ".abc"]
+        i = 0
+        while i < len(file_types):
+            try:
+                new_name = value.replace(".mid", file_types[i])
+                return send_file("../Songs/" + new_name, mimetype='application/x-csv', attachment_filename=new_name,
+                                 as_attachment=True)
+            except:
+                i += 1
+        webinterface.learning.convert_midi_to_abc(value)
+        try:
+            return send_file("../Songs/" + value.replace(".mid", ".abc"), mimetype='application/x-csv',
+                             attachment_filename=value.replace(".mid", ".abc"), as_attachment=True)
+        except:
+            print("Converting failed")
+
+
     if setting_name == "start_midi_play":
         webinterface.saving.t = threading.Thread(target=play_midi, args=(value, webinterface.midiports,
                                                                          webinterface.saving, webinterface.menu,
@@ -962,7 +996,6 @@ def change_setting():
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "learning_load_song":
-        webinterface.learning.loading = 1
         webinterface.learning.t = threading.Thread(target=webinterface.learning.load_midi, args=(value,))
         webinterface.learning.t.start()
 
