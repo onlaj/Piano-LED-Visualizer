@@ -40,19 +40,36 @@
                 <input type="file" id="fknp" accept=".abc,.xml,.js,.musicxml" tabindex="1" class="hidden"/>
             </label>
         </button>
+
+        <div class="has-tooltip inline-flex h-12 items-center">
+                        <span class="inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400">
+                            If the automatic conversion does not suit your expectations, you can load your own musical notation.
+                            <br>You can also upload files with supported extensions (.musicxml, .xml, .mxl, .abc). They must have the same name as their midi file.
+                            <br>The highlighted part of the music notation is only an approximate indicator. Use the offset tool to improve synchronization.
+                        </span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+
         <div class="block h-12 w-40 text-right float-right">
             <label class="block text-center uppercase tracking-wide text-xs font-bold text-gray-600 dark:text-gray-400">
                 Offset (ms)
             </label>
             <div class="justify-center flex">
-                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) - 50" xmlns="http://www.w3.org/2000/svg"
+                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) - 50"
+                     xmlns="http://www.w3.org/2000/svg"
                      class="h-8 w-8 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
-                <input onchange="window.sheet_offset = parseInt(this.value);" id="sheet_offset" type="number" value="0" min="-3000" max="3000" step="10"
+                <input onchange="window.sheet_offset = parseInt(this.value);" id="sheet_offset" type="number" value="0"
+                       min="-3000" max="3000" step="10"
                        class="h-8 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl
                        leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) + 50" xmlns="http://www.w3.org/2000/svg"
+                <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) + 50"
+                     xmlns="http://www.w3.org/2000/svg"
                      class="h-8 w-8 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
@@ -61,4 +78,4 @@
     </div>
 </div>
 <div style="height: 50px;"></div>
-<div id="notation"></div>
+<div id="notation" style="height:80vh;"></div>
