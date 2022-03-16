@@ -44,8 +44,10 @@
         <div class="has-tooltip inline-flex h-12 items-center">
                         <span class="inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400">
                             If the automatic conversion does not suit your expectations, you can load your own musical notation.
-                            <br>You can also upload files with supported extensions (.musicxml, .xml, .mxl, .abc). They must have the same name as their midi file.
                             <br>The highlighted part of the music notation is only an approximate indicator. Use the offset tool to improve synchronization.
+                            <br>For the best result do the following:
+                            <br>1. Convert your music notation to a midi file using Musescore or similar program, name it the same as the midi file you want to load. (E.g. my_music.mid and my_music.xml)
+                            <br>2. Upload the midi file and the music notation file.
                         </span>
             <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-6 w-6" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor">
@@ -78,4 +80,4 @@
     </div>
 </div>
 <div style="height: 50px;"></div>
-<div id="notation" style="height:80vh;"></div>
+<div id="notation" style="height:80vh;max-width: 90vw;"></div>
