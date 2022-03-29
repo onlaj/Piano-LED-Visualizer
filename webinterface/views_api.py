@@ -17,6 +17,11 @@ from zipfile import ZipFile
 import json
 import ast
 import time
+import RPi.GPIO as GPIO
+
+SENSECOVER = 12
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(SENSECOVER, GPIO.IN, GPIO.PUD_UP)
 
 @webinterface.route('/api/start_animation', methods=['GET'])
 def start_animation():
@@ -118,6 +123,8 @@ def get_homepage_data():
 
     card_space = psutil.disk_usage('/')
 
+    cover_opened = GPIO.input(SENSECOVER)
+
     homepage_data = {
         'cpu_usage': psutil.cpu_percent(interval=0.1),
         'memory_usage_percent': psutil.virtual_memory()[2],
@@ -128,7 +135,8 @@ def get_homepage_data():
         'download': download,
         'card_space_used': card_space.used,
         'card_space_total': card_space.total,
-        'card_space_percent': card_space.percent
+        'card_space_percent': card_space.percent,
+        'cover_state': 'Opened' if cover_opened else 'Closed'
     }
     return jsonify(homepage_data)
 
