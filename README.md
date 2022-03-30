@@ -22,13 +22,14 @@
 **Not required but worth having, to make everything look neat:**
 
   - Custom 3d printed case (*I attached STL file with modified 3d model, there is additional space and holes for power socket and wires, [here](https://www.thingiverse.com/thing:3393553) is original model*) 
-  -  Waveshare LCD TFT 1,44'' 128x128px [Amazon US](https://amzn.to/2YkW5nC) | [Aliexpress](http://s.click.aliexpress.com/e/cpk00blQ)
+  - Waveshare LCD TFT 1,44'' 128x128px [Amazon US](https://amzn.to/2YkW5nC) | [Aliexpress](http://s.click.aliexpress.com/e/cpk00blQ)
   - Braid for cables [Amazon US](https://amzn.to/2yd2Fhz) | [Aliexpress](http://s.click.aliexpress.com/e/cG7ur6Di)
   - Heat shrink bands [Amazon US](https://amzn.to/2SsSYok) | [Aliexpress](http://s.click.aliexpress.com/e/UwKVLo8)
   - Aluminium LED Profile with diffuser (*highly recommend to search for the right one in local shops*) [pic#1](https://i.imgur.com/MF7dd1R.png) [pic#2](https://i.imgur.com/fFWOs3v.png) 
   Alternative made of silica gel: [Aliexpress](https://s.click.aliexpress.com/e/_A0HNfF)  *(choose T0515 for 12mm 2 meters, credits to [vzoltan](https://github.com/vzoltan) for finding this)*
   - Double side tape to stick everything on the piano
   - Windows 10 laptop/tablet with bluetooth to run Synthesia
+  - magnetic or mechanical switch to detect if the keyboard cover is opened or closed, if your piano has one (see [Instructions](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/cover_detection.md))
 
 **Total cost (excluding piano and tablet) should be 75-100 USD**
 *Disclosure: All of the links above are affiliate links, which means that without additional costs for you, I will earn a commission if you make a purchase by clicking through it.*
@@ -109,7 +110,7 @@ If you are getting mixed colors, meaning that leds are lighting up with your pre
 
 The Visualizer supports learning to play MIDI files without the need of Synthesia or additional external devices.
 
-![learnmidi_pic](/Docs/pics/learnmidi_pic.png)
+![learnmidi_pic](./Docs/pics/learnmidi_pic.png)
 
 For practicing, the following 3 modes can be used:
 - **Melody**: The song will wait for you to hit the correct notes. Take your time and try to avoid mistakes. Holding notes to their full duration is also important, otherwise you might develop muscle memory with the mistakes included.

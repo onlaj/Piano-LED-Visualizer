@@ -160,6 +160,7 @@ function get_homepage_data_loop() {
             document.getElementById("card_usage_percent").innerHTML = response_pc_stats.card_space_percent + "%";
             animateValue(document.getElementById("download_number"), last_download, download, refresh_rate * 500, true);
             animateValue(document.getElementById("upload_number"), last_upload, upload, refresh_rate * 500, true);
+            document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
 
             download_start = response_pc_stats.download;
             upload_start = response_pc_stats.upload;
