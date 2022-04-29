@@ -1,5 +1,6 @@
 from webinterface import webinterface
 from flask import render_template, send_file, redirect, request, url_for, jsonify
+from werkzeug.utils import safe_join
 from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
     rainbow, rainbowCycle, fastColorWipe, play_midi, clamp
 import psutil
@@ -967,7 +968,7 @@ def change_setting():
                 return send_file("../Songs/" + value.replace(".mid", "") + ".zip", mimetype='application/x-csv',
                                  attachment_filename=value.replace(".mid", "") + ".zip", as_attachment=True)
         else:
-            return send_file("../Songs/" + value, mimetype='application/x-csv', attachment_filename=value,
+            return send_file(safe_join("../Songs/" + value), mimetype='application/x-csv', attachment_filename=value,
                              as_attachment=True)
 
     if setting_name == "download_sheet_music":
@@ -982,7 +983,7 @@ def change_setting():
                 i += 1
         webinterface.learning.convert_midi_to_abc(value)
         try:
-            return send_file("../Songs/" + value.replace(".mid", ".abc"), mimetype='application/x-csv',
+            return send_file(safe_join("../Songs/", value.replace(".mid", ".abc")), mimetype='application/x-csv',
                              attachment_filename=value.replace(".mid", ".abc"), as_attachment=True)
         except:
             print("Converting failed")
