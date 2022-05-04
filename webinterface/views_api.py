@@ -962,10 +962,10 @@ def change_setting():
             zipObj.close()
             if songs_count == 1:
                 os.remove("Songs/" + value.replace(".mid", "") + ".zip")
-                return send_file("../Songs/" + value, mimetype='application/x-csv', attachment_filename=value,
+                return send_file(safe_join("../Songs/" + value), mimetype='application/x-csv', attachment_filename=value,
                                  as_attachment=True)
             else:
-                return send_file("../Songs/" + value.replace(".mid", "") + ".zip", mimetype='application/x-csv',
+                return send_file(safe_join("../Songs/" + value.replace(".mid", "")) + ".zip", mimetype='application/x-csv',
                                  attachment_filename=value.replace(".mid", "") + ".zip", as_attachment=True)
         else:
             return send_file(safe_join("../Songs/" + value), mimetype='application/x-csv', attachment_filename=value,
@@ -977,7 +977,7 @@ def change_setting():
         while i < len(file_types):
             try:
                 new_name = value.replace(".mid", file_types[i])
-                return send_file("../Songs/" + new_name, mimetype='application/x-csv', attachment_filename=new_name,
+                return send_file(safe_join("../Songs/" + new_name), mimetype='application/x-csv', attachment_filename=new_name,
                                  as_attachment=True)
             except:
                 i += 1
