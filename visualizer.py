@@ -179,8 +179,16 @@ while True:
             time.sleep(0.01)
     if GPIO.input(KEY3) == 0:
         midiports.last_activity = time.time()
-        if ledsettings.sequence_active:
+        if ledsettings.sequence_active == True:
             ledsettings.set_sequence(0, 1)
+        else:
+            active_input = usersettings.get_setting_value("input_port")
+            secondary_input = usersettings.get_setting_value("secondary_input_port")
+            midiports.change_port("inport", secondary_input)
+            usersettings.change_setting_value("secondary_input_port", active_input)
+            usersettings.change_setting_value("input_port", secondary_input)
+            fastColorWipe(ledstrip.strip, True, ledsettings)
+
         while GPIO.input(KEY3) == 0:
             time.sleep(0.01)
     if GPIO.input(KEYLEFT) == 0:
