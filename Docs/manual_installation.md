@@ -143,12 +143,37 @@ We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://githu
 `Select "System options" then “Boot / Auto Login” then “Console Autologin” `
 - Enable autostart script on boot:
 
-`sudo crontab -e`
-- At the bottom of file paste:
+`sudo nano /lib/systemd/system/visualizer.service`
 
-`@reboot sudo python3 /home/Piano-LED-Visualizer/visualizer.py &`
+Paste and save:
 
-*If you are using WaveShare 1.3inch 240x240 LED Hat instead of 1.44inch 128x128, add this instead:*
-`@reboot sudo python3 /home/Piano-LED-Visualizer/visualizer.py --display 1in3 &`
+```bash
+[Unit]
+Description=Piano LED Visualizer
+After=network-online.target
+Wants=network-online.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py
+Type=simple
+User=pi
+Group=pi
+```
+
+*If you are using WaveShare 1.3inch 240x240 LED Hat instead of 1.44inch 128x128, edit accordingly:*
+`ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py --display 1in3`
+
+- Reload daemon and enable service:
+
+   ` sudo systemctl daemon-reload`
+   
+   ` sudo systemctl enable visualizer.service`
+    
+   `sudo systemctl start visualizer.service`
+
+
 
 Now you can type `sudo reboot` to test if everything works. After 1-3 minutes you should see Visualizer menu on RPi screen.
