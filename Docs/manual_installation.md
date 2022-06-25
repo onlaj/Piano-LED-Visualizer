@@ -1,9 +1,8 @@
 
 Install [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/) on your SD card.
 
-If you are not able to connect your monitor, mouse and keyboard to RPi you can connect to it using SSH. Here you can find full tutorial: [Raspberry Pi Setup Without a Monitor, Keyboard or a Mouse](https://www.terminalbytes.com/raspberry-pi-without-monitor-keyboard/ "Raspberry Pi Setup Without a Monitor, Keyboard or a Mouse")
+If you are not able to connect your monitor, mouse and keyboard to RPi you can connect to it using SSH over [Wi-Fi](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
 
-*Note: replace `“` with `"` when editing `wpa_supplicant.conf` file.*
 
  
 ### 1. **Updating OS** 
