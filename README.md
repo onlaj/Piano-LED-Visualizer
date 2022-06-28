@@ -42,14 +42,13 @@ There are two ways, you can use preconfigured system image or install everything
 - Unzip the file.
 - Use program like [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager/) or [Etcher](https://www.balena.io/etcher/) to save system image to your SD card (4GB is a minimum).
 
-If you don't need to connect your RPi to Wi-Fi you can eject SD card from your PC and put it in Raspberry Pi. After 3-8 minutes *(depending on how fast your SD card is)* you should see Visualizer menu on RPi screen.
+If you don't need to connect your RPi to Wi-Fi you can eject SD card from your PC and put it in Raspberry Pi. After 3-8 minutes *(depending on how fast your SD card is)* you should see Visualizer menu on RPi screen.  
 
-If you want to make your RPi autoconnect to Wi-Fi you need to follow [this guide](https://www.terminalbytes.com/raspberry-pi-without-monitor-keyboard/) *(starting from step 3)*
+### 2. **Wi-Fi setup** (Optional)
+[Wi-Fi setup](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md) is optional, but will be needed if you wish to use the [web interface](https://github.com/onlaj/Piano-LED-Visualizer#web-interface)
 
-*Note: replace `“` with `"` when editing `wpa_supplicant.conf` file.*
-
-### 2. **Manual installation**
-[Instruction](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
+### 3. **Manual installation**
+[Instructions](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
 
 ## Connecting LED Strip to Raspberry Pi and enabling SPI
 There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*
