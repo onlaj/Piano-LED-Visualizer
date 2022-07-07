@@ -87,7 +87,7 @@ For this method you need to use some software on your Synthesia's device and bot
 - Windows: [rtpMIDI](https://www.tobias-erichsen.de/software/rtpmidi.html) by [Tobias Erichsen](https://www.tobias-erichsen.de/ "Tobias Erichsen") | [tutorial](http://www.tobias-erichsen.de/software/rtpmidi/rtpmidi-tutorial.html)
 
 - MAC: [Tutorial](https://www.wiksnet.com/Home/Help)
-- Android [touchdaw](https://xmmc.de/touchdaw/)
+- Android [Midi Connector Free](https://abrahamwisman.com/midiconnector) or [touchdaw](https://xmmc.de/touchdaw/)
 
 Default port is 5004.
 
