@@ -12,10 +12,10 @@
   - Piano with MIDI or USB output
   - MIDI to USB interface (if your piano doesn't have USB output) ~~[Amazon US](https://amzn.to/2xZUipg) | [Aliexpress](http://s.click.aliexpress.com/e/b9mjFaIy)~~ (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use iConnectivity mio [Amazon US](https://amzn.to/2nhsYBl) )
   - Raspberry Pi Zero WH [Amazon US](https://amzn.to/2TPz3CQ) | [Aliexpress](https://s.click.aliexpress.com/e/_dXc8jGl) | [Aliexpress #2](http://s.click.aliexpress.com/e/3r32Dass)
-  - MicroSD card (16 GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Aliexpress](http://s.click.aliexpress.com/e/mGNi7sl2)
-  - USB OTG [Amazon US](https://amzn.to/3aYWVJj) | [Aliexpress](https://s.click.aliexpress.com/e/_d7FjmJD)
-  - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Aliexpress](http://s.click.aliexpress.com/e/dFyC7NO)
-  - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/2JViZJ3) | [Aliexpress](http://s.click.aliexpress.com/e/hUgrv6s)
+  - MicroSD card (16 GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Aliexpress](https://s.click.aliexpress.com/e/_DeWQsB1)
+  - USB OTG [Amazon US](https://amzn.to/3yVpdmV) | [Aliexpress](https://s.click.aliexpress.com/e/_DDV6z6T)
+  - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Aliexpress](https://s.click.aliexpress.com/e/_DEEkJyR)
+  - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/3O5zAJc) | [Aliexpress](https://s.click.aliexpress.com/e/_Dn5Mt0n)
   - DC 5.5x2.5mm socket with quick connection [Amazon US](https://amzn.to/2YizYOC) | [Aliexpress](http://s.click.aliexpress.com/e/T8YSkbq)
   - Some wires [Amazon US](https://amzn.to/3ky6k2G) | [Aliexpress](https://s.click.aliexpress.com/e/_AKKvPu)
 
