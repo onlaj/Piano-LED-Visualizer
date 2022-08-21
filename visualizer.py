@@ -332,7 +332,7 @@ while True:
         # changing offset to adjust the distance between the LEDs to the key spacing
         note_position = get_note_position(note, ledstrip, ledsettings)
 
-        if (note_position > ledstrip.led_number or note_position < 0) and control_change is False:
+        if (note_position >= ledstrip.led_number or note_position < 0) and control_change is False:
             continue
 
         elapsed_time = time.time() - saving.start_time
