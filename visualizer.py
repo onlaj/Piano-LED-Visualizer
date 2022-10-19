@@ -47,6 +47,7 @@ parser.add_argument('-f', '--fontdir', type=str, help="Use an alternate director
 parser.add_argument('-p', '--port', type=int, help="set port for webinterface (80 is default)")
 parser.add_argument('-s', '--skipupdate', action='store_true', help="Do not try to update /usr/local/bin/connectall.py")
 parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
+parser.add_argument('-r', '--rotatescreen', default="false", help="rotate screen: 'false' (default) | 'true'")
 args = parser.parse_args()
 
 print(args)
@@ -59,13 +60,22 @@ if not args.skipupdate:
         copyfile('connectall.py', '/usr/local/bin/connectall.py')
         os.chmod('/usr/local/bin/connectall.py', 493)
 
-KEYRIGHT = 26
-KEYLEFT = 5
-KEYUP = 6
-KEYDOWN = 19
-KEY1 = 21
+if args.rotatescreen != "true":
+    KEYRIGHT = 26
+    KEYLEFT = 5
+    KEYUP = 6
+    KEYDOWN = 19
+    KEY1 = 21
+    KEY3 = 16
+else:
+    KEYRIGHT = 5
+    KEYLEFT = 26
+    KEYUP = 19
+    KEYDOWN = 6
+    KEY1 = 16
+    KEY3 = 21
+
 KEY2 = 20
-KEY3 = 16
 JPRESS = 13
 BACKLIGHT = 24
 # pin numbers are interpreted as BCM pin numbers.
