@@ -23,6 +23,7 @@ class MenuLCD:
         self.learning = learning
         self.saving = saving
         self.midiports = midiports
+        self.args = args
         fontdir = "/usr/share/fonts/truetype/freefont"
         if args.fontdir != None:
             fontdir = args.fontdir
@@ -40,7 +41,7 @@ class MenuLCD:
             self.image = Image.open('webinterface/static/logo128_128.bmp')
 
         self.LCD.LCD_Init()
-        self.LCD.LCD_ShowImage(self.image, 0, 0)
+        self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
         self.DOMTree = minidom.parse(xml_file_name)
         self.currentlocation = "menu"
         self.scroll_hold = 0
@@ -75,6 +76,12 @@ class MenuLCD:
         self.screen_status = 1
 
         self.screensaver_is_running = False
+
+    def rotate_image(self, image):
+        if self.args.rotatescreen != "true":
+            return image
+        else:
+            return image.transpose(3)
 
     def toggle_screensaver_settings(self, setting):
         setting = setting.lower()
@@ -682,7 +689,7 @@ class MenuLCD:
             self.draw.rectangle([(self.scale(90), self.scale(coordL)), (self.LCD.width, self.scale(coordL + 7))],
                                 fill="rgb(" + str(self.learning.hand_colorList[self.learning.hand_colorL])[1:-1] + ")")
 
-        self.LCD.LCD_ShowImage(self.image, 0, 0)
+        self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
 
     def change_pointer(self, direction):
         if direction == 0:
@@ -714,7 +721,7 @@ class MenuLCD:
         self.draw = ImageDraw.Draw(self.image)
         self.draw.text((self.scale(3), self.scale(55)), title, fill=self.text_color, font=self.font)
         self.draw.text((self.scale(3), self.scale(65)), message, fill=self.text_color, font=self.font)
-        self.LCD.LCD_ShowImage(self.image, 0, 0)
+        self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
         LCD_Config.Driver_Delay_ms(delay)
 
     def render_screensaver(self, hour, date, cpu, cpu_average, ram, temp, cpu_history=[], upload=0, download=0,
@@ -807,7 +814,7 @@ class MenuLCD:
             self.draw.text((self.scale(1), top_offset), "IP: " + str(local_ip), fill=self.text_color, font=font)
             top_offset += info_height_font
 
-        self.LCD.LCD_ShowImage(self.image, 0, 0)
+        self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
 
     def change_settings(self, choice, location):
         if location == "Text_Color":

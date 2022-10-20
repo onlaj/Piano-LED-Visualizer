@@ -165,6 +165,10 @@ Group=pi
 *If you are using WaveShare 1.3inch 240x240 LED Hat instead of 1.44inch 128x128, edit accordingly:*
 `ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py --display 1in3`
 
+*If you want to use your RPi upside down add `--rotatescreen true` :*
+
+`ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py --rotatescreen true`
+
 - Reload daemon and enable service:
 
    ` sudo systemctl daemon-reload`
