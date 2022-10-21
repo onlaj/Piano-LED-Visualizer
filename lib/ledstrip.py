@@ -84,5 +84,11 @@ class LedStrip:
             color = Color(int(self.ledsettings.adjacent_green), int(self.ledsettings.adjacent_red),
                           int(self.ledsettings.adjacent_blue))
         if self.ledsettings.adjacent_mode != "Off":
-            self.strip.setPixelColor(int(note) + 1, color)
-            self.strip.setPixelColor(int(note) - 1, color)
+
+            if(note > 1 and note < 174):
+                if self.keylist_status[int(note) + 2] == 0 and self.ledsettings.mode != "Velocity":
+                    self.strip.setPixelColor(int(note) + 1, color)
+
+                if self.keylist_status[int(note) - 2] == 0 and self.ledsettings.mode != "Velocity":
+                    self.strip.setPixelColor(int(note) - 1, color)
+
