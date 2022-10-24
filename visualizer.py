@@ -264,8 +264,7 @@ while True:
                         blue = ledstrip.keylist_color[n][2]
                     except:
                         pass
-
-            if int(note) != 1001:
+            if ledstrip.keylist_status[n] == 0:
                 if int(note) > 0:
                     fading = (note / float(100)) / 10
                     ledstrip.strip.setPixelColor(n, Color(int(int(green) * fading), int(int(red) * fading),
@@ -286,19 +285,19 @@ while True:
                 else:
                     ledstrip.keylist[n] = 0
 
-            if ledsettings.mode == "Velocity":
-                if int(last_control_change) < pedal_deadzone:
-                    if int(ledstrip.keylist_status[n]) == 0:
-                        red_fading = int(ledsettings.get_backlight_color("Red")) * float(
-                            ledsettings.backlight_brightness_percent) / 100
-                        green_fading = int(ledsettings.get_backlight_color("Green")) * float(
-                            ledsettings.backlight_brightness_percent) / 100
-                        blue_fading = int(ledsettings.get_backlight_color("Blue")) * float(
-                            ledsettings.backlight_brightness_percent) / 100
-                        color = Color(int(green_fading), int(red_fading), int(blue_fading))
-                        ledstrip.strip.setPixelColor(n, color)
-                        ledstrip.set_adjacent_colors(n, color, False)
-                        ledstrip.keylist[n] = 0
+            # if ledsettings.mode == "Velocity":
+            #     if int(last_control_change) < pedal_deadzone:
+            #         if int(ledstrip.keylist_status[n]) == 0:
+            #             red_fading = int(ledsettings.get_backlight_color("Red")) * float(
+            #                 ledsettings.backlight_brightness_percent) / 100
+            #             green_fading = int(ledsettings.get_backlight_color("Green")) * float(
+            #                 ledsettings.backlight_brightness_percent) / 100
+            #             blue_fading = int(ledsettings.get_backlight_color("Blue")) * float(
+            #                 ledsettings.backlight_brightness_percent) / 100
+            #             color = Color(int(green_fading), int(red_fading), int(blue_fading))
+            #             ledstrip.strip.setPixelColor(n, color)
+            #             ledstrip.set_adjacent_colors(n, color, False)
+            #             ledstrip.keylist[n] = 0
             n += 1
     try:
         if len(saving.is_playing_midi) == 0 and learning.is_started_midi is False:
@@ -378,9 +377,6 @@ while True:
             ledstrip.keylist_status[note_position] = 0
             if ledsettings.mode == "Fading":
                 ledstrip.keylist[note_position] = 1000
-            elif ledsettings.mode == "Velocity":
-                if int(last_control_change) < pedal_deadzone:
-                    ledstrip.keylist[note_position] = 0
             else:
                 if ledsettings.backlight_brightness > 0:
                     red_backlight = int(
@@ -392,7 +388,7 @@ while True:
                     color_backlight = Color(int(green_backlight), int(red_backlight), int(blue_backlight))
                     ledstrip.strip.setPixelColor(note_position, color_backlight)
                     ledstrip.set_adjacent_colors(note_position, color_backlight, True)
-                else:
+                elif (ledsettings.mode == "Normal"):
                     ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
                     ledstrip.set_adjacent_colors(note_position, Color(0, 0, 0), False)
             if saving.isrecording:
