@@ -112,6 +112,7 @@ midiports.last_activity = time.time()
 
 last_control_change = 0
 pedal_deadzone = 10
+sustain_leds = False
 timeshift_start = time.time()
 
 
@@ -264,7 +265,12 @@ while True:
                         blue = ledstrip.keylist_color[n][2]
                     except:
                         pass
-            if ledstrip.keylist_status[n] == 0:
+            if ledsettings.sustain_leds == "Enabled":
+                if int(last_control_change) > pedal_deadzone and int(note) >= 1000:
+                    sustain_leds = True
+                else:
+                    sustain_leds = False
+            if ledstrip.keylist_status[n] == 0 and sustain_leds is False:
                 if int(note) > 0:
                     fading = (note / float(100)) / 10
                     ledstrip.strip.setPixelColor(n, Color(int(int(green) * fading), int(int(red) * fading),
@@ -284,20 +290,6 @@ while True:
                         ledstrip.set_adjacent_colors(n, color, False)
                 else:
                     ledstrip.keylist[n] = 0
-
-            # if ledsettings.mode == "Velocity":
-            #     if int(last_control_change) < pedal_deadzone:
-            #         if int(ledstrip.keylist_status[n]) == 0:
-            #             red_fading = int(ledsettings.get_backlight_color("Red")) * float(
-            #                 ledsettings.backlight_brightness_percent) / 100
-            #             green_fading = int(ledsettings.get_backlight_color("Green")) * float(
-            #                 ledsettings.backlight_brightness_percent) / 100
-            #             blue_fading = int(ledsettings.get_backlight_color("Blue")) * float(
-            #                 ledsettings.backlight_brightness_percent) / 100
-            #             color = Color(int(green_fading), int(red_fading), int(blue_fading))
-            #             ledstrip.strip.setPixelColor(n, color)
-            #             ledstrip.set_adjacent_colors(n, color, False)
-            #             ledstrip.keylist[n] = 0
             n += 1
     try:
         if len(saving.is_playing_midi) == 0 and learning.is_started_midi is False:
@@ -410,7 +402,7 @@ while True:
             if ledsettings.mode == "Fading":
                 ledstrip.keylist[note_position] = 1001
             if ledsettings.mode == "Velocity":
-                ledstrip.keylist[note_position] = 1000 / float(brightness)
+                ledstrip.keylist[note_position] = 999 / float(brightness)
             if find_between(str(msg), "channel=", " ") == "12":
                 if ledsettings.skipped_notes != "Finger-based":
                     red = int(learning.hand_colorList[learning.hand_colorR][0])
