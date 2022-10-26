@@ -131,10 +131,6 @@
 			<Sides_Color text="Same as main"></Sides_Color>
 			<Sides_Color text="Off"></Sides_Color>
 		</LED_Strip_Settings>
-        <LED_Strip_Settings text="Sustain leds">
-            <Sustain_leds text="Disabled"></Sustain_leds>
-			<Sustain_leds text="Enabled"></Sustain_leds>
-		</LED_Strip_Settings>
 		<LED_Strip_Settings text="Sequences">
 			<Sequences text="Update"></Sequences>
 		</LED_Strip_Settings>

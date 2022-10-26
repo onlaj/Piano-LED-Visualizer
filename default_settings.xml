@@ -11,7 +11,6 @@
 
 	<fadingspeed>1</fadingspeed>
 	<color_mode>Single</color_mode>
-    <sustain_leds>0</sustain_leds>
 
 	<rainbow_offset>0</rainbow_offset>
 	<rainbow_scale>100</rainbow_scale>

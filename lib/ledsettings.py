@@ -18,7 +18,6 @@ class LedSettings:
         self.mode = usersettings.get_setting_value("mode")
         self.fadingspeed = int(usersettings.get_setting_value("fadingspeed"))
         self.color_mode = usersettings.get_setting_value("color_mode")
-        self.sustain_leds = usersettings.get_setting_value("sustain_leds")
         self.rainbow_offset = int(usersettings.get_setting_value("rainbow_offset"))
         self.rainbow_scale = int(usersettings.get_setting_value("rainbow_scale"))
         self.rainbow_timeshift = int(usersettings.get_setting_value("rainbow_timeshift"))

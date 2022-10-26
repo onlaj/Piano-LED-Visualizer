@@ -112,7 +112,6 @@ midiports.last_activity = time.time()
 
 last_control_change = 0
 pedal_deadzone = 10
-sustain_leds = False
 timeshift_start = time.time()
 
 
@@ -265,12 +264,12 @@ while True:
                         blue = ledstrip.keylist_color[n][2]
                     except:
                         pass
-            if ledsettings.sustain_leds == "Enabled":
-                if int(last_control_change) > pedal_deadzone and int(note) >= 1000:
-                    sustain_leds = True
-                else:
-                    sustain_leds = False
-            if ledstrip.keylist_status[n] == 0 and sustain_leds is False:
+
+            if ledsettings.mode == "Velocity":
+                if int(last_control_change) < pedal_deadzone and ledstrip.keylist_status[n] == 0:
+                    ledstrip.keylist[n] = 0
+
+            if ledstrip.keylist_status[n] == 0 or ledsettings.mode == "Velocity":
                 if int(note) > 0:
                     fading = (note / float(100)) / 10
                     ledstrip.strip.setPixelColor(n, Color(int(int(green) * fading), int(int(red) * fading),
@@ -290,6 +289,7 @@ while True:
                         ledstrip.set_adjacent_colors(n, color, False)
                 else:
                     ledstrip.keylist[n] = 0
+
             n += 1
     try:
         if len(saving.is_playing_midi) == 0 and learning.is_started_midi is False:
