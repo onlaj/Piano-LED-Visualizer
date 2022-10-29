@@ -1084,6 +1084,10 @@ class MenuLCD:
             self.ledsettings.skipped_notes = choice
             self.usersettings.change_setting_value("skipped_notes", self.ledsettings.skipped_notes)
 
+        if location == "Sustain_leds":
+            self.ledsettings.sustain_leds = choice
+            self.usersettings.change_setting_value("sustain_leds", self.ledsettings.sustain_leds)
+
         if location == "Content":
             self.toggle_screensaver_settings(choice)
 
