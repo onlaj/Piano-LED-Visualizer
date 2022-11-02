@@ -46,38 +46,32 @@ class LedSettings:
         self.notes_in_last_period = []
         self.speed_period_in_seconds = 0.8
 
-        self.speed_slowest = {}
-        self.speed_slowest["red"] = int(usersettings.get_setting_value("speed_slowest_red"))
-        self.speed_slowest["green"] = int(usersettings.get_setting_value("speed_slowest_green"))
-        self.speed_slowest["blue"] = int(usersettings.get_setting_value("speed_slowest_blue"))
+        self.speed_slowest = {"red": int(usersettings.get_setting_value("speed_slowest_red")),
+                              "green": int(usersettings.get_setting_value("speed_slowest_green")),
+                              "blue": int(usersettings.get_setting_value("speed_slowest_blue"))}
 
-        self.speed_fastest = {}
-        self.speed_fastest["red"] = int(usersettings.get_setting_value("speed_fastest_red"))
-        self.speed_fastest["green"] = int(usersettings.get_setting_value("speed_fastest_green"))
-        self.speed_fastest["blue"] = int(usersettings.get_setting_value("speed_fastest_blue"))
+        self.speed_fastest = {"red": int(usersettings.get_setting_value("speed_fastest_red")),
+                              "green": int(usersettings.get_setting_value("speed_fastest_green")),
+                              "blue": int(usersettings.get_setting_value("speed_fastest_blue"))}
 
         self.speed_period_in_seconds = float(usersettings.get_setting_value("speed_period_in_seconds"))
         self.speed_max_notes = int(usersettings.get_setting_value("speed_max_notes"))
 
-        self.gradient_start = {}
-        self.gradient_start["red"] = int(usersettings.get_setting_value("gradient_start_red"))
-        self.gradient_start["green"] = int(usersettings.get_setting_value("gradient_start_green"))
-        self.gradient_start["blue"] = int(usersettings.get_setting_value("gradient_start_blue"))
+        self.gradient_start = {"red": int(usersettings.get_setting_value("gradient_start_red")),
+                               "green": int(usersettings.get_setting_value("gradient_start_green")),
+                               "blue": int(usersettings.get_setting_value("gradient_start_blue"))}
 
-        self.gradient_end = {}
-        self.gradient_end["red"] = int(usersettings.get_setting_value("gradient_end_red"))
-        self.gradient_end["green"] = int(usersettings.get_setting_value("gradient_end_green"))
-        self.gradient_end["blue"] = int(usersettings.get_setting_value("gradient_end_blue"))
+        self.gradient_end = {"red": int(usersettings.get_setting_value("gradient_end_red")),
+                             "green": int(usersettings.get_setting_value("gradient_end_green")),
+                             "blue": int(usersettings.get_setting_value("gradient_end_blue"))}
 
-        self.key_in_scale = {}
-        self.key_in_scale["red"] = int(usersettings.get_setting_value("key_in_scale_red"))
-        self.key_in_scale["green"] = int(usersettings.get_setting_value("key_in_scale_green"))
-        self.key_in_scale["blue"] = int(usersettings.get_setting_value("key_in_scale_blue"))
+        self.key_in_scale = {"red": int(usersettings.get_setting_value("key_in_scale_red")),
+                             "green": int(usersettings.get_setting_value("key_in_scale_green")),
+                             "blue": int(usersettings.get_setting_value("key_in_scale_blue"))}
 
-        self.key_not_in_scale = {}
-        self.key_not_in_scale["red"] = int(usersettings.get_setting_value("key_not_in_scale_red"))
-        self.key_not_in_scale["green"] = int(usersettings.get_setting_value("key_not_in_scale_green"))
-        self.key_not_in_scale["blue"] = int(usersettings.get_setting_value("key_not_in_scale_blue"))
+        self.key_not_in_scale = {"red": int(usersettings.get_setting_value("key_not_in_scale_red")),
+                                 "green": int(usersettings.get_setting_value("key_not_in_scale_green")),
+                                 "blue": int(usersettings.get_setting_value("key_not_in_scale_blue"))}
 
         self.scales = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
         self.scale_key = int(usersettings.get_setting_value("scale_key"))
@@ -180,7 +174,7 @@ class LedSettings:
             if range[0] <= note <= range[1]:
                 temporary_multicolor.append(self.multicolor[i])
 
-            #get colors on the left and right
+            # get colors on the left and right
             if range[0] > note:
                 color_on_the_right[range[0]] = self.multicolor[i]
             if range[1] < note:
@@ -190,9 +184,9 @@ class LedSettings:
         if temporary_multicolor:
             chosen_color = random.choice(temporary_multicolor)
         else:
-            #mix colors from left and right
-            right = min(color_on_the_right, key=int)
-            left = max(color_on_the_left, key=int)
+            # mix colors from left and right
+            right = int(min(color_on_the_right, key=int))
+            left = int(max(color_on_the_left, key=int))
 
             left_to_right_distance = right - left
             percent_value = (note - left) / left_to_right_distance
@@ -200,9 +194,9 @@ class LedSettings:
             red = (percent_value * (color_on_the_right[right][0] - color_on_the_left[left][0])) + \
                   color_on_the_left[left][0]
             green = (percent_value * (color_on_the_right[right][1] - color_on_the_left[left][1])) + \
-                  color_on_the_left[left][1]
+                    color_on_the_left[left][1]
             blue = (percent_value * (color_on_the_right[right][2] - color_on_the_left[left][2])) + \
-                  color_on_the_left[left][2]
+                   color_on_the_left[left][2]
 
             chosen_color = [int(red), int(green), int(blue)]
         return chosen_color
@@ -247,17 +241,17 @@ class LedSettings:
         self.color_mode = "Single"
         self.usersettings.change_setting_value("color_mode", self.color_mode)
         if color == "Red":
-            if self.red <= 255 and self.red >= 0:
+            if 255 >= self.red >= 0:
                 self.red += int(value)
                 self.red = clamp(self.red, 0, 255)
                 self.usersettings.change_setting_value("red", self.red)
         elif color == "Green":
-            if self.green <= 255 and self.green >= 0:
+            if 255 >= self.green >= 0:
                 self.green += int(value)
                 self.green = clamp(self.green, 0, 255)
                 self.usersettings.change_setting_value("green", self.green)
         elif color == "Blue":
-            if self.blue <= 255 and self.blue >= 0:
+            if 255 >= self.blue >= 0:
                 self.blue += int(value)
                 self.blue = clamp(self.blue, 0, 255)
                 self.usersettings.change_setting_value("blue", self.blue)
@@ -310,8 +304,8 @@ class LedSettings:
 
     def set_sequence(self, sequence, step, direct_step=False):
         try:
-            if int(step) == 0 or direct_step == True:
-                if direct_step == True:
+            if int(step) == 0 or direct_step is True:
+                if direct_step:
                     self.step_number = int(step) + 1
                 else:
                     self.step_number = 1
