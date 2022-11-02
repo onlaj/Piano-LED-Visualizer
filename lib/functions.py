@@ -1,5 +1,5 @@
 import threading
-from neopixel import *
+from lib.neopixel import *
 import mido
 import datetime
 import psutil

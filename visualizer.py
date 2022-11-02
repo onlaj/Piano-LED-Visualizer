@@ -11,7 +11,7 @@ from lib.midiports import MidiPorts
 from lib.savemidi import SaveMIDI
 from lib.usersettings import UserSettings
 from lib.functions import *
-from neopixel import *
+from lib.neopixel import *
 import argparse
 import threading
 from webinterface import webinterface
@@ -55,9 +55,9 @@ print(args)
 if not args.skipupdate:
     # make sure connectall.py file exists and is updated
     if not os.path.exists('/usr/local/bin/connectall.py') or \
-        filecmp.cmp('/usr/local/bin/connectall.py', 'connectall.py') is not True:
+        filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
         print("connectall.py script is outdated, updating...")
-        copyfile('connectall.py', '/usr/local/bin/connectall.py')
+        copyfile('lib/connectall.py', '/usr/local/bin/connectall.py')
         os.chmod('/usr/local/bin/connectall.py', 493)
 
 if args.rotatescreen != "true":
@@ -96,7 +96,7 @@ ledsettings = LedSettings(usersettings)
 ledstrip = LedStrip(usersettings, ledsettings)
 learning = LearnMIDI(usersettings, ledsettings, midiports, ledstrip)
 saving = SaveMIDI()
-menu = MenuLCD("menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
+menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
 
 midiports.add_instance(menu)
 ledsettings.add_instance(menu, ledstrip)
@@ -161,7 +161,7 @@ while True:
         if usersettings.pending_reset:
             usersettings.pending_reset = False
             ledstrip = LedStrip(usersettings, ledsettings)
-            menu = MenuLCD("menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
+            menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
             menu.show()
             ledsettings = LedSettings(usersettings)
 

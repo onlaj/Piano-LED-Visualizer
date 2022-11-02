@@ -4,7 +4,7 @@ import time
 from xml.dom import minidom
 
 from lib.functions import fastColorWipe, find_between, clamp
-from neopixel import Color
+from lib.neopixel import Color
 
 
 class LedSettings:
@@ -309,7 +309,7 @@ class LedSettings:
                     self.step_number = int(step) + 1
                 else:
                     self.step_number = 1
-                self.sequences_tree = minidom.parse("sequences.xml")
+                self.sequences_tree = minidom.parse("config/sequences.xml")
 
                 self.sequence_number = str(int(sequence) + 1)
 

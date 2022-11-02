@@ -1,6 +1,5 @@
 import mido
-import subprocess
-import connectall
+from lib import connectall
 import time
 
 class MidiPorts:

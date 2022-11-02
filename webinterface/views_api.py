@@ -1,11 +1,11 @@
 from webinterface import webinterface
-from flask import render_template, send_file, redirect, request, url_for, jsonify
+from flask import render_template, send_file, request, jsonify
 from werkzeug.utils import safe_join
 from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
     rainbow, rainbowCycle, fastColorWipe, play_midi, clamp
 import psutil
 import threading
-from neopixel import *
+from lib.neopixel import *
 import webcolors as wc
 import mido
 from xml.dom import minidom
@@ -17,7 +17,6 @@ import math
 from zipfile import ZipFile
 import json
 import ast
-import time
 import RPi.GPIO as GPIO
 
 SENSECOVER = 12
@@ -457,43 +456,43 @@ def change_setting():
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "change_sequence_name":
-        sequences_tree = minidom.parse("sequences.xml")
+        sequences_tree = minidom.parse("config/sequences.xml")
         sequence_to_edit = "sequence_" + str(value)
 
         sequences_tree.getElementsByTagName(sequence_to_edit)[
             0].getElementsByTagName("settings")[
             0].getElementsByTagName("sequence_name")[0].firstChild.nodeValue = str(second_value)
 
-        pretty_save("sequences.xml", sequences_tree)
+        pretty_save("config/sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "change_step_value":
-        sequences_tree = minidom.parse("sequences.xml")
+        sequences_tree = minidom.parse("config/sequences.xml")
         sequence_to_edit = "sequence_" + str(value)
 
         sequences_tree.getElementsByTagName(sequence_to_edit)[
             0].getElementsByTagName("settings")[
             0].getElementsByTagName("next_step")[0].firstChild.nodeValue = str(second_value)
 
-        pretty_save("sequences.xml", sequences_tree)
+        pretty_save("config/sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "change_step_activation_method":
-        sequences_tree = minidom.parse("sequences.xml")
+        sequences_tree = minidom.parse("config/sequences.xml")
         sequence_to_edit = "sequence_" + str(value)
 
         sequences_tree.getElementsByTagName(sequence_to_edit)[
             0].getElementsByTagName("settings")[
             0].getElementsByTagName("control_number")[0].firstChild.nodeValue = str(second_value)
 
-        pretty_save("sequences.xml", sequences_tree)
+        pretty_save("config/sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "add_sequence":
-        sequences_tree = minidom.parse("sequences.xml")
+        sequences_tree = minidom.parse("config/sequences.xml")
 
         sequences_amount = 1
         while True:
@@ -543,12 +542,12 @@ def change_setting():
 
         sequences_tree.getElementsByTagName("list")[0].appendChild(element)
 
-        pretty_save("sequences.xml", sequences_tree)
+        pretty_save("config/sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "remove_sequence":
-        sequences_tree = minidom.parse("sequences.xml")
+        sequences_tree = minidom.parse("config/sequences.xml")
 
         # removing sequence node
         nodes = sequences_tree.getElementsByTagName("sequence_" + str(value))
@@ -563,12 +562,12 @@ def change_setting():
                 sequences_tree.getElementsByTagName(sequence.nodeName)[0].tagName = "sequence_" + str(i)
                 i += 1
 
-        pretty_save("sequences.xml", sequences_tree)
+        pretty_save("config/sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "add_step":
-        sequences_tree = minidom.parse("sequences.xml")
+        sequences_tree = minidom.parse("config/sequences.xml")
 
         step_amount = 1
         while True:
@@ -602,7 +601,7 @@ def change_setting():
 
         sequences_tree.getElementsByTagName("sequence_" + str(value))[0].appendChild(step)
 
-        pretty_save("sequences.xml", sequences_tree)
+        pretty_save("config/sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True)
 
@@ -612,7 +611,7 @@ def change_setting():
         second_value = int(second_value)
         second_value += 1
 
-        sequences_tree = minidom.parse("sequences.xml")
+        sequences_tree = minidom.parse("config/sequences.xml")
 
         # removing step node
         nodes = sequences_tree.getElementsByTagName("sequence_" + str(value))[0].getElementsByTagName(
@@ -629,7 +628,7 @@ def change_setting():
                     0].tagName = "step_" + str(i)
                 i += 1
 
-        pretty_save("sequences.xml", sequences_tree)
+        pretty_save("config/sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
@@ -637,7 +636,7 @@ def change_setting():
     if setting_name == "save_led_settings_to_step" and second_value != "":
 
         # remove node and child under "sequence_" + str(value) and "step_" + str(second_value)
-        sequences_tree = minidom.parse("sequences.xml")
+        sequences_tree = minidom.parse("config/sequences.xml")
 
         second_value = int(second_value)
         second_value += 1
@@ -859,7 +858,7 @@ def change_setting():
         except:
             sequences_tree.getElementsByTagName("sequence_" + str(value))[0].appendChild(step)
 
-        pretty_save("sequences.xml", sequences_tree)
+        pretty_save("config/sequences.xml", sequences_tree)
 
         return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True)
 
@@ -1409,7 +1408,7 @@ def switch_ports():
 def get_sequences():
     response = {}
     sequences_list = []
-    sequences_tree = minidom.parse("sequences.xml")
+    sequences_tree = minidom.parse("config/sequences.xml")
     i = 0
     while True:
         try:
@@ -1430,7 +1429,7 @@ def get_sequences():
 def get_steps_list():
     response = {}
     sequence = request.args.get('sequence')
-    sequences_tree = minidom.parse("sequences.xml")
+    sequences_tree = minidom.parse("config/sequences.xml")
     steps_list = []
     i = 0
 

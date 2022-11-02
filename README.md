@@ -58,7 +58,7 @@ Optionally, you can connect a switch to BCM pin 12 and GND. Attach the switch to
 If you are wondering how to connect wires to RPI if screen hat is taking all pins here is a [picture](https://i.imgur.com/7KhwM7r.jpg) of how I did it. There should be a gap between RPI and screen so you can solder your wires or just wrap cables around the pins and separate them with heat shrink bands.
 
 After connecting all cables as described above everything should fit nicely to case. Scroll down to see some photos of the setup I made
-If you don't have a 3d printer, try to find some company or private person who will print it for you. I paid 12USD for my print. [RPICaseModel.stl](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/RPICaseModel.stl "RPICaseModel.stl")
+If you don't have a 3d printer, try to find some company or private person who will print it for you. I paid 12USD for my print. [RPICaseModel.stl](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/RPICaseModel.stl "RPICaseModel.stl")
 
 ## Web interface
 The visualizer comes with a web interface with which you can control the colors of the LED strip, change port settings, run animations of the strip, control sequences and manage midi files, including downloading, uploading, renaming, deleting, and playing.

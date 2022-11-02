@@ -2,14 +2,11 @@ import os
 
 from subprocess import call
 from xml.dom import minidom
-from lib.ledsettings import LedSettings
 
 import webcolors as wc
 from PIL import ImageFont, Image, ImageDraw
 
-import LCD_1in3
-import LCD_1in44
-import LCD_Config
+from lib import LCD_Config, LCD_1in44, LCD_1in3
 
 from lib.functions import *
 import RPi.GPIO as GPIO
@@ -127,7 +124,7 @@ class MenuLCD:
         mc.parentNode.parentNode.replaceChild(seq_mc, mc.parentNode)
         ret = True
         try:
-            sequences_tree = minidom.parse("sequences.xml")
+            sequences_tree = minidom.parse("config/sequences.xml")
             self.update_songs()
             i = 0
             while True:

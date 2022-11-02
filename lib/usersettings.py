@@ -5,7 +5,7 @@ class UserSettings:
     def __init__(self):
         self.pending_changes = False
         try:
-            self.tree = ET.parse("settings.xml")
+            self.tree = ET.parse("config/settings.xml")
             self.root = self.tree.getroot()
         except:
             print("Can't load settings file, restoring defaults")
@@ -25,12 +25,12 @@ class UserSettings:
         if self.pending_changes:
             self.pending_changes = False
 
-            self.tree.write("settings.xml")
-            self.tree = ET.parse("settings.xml")
+            self.tree.write("config/settings.xml")
+            self.tree = ET.parse("config/settings.xml")
             self.root = self.tree.getroot()
 
     def reset_to_default(self):
-        self.tree = ET.parse("default_settings.xml")
-        self.tree.write("settings.xml")
+        self.tree = ET.parse("config/default_settings.xml")
+        self.tree.write("config/settings.xml")
         self.root = self.tree.getroot()
         self.pending_reset = True
