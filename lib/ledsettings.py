@@ -185,20 +185,25 @@ class LedSettings:
             chosen_color = random.choice(temporary_multicolor)
         else:
             # mix colors from left and right
-            right = int(min(color_on_the_right, key=int))
-            left = int(max(color_on_the_left, key=int))
 
-            left_to_right_distance = right - left
-            percent_value = (note - left) / left_to_right_distance
+            if color_on_the_right and color_on_the_left:
+                right = int(min(color_on_the_right, key=int))
+                left = int(max(color_on_the_left, key=int))
 
-            red = (percent_value * (color_on_the_right[right][0] - color_on_the_left[left][0])) + \
-                  color_on_the_left[left][0]
-            green = (percent_value * (color_on_the_right[right][1] - color_on_the_left[left][1])) + \
-                    color_on_the_left[left][1]
-            blue = (percent_value * (color_on_the_right[right][2] - color_on_the_left[left][2])) + \
-                   color_on_the_left[left][2]
+                left_to_right_distance = right - left
+                percent_value = (note - left) / left_to_right_distance
 
-            chosen_color = [int(red), int(green), int(blue)]
+                red = (percent_value * (color_on_the_right[right][0] - color_on_the_left[left][0])) + \
+                      color_on_the_left[left][0]
+                green = (percent_value * (color_on_the_right[right][1] - color_on_the_left[left][1])) + \
+                        color_on_the_left[left][1]
+                blue = (percent_value * (color_on_the_right[right][2] - color_on_the_left[left][2])) + \
+                       color_on_the_left[left][2]
+
+                chosen_color = [int(red), int(green), int(blue)]
+            else:
+                chosen_color = [0, 0, 0]
+
         return chosen_color
 
     def light_keys_in_range(self, location):
