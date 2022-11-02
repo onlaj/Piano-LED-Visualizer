@@ -172,16 +172,44 @@ class LedSettings:
 
     def get_random_multicolor_in_range(self, note):
         temporary_multicolor = []
+        color_on_the_right = {}
+        color_on_the_left = {}
+
+        right = 0
+        left = 0
+
         i = 0
         for range in self.multicolor_range:
-            if note >= range[0] and note <= range[1]:
+            if range[0] <= note <= range[1]:
                 temporary_multicolor.append(self.multicolor[i])
+
+            #get colors on the left and right
+            if range[0] > note:
+                color_on_the_right[range[0]] = self.multicolor[i]
+            if range[1] < note:
+                color_on_the_left[range[1]] = self.multicolor[i]
+
             i += 1
-        try:
-            choosen_color = random.choice(temporary_multicolor)
-        except:
-            choosen_color = [0, 0, 0]
-        return choosen_color
+        if temporary_multicolor:
+            chosen_color = random.choice(temporary_multicolor)
+
+        else:
+            #mix colors from left and right
+            right = min(color_on_the_right, key=int)
+            left = max(color_on_the_left, key=int)
+
+            left_to_right_distance = right - left
+            percent_value = (note - left) / left_to_right_distance
+
+            red = (percent_value * (color_on_the_right[right][0] - color_on_the_left[left][0])) + \
+                  color_on_the_left[left][0]
+            green = (percent_value * (color_on_the_right[right][1] - color_on_the_left[left][1])) + \
+                  color_on_the_left[left][1]
+            blue = (percent_value * (color_on_the_right[right][2] - color_on_the_left[left][2])) + \
+                  color_on_the_left[left][2]
+
+            chosen_color = [int(red), int(green), int(blue)]
+        return chosen_color
 
     def light_keys_in_range(self, location):
         fastColorWipe(self.ledstrip.strip, True, self)
