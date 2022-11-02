@@ -175,9 +175,6 @@ class LedSettings:
         color_on_the_right = {}
         color_on_the_left = {}
 
-        right = 0
-        left = 0
-
         i = 0
         for range in self.multicolor_range:
             if range[0] <= note <= range[1]:
@@ -192,7 +189,6 @@ class LedSettings:
             i += 1
         if temporary_multicolor:
             chosen_color = random.choice(temporary_multicolor)
-
         else:
             #mix colors from left and right
             right = min(color_on_the_right, key=int)
