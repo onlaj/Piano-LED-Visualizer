@@ -190,35 +190,6 @@ If for some reasons it does not work try to remove whole project and clone it ag
 
 `sudo git clone https://github.com/onlaj/Piano-LED-Visualizer`
 
-## Using the sequences
-In the visualizer menu you can find setting called "Sequences". It allows you to change led properties while playing using third key on Waveshare hat or your piano pedals.
-You can edit or create new sequences by editing "sequences.xml" file.
-The "control_number" defines which pedal is used to go to the next step.
-
-|Control number| Pedal name |
-|--|--|
-| 64 | Damper Pedal (Sustain/Hold) On/Off  |
-| 65 | Portamento On/Off |
-| 66 | Sostenuto On/Off |
-| 67 | Soft Pedal On/Off |
-
-The "next_step" value decides if next step is activated when you press or release the pedal. For example if you want to change settings after fully pressing Sostenuto pedal you should write it like:
-
-    <control_number>66</control_number> 
-    <next_step>126</next_step>
-   127 is the maximum value when pedal is fully pressed, so you are saying to script to change settings when value is bigger than 126.
-This is how it should look when you want to change settings when fully releasing pedal.
-
-      <control_number>66</control_number> 
-	  <next_step>-1</next_step>
-
- (-) before the number means that next step will be activated when pedal value is below 1.
-
-You can also use sequences as a way to save your presets under custom names.
-
-
-
-
 
 ![Image](https://i.imgur.com/9MgNUl5.jpg?1)
 ![Image](https://i.imgur.com/WGxGdNM.jpg?2)
