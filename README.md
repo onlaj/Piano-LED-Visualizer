@@ -7,6 +7,9 @@
 
 [![Everything Is AWESOME](https://i.imgur.com/xpfZ0Z6.png)](https://www.youtube.com/watch?v=IZgYViHcXdM "Piano LED Visualizer")
 
+# Features
+[Detailed feature showcase with images](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/features.md)
+
 # What you need:
 
   - Piano with MIDI or USB output
