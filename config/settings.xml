@@ -102,6 +102,7 @@
 	<hand_colorL>1</hand_colorL>
 
 	<is_loop_active>1</is_loop_active>
+	<midi_logging>1</midi_logging>
 
 
 </settings>

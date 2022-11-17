@@ -1008,6 +1008,9 @@ function get_ports() {
             connected_ports = connected_ports.replaceAll("\\t", "        ")
             connected_ports = connected_ports.replaceAll("b\"", "")
             document.getElementById('connect_all_textarea').innerHTML = connected_ports;
+            if (response.midi_logging == "1") {
+                document.getElementById("midi_events_checkbox").checked = true;
+            }
         }
     };
     xhttp.open("GET", "/api/get_ports", true);
