@@ -300,11 +300,10 @@ while True:
         continue
     # loop through incoming midi messages
     for msg in midiports.midipending:
-
-        if usersettings.get_setting_value("midi_logging") is True:
+        if int(usersettings.get_setting_value("midi_logging")) == 1:
             if not msg.is_meta:
                 try:
-                    learning.socket_send.append(msg)
+                    learning.socket_send.append("midi_event" + str(msg))
                 except Exception as e:
                     print(e)
 

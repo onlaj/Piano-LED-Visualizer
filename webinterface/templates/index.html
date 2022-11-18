@@ -28,7 +28,17 @@
             socket.send('Connection Established');
         });
         socket.addEventListener('message', function (event) {
-            window.go_to_time(parseFloat(event.data));
+            if(event.data.includes("midi_event")){
+                textarea =  document.getElementById('midi_events_textarea');
+                if (typeof(textarea) != 'undefined' && textarea != null){
+                    const d = new Date();
+                    var t = "\r\n" + d.getHours() +":"+ d.getMinutes() + ":" + d.getSeconds()+ "." + d.getMilliseconds() + " "
+                    textarea.value+= t + event.data.replace("midi_event", "");
+                    textarea.scrollTop = textarea.scrollHeight;
+                }
+            }else {
+                window.go_to_time(parseFloat(event.data));
+            }
         });
         socket.addEventListener('close', function (event) {
             console.log('Connection closed, reconnecting...');
