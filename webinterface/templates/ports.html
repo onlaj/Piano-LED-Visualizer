@@ -180,5 +180,20 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
         </div>
     </div>
+
+
+    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">MIDI events</div>
+
+        <div class="flex items-center mb-4">
+            <input onclick="change_setting('show_midi_events', this.checked)" id="midi_events_checkbox" type="checkbox" value=""
+                   class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+            <label for="default-checkbox" class="pl-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Show midi events (might degrade performance)</label>
+        </div>
+
+        <textarea readonly id="midi_events_textarea"
+                  class="w-full px-3 py-2 bg-gray-100 dark:bg-gray-600 rounded-lg focus:outline-none"
+                  rows="20"></textarea>
+    </div>
 </div>
 

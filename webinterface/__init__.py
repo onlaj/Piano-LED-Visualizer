@@ -22,7 +22,6 @@ def start_server():
         while True:
             time.sleep(0.01)
             for msg in webinterface.learning.socket_send[:]:
-                #print("input msg: " + str(msg))
                 await websocket.send(str(msg))
 
                 webinterface.learning.socket_send.remove(msg)

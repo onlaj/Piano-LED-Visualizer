@@ -894,6 +894,10 @@ def change_setting():
     if setting_name == "restart_rtp":
         call("sudo systemctl restart rtpmidid", shell=True)
 
+    if setting_name == "show_midi_events":
+        value = int(value == 'true')
+        webinterface.usersettings.change_setting_value("midi_logging", value)
+
     if setting_name == "start_recording":
         webinterface.saving.start_recording()
         return jsonify(success=True, reload_songs=True)
@@ -1387,6 +1391,7 @@ def get_ports():
     response["secondary_input_port"] = webinterface.usersettings.get_setting_value("secondary_input_port")
     response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
     response["connected_ports"] = str(subprocess.check_output(["aconnect", "-i", "-l"]))
+    response["midi_logging"] = webinterface.usersettings.get_setting_value("midi_logging")
 
     return jsonify(response)
 

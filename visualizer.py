@@ -300,8 +300,12 @@ while True:
         continue
     # loop through incoming midi messages
     for msg in midiports.midipending:
-
-        #webinterface.socket_input.append(msg)
+        if int(usersettings.get_setting_value("midi_logging")) == 1:
+            if not msg.is_meta:
+                try:
+                    learning.socket_send.append("midi_event" + str(msg))
+                except Exception as e:
+                    print(e)
 
         midiports.last_activity = time.time()
         note = find_between(str(msg), "note=", " ")
