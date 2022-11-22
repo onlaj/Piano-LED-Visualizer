@@ -270,6 +270,10 @@ def change_setting():
         webinterface.usersettings.change_setting_value("reverse", int(value))
         webinterface.ledstrip.change_reverse(int(value), True)
 
+    if setting_name == "low_density":
+        webinterface.usersettings.change_setting_value("low_density", int(value))
+        webinterface.ledsettings.low_density = int(value)
+
     if setting_name == "color_mode":
         reload_sequence = True
         if (second_value == "no_reload"):
@@ -1235,6 +1239,7 @@ def get_settings():
     response["led_count"] = webinterface.usersettings.get_setting_value("led_count")
     response["led_shift"] = webinterface.usersettings.get_setting_value("shift")
     response["led_reverse"] = webinterface.usersettings.get_setting_value("reverse")
+    response["low_density"] = webinterface.usersettings.get_setting_value("low_density")
 
     response["color_mode"] = webinterface.usersettings.get_setting_value("color_mode")
 

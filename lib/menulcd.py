@@ -1009,6 +1009,14 @@ class MenuLCD:
             else:
                 self.ledsettings.deletecolor(location.replace('Color', ''))
 
+        if location == "Low_density":
+            if choice == "Enable":
+                self.usersettings.change_setting_value("low_density", 1)
+                self.ledsettings.low_density = 1
+            else:
+                self.usersettings.change_setting_value("low_density", 0)
+                self.ledsettings.low_density = 0
+
         if location == "Multicolor" and choice == "Confirm":
             self.ledsettings.color_mode = "Multicolor"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)

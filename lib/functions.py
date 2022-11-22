@@ -248,7 +248,13 @@ def get_note_position(note, ledstrip, ledsettings):
             note_offset = note_offsets[i][1]
             break
     note_offset -= ledstrip.shift
-    note_pos_raw = 2 * (note - 20) - note_offset
+
+    if(ledsettings.low_density == 1):
+        density = 1
+    else:
+        density = 2
+
+    note_pos_raw = density * (note - 20) - note_offset
     if ledstrip.reverse:
         return max(0, ledstrip.led_number - note_pos_raw)
     else:
