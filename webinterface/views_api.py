@@ -88,17 +88,17 @@ def start_animation():
 
     if choice == "rainbowcycle":
         if speed == "fast":
-            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip,
                                                                          webinterface.ledsettings,
                                                                          webinterface.menu, 1))
             webinterface.t.start()
         if speed == "medium":
-            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip,
                                                                          webinterface.ledsettings,
                                                                          webinterface.menu, 20))
             webinterface.t.start()
         if speed == "slow":
-            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip,
                                                                          webinterface.ledsettings,
                                                                          webinterface.menu, 50))
             webinterface.t.start()

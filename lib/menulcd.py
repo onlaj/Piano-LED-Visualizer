@@ -966,13 +966,13 @@ class MenuLCD:
                 self.t.start()
         if location == "Rainbow_Cycle":
             if choice == "Fast":
-                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip.strip, self.ledsettings, self, 1))
+                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip, self.ledsettings, self, 1))
                 self.t.start()
             if choice == "Medium":
-                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip.strip, self.ledsettings, self, 20))
+                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip, self.ledsettings, self, 20))
                 self.t.start()
             if choice == "Slow":
-                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip.strip, self.ledsettings, self, 50))
+                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip, self.ledsettings, self, 50))
                 self.t.start()
 
         if location == "LED_animations":

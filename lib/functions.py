@@ -387,10 +387,11 @@ def rainbow(strip, ledsettings, menu, wait_ms=20):
     fastColorWipe(strip, True, ledsettings)
 
 
-def rainbowCycle(strip, ledsettings, menu, wait_ms=20):
+def rainbowCycle(ledstrip, ledsettings, menu, wait_ms=20):
     """Draw rainbow that uniformly distributes itself across all pixels."""
     menu.screensaver_is_running = False
     time.sleep(0.2)
+    strip = ledstrip.strip
     if menu.screensaver_is_running:
         return
     fastColorWipe(strip, True, ledsettings)
@@ -409,7 +410,8 @@ def rainbowCycle(strip, ledsettings, menu, wait_ms=20):
             cover_opened = GPIO.input(SENSECOVER)
 
         for i in range(strip.numPixels()):
-            strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255))
+            if ledstrip.keylist_status[i] == 0:
+                strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255))
         j += 1
         if j >= 256:
             j = 0
