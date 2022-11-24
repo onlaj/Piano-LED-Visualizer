@@ -410,7 +410,7 @@ def rainbowCycle(ledstrip, ledsettings, menu, wait_ms=20):
             cover_opened = GPIO.input(SENSECOVER)
 
         for i in range(strip.numPixels()):
-            if ledstrip.keylist_status[i] == 0:
+            if ledstrip.keylist[i] == 0:
                 strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255))
         j += 1
         if j >= 256:
