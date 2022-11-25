@@ -310,8 +310,8 @@ def check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
             return True
     else:
         if i > 1 and i < (ledstrip.led_number - 1):
-            if ledstrip.keylist_status[i + 1] == 0 and ledstrip.keylist_status[i - 1] == 0 \
-                    and ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+            if ledstrip.keylist[i + 1] == ledstrip.keylist[i - 1] == ledstrip.keylist[i] \
+                    == ledstrip.keylist_status[i + 1] == ledstrip.keylist_status[i - 1] == ledstrip.keylist_status[i]:
                 return True
         else:
             return True
