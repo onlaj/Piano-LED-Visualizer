@@ -28,77 +28,77 @@ def start_animation():
     choice = request.args.get('name')
     speed = request.args.get('speed')
     if choice == "theaterchase":
-        webinterface.menu.t = threading.Thread(target=theaterChase, args=(webinterface.ledstrip.strip,
+        webinterface.menu.t = threading.Thread(target=theaterChase, args=(webinterface.ledstrip,
                                                                           Color(127, 127, 127),
                                                                           webinterface.ledsettings,
                                                                           webinterface.menu))
         webinterface.menu.t.start()
 
     if choice == "theaterchaserainbow":
-        webinterface.t = threading.Thread(target=theaterChaseRainbow, args=(webinterface.ledstrip.strip,
+        webinterface.t = threading.Thread(target=theaterChaseRainbow, args=(webinterface.ledstrip,
                                                                             webinterface.ledsettings,
                                                                             webinterface.menu, 5))
         webinterface.t.start()
 
     if choice == "soundofdapolice":
-        webinterface.t = threading.Thread(target=sound_of_da_police, args=(webinterface.ledstrip.strip,
+        webinterface.t = threading.Thread(target=sound_of_da_police, args=(webinterface.ledstrip,
                                                                            webinterface.ledsettings,
                                                                            webinterface.menu, 1))
         webinterface.t.start()
 
     if choice == "scanner":
-        webinterface.t = threading.Thread(target=scanner, args=(webinterface.ledstrip.strip,
+        webinterface.t = threading.Thread(target=scanner, args=(webinterface.ledstrip,
                                                                 webinterface.ledsettings,
                                                                 webinterface.menu, 1))
         webinterface.t.start()
 
     if choice == "breathing":
         if speed == "fast":
-            webinterface.t = threading.Thread(target=breathing, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=breathing, args=(webinterface.ledstrip,
                                                                       webinterface.ledsettings,
                                                                       webinterface.menu, 5))
             webinterface.t.start()
         if speed == "medium":
-            webinterface.t = threading.Thread(target=breathing, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=breathing, args=(webinterface.ledstrip,
                                                                       webinterface.ledsettings,
                                                                       webinterface.menu, 10))
             webinterface.t.start()
         if speed == "slow":
-            webinterface.t = threading.Thread(target=breathing, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=breathing, args=(webinterface.ledstrip,
                                                                       webinterface.ledsettings,
                                                                       webinterface.menu, 25))
             webinterface.t.start()
 
     if choice == "rainbow":
         if speed == "fast":
-            webinterface.t = threading.Thread(target=rainbow, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=rainbow, args=(webinterface.ledstrip,
                                                                     webinterface.ledsettings,
                                                                     webinterface.menu, 2))
             webinterface.t.start()
         if speed == "medium":
-            webinterface.t = threading.Thread(target=rainbow, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=rainbow, args=(webinterface.ledstrip,
                                                                     webinterface.ledsettings,
                                                                     webinterface.menu, 20))
             webinterface.t.start()
         if speed == "slow":
-            webinterface.t = threading.Thread(target=rainbow, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=rainbow, args=(webinterface.ledstrip,
                                                                     webinterface.ledsettings,
                                                                     webinterface.menu, 50))
             webinterface.t.start()
 
     if choice == "rainbowcycle":
         if speed == "fast":
-            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip,
                                                                          webinterface.ledsettings,
                                                                          webinterface.menu, 1))
             webinterface.t.start()
         if speed == "medium":
-            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip,
                                                                          webinterface.ledsettings,
                                                                          webinterface.menu, 20))
             webinterface.t.start()
         if speed == "slow":
-            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip.strip,
+            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip,
                                                                          webinterface.ledsettings,
                                                                          webinterface.menu, 50))
             webinterface.t.start()

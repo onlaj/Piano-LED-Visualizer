@@ -928,51 +928,51 @@ class MenuLCD:
 
         if location == "LED_animations":
             if choice == "Theater Chase":
-                self.t = threading.Thread(target=theaterChase, args=(self.ledstrip.strip, Color(127, 127, 127),
+                self.t = threading.Thread(target=theaterChase, args=(self.ledstrip, Color(127, 127, 127),
                                                                      self.ledsettings, self))
                 self.t.start()
             if choice == "Theater Chase Rainbow":
-                self.t = threading.Thread(target=theaterChaseRainbow, args=(self.ledstrip.strip, self.ledsettings,
+                self.t = threading.Thread(target=theaterChaseRainbow, args=(self.ledstrip, self.ledsettings,
                                                                             self, 5))
                 self.t.start()
             if choice == "Sound of da police":
-                self.t = threading.Thread(target=sound_of_da_police, args=(self.ledstrip.strip, self.ledsettings,
+                self.t = threading.Thread(target=sound_of_da_police, args=(self.ledstrip, self.ledsettings,
                                                                            self, 1))
                 self.t.start()
             if choice == "Scanner":
-                self.t = threading.Thread(target=scanner, args=(self.ledstrip.strip, self.ledsettings, self, 1))
+                self.t = threading.Thread(target=scanner, args=(self.ledstrip, self.ledsettings, self, 1))
                 self.t.start()
             if choice == "Clear":
                 fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
         if location == "Breathing":
             if choice == "Fast":
-                self.t = threading.Thread(target=breathing, args=(self.ledstrip.strip, self.ledsettings, self, 5))
+                self.t = threading.Thread(target=breathing, args=(self.ledstrip, self.ledsettings, self, 5))
                 self.t.start()
             if choice == "Medium":
-                self.t = threading.Thread(target=breathing, args=(self.ledstrip.strip, self.ledsettings, self, 10))
+                self.t = threading.Thread(target=breathing, args=(self.ledstrip, self.ledsettings, self, 10))
                 self.t.start()
             if choice == "Slow":
-                self.t = threading.Thread(target=breathing, args=(self.ledstrip.strip, self.ledsettings, self, 25))
+                self.t = threading.Thread(target=breathing, args=(self.ledstrip, self.ledsettings, self, 25))
                 self.t.start()
         if location == "Rainbow":
             if choice == "Fast":
-                self.t = threading.Thread(target=rainbow, args=(self.ledstrip.strip, self.ledsettings, self, 2))
+                self.t = threading.Thread(target=rainbow, args=(self.ledstrip, self.ledsettings, self, 2))
                 self.t.start()
             if choice == "Medium":
-                self.t = threading.Thread(target=rainbow, args=(self.ledstrip.strip, self.ledsettings, self, 20))
+                self.t = threading.Thread(target=rainbow, args=(self.ledstrip, self.ledsettings, self, 20))
                 self.t.start()
             if choice == "Slow":
-                self.t = threading.Thread(target=rainbow, args=(self.ledstrip.strip, self.ledsettings, self, 50))
+                self.t = threading.Thread(target=rainbow, args=(self.ledstrip, self.ledsettings, self, 50))
                 self.t.start()
         if location == "Rainbow_Cycle":
             if choice == "Fast":
-                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip.strip, self.ledsettings, self, 1))
+                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip, self.ledsettings, self, 1))
                 self.t.start()
             if choice == "Medium":
-                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip.strip, self.ledsettings, self, 20))
+                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip, self.ledsettings, self, 20))
                 self.t.start()
             if choice == "Slow":
-                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip.strip, self.ledsettings, self, 50))
+                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip, self.ledsettings, self, 50))
                 self.t.start()
 
         if location == "LED_animations":
