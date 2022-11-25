@@ -254,7 +254,7 @@ def get_note_position(note, ledstrip, ledsettings):
             break
     note_offset -= ledstrip.shift
 
-    if(ledsettings.low_density == 1):
+    if (ledsettings.low_density == 1):
         density = 1
     else:
         density = 2
@@ -304,6 +304,18 @@ def get_rainbow_colors(pos, color):
         elif color == "blue":
             return 255 - pos * 3
 
+def check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+    if ledsettings.adjacent_mode == "Off":
+        if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+            return True
+    else:
+        if i > 1 and i < (ledstrip.led_number - 1):
+            if ledstrip.keylist_status[i + 1] == 0 and ledstrip.keylist_status[i - 1] == 0 \
+                    and ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+                return True
+        else:
+            return True
+    return False
 
 # LED animations
 def fastColorWipe(strip, update, ledsettings):
@@ -353,12 +365,12 @@ def theaterChase(ledstrip, color, ledsettings, menu, wait_ms=25):
 
         for q in range(5):
             for i in range(0, strip.numPixels(), 5):
-                if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+                if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                     strip.setPixelColor(i + q, Color(green, red, blue))
             strip.show()
             time.sleep(wait_ms / 1000.0)
             for i in range(0, strip.numPixels(), 5):
-                if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+                if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                     strip.setPixelColor(i + q, 0)
         j += 1
         if j > 256:
@@ -410,7 +422,7 @@ def rainbow(ledstrip, ledsettings, menu, wait_ms=20):
             cover_opened = GPIO.input(SENSECOVER)
 
         for i in range(strip.numPixels()):
-            if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                 strip.setPixelColor(i, wheel(j & 255, ledsettings))
         j += 1
         if j >= 256:
@@ -444,7 +456,7 @@ def rainbowCycle(ledstrip, ledsettings, menu, wait_ms=20):
             cover_opened = GPIO.input(SENSECOVER)
 
         for i in range(strip.numPixels()):
-            if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                 strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255, ledsettings))
         j += 1
         if j >= 256:
@@ -479,12 +491,12 @@ def theaterChaseRainbow(ledstrip, ledsettings, menu, wait_ms=25):
 
         for q in range(5):
             for i in range(0, strip.numPixels(), 5):
-                if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+                if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                     strip.setPixelColor(i + q, wheel((i + j) % 255, ledsettings))
             strip.show()
             time.sleep(wait_ms / 1000.0)
             for i in range(0, strip.numPixels(), 5):
-                if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+                if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                     strip.setPixelColor(i + q, 0)
         j += 1
 
@@ -534,7 +546,7 @@ def breathing(ledstrip, ledsettings, menu, wait_ms=2):
         blue = int(round(float(ledsettings.get_backlight_color("Blue")) * float(divide)))
 
         for i in range(strip.numPixels()):
-            if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                 strip.setPixelColor(i, Color(green, red, blue))
         strip.show()
         if wait_ms > 0:
@@ -577,7 +589,7 @@ def sound_of_da_police(ledstrip, ledsettings, menu, wait_ms=5):
         brightness /= 100
 
         for i in range(strip.numPixels()):
-            if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                 if (i > middle) and i > r_start and i < (r_start + 40):
                     strip.setPixelColor(i, Color(0, int(255 * brightness), 0))
                 elif (i < middle) and i < l_start and i > (l_start - 40):
@@ -628,7 +640,6 @@ def scanner(ledstrip, ledsettings, menu, wait_ms=1):
                 if distance_from_position < 0:
                     distance_from_position *= -1
 
-
                 if ledsettings.backlight_brightness_percent == 0:
                     brightness = 100
                 else:
@@ -642,7 +653,7 @@ def scanner(ledstrip, ledsettings, menu, wait_ms=1):
                 green = int(float(green_fixed) * float(divide) * brightness)
                 blue = int(float(blue_fixed) * float(divide) * brightness)
 
-                if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+                if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                     if divide > 0:
                         strip.setPixelColor(i, Color(green, red, blue))
                     else:
