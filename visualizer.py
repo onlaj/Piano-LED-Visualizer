@@ -277,7 +277,7 @@ while True:
                     ledstrip.set_adjacent_colors(n, Color(int(int(green) * fading), int(int(red) * fading),
                                                           int(int(blue) * fading)), False)
                     ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
-                    if ledstrip.keylist[n] <= 0:
+                    if ledstrip.keylist[n] <= 0 and menu.screensaver_is_running is not True:
                         red_fading = int(ledsettings.get_backlight_color("Red")) * float(
                             ledsettings.backlight_brightness_percent) / 100
                         green_fading = int(ledsettings.get_backlight_color("Green")) * float(
@@ -374,7 +374,7 @@ while True:
             if ledsettings.mode == "Fading":
                 ledstrip.keylist[note_position] = 1000
             else:
-                if ledsettings.backlight_brightness > 0:
+                if ledsettings.backlight_brightness > 0 and menu.screensaver_is_running is not True:
                     red_backlight = int(
                         ledsettings.get_backlight_color("Red")) * ledsettings.backlight_brightness_percent / 100
                     green_backlight = int(
