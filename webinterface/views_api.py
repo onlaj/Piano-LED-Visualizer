@@ -2,7 +2,7 @@ from webinterface import webinterface
 from flask import render_template, send_file, request, jsonify
 from werkzeug.utils import safe_join
 from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
-    rainbow, rainbowCycle, fastColorWipe, play_midi, clamp
+    rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp
 import psutil
 import threading
 from lib.neopixel import *
@@ -22,6 +22,7 @@ import RPi.GPIO as GPIO
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(SENSECOVER, GPIO.IN, GPIO.PUD_UP)
+
 
 @webinterface.route('/api/start_animation', methods=['GET'])
 def start_animation():
@@ -102,6 +103,12 @@ def start_animation():
                                                                          webinterface.ledsettings,
                                                                          webinterface.menu, 50))
             webinterface.t.start()
+
+    if choice == "chords":
+        webinterface.t = threading.Thread(target=chords, args=(speed, webinterface.ledstrip,
+                                                                     webinterface.ledsettings,
+                                                                     webinterface.menu))
+        webinterface.t.start()
 
     if choice == "stop":
         webinterface.menu.screensaver_is_running = False
@@ -930,8 +937,6 @@ def change_setting():
             os.rename('Songs/' + value, 'Songs/' + second_value)
             os.rename('Songs/cache/' + value + ".p", 'Songs/cache/' + second_value + ".p")
 
-
-
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "remove_song":
@@ -969,10 +974,12 @@ def change_setting():
             zipObj.close()
             if songs_count == 1:
                 os.remove("Songs/" + value.replace(".mid", "") + ".zip")
-                return send_file(safe_join("../Songs/" + value), mimetype='application/x-csv', attachment_filename=value,
+                return send_file(safe_join("../Songs/" + value), mimetype='application/x-csv',
+                                 attachment_filename=value,
                                  as_attachment=True)
             else:
-                return send_file(safe_join("../Songs/" + value.replace(".mid", "")) + ".zip", mimetype='application/x-csv',
+                return send_file(safe_join("../Songs/" + value.replace(".mid", "")) + ".zip",
+                                 mimetype='application/x-csv',
                                  attachment_filename=value.replace(".mid", "") + ".zip", as_attachment=True)
         else:
             return send_file(safe_join("../Songs/" + value), mimetype='application/x-csv', attachment_filename=value,
@@ -984,7 +991,8 @@ def change_setting():
         while i < len(file_types):
             try:
                 new_name = value.replace(".mid", file_types[i])
-                return send_file(safe_join("../Songs/" + new_name), mimetype='application/x-csv', attachment_filename=new_name,
+                return send_file(safe_join("../Songs/" + new_name), mimetype='application/x-csv',
+                                 attachment_filename=new_name,
                                  as_attachment=True)
             except:
                 i += 1
@@ -994,7 +1002,6 @@ def change_setting():
                              attachment_filename=value.replace(".mid", ".abc"), as_attachment=True)
         except:
             print("Converting failed")
-
 
     if setting_name == "start_midi_play":
         webinterface.saving.t = threading.Thread(target=play_midi, args=(value, webinterface.midiports,
@@ -1032,7 +1039,8 @@ def change_setting():
     if setting_name == "change_practice":
         value = int(value)
         webinterface.learning.practice = value
-        webinterface.learning.practice = clamp(webinterface.learning.practice, 0, len(webinterface.learning.practiceList) - 1)
+        webinterface.learning.practice = clamp(webinterface.learning.practice, 0,
+                                               len(webinterface.learning.practiceList) - 1)
         webinterface.usersettings.change_setting_value("practice", webinterface.learning.practice)
 
         return jsonify(success=True)
@@ -1056,7 +1064,8 @@ def change_setting():
     if setting_name == "change_mute_hand":
         value = int(value)
         webinterface.learning.mute_hand = value
-        webinterface.learning.mute_hand = clamp(webinterface.learning.mute_hand, 0, len(webinterface.learning.mute_handList) - 1)
+        webinterface.learning.mute_hand = clamp(webinterface.learning.mute_hand, 0,
+                                                len(webinterface.learning.mute_handList) - 1)
         webinterface.usersettings.change_setting_value("mute_hand", webinterface.learning.mute_hand)
 
         return jsonify(success=True)
@@ -1064,7 +1073,8 @@ def change_setting():
     if setting_name == "learning_start_point":
         value = int(value)
         webinterface.learning.start_point = value
-        webinterface.learning.start_point = clamp(webinterface.learning.start_point, 0, webinterface.learning.end_point - 1)
+        webinterface.learning.start_point = clamp(webinterface.learning.start_point, 0,
+                                                  webinterface.learning.end_point - 1)
         webinterface.usersettings.change_setting_value("start_point", webinterface.learning.start_point)
         webinterface.learning.restart_learning()
 
@@ -1073,23 +1083,28 @@ def change_setting():
     if setting_name == "learning_end_point":
         value = int(value)
         webinterface.learning.end_point = value
-        webinterface.learning.end_point = clamp(webinterface.learning.end_point, webinterface.learning.start_point + 1, 100)
+        webinterface.learning.end_point = clamp(webinterface.learning.end_point, webinterface.learning.start_point + 1,
+                                                100)
         webinterface.usersettings.change_setting_value("end_point", webinterface.learning.end_point)
         webinterface.learning.restart_learning()
 
         return jsonify(success=True)
 
     if setting_name == "set_current_time_as_start_point":
-        webinterface.learning.start_point = round(float(webinterface.learning.current_idx * 100 / float(len(webinterface.learning.song_tracks))), 3)
-        webinterface.learning.start_point = clamp(webinterface.learning.start_point, 0, webinterface.learning.end_point - 1)
+        webinterface.learning.start_point = round(
+            float(webinterface.learning.current_idx * 100 / float(len(webinterface.learning.song_tracks))), 3)
+        webinterface.learning.start_point = clamp(webinterface.learning.start_point, 0,
+                                                  webinterface.learning.end_point - 1)
         webinterface.usersettings.change_setting_value("start_point", webinterface.learning.start_point)
         webinterface.learning.restart_learning()
 
         return jsonify(success=True, reload_learning_settings=True)
 
     if setting_name == "set_current_time_as_end_point":
-        webinterface.learning.end_point = round(float(webinterface.learning.current_idx * 100 / float(len(webinterface.learning.song_tracks))), 3)
-        webinterface.learning.end_point = clamp(webinterface.learning.end_point, webinterface.learning.start_point + 1, 100)
+        webinterface.learning.end_point = round(
+            float(webinterface.learning.current_idx * 100 / float(len(webinterface.learning.song_tracks))), 3)
+        webinterface.learning.end_point = clamp(webinterface.learning.end_point, webinterface.learning.start_point + 1,
+                                                100)
         webinterface.usersettings.change_setting_value("end_point", webinterface.learning.end_point)
         webinterface.learning.restart_learning()
 
@@ -1098,7 +1113,8 @@ def change_setting():
     if setting_name == "change_handL_color":
         value = int(value)
         webinterface.learning.hand_colorL += value
-        webinterface.learning.hand_colorL = clamp(webinterface.learning.hand_colorL, 0, len(webinterface.learning.hand_colorList) - 1)
+        webinterface.learning.hand_colorL = clamp(webinterface.learning.hand_colorL, 0,
+                                                  len(webinterface.learning.hand_colorList) - 1)
         webinterface.usersettings.change_setting_value("hand_colorL", webinterface.learning.hand_colorL)
 
         return jsonify(success=True, reload_learning_settings=True)
@@ -1106,7 +1122,8 @@ def change_setting():
     if setting_name == "change_handR_color":
         value = int(value)
         webinterface.learning.hand_colorR += value
-        webinterface.learning.hand_colorR = clamp(webinterface.learning.hand_colorR, 0, len(webinterface.learning.hand_colorList) - 1)
+        webinterface.learning.hand_colorR = clamp(webinterface.learning.hand_colorR, 0,
+                                                  len(webinterface.learning.hand_colorList) - 1)
         webinterface.usersettings.change_setting_value("hand_colorR", webinterface.learning.hand_colorR)
 
         return jsonify(success=True, reload_learning_settings=True)
@@ -1117,7 +1134,6 @@ def change_setting():
         webinterface.usersettings.change_setting_value("is_loop_active", webinterface.learning.is_loop_active)
 
         return jsonify(success=True)
-
 
     return jsonify(success=True)
 
@@ -1306,6 +1322,7 @@ def get_recording_status():
     response["isplaying"] = webinterface.saving.is_playing_midi
 
     return jsonify(response)
+
 
 @webinterface.route('/api/get_learning_status', methods=['GET'])
 def get_learning_status():

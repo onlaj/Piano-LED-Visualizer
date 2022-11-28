@@ -666,3 +666,44 @@ def scanner(ledstrip, ledsettings, menu, wait_ms=1):
 
     menu.screensaver_is_running = False
     fastColorWipe(strip, True, ledsettings)
+
+
+def chords(scale, ledstrip, ledsettings, menu):
+    menu.screensaver_is_running = False
+    time.sleep(0.2)
+    strip = ledstrip.strip
+    if menu.screensaver_is_running:
+        return
+    fastColorWipe(strip, True, ledsettings)
+    menu.t = threading.currentThread()
+    j = 0
+    menu.screensaver_is_running = True
+    while menu.screensaver_is_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
+        if ledsettings.backlight_brightness_percent == 0:
+            bright = 100
+        else:
+            bright = ledsettings.backlight_brightness_percent
+
+        bright /= 100
+
+        for i in range(int(strip.numPixels() / 2)):
+            note = i + 21
+            note_position = get_note_position(note, ledstrip, ledsettings)
+            c = get_scale_color(scale, note, ledsettings)
+
+            if check_if_led_can_be_overwrite(note_position, ledstrip, ledsettings):
+                strip.setPixelColor(note_position, Color(int(c[1] * bright), int(c[0] * bright), int(c[2] * bright)))
+        strip.show()
+        time.sleep(0.05)
+    menu.screensaver_is_running = False
+    fastColorWipe(strip, True, ledsettings)
