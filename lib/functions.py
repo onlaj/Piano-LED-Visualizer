@@ -715,7 +715,7 @@ def chords(scale, ledstrip, ledsettings, menu):
 
         for i in leds_to_update:
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                strip.setPixelColor(i, Color(int(c[1] * bright), int(c[0] * bright), int(c[2] * bright)))
+                strip.setPixelColor(i, Color(0, 0, 0))
 
         strip.show()
         time.sleep(0.05)
