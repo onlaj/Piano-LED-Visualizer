@@ -701,13 +701,22 @@ def chords(scale, ledstrip, ledsettings, menu):
         else:
             density = 2
 
+        leds_to_update = list(range(strip.numPixels()))
+
         for i in range(int(strip.numPixels() / density)):
             note = i + 21
             note_position = get_note_position(note, ledstrip, ledsettings)
             c = get_scale_color(scale, note, ledsettings)
 
+            leds_to_update.remove(note_position)
+
             if check_if_led_can_be_overwrite(note_position, ledstrip, ledsettings):
                 strip.setPixelColor(note_position, Color(int(c[1] * bright), int(c[0] * bright), int(c[2] * bright)))
+
+        for i in leds_to_update:
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+                strip.setPixelColor(i, Color(int(c[1] * bright), int(c[0] * bright), int(c[2] * bright)))
+
         strip.show()
         time.sleep(0.05)
     menu.screensaver_is_running = False
