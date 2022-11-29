@@ -230,7 +230,7 @@ class MenuLCD:
             element = self.DOMTree.createElement("Multicolor")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", "Color" + str(i))
-            #mc = self.DOMTree.getElementsByTagName("LED_Color")[0]
+            # mc = self.DOMTree.getElementsByTagName("LED_Color")[0]
             mc_multicolor.appendChild(element)
 
             element = self.DOMTree.createElement("Color" + str(i))
@@ -487,7 +487,8 @@ class MenuLCD:
             try:
                 self.draw.rectangle([(self.scale(115), self.scale(50)), (self.LCD.width, self.scale(80))],
                                     fill="rgb(" + str(
-                                        self.ledsettings.get_multicolors(self.current_choice.replace('Color', ''))) + ")")
+                                        self.ledsettings.get_multicolors(
+                                            self.current_choice.replace('Color', ''))) + ")")
             except:
                 pass
 
@@ -590,20 +591,20 @@ class MenuLCD:
                            font=self.font)
 
         if self.current_choice == "LED Number" and self.currentlocation.startswith("Offset"):
-                try:
-                    self.draw.text((self.scale(10), self.scale(50)), str(
-                        self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][0]),
-                                   fill=self.text_color, font=self.font)
-                except:
-                    pass
+            try:
+                self.draw.text((self.scale(10), self.scale(50)), str(
+                    self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][0]),
+                               fill=self.text_color, font=self.font)
+            except:
+                pass
 
         if self.current_choice == "LED Offset" and self.currentlocation.startswith("Offset"):
-                try:
-                    self.draw.text((self.scale(10), self.scale(50)), str(
-                        self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][1]),
-                                   fill=self.text_color, font=self.font)
-                except:
-                    pass
+            try:
+                self.draw.text((self.scale(10), self.scale(50)), str(
+                    self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][1]),
+                               fill=self.text_color, font=self.font)
+            except:
+                pass
 
         if "Key_range" in self.currentlocation:
             if self.current_choice == "Start":
@@ -637,7 +638,8 @@ class MenuLCD:
                            fill=self.text_color, font=self.font)
 
         if self.currentlocation == "Max_notes_in_period":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.speed_max_notes), fill=self.text_color,
+            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.speed_max_notes),
+                           fill=self.text_color,
                            font=self.font)
 
         # displaying scale key
@@ -944,6 +946,11 @@ class MenuLCD:
                 self.t.start()
             if choice == "Clear":
                 fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
+        if location == "Chords":
+            chord = self.ledsettings.scales.index(choice)
+            self.t = threading.Thread(target=chords, args=(chord, self.ledstrip, self.ledsettings, self))
+            self.t.start()
+
         if location == "Breathing":
             if choice == "Fast":
                 self.t = threading.Thread(target=breathing, args=(self.ledstrip, self.ledsettings, self, 5))
@@ -1002,7 +1009,7 @@ class MenuLCD:
 
         if choice == "Delete":
             if location.startswith('Offset'):
-                self.ledsettings.del_note_offset(location.replace('Offset','').split('_')[0])
+                self.ledsettings.del_note_offset(location.replace('Offset', '').split('_')[0])
                 self.update_led_note_offsets()
                 self.go_back()
                 self.show()
@@ -1089,7 +1096,6 @@ class MenuLCD:
             self.ledsettings.skipped_notes = choice
             self.usersettings.change_setting_value("skipped_notes", self.ledsettings.skipped_notes)
 
-
         if location == "Content":
             self.toggle_screensaver_settings(choice)
 
@@ -1137,9 +1143,11 @@ class MenuLCD:
             self.ledsettings.light_keys_in_range(self.currentlocation)
 
         if self.current_choice == "LED Number" and self.currentlocation.startswith("Offset"):
-            self.ledsettings.update_note_offset_lcd(self.current_choice, self.currentlocation, value * self.speed_multiplier)
+            self.ledsettings.update_note_offset_lcd(self.current_choice, self.currentlocation,
+                                                    value * self.speed_multiplier)
         if self.current_choice == "LED Offset" and self.currentlocation.startswith("Offset"):
-            self.ledsettings.update_note_offset_lcd(self.current_choice, self.currentlocation, value * self.speed_multiplier)
+            self.ledsettings.update_note_offset_lcd(self.current_choice, self.currentlocation,
+                                                    value * self.speed_multiplier)
 
         if self.current_choice == "Offset":
             self.ledsettings.rainbow_offset = self.ledsettings.rainbow_offset + value * 5 * self.speed_multiplier

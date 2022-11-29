@@ -1,285 +1,299 @@
 <data text="menu">
-	<menu text="LED Strip Settings">
-		<LED_Strip_Settings text="LED Color">
-			<LED_Color text="RGB">
-				<RGB text="Red"></RGB>
-				<RGB text="Green"></RGB>
-				<RGB text="Blue"></RGB>
-			</LED_Color>
-			<LED_Color text="Solid">
-				<Solid text="White"></Solid>
-				<Solid text="Red"></Solid>
-				<Solid text="Green"></Solid>
-				<Solid text="Blue"></Solid>
-				<Solid text="Aqua"></Solid>
-				<Solid text="Crimson"></Solid>
-				<Solid text="Cyan"></Solid>
-				<Solid text="Fuchsia"></Solid>
-				<Solid text="Lime"></Solid>
-				<Solid text="Olive"></Solid>
-				<Solid text="Purple"></Solid>
-				<Solid text="Yellow"></Solid>
-				<Solid text="Orange"></Solid>
-				<Solid text="DarkGreen"></Solid>
-				<Solid text="DeepPink"></Solid>
-			</LED_Color>
-			<LED_Color text="Multicolor">
-				<Multicolor text="Add Color"></Multicolor>
-			</LED_Color>			
-			<LED_Color text="Rainbow Colors">
-				<Rainbow_Colors text="Offset"></Rainbow_Colors>
-				<Rainbow_Colors text="Scale"></Rainbow_Colors>
-				<Rainbow_Colors text="Timeshift"></Rainbow_Colors>
-			</LED_Color>
-			<LED_Color text="Speed">
-				<Speed text="Color for slow speed">
-					<Color_for_slow_speed text="Red"></Color_for_slow_speed>
-					<Color_for_slow_speed text="Green"></Color_for_slow_speed>
-					<Color_for_slow_speed text="Blue"></Color_for_slow_speed>
-				</Speed>
-				<Speed text="Color for fast speed">
-					<Color_for_fast_speed text="Red"></Color_for_fast_speed>
-					<Color_for_fast_speed text="Green"></Color_for_fast_speed>
-					<Color_for_fast_speed text="Blue"></Color_for_fast_speed>
-				</Speed>
-				<Speed text="Period">
-						<Period text="Seconds"></Period>
-				</Speed>
-				<Speed text="Max notes in period">
-						<Max_notes_in_period text="Notes"></Max_notes_in_period>
-				</Speed>
-				<Speed text="Confirm"></Speed>
-			</LED_Color>
-			<LED_Color text="Gradient">
-				<Gradient text="Gradient start">
-					<Gradient_start text="Red"></Gradient_start>
-					<Gradient_start text="Green"></Gradient_start>
-					<Gradient_start text="Blue"></Gradient_start>
-				</Gradient>
-				<Gradient text="Gradient end">
-					<Gradient_end text="Red"></Gradient_end>
-					<Gradient_end text="Green"></Gradient_end>
-					<Gradient_end text="Blue"></Gradient_end>
-				</Gradient>
-				<Gradient text="Confirm"></Gradient>
-			</LED_Color>
-			<LED_Color text="Scale Coloring">
-				<Scale_Coloring text="Color in scale">
-					<Color_in_scale text="Red"></Color_in_scale>
-					<Color_in_scale text="Green"></Color_in_scale>
-					<Color_in_scale text="Blue"></Color_in_scale>
-				</Scale_Coloring>
-				<Scale_Coloring text="Color not in scale">
-					<Color_not_in_scale text="Red"></Color_not_in_scale>
-					<Color_not_in_scale text="Green"></Color_not_in_scale>
-					<Color_not_in_scale text="Blue"></Color_not_in_scale>
-				</Scale_Coloring>
-				<Scale_Coloring text="Scale key">
-					<Scale_key text="C"></Scale_key>
-					<Scale_key text="C#"></Scale_key>
-					<Scale_key text="D"></Scale_key>
-					<Scale_key text="Eb"></Scale_key>
-					<Scale_key text="E"></Scale_key>
-					<Scale_key text="F"></Scale_key>
-					<Scale_key text="F#"></Scale_key>
-					<Scale_key text="G"></Scale_key>
-					<Scale_key text="Ab"></Scale_key>
-					<Scale_key text="A"></Scale_key>
-					<Scale_key text="Bb"></Scale_key>
-					<Scale_key text="B"></Scale_key>
-				</Scale_Coloring>
-				<Scale_Coloring text="Confirm"></Scale_Coloring>
-			</LED_Color>
-		</LED_Strip_Settings>
-		<LED_Strip_Settings text="Light mode">
-			<Light_mode text="Normal"></Light_mode>
-			<Light_mode text="Fading">
-				<Fading text="Instant"></Fading>
-				<Fading text="Very fast"></Fading>
-				<Fading text="Fast"></Fading>
-				<Fading text="Medium"></Fading>
-				<Fading text="Slow"></Fading>
-				<Fading text="Very slow"></Fading>
-			</Light_mode>
-			<Light_mode text="Velocity">
-				<Velocity text="Fast"></Velocity>
-				<Velocity text="Medium"></Velocity>
-				<Velocity text="Slow"></Velocity>
-				<Velocity text="Very slow"></Velocity>
-			</Light_mode>
-			<Light_mode text="Disabled"></Light_mode>
-		</LED_Strip_Settings>
-		<LED_Strip_Settings text="Brightness">
-			<Brightness text="Power"></Brightness>
-		</LED_Strip_Settings>
-		<LED_Strip_Settings text="Backlight">
-			<Backlight text="Backlight Color">
-				<Backlight_Color text="Red"></Backlight_Color>
-				<Backlight_Color text="Green"></Backlight_Color>
-				<Backlight_Color text="Blue"></Backlight_Color>
-			</Backlight>
-			<Backlight text="Backlight Brightness">
-					<Backlight_Brightness text="Power"></Backlight_Brightness>
-			</Backlight>
-		</LED_Strip_Settings>
-		<LED_Strip_Settings text="Sides Color">
-			<Sides_Color text="Custom RGB">
-				<Custom_RGB text="Red"></Custom_RGB>
-				<Custom_RGB text="Green"></Custom_RGB>
-				<Custom_RGB text="Blue"></Custom_RGB>
-			</Sides_Color>
-			<Sides_Color text="Same as main"></Sides_Color>
-			<Sides_Color text="Off"></Sides_Color>
-		</LED_Strip_Settings>
-		<LED_Strip_Settings text="Sequences">
-			<Sequences text="Update"></Sequences>
-		</LED_Strip_Settings>
-		<LED_Strip_Settings text="Skipped notes">
-			<Skipped_notes text="None"></Skipped_notes>
-			<Skipped_notes text="Finger-based"></Skipped_notes>
-			<Skipped_notes text="Normal"></Skipped_notes>
-		</LED_Strip_Settings>
-		<LED_Strip_Settings text="Led count">
-			<Led_count text="Number"></Led_count>
-		</LED_Strip_Settings>
-		<LED_Strip_Settings text="Shift">
-			<Shift text="Number"></Shift>
-		</LED_Strip_Settings>
-		<LED_Strip_Settings text="Reverse">
-			<Reverse text="Number"></Reverse>
-		</LED_Strip_Settings>
-		<LED_Strip_Settings text="LED Note Offsets">
-			<LED_Note_Offsets text="Add Note Offset"></LED_Note_Offsets>
-		</LED_Strip_Settings>
-        <LED_Strip_Settings text="Low density">
-			<Low_density text="Disable"></Low_density>
-			<Low_density text="Enable"></Low_density>
+    <menu text="LED Strip Settings">
+        <LED_Strip_Settings text="LED Color">
+            <LED_Color text="RGB">
+                <RGB text="Red"></RGB>
+                <RGB text="Green"></RGB>
+                <RGB text="Blue"></RGB>
+            </LED_Color>
+            <LED_Color text="Solid">
+                <Solid text="White"></Solid>
+                <Solid text="Red"></Solid>
+                <Solid text="Green"></Solid>
+                <Solid text="Blue"></Solid>
+                <Solid text="Aqua"></Solid>
+                <Solid text="Crimson"></Solid>
+                <Solid text="Cyan"></Solid>
+                <Solid text="Fuchsia"></Solid>
+                <Solid text="Lime"></Solid>
+                <Solid text="Olive"></Solid>
+                <Solid text="Purple"></Solid>
+                <Solid text="Yellow"></Solid>
+                <Solid text="Orange"></Solid>
+                <Solid text="DarkGreen"></Solid>
+                <Solid text="DeepPink"></Solid>
+            </LED_Color>
+            <LED_Color text="Multicolor">
+                <Multicolor text="Add Color"></Multicolor>
+            </LED_Color>
+            <LED_Color text="Rainbow Colors">
+                <Rainbow_Colors text="Offset"></Rainbow_Colors>
+                <Rainbow_Colors text="Scale"></Rainbow_Colors>
+                <Rainbow_Colors text="Timeshift"></Rainbow_Colors>
+            </LED_Color>
+            <LED_Color text="Speed">
+                <Speed text="Color for slow speed">
+                    <Color_for_slow_speed text="Red"></Color_for_slow_speed>
+                    <Color_for_slow_speed text="Green"></Color_for_slow_speed>
+                    <Color_for_slow_speed text="Blue"></Color_for_slow_speed>
+                </Speed>
+                <Speed text="Color for fast speed">
+                    <Color_for_fast_speed text="Red"></Color_for_fast_speed>
+                    <Color_for_fast_speed text="Green"></Color_for_fast_speed>
+                    <Color_for_fast_speed text="Blue"></Color_for_fast_speed>
+                </Speed>
+                <Speed text="Period">
+                    <Period text="Seconds"></Period>
+                </Speed>
+                <Speed text="Max notes in period">
+                    <Max_notes_in_period text="Notes"></Max_notes_in_period>
+                </Speed>
+                <Speed text="Confirm"></Speed>
+            </LED_Color>
+            <LED_Color text="Gradient">
+                <Gradient text="Gradient start">
+                    <Gradient_start text="Red"></Gradient_start>
+                    <Gradient_start text="Green"></Gradient_start>
+                    <Gradient_start text="Blue"></Gradient_start>
+                </Gradient>
+                <Gradient text="Gradient end">
+                    <Gradient_end text="Red"></Gradient_end>
+                    <Gradient_end text="Green"></Gradient_end>
+                    <Gradient_end text="Blue"></Gradient_end>
+                </Gradient>
+                <Gradient text="Confirm"></Gradient>
+            </LED_Color>
+            <LED_Color text="Scale Coloring">
+                <Scale_Coloring text="Color in scale">
+                    <Color_in_scale text="Red"></Color_in_scale>
+                    <Color_in_scale text="Green"></Color_in_scale>
+                    <Color_in_scale text="Blue"></Color_in_scale>
+                </Scale_Coloring>
+                <Scale_Coloring text="Color not in scale">
+                    <Color_not_in_scale text="Red"></Color_not_in_scale>
+                    <Color_not_in_scale text="Green"></Color_not_in_scale>
+                    <Color_not_in_scale text="Blue"></Color_not_in_scale>
+                </Scale_Coloring>
+                <Scale_Coloring text="Scale key">
+                    <Scale_key text="C"></Scale_key>
+                    <Scale_key text="C#"></Scale_key>
+                    <Scale_key text="D"></Scale_key>
+                    <Scale_key text="Eb"></Scale_key>
+                    <Scale_key text="E"></Scale_key>
+                    <Scale_key text="F"></Scale_key>
+                    <Scale_key text="F#"></Scale_key>
+                    <Scale_key text="G"></Scale_key>
+                    <Scale_key text="Ab"></Scale_key>
+                    <Scale_key text="A"></Scale_key>
+                    <Scale_key text="Bb"></Scale_key>
+                    <Scale_key text="B"></Scale_key>
+                </Scale_Coloring>
+                <Scale_Coloring text="Confirm"></Scale_Coloring>
+            </LED_Color>
         </LED_Strip_Settings>
-	</menu>
-	<menu text="Play MIDI">
-		<Play_MIDI text="Choose song"></Play_MIDI>
-		<Play_MIDI text="Stop playing"></Play_MIDI>
-		<Play_MIDI text="Start recording"></Play_MIDI>
-		<Play_MIDI text="Cancel recording"></Play_MIDI>
-		<Play_MIDI text="Save MIDI"></Play_MIDI>
-	</menu>
-	<menu text="Learn MIDI">
-		<Learn_MIDI text="Load song"></Learn_MIDI>
-		<Learn_MIDI text="Learning"></Learn_MIDI>
-		<Learn_MIDI text="Practice"></Learn_MIDI>
-		<Learn_MIDI text="Hands"></Learn_MIDI>
-		<Learn_MIDI text="Mute hand"></Learn_MIDI>
-		<Learn_MIDI text="Start point"></Learn_MIDI>
-		<Learn_MIDI text="End point"></Learn_MIDI>
-		<Learn_MIDI text="Set tempo"></Learn_MIDI>
-		<Learn_MIDI text="Hand color R"> </Learn_MIDI>
-		<Learn_MIDI text="Hand color L"> </Learn_MIDI>
-	</menu>
-	<menu text="Ports Settings">
-		<Ports_Settings text="Input"></Ports_Settings>
-		<Ports_Settings text="Playback"></Ports_Settings>
-		<Ports_Settings text="Refresh ports"></Ports_Settings>
-		<Ports_Settings text="Connect ports"></Ports_Settings>
-		<Ports_Settings text="Disconnect ports"></Ports_Settings>
-		<Ports_Settings text="Reset Bluetooth service"></Ports_Settings>
-	</menu>
-	<menu text="LED animations">
-		<LED_animations text="Theater Chase"></LED_animations>
-		<LED_animations text="Breathing">
-			<Breathing text="Fast"></Breathing>
-			<Breathing text="Medium"></Breathing>
-			<Breathing text="Slow"></Breathing>
-		</LED_animations>
-		<LED_animations text="Rainbow">
-			<Rainbow text="Fast"></Rainbow>
-			<Rainbow text="Medium"></Rainbow>
-			<Rainbow text="Slow"></Rainbow>
-		</LED_animations>
-		<LED_animations text="Rainbow Cycle">
-			<Rainbow_Cycle text="Fast"></Rainbow_Cycle>
-			<Rainbow_Cycle text="Medium"></Rainbow_Cycle>
-			<Rainbow_Cycle text="Slow"></Rainbow_Cycle>
-		</LED_animations>
-		<LED_animations text="Theater Chase Rainbow"></LED_animations>
-		<LED_animations text="Sound of da police"></LED_animations>
-		<LED_animations text="Scanner"></LED_animations>
-		<LED_animations text="Stop animation"></LED_animations>
-		<LED_animations text="Clear"></LED_animations>
-	</menu>
-	<menu text="Display Settings">
-		<Display_Settings text="Text Color">
-			<Text_Color text="Black"></Text_Color>
-			<Text_Color text="White"></Text_Color>
-			<Text_Color text="Green"></Text_Color>
-			<Text_Color text="Red"></Text_Color>
-			<Text_Color text="Orange"></Text_Color>
-			<Text_Color text="Purple"></Text_Color>
-			<Text_Color text="Blue"></Text_Color>
-			<Text_Color text="Brown"></Text_Color>
-			<Text_Color text="Yellow"></Text_Color>
-			<Text_Color text="Olive"></Text_Color>
-			<Text_Color text="Lime"></Text_Color>
-			<Text_Color text="Gray"></Text_Color>
-			<Text_Color text="SteelBlue"></Text_Color>
-			<Text_Color text="Magenta"></Text_Color>
-			<Text_Color text="DarkViolet"></Text_Color>
-		</Display_Settings>
-		<Display_Settings text="Background Color">
-			<Background_Color text="White"></Background_Color>
-			<Background_Color text="Black"></Background_Color>
-			<Background_Color text="Grey"></Background_Color>
-		</Display_Settings>
-	</menu>
-	<menu text="Other Settings">
-		<Other_Settings text="System Info"></Other_Settings>
-		<Other_Settings text="Screensaver">
-			<Screensaver text="Content">
-				<Content text="Time"></Content>
-				<Content text="Date"></Content>
-				<Content text="CPU Chart"></Content>
-				<Content text="CPU"></Content>
-				<Content text="RAM"></Content>
-				<Content text="Temp"></Content>
-				<Content text="Network Usage"></Content>
-				<Content text="SD Card Space"></Content>
-				<Content text="Local IP"></Content>
-			</Screensaver>
-			<Screensaver text="Start delay">
-				<Start_delay text="After minutes (0 - never)"></Start_delay>
-			</Screensaver>
-			<Screensaver text="Turn off screen delay">
-				<Turn_off_screen_delay text="After minutes (0 - never)"></Turn_off_screen_delay>
-			</Screensaver>
-			<Screensaver text="Led animation delay">
-				<Led_animation_delay text="After minutes (0 - never)"></Led_animation_delay>
-			</Screensaver>
-			<Screensaver text="Led animation">
-				<Led_animation text="Theater Chase"></Led_animation>
-				<Led_animation text="Breathing Slow"></Led_animation>
-				<Led_animation text="Rainbow Slow"></Led_animation>
-				<Led_animation text="Rainbow Cycle Slow"></Led_animation>
-				<Led_animation text="Theater Chase Rainbow"></Led_animation>
-				<Led_animation text="Sound of da police"></Led_animation>
-				<Led_animation text="Scanner"></Led_animation>
-			</Screensaver>
-		</Other_Settings>
-		<Other_Settings text="Reset to default settings">
-			<Reset_to_default_settings text="Confirm"></Reset_to_default_settings>
-			<Reset_to_default_settings text="Cancel"></Reset_to_default_settings>
-		</Other_Settings>
-		<Other_Settings text="Update visualizer">
-			<Update_visualizer text="Confirm"></Update_visualizer>
-			<Update_visualizer text="Cancel"></Update_visualizer>
-		</Other_Settings>
-	</menu>
-	<menu text="Shutdown Options">
-		<Shutdown_Options text="Shutdown">
-			<Shutdown text="Confirm"></Shutdown>
-			<Shutdown text="Cancel"></Shutdown>
-		</Shutdown_Options>
-		<Shutdown_Options text="Reboot">
-			<Reboot text="Confirm"></Reboot>
-			<Reboot text="Cancel"></Reboot>
-		</Shutdown_Options>
-	</menu>
+        <LED_Strip_Settings text="Light mode">
+            <Light_mode text="Normal"></Light_mode>
+            <Light_mode text="Fading">
+                <Fading text="Instant"></Fading>
+                <Fading text="Very fast"></Fading>
+                <Fading text="Fast"></Fading>
+                <Fading text="Medium"></Fading>
+                <Fading text="Slow"></Fading>
+                <Fading text="Very slow"></Fading>
+            </Light_mode>
+            <Light_mode text="Velocity">
+                <Velocity text="Fast"></Velocity>
+                <Velocity text="Medium"></Velocity>
+                <Velocity text="Slow"></Velocity>
+                <Velocity text="Very slow"></Velocity>
+            </Light_mode>
+            <Light_mode text="Disabled"></Light_mode>
+        </LED_Strip_Settings>
+        <LED_Strip_Settings text="Brightness">
+            <Brightness text="Power"></Brightness>
+        </LED_Strip_Settings>
+        <LED_Strip_Settings text="Backlight">
+            <Backlight text="Backlight Color">
+                <Backlight_Color text="Red"></Backlight_Color>
+                <Backlight_Color text="Green"></Backlight_Color>
+                <Backlight_Color text="Blue"></Backlight_Color>
+            </Backlight>
+            <Backlight text="Backlight Brightness">
+                <Backlight_Brightness text="Power"></Backlight_Brightness>
+            </Backlight>
+        </LED_Strip_Settings>
+        <LED_Strip_Settings text="Sides Color">
+            <Sides_Color text="Custom RGB">
+                <Custom_RGB text="Red"></Custom_RGB>
+                <Custom_RGB text="Green"></Custom_RGB>
+                <Custom_RGB text="Blue"></Custom_RGB>
+            </Sides_Color>
+            <Sides_Color text="Same as main"></Sides_Color>
+            <Sides_Color text="Off"></Sides_Color>
+        </LED_Strip_Settings>
+        <LED_Strip_Settings text="Sequences">
+            <Sequences text="Update"></Sequences>
+        </LED_Strip_Settings>
+        <LED_Strip_Settings text="Skipped notes">
+            <Skipped_notes text="None"></Skipped_notes>
+            <Skipped_notes text="Finger-based"></Skipped_notes>
+            <Skipped_notes text="Normal"></Skipped_notes>
+        </LED_Strip_Settings>
+        <LED_Strip_Settings text="Led count">
+            <Led_count text="Number"></Led_count>
+        </LED_Strip_Settings>
+        <LED_Strip_Settings text="Shift">
+            <Shift text="Number"></Shift>
+        </LED_Strip_Settings>
+        <LED_Strip_Settings text="Reverse">
+            <Reverse text="Number"></Reverse>
+        </LED_Strip_Settings>
+        <LED_Strip_Settings text="LED Note Offsets">
+            <LED_Note_Offsets text="Add Note Offset"></LED_Note_Offsets>
+        </LED_Strip_Settings>
+        <LED_Strip_Settings text="Low density">
+            <Low_density text="Disable"></Low_density>
+            <Low_density text="Enable"></Low_density>
+        </LED_Strip_Settings>
+    </menu>
+    <menu text="Play MIDI">
+        <Play_MIDI text="Choose song"></Play_MIDI>
+        <Play_MIDI text="Stop playing"></Play_MIDI>
+        <Play_MIDI text="Start recording"></Play_MIDI>
+        <Play_MIDI text="Cancel recording"></Play_MIDI>
+        <Play_MIDI text="Save MIDI"></Play_MIDI>
+    </menu>
+    <menu text="Learn MIDI">
+        <Learn_MIDI text="Load song"></Learn_MIDI>
+        <Learn_MIDI text="Learning"></Learn_MIDI>
+        <Learn_MIDI text="Practice"></Learn_MIDI>
+        <Learn_MIDI text="Hands"></Learn_MIDI>
+        <Learn_MIDI text="Mute hand"></Learn_MIDI>
+        <Learn_MIDI text="Start point"></Learn_MIDI>
+        <Learn_MIDI text="End point"></Learn_MIDI>
+        <Learn_MIDI text="Set tempo"></Learn_MIDI>
+        <Learn_MIDI text="Hand color R"></Learn_MIDI>
+        <Learn_MIDI text="Hand color L"></Learn_MIDI>
+    </menu>
+    <menu text="Ports Settings">
+        <Ports_Settings text="Input"></Ports_Settings>
+        <Ports_Settings text="Playback"></Ports_Settings>
+        <Ports_Settings text="Refresh ports"></Ports_Settings>
+        <Ports_Settings text="Connect ports"></Ports_Settings>
+        <Ports_Settings text="Disconnect ports"></Ports_Settings>
+        <Ports_Settings text="Reset Bluetooth service"></Ports_Settings>
+    </menu>
+    <menu text="LED animations">
+        <LED_animations text="Theater Chase"></LED_animations>
+        <LED_animations text="Breathing">
+            <Breathing text="Fast"></Breathing>
+            <Breathing text="Medium"></Breathing>
+            <Breathing text="Slow"></Breathing>
+        </LED_animations>
+        <LED_animations text="Rainbow">
+            <Rainbow text="Fast"></Rainbow>
+            <Rainbow text="Medium"></Rainbow>
+            <Rainbow text="Slow"></Rainbow>
+        </LED_animations>
+        <LED_animations text="Rainbow Cycle">
+            <Rainbow_Cycle text="Fast"></Rainbow_Cycle>
+            <Rainbow_Cycle text="Medium"></Rainbow_Cycle>
+            <Rainbow_Cycle text="Slow"></Rainbow_Cycle>
+        </LED_animations>
+        <LED_animations text="Theater Chase Rainbow"></LED_animations>
+        <LED_animations text="Sound of da police"></LED_animations>
+        <LED_animations text="Scanner"></LED_animations>
+        <LED_animations text="Chords">
+            <Chords text="C"></Chords>
+            <Chords text="C#"></Chords>
+            <Chords text="D"></Chords>
+            <Chords text="Eb"></Chords>
+            <Chords text="E"></Chords>
+            <Chords text="F"></Chords>
+            <Chords text="F#"></Chords>
+            <Chords text="G"></Chords>
+            <Chords text="Ab"></Chords>
+            <Chords text="A"></Chords>
+            <Chords text="Bb"></Chords>
+            <Chords text="B"></Chords>
+        </LED_animations>
+        <LED_animations text="Stop animation"></LED_animations>
+        <LED_animations text="Clear"></LED_animations>
+    </menu>
+    <menu text="Display Settings">
+        <Display_Settings text="Text Color">
+            <Text_Color text="Black"></Text_Color>
+            <Text_Color text="White"></Text_Color>
+            <Text_Color text="Green"></Text_Color>
+            <Text_Color text="Red"></Text_Color>
+            <Text_Color text="Orange"></Text_Color>
+            <Text_Color text="Purple"></Text_Color>
+            <Text_Color text="Blue"></Text_Color>
+            <Text_Color text="Brown"></Text_Color>
+            <Text_Color text="Yellow"></Text_Color>
+            <Text_Color text="Olive"></Text_Color>
+            <Text_Color text="Lime"></Text_Color>
+            <Text_Color text="Gray"></Text_Color>
+            <Text_Color text="SteelBlue"></Text_Color>
+            <Text_Color text="Magenta"></Text_Color>
+            <Text_Color text="DarkViolet"></Text_Color>
+        </Display_Settings>
+        <Display_Settings text="Background Color">
+            <Background_Color text="White"></Background_Color>
+            <Background_Color text="Black"></Background_Color>
+            <Background_Color text="Grey"></Background_Color>
+        </Display_Settings>
+    </menu>
+    <menu text="Other Settings">
+        <Other_Settings text="System Info"></Other_Settings>
+        <Other_Settings text="Screensaver">
+            <Screensaver text="Content">
+                <Content text="Time"></Content>
+                <Content text="Date"></Content>
+                <Content text="CPU Chart"></Content>
+                <Content text="CPU"></Content>
+                <Content text="RAM"></Content>
+                <Content text="Temp"></Content>
+                <Content text="Network Usage"></Content>
+                <Content text="SD Card Space"></Content>
+                <Content text="Local IP"></Content>
+            </Screensaver>
+            <Screensaver text="Start delay">
+                <Start_delay text="After minutes (0 - never)"></Start_delay>
+            </Screensaver>
+            <Screensaver text="Turn off screen delay">
+                <Turn_off_screen_delay text="After minutes (0 - never)"></Turn_off_screen_delay>
+            </Screensaver>
+            <Screensaver text="Led animation delay">
+                <Led_animation_delay text="After minutes (0 - never)"></Led_animation_delay>
+            </Screensaver>
+            <Screensaver text="Led animation">
+                <Led_animation text="Theater Chase"></Led_animation>
+                <Led_animation text="Breathing Slow"></Led_animation>
+                <Led_animation text="Rainbow Slow"></Led_animation>
+                <Led_animation text="Rainbow Cycle Slow"></Led_animation>
+                <Led_animation text="Theater Chase Rainbow"></Led_animation>
+                <Led_animation text="Sound of da police"></Led_animation>
+                <Led_animation text="Scanner"></Led_animation>
+            </Screensaver>
+        </Other_Settings>
+        <Other_Settings text="Reset to default settings">
+            <Reset_to_default_settings text="Confirm"></Reset_to_default_settings>
+            <Reset_to_default_settings text="Cancel"></Reset_to_default_settings>
+        </Other_Settings>
+        <Other_Settings text="Update visualizer">
+            <Update_visualizer text="Confirm"></Update_visualizer>
+            <Update_visualizer text="Cancel"></Update_visualizer>
+        </Other_Settings>
+    </menu>
+    <menu text="Shutdown Options">
+        <Shutdown_Options text="Shutdown">
+            <Shutdown text="Confirm"></Shutdown>
+            <Shutdown text="Cancel"></Shutdown>
+        </Shutdown_Options>
+        <Shutdown_Options text="Reboot">
+            <Reboot text="Confirm"></Reboot>
+            <Reboot text="Cancel"></Reboot>
+        </Shutdown_Options>
+    </menu>
 </data>
