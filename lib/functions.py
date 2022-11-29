@@ -696,7 +696,12 @@ def chords(scale, ledstrip, ledsettings, menu):
 
         bright /= 100
 
-        for i in range(int(strip.numPixels() / 2)):
+        if (ledsettings.low_density == 1):
+            density = 1
+        else:
+            density = 2
+
+        for i in range(int(strip.numPixels() / density)):
             note = i + 21
             note_position = get_note_position(note, ledstrip, ledsettings)
             c = get_scale_color(scale, note, ledsettings)
