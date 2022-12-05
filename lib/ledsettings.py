@@ -25,7 +25,7 @@ class LedSettings:
         self.multicolor = ast.literal_eval(usersettings.get_setting_value("multicolor"))
         self.multicolor_range = ast.literal_eval(usersettings.get_setting_value("multicolor_range"))
         self.multicolor_index = 0
-        self.multicolor_iteration = 0
+        self.multicolor_iteration = ast.literal_eval(usersettings.get_setting_value("multicolor_iteration"))
 
         self.sequence_active = usersettings.get_setting_value("sequence_active")
 
