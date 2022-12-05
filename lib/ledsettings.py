@@ -24,6 +24,8 @@ class LedSettings:
 
         self.multicolor = ast.literal_eval(usersettings.get_setting_value("multicolor"))
         self.multicolor_range = ast.literal_eval(usersettings.get_setting_value("multicolor_range"))
+        self.multicolor_index = 0
+        self.multicolor_iteration = 0
 
         self.sequence_active = usersettings.get_setting_value("sequence_active")
 
@@ -171,8 +173,7 @@ class LedSettings:
         color_on_the_right = {}
         color_on_the_left = {}
 
-        i = 0
-        for range in self.multicolor_range:
+        for i, range in enumerate(self.multicolor_range):
             if range[0] <= note <= range[1]:
                 temporary_multicolor.append(self.multicolor[i])
 
@@ -182,15 +183,19 @@ class LedSettings:
             if range[1] < note:
                 color_on_the_left[range[1]] = self.multicolor[i]
 
-            i += 1
-        if temporary_multicolor:
+        if self.multicolor_iteration == 1:
+            if self.multicolor_index >= len(self.multicolor):
+                self.multicolor_index = 0
+            chosen_color = self.multicolor[self.multicolor_index]
+            self.multicolor_index += 1
+        elif temporary_multicolor:
             chosen_color = random.choice(temporary_multicolor)
         else:
             # mix colors from left and right
 
             if color_on_the_right and color_on_the_left:
-                right = int(min(color_on_the_right, key=int))
-                left = int(max(color_on_the_left, key=int))
+                right = min(color_on_the_right)
+                left = max(color_on_the_left)
 
                 left_to_right_distance = right - left
                 percent_value = (note - left) / left_to_right_distance

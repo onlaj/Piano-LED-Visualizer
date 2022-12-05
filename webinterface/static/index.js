@@ -277,7 +277,7 @@ function get_settings(home = true) {
 
                 document.getElementById("color_mode").value = response.color_mode;
 
-                show_multicolors(response.multicolor, response.multicolor_range);
+                show_multicolors(response.multicolor, response.multicolor_range, response.multicolor_iteration);
 
                 show_note_offsets(response.note_offsets);
 
@@ -403,7 +403,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 if (is_editing_sequence == "true" && is_loading_step == true) {
                     remove_color_modes();
                     document.getElementById('Multicolor').hidden = false;
-                    show_multicolors(response.multicolor, response.multicolor_range);
+                    show_multicolors(response.multicolor, response.multicolor_range, response.multicolor_iteration);
                     change_setting("add_multicolor_and_set_value", JSON.stringify(new_multicolor), "", "");
                 }
 
@@ -1242,16 +1242,24 @@ function get_songs() {
 }
 
 
-function show_multicolors(colors, ranges) {
+function show_multicolors(colors, ranges, iteration) {
     try {
         colors = JSON.parse(colors);
         ranges = JSON.parse(ranges);
+        iteration = JSON.parse(iteration);
     } catch (e) {
     }
 
     multicolor_element = document.getElementById("Multicolor");
     var i = 0
-    multicolor_element.innerHTML = "";
+    multicolor_element.innerHTML = "<div class=\"flex items-center mb-4\">\n" +
+        "            <input onclick=\"change_setting('multicolor_iteration', this.checked)\" id=\"multicolor_iteration_checkbox\" " +
+        "           type=\"checkbox\" value=\"\" class=\"w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 " +
+        "focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600\">\n" +
+        "            <label for=\"default-checkbox\" class=\"pl-2 block uppercase tracking-wide text-xs font-bold mt-2 " +
+        "text-gray-600 dark:text-gray-400\">Cycle through colors</label>\n" +
+        "        </div>";
+
     var add_button = "<button onclick=\"this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')\" " +
         "id=\"multicolor_add\" class=\"w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 " +
         "rounded-2xl inline-flex items-center\">\n" +
@@ -1338,6 +1346,10 @@ function show_multicolors(colors, ranges) {
     }
     if (i >= 3) {
         multicolor_element.innerHTML += add_button;
+    }
+
+    if (iteration == 1) {
+        document.getElementById("multicolor_iteration_checkbox").checked = true;
     }
 }
 

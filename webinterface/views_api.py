@@ -909,6 +909,11 @@ def change_setting():
         value = int(value == 'true')
         webinterface.usersettings.change_setting_value("midi_logging", value)
 
+    if setting_name == "multicolor_iteration":
+        value = int(value == 'true')
+        webinterface.usersettings.change_setting_value("multicolor_iteration", value)
+        webinterface.ledsettings.multicolor_iteration = value
+
     if setting_name == "start_recording":
         webinterface.saving.start_recording()
         return jsonify(success=True, reload_songs=True)
@@ -1261,6 +1266,7 @@ def get_settings():
 
     response["multicolor"] = webinterface.usersettings.get_setting_value("multicolor")
     response["multicolor_range"] = webinterface.usersettings.get_setting_value("multicolor_range")
+    response["multicolor_iteration"] = webinterface.usersettings.get_setting_value("multicolor_iteration")
 
     response["rainbow_offset"] = webinterface.usersettings.get_setting_value("rainbow_offset")
     response["rainbow_scale"] = webinterface.usersettings.get_setting_value("rainbow_scale")
