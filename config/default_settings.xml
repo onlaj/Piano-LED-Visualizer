@@ -18,6 +18,7 @@
 
 	<multicolor>[[255, 255, 255], [0, 0, 255], [0, 255, 0]]</multicolor>
 	<multicolor_range>[[20, 54], [54, 108], [35, 75]]</multicolor_range>
+    <multicolor_iteration>0</multicolor_iteration>
 	
 	<sequence_active>False</sequence_active>
 
