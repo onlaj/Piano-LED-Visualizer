@@ -271,6 +271,25 @@ class MenuLCD:
                 element.setAttribute("text", rgb_name)
                 mc = self.DOMTree.getElementsByTagName("Color" + str(i))[0]
                 mc.appendChild(element)
+
+        # Create the "Cycle colors" element
+        element = self.DOMTree.createElement("Multicolor")
+        element.appendChild(self.DOMTree.createTextNode(""))
+        element.setAttribute("text", "Cycle colors")
+
+        enable_element = self.DOMTree.createElement("Cycle_colors")
+        enable_element.appendChild(self.DOMTree.createTextNode(""))
+        enable_element.setAttribute("text", "Enable")
+
+        disable_element = self.DOMTree.createElement("Cycle_colors")
+        disable_element.appendChild(self.DOMTree.createTextNode(""))
+        disable_element.setAttribute("text", "Disable")
+
+        element.appendChild(enable_element)
+        element.appendChild(disable_element)
+
+        mc_multicolor.appendChild(element)
+
         # Add in the "Add Color" and "Confirm" into the replaced child
         element = self.DOMTree.createElement("Multicolor")
         element.appendChild(self.DOMTree.createTextNode(""))
@@ -993,6 +1012,11 @@ class MenuLCD:
         if location == "Rainbow_Colors":
             self.ledsettings.color_mode = "Rainbow"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
+
+        if location == "Cycle_colors":
+            choice = 1 if choice == "Enable" else 0
+            self.usersettings.change_setting_value("multicolor_iteration", choice)
+            self.ledsettings.multicolor_iteration = choice
 
         if choice == "Add Color":
             self.ledsettings.addcolor()
