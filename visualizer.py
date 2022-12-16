@@ -275,7 +275,7 @@ while True:
                     ledstrip.strip.setPixelColor(n, Color(int(int(green) * fading), int(int(red) * fading),
                                                           int(int(blue) * fading)))
                     ledstrip.set_adjacent_colors(n, Color(int(int(green) * fading), int(int(red) * fading),
-                                                          int(int(blue) * fading)), False)
+                                                          int(int(blue) * fading)), False, fading)
                     ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
                     if ledstrip.keylist[n] <= 0 and menu.screensaver_is_running is not True:
                         red_fading = int(ledsettings.get_backlight_color("Red")) * float(
@@ -286,7 +286,7 @@ while True:
                             ledsettings.backlight_brightness_percent) / 100
                         color = Color(int(green_fading), int(red_fading), int(blue_fading))
                         ledstrip.strip.setPixelColor(n, color)
-                        ledstrip.set_adjacent_colors(n, color, False)
+                        ledstrip.set_adjacent_colors(n, color, False, fading)
                 else:
                     ledstrip.keylist[n] = 0
 

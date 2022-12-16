@@ -1,4 +1,3 @@
-import argparse
 from lib.functions import *
 
 
@@ -79,10 +78,10 @@ class LedStrip:
         self.reverse = clamp(self.reverse, 0, 1)
         self.usersettings.change_setting_value("reverse", self.reverse)
 
-    def set_adjacent_colors(self, note, color, led_turn_off):
+    def set_adjacent_colors(self, note, color, led_turn_off, fading=1):
         if self.ledsettings.adjacent_mode == "RGB" and color != 0 and led_turn_off != True:
-            color = Color(int(self.ledsettings.adjacent_green), int(self.ledsettings.adjacent_red),
-                          int(self.ledsettings.adjacent_blue))
+            color = Color(int(self.ledsettings.adjacent_green * fading), int(self.ledsettings.adjacent_red * fading),
+                          int(self.ledsettings.adjacent_blue * fading))
         if self.ledsettings.adjacent_mode != "Off":
 
             if(note > 1 and note < (self.led_number - 2)):
