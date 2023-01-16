@@ -54,7 +54,9 @@ If you don't need to connect your RPi to Wi-Fi you can eject SD card from your P
 [Instructions](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
 
 ## Connecting LED Strip to Raspberry Pi and enabling SPI
-There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*
+There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*.
+Double check how your LED strip is wired. Most strips use G-D-V (ground, data, voltage), however in the wiring diagram shown in the tutorial the voltage and data lines are swapped.
+Connecting voltage directly to your data pin might seriously damage or kill your Raspberry!
 
 Optionally, you can connect a switch to BCM pin 12 and GND. Attach the switch to the key cover, if available. When it is closed, the animations are automatically switched off.
 
