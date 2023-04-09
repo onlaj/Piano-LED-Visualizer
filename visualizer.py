@@ -306,7 +306,7 @@ while True:
                     learning.socket_send.append("midi_event" + str(msg))
                 except Exception as e:
                     print(e)
-
+        menu.casio.process_midi(msg)
         midiports.last_activity = time.time()
         note = find_between(str(msg), "note=", " ")
         original_note = note

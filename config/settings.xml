@@ -19,7 +19,7 @@
 	<multicolor>[[255, 255, 255], [0, 0, 255], [0, 255, 0]]</multicolor>
 	<multicolor_range>[[20, 54], [54, 108], [35, 75]]</multicolor_range>
 	<multicolor_iteration>0</multicolor_iteration>
-
+	
 	<sequence_active>False</sequence_active>
 
 	<backlight_brightness>0</backlight_brightness>
@@ -86,18 +86,18 @@
 	<shift>0</shift>
 	<reverse>0</reverse>
 
-	<input_port>default</input_port>
-	<secondary_input_port>default</secondary_input_port>
-	<play_port>default</play_port>
+	<input_port>CASIO USB-MIDI:CASIO USB-MIDI MIDI 1 20:0</input_port>
+	<secondary_input_port>rtpmidi raspberrypi:Network 128:0</secondary_input_port>
+	<play_port>CASIO USB-MIDI:CASIO USB-MIDI MIDI 1 20:0</play_port>
 
-	<!-- Learn MIDI -->
+	
 	<practice>0</practice>
 	<hands>0</hands>
 	<mute_hand>0</mute_hand>
 	<start_point>0</start_point>
 	<end_point>100</end_point>
 	<set_tempo>100</set_tempo>
-	<!-- Hand color palette: Green, Blue, Orange, Yellow, Cyan, Magenta, Red, White, None -->
+	
 	<hand_colorList>[[0, 255, 0], [0, 0, 255], [255, 128, 0], [255, 255, 0], [0, 255, 255], [255, 0, 255], [255, 0, 0], [255, 255, 255], [0, 0, 0]]</hand_colorList>
 	<hand_colorR>0</hand_colorR>
 	<hand_colorL>1</hand_colorL>
@@ -107,4 +107,7 @@
 	<low_density>0</low_density>
 
 
+       <metronome_tempo>46</metronome_tempo>
+       <metronome_volume>42</metronome_volume>
+       <metronome_beat_type>0</metronome_beat_type>
 </settings>

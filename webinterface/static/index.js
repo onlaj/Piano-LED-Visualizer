@@ -87,6 +87,11 @@ function loadAjax(subpage) {
                     get_current_sequence_setting();
                     clearInterval(homepage_interval);
                 }
+                if (subpage == "piano") {
+                    initialize_piano_settings();
+                    get_current_piano_setting();
+                    clearInterval(homepage_interval);
+                }                
                 if (subpage == "ledanimations") {
                     clearInterval(homepage_interval);
                 }
@@ -621,6 +626,49 @@ function initialize_homepage() {
 
     document.getElementById("beats_per_measure").value = beats_per_measure;
 
+}
+
+function get_current_piano_setting(home = true, is_loading_step = false) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            response = JSON.parse(this.responseText);
+
+            document.getElementById('instrument').value = response.instrument;
+            document.getElementById('traspose').value = response.value;
+            document.getElementById('hall_type').value = response.hall_type;
+            document.getElementById('metronome_tempo').value = response.metronome_tempo;    
+            document.getElementById('metronome_volume').value = response.metronome_volume;
+            document.getElementById('metronome_tempo_value').value = response.metronome_tempo;    
+            document.getElementById('metronome_volume_value').value = response.metronome_volume;
+            document.getElementById('metronome_beat_type').value = response.metronome_beat_type;
+        }
+    }
+    xhttp.open("GET", "/api/get_piano", true);
+    xhttp.send();
+}
+
+
+function initialize_piano_settings() {
+    document.getElementById('instrument').addEventListener('change', function (event) {
+        change_setting('instrument', this.value)
+    });
+    document.getElementById('traspose').addEventListener('change', function (event) {
+        change_setting('traspose', this.value)
+    });
+    document.getElementById('hall_type').addEventListener('change', function (event) {
+        change_setting('hall_type', this.value)
+    });
+    document.getElementById('metronome_tempo').addEventListener('change', function (event) {
+        change_setting('metronome_tempo', this.value)
+    });    
+    document.getElementById('metronome_volume').addEventListener('change', function (event) {
+        change_setting('metronome_volume', this.value)
+    });        
+    document.getElementById('metronome_beat_type').addEventListener('change', function (event) {
+        change_setting('metronome_beat_type', this.value)
+    });        
 }
 
 function initialize_led_settings() {

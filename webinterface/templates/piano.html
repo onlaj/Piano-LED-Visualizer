@@ -1,0 +1,85 @@
+<div class="transition duration-300 slide-in-content w-full lg:w-11/12 xl:w-11/12 2xl:w-11/12 m-auto
+grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+
+    <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+       <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Instrument</div>
+       <div class="relative">
+           <select id="instrument" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
+               py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                     <option value="0">Grand piano concert</option>
+                     <option value="1">Grand piano bright</option>
+                     <option value="2">Grand piano mellow</option>
+                     <option value="3">Rock piano</option>
+                     <option value="4">Jazz piano</option>
+                     <option value="5">Electronic piano</option>
+                     <option value="6">Digital elec piano 1</option>
+                     <option value="7">Digital elec piano 2</option>
+                     <option value="8">60'S Elec piano</option>
+                     <option value="9">Harpsichord</option>
+                     <option value="10">Vibraphone</option>
+                     <option value="11">Strings 1</option>
+                     <option value="12">Strings 2</option>
+                     <option value="13">Pipe organ</option>
+                     <option value="14">Jazz organ</option>
+                     <option value="15">Eletronic organ</option>
+                     <option value="16">Eletronic organ 2</option>
+                     <option value="17">Bass</option>               
+                     <option value="18">Bla1</option>               
+                     <option value="19">Bla2</option>               
+                     <option value="20">Bla3</option>               
+                     <option value="21">Bla4</option>               
+           </select>
+       </div>
+       <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Traspose</div>
+       <div class="content-center flex-1">
+           <input id="traspose" class="w-full" type="range" value="0" min="-12" max="12"
+                  oninput="this.nextElementSibling.value = this.value">
+           <output id="brightness_percent" class="flex justify-center">0</output>
+       </div>       
+       <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Hall type</div>
+       <div class="relative">
+           <select id="hall_type" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
+               py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                     <option value="1">Standard</option>
+                     <option value="2">Opera</option>
+                     <option value="3">Berlin</option>
+                     <option value="4">Stadium</option>            
+           </select>
+       </div>  
+    </div>
+
+    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Metronome beat tempo</div>
+        <div class="content-center flex-1">
+            <input id="metronome_tempo" class="w-full" type="range" value="45" min="20" max="220"
+                   oninput="this.nextElementSibling.value = this.value">
+            <output id="metronome_tempo_value" class="flex justify-center">45</output>
+        </div>
+        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Metronome volume</div>
+        <div class="content-center flex-1">
+            <input id="metronome_volume" class="w-full" type="range" value="28" min="0" max="42"
+                   oninput="this.nextElementSibling.value = this.value">
+            <output id="metronome_volume_value" class="flex justify-center">28</output>
+        </div>        
+       <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Beat type</div>
+       <div class="relative">
+           <select id="metronome_beat_type" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
+               py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                     <option value="-1">Off</option>
+                     <option value="0">Click</option> 
+                     <option value="1">Bell</option>
+                     <option value="2">Bell + 1 Beat</option>
+                     <option value="3">Bell + 2 beats</option>
+                     <option value="4">Bell + 3 beats</option>
+                     <option value="5">Bell + 4 beats</option>
+                     <option value="6">Bell + 5 beats</option>
+                     <option value="7">Bell + 6 beats</option>
+                     <option value="8">Bell + 7 beats</option>
+                     <option value="9">Bell + 8 beats</option>
+           </select>
+       </div>          
+    </div>
+
+</div>
+
+

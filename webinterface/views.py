@@ -23,6 +23,9 @@ def home():
 def ledsettings():
     return render_template('ledsettings.html')
 
+@webinterface.route('/piano')
+def piano():
+    return render_template('piano.html')
 
 @webinterface.route('/ledanimations')
 def ledanimations():

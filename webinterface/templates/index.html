@@ -157,6 +157,27 @@
                         </a>
                     </li>
                 </ul>
+                
+                <ul @click="closeSidebarMenu()" onclick="loadAjax('piano')" class="p-2 overflow-hidden">
+                    <li>
+                        <a
+                                href="#"
+                                id="piano"
+                                class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                                :class="{'justify-center': !isSidebarOpen}"
+                        >
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+
+<path style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0);" d="M 7.05 18.937 L 10.835 18.937 L 11.726 18.937 L 15.511 18.937 L 16.402 18.937 L 21.077 18.937 L 21.077 0 L 16.402 0 L 15.511 0 L 11.726 0 L 10.835 0 L 7.05 0 L 6.16 0 L 1.484 0 L 1.484 18.937 L 6.16 18.937 L 7.05 18.937 Z M 20.076 17.978 L 16.513 17.978 L 16.513 12.489 L 17.682 12.489 L 17.682 0.959 L 20.076 0.959 L 20.076 17.978 Z M 15.4 12.489 L 15.4 17.978 L 11.837 17.978 L 11.837 12.489 L 13.006 12.489 L 13.006 0.959 L 14.12 0.959 L 14.12 12.489 L 15.4 12.489 Z M 10.724 12.489 L 10.724 17.978 L 7.162 17.978 L 7.162 12.489 L 8.331 12.489 L 8.331 0.959 L 9.444 0.959 L 9.444 12.489 L 10.724 12.489 Z M 6.048 17.978 L 2.486 17.978 L 2.486 0.959 L 4.768 0.959 L 4.768 12.489 L 6.048 12.489 L 6.048 17.978 Z"></path>
+
+                    </svg>
+                </span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Piano</span>
+                        </a>
+                    </li>
+                </ul>                
 
                 <ul @click="closeSidebarMenu()" onclick="loadAjax('songs')" class="p-2 overflow-hidden">
                     <li>

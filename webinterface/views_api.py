@@ -147,6 +147,17 @@ def get_homepage_data():
     }
     return jsonify(homepage_data)
 
+@webinterface.route('/api/get_piano')
+def get_piano_data():
+    piano_data = {
+        'instrument': webinterface.menu.casio.instrument,
+        'traspose': webinterface.menu.casio.traspose,
+        'hall_type': webinterface.menu.casio.hall_type,
+        'metronome_tempo': webinterface.menu.casio.metronome_tempo,
+        'metronome_volume': webinterface.menu.casio.metronome_volume,
+        'metronome_beat_type': webinterface.menu.casio.metronome_beat_type
+    }
+    return jsonify(piano_data)
 
 @webinterface.route('/api/change_setting', methods=['GET'])
 def change_setting():
@@ -1139,6 +1150,26 @@ def change_setting():
         webinterface.usersettings.change_setting_value("is_loop_active", webinterface.learning.is_loop_active)
 
         return jsonify(success=True)
+
+    if setting_name == "instrument":
+        webinterface.menu.casio.set_instrument(int(value))
+        return jsonify(success=True)
+    if setting_name == "traspose":
+        webinterface.menu.casio.set_traspose(int(value))
+        return jsonify(success=True)
+    if setting_name == "hall_type":
+        webinterface.menu.casio.set_hall_type(int(value))
+        return jsonify(success=True)
+    if setting_name == "metronome_tempo":
+        webinterface.menu.casio.set_metronome_tempo(int(value))
+        return jsonify(success=True)
+    if setting_name == "metronome_volume":
+        webinterface.menu.casio.set_metronome_volume(int(value))
+        return jsonify(success=True)
+    if setting_name == "metronome_beat_type":
+        webinterface.menu.casio.set_metronome_beat_type(int(value))
+        return jsonify(success=True)
+
 
     return jsonify(success=True)
 

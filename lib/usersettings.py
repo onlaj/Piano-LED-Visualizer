@@ -25,9 +25,9 @@ class UserSettings:
         if self.pending_changes:
             self.pending_changes = False
 
-            self.tree.write("config/settings.xml")
-            self.tree = ET.parse("config/settings.xml")
-            self.root = self.tree.getroot()
+            #self.tree.write("config/settings.xml")
+            #self.tree = ET.parse("config/settings.xml")
+            #self.root = self.tree.getroot()
 
     def reset_to_default(self):
         self.tree = ET.parse("config/default_settings.xml")
