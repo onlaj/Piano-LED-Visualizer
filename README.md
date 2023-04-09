@@ -7,6 +7,22 @@
 
 [![Everything Is AWESOME](https://i.imgur.com/xpfZ0Z6.png)](https://www.youtube.com/watch?v=IZgYViHcXdM "Piano LED Visualizer")
 
+# This branch
+
+This branch adds additional menus in the LCD and Web interface to control some functions of the Casio PX-S1100:
+  - Traspose  (f0 44 7e 7e 7f 0f 01 03 00 01 02 01 00 00 00 00 00 00 f7)
+  - Metronome (f0 44 7e 7e 7f 0f 01 0a 00 01 02 01 00 6e 00 00 00 00 f7)
+  - Hall settings (f0 44 7e 7e 7f 0f 01 52 00 01 02 01 00 01 00 00 00 00 f7)
+  - Instrument (b0 00 00 b0 20 00 c0 00)
+
+The program also detects when the settings have been changed in the piano and updates them in the menu accordingly. When a key is pressed in the piano, following command is sent over midi : f0 44 7e 7e 7f 0f 01 08 00 01 00 01 00 02 00 f7. Then the program request the information about the changes by sending the commands:
+  - Query metronome rate: f0 44 7e 7e 7f 0f 00 0a 00 01 02 01 00 11 00 00 00 00 f7
+  - Query metronome beat type: f0 44 7e 7e 7f 0f 00 0b 01 01 02 01 00 11 00 00 00 00 f7
+  - Query metronome volume : f0 44 7e 7e 7f 0f 00 0b 03 01 02 01 00 11 00 00 00 00 f7
+  - Query metronome active : f0 44 7e 7e 7f 0f 00 0b 00 01 00 01 00 01 00 f7
+
+All commands related to this casio model are in the file et_casio.py
+
 # Features
 [Detailed feature showcase with images](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/features.md)
 
