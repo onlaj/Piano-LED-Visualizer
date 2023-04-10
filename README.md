@@ -7,7 +7,15 @@
 
 [![Everything Is AWESOME](https://i.imgur.com/xpfZ0Z6.png)](https://www.youtube.com/watch?v=IZgYViHcXdM "Piano LED Visualizer")
 
-# This branch
+# DISCLAIMER
+
+*The modifications made to the project described here were done solely by me, and are not endorsed, acknowledged or accepted by Casio. I have made these modifications at my own risk and discretion, and they are not supported or approved by Casio.*
+
+*Furthermore, I assume no responsibility for any damages, losses or issues that may arise from the use of this modified project or any associated materials. The user assumes all risks associated with the use of this project, and should exercise caution and discretion when using it with any Casio digital piano or associated equipment.*
+
+*By using this modified project or any associated materials, the user agrees to release me from any and all liability related to its use.*
+
+# Additional functionality
 
 This branch adds additional menus in the LCD and Web interface to control some functions of the Casio PX-S1100:
   - Traspose  (f0 44 7e 7e 7f 0f 01 03 00 01 02 01 00 00 00 00 00 00 f7)
