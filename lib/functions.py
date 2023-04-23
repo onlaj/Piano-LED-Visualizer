@@ -6,6 +6,8 @@ import psutil
 import time
 import socket
 import RPi.GPIO as GPIO
+import traceback
+import os
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
@@ -34,6 +36,14 @@ def clamp(val, val_min, val_max):
 def shift(l, n):
     return l[n:] + l[:n]
 
+def touch_file(filename):
+    try:
+        # Open the file in append mode to update its modification time
+        with open("Songs/" + filename, "a"):
+            os.utime("Songs/" + filename, None)
+    except OSError as e:
+        print(e)
+        pass
 
 def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     midiports.pending_queue.append(mido.Message('note_on'))
@@ -236,6 +246,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
             pass
         if GPIO.input(KEY2) == 0:
             menu.screensaver_is_running = False
+            midiports.last_activity = time.time()
             saving.start_time = time.time()
             menu.screen_status = 1
             GPIO.output(24, 1)
@@ -243,11 +254,22 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
             menu.show()
             break
 
+def get_key_color(note):
+    # Calculate the octave and note within the octave
+    octave = (note // 12) - 1
+    note_in_octave = note % 12
 
+    # Determine the color of the key based on the note in the octave
+    if note_in_octave in (1, 3, 6, 8, 10):
+        return 0
+    else:
+        return 1
+        
 # Get note position on the strip
 def get_note_position(note, ledstrip, ledsettings):
     note_offsets = ledsettings.note_offsets
     note_offset = 0
+    # print("NOTE "+str(note))
     for i in range(0, len(note_offsets)):
         if note > note_offsets[i][0]:
             note_offset = note_offsets[i][1]
@@ -329,6 +351,11 @@ def fastColorWipe(strip, update, ledsettings):
     if update:
         strip.show()
 
+def changeAllLedsColor(strip, r, g, b):
+    color = Color(r,g,b)
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, color)
+    strip.show()
 
 def theaterChase(ledstrip, color, ledsettings, menu, wait_ms=25):
     """Movie theater light style chaser animation."""

@@ -1,4 +1,5 @@
 import os
+import threading
 
 from subprocess import call
 from xml.dom import minidom
@@ -13,6 +14,8 @@ import RPi.GPIO as GPIO
 
 from lib import et_casio
 
+from lib.learnmidi import PRACTICE_PROGRESSIVE, PRACTICE_ARCADE
+
 class MenuLCD:
     def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports):
         self.usersettings = usersettings
@@ -26,6 +29,8 @@ class MenuLCD:
         if args.fontdir != None:
             fontdir = args.fontdir
         self.lcd_ttf = fontdir + "/FreeSansBold.ttf"
+        self.measure_ttf = fontdir + "/FreeSerif.ttf"
+        self.score_ttf = fontdir + "/FreeSans.ttf"
         if not os.path.exists(self.lcd_ttf):
             raise RuntimeError("Cannot locate font file: %s" % self.lcd_ttf)
 
@@ -75,6 +80,7 @@ class MenuLCD:
 
         self.screensaver_is_running = False
         self.casio = et_casio.CasioPiano(midiports, self)
+        self.draw_lock = threading.Lock()
 
     def rotate_image(self, image):
         if self.args.rotatescreen != "true":
@@ -105,18 +111,23 @@ class MenuLCD:
         load_song_mc.appendChild(self.DOMTree.createTextNode(""))
         load_song_mc.setAttribute("text", "Load song")
         replace_node.parentNode.replaceChild(load_song_mc, replace_node)
-        songs_list = os.listdir("Songs")
+        path = 'Songs/'
+        songs_list = os.listdir(path)
+        songs_list = [os.path.join(path, i) for i in songs_list]        
+        songs_list = sorted(songs_list, key=os.path.getmtime, reverse=True)
+        
         for song in songs_list:
-            # List of songs for Play_MIDI
-            element = self.DOMTree.createElement("Choose_song")
-            element.appendChild(self.DOMTree.createTextNode(""))
-            element.setAttribute("text", song)
-            choose_song_mc.appendChild(element)
-            # List of songs for Learn_MIDI
-            element = self.DOMTree.createElement("Load_song")
-            element.appendChild(self.DOMTree.createTextNode(""))
-            element.setAttribute("text", song)
-            load_song_mc.appendChild(element)
+            if song.endswith(".mid"):
+                # List of songs for Play_MIDI
+                element = self.DOMTree.createElement("Choose_song")
+                element.appendChild(self.DOMTree.createTextNode(""))
+                element.setAttribute("text", os.path.splitext(os.path.basename(song))[0])
+                choose_song_mc.appendChild(element)
+                # List of songs for Learn_MIDI
+                element = self.DOMTree.createElement("Load_song")
+                element.appendChild(self.DOMTree.createTextNode(""))
+                element.setAttribute("text", os.path.splitext(os.path.basename(song))[0])
+                load_song_mc.appendChild(element)
 
     def update_sequence_list(self):
         seq_mc = self.DOMTree.createElement("LED_Strip_Settings")
@@ -318,424 +329,454 @@ class MenuLCD:
     def show(self, position="default", back_pointer_location=False):
         if self.screen_on == 0:
             return False
+        with self.draw_lock:
+            if position == "default" and self.currentlocation:
+                position = self.currentlocation
+                refresh = 1
+            elif position == "default" and not self.currentlocation:
+                position = "menu"
+                refresh = 1
+            else:
+                position = position.replace(" ", "_")
+                self.currentlocation = position
+                refresh = 0
 
-        if position == "default" and self.currentlocation:
-            position = self.currentlocation
-            refresh = 1
-        elif position == "default" and not self.currentlocation:
-            position = "menu"
-            refresh = 1
-        else:
-            position = position.replace(" ", "_")
-            self.currentlocation = position
-            refresh = 0
+            self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
+            self.draw = ImageDraw.Draw(self.image)
+            self.draw.text((self.scale(2), self.scale(5)), position.replace("_", " "), fill=self.text_color, font=self.font)
 
-        self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
-        self.draw = ImageDraw.Draw(self.image)
-        self.draw.text((self.scale(2), self.scale(5)), position.replace("_", " "), fill=self.text_color, font=self.font)
+            # getting list of items in current menu
+            staffs = self.DOMTree.getElementsByTagName(position)
+            text_margin_top = self.scale(15)
+            i = 0
+            list_count = len(staffs)
+            list_count -= 1
 
-        # getting list of items in current menu
-        staffs = self.DOMTree.getElementsByTagName(position)
-        text_margin_top = self.scale(15)
-        i = 0
-        list_count = len(staffs)
-        list_count -= 1
+            if self.pointer_position > 9:
+                menu_offset = self.pointer_position - 9
+            else:
+                menu_offset = -1
 
-        if self.pointer_position > 9:
-            menu_offset = self.pointer_position - 9
-        else:
-            menu_offset = -1
-
-        # looping through menu list
-        for staff in staffs:
-            self.pointer_position = clamp(self.pointer_position, 0, list_count)
-            # drawing little arrow to show there are more items above
-            if self.pointer_position > 9 and i < menu_offset:
-                self.draw.line(
-                    [
-                        (self.scale(119), self.scale(20)),
-                        (self.scale(125), self.scale(20))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
-                self.draw.line(
-                    [
-                        (self.scale(119), self.scale(20)),
-                        (self.scale(122), self.scale(17))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
-                self.draw.line(
-                    [
-                        (self.scale(119), self.scale(20)),
-                        (self.scale(122), self.scale(17))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
-                i += 1
-                continue
-
-            sid = staff.getAttribute("text")
-
-            if not back_pointer_location:
-                if i == self.pointer_position:
-                    try:
-                        self.parent_menu = staff.parentNode.tagName
-                    except:
-                        self.parent_menu = "end"
-                    self.draw.rectangle(
+            # looping through menu list
+            for staff in staffs:
+                self.pointer_position = clamp(self.pointer_position, 0, list_count)
+                # drawing little arrow to show there are more items above
+                if self.pointer_position > 9 and i < menu_offset:
+                    self.draw.line(
                         [
-                            (0, text_margin_top),
-                            (self.LCD.width, text_margin_top + self.scale(11))
+                            (self.scale(119), self.scale(20)),
+                            (self.scale(125), self.scale(20))
                         ],
-                        fill="Crimson"
+                        fill=self.text_color,
+                        width=(self.scale(2))
                     )
-                    self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
-                    self.current_choice = sid
-            else:
-                if sid == back_pointer_location:
-                    try:
-                        self.parent_menu = staff.parentNode.tagName
-                    except:
-                        self.parent_menu = "data"
-                    self.draw.rectangle([(0, text_margin_top), (self.LCD.width, text_margin_top + self.scale(11))],
-                                        fill="Crimson")
-                    self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
-                    self.current_choice = sid
-                    self.pointer_position = i
-            # drawing little arrow to show there are more items below
-            if i == 10 and self.pointer_position < list_count and list_count > 10:
-                self.draw.line(
-                    [
-                        (self.scale(119), self.scale(120)),
-                        (self.scale(125), self.scale(120))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
-                self.draw.line(
-                    [
-                        (self.scale(119), self.scale(120)),
-                        (self.scale(122), self.scale(123))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
-                self.draw.line(
-                    [
-                        (self.scale(122), self.scale(123)),
-                        (self.scale(125), self.scale(120))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
+                    self.draw.line(
+                        [
+                            (self.scale(119), self.scale(20)),
+                            (self.scale(122), self.scale(17))
+                        ],
+                        fill=self.text_color,
+                        width=(self.scale(2))
+                    )
+                    self.draw.line(
+                        [
+                            (self.scale(119), self.scale(20)),
+                            (self.scale(122), self.scale(17))
+                        ],
+                        fill=self.text_color,
+                        width=(self.scale(2))
+                    )
+                    i += 1
+                    continue
 
-            # scrolling text if too long
-            if self.pointer_position == i and len(sid) > 18:
-                tobecontinued = ".."
-                if refresh == 1:
-                    try:
-                        self.cut_count += 1
-                    except:
-                        self.cut_count = -6
+                sid = staff.getAttribute("text")
+
+                if not back_pointer_location:
+                    if i == self.pointer_position:
+                        try:
+                            self.parent_menu = staff.parentNode.tagName
+                        except:
+                            self.parent_menu = "end"
+                        self.draw.rectangle(
+                            [
+                                (0, text_margin_top),
+                                (self.LCD.width, text_margin_top + self.scale(11))
+                            ],
+                            fill="Crimson"
+                        )
+                        self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
+                        self.current_choice = sid
                 else:
-                    cut = 0
-                    self.cut_count = -6
-                if self.cut_count > (len(sid) - 16):
-                    # hold scrolling on end
-                    if self.scroll_hold < 8:
-                        self.cut_count -= 1
-                        self.scroll_hold += 1
-                        tobecontinued = ""
+                    if sid == back_pointer_location:
+                        try:
+                            self.parent_menu = staff.parentNode.tagName
+                        except:
+                            self.parent_menu = "data"
+                        self.draw.rectangle([(0, text_margin_top), (self.LCD.width, text_margin_top + self.scale(11))],
+                                            fill="Crimson")
+                        self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
+                        self.current_choice = sid
+                        self.pointer_position = i
+                # drawing little arrow to show there are more items below
+                if i == 10 and self.pointer_position < list_count and list_count > 10:
+                    self.draw.line(
+                        [
+                            (self.scale(119), self.scale(120)),
+                            (self.scale(125), self.scale(120))
+                        ],
+                        fill=self.text_color,
+                        width=(self.scale(2))
+                    )
+                    self.draw.line(
+                        [
+                            (self.scale(119), self.scale(120)),
+                            (self.scale(122), self.scale(123))
+                        ],
+                        fill=self.text_color,
+                        width=(self.scale(2))
+                    )
+                    self.draw.line(
+                        [
+                            (self.scale(122), self.scale(123)),
+                            (self.scale(125), self.scale(120))
+                        ],
+                        fill=self.text_color,
+                        width=(self.scale(2))
+                    )
+
+                # scrolling text if too long
+                if self.pointer_position == i and len(sid) > 18:
+                    tobecontinued = ".."
+                    if refresh == 1:
+                        try:
+                            self.cut_count += 1
+                        except:
+                            self.cut_count = -6
                     else:
+                        cut = 0
                         self.cut_count = -6
-                        self.scroll_hold = 0
-                    cut = self.cut_count
-                if self.cut_count >= 0:
-                    cut = self.cut_count
+                    if self.cut_count > (len(sid) - 16):
+                        # hold scrolling on end
+                        if self.scroll_hold < 8:
+                            self.cut_count -= 1
+                            self.scroll_hold += 1
+                            tobecontinued = ""
+                        else:
+                            self.cut_count = -6
+                            self.scroll_hold = 0
+                        cut = self.cut_count
+                    if self.cut_count >= 0:
+                        cut = self.cut_count
+                    else:
+                        cut = 0
                 else:
                     cut = 0
-            else:
-                cut = 0
-                tobecontinued = ""
+                    tobecontinued = ""
 
-            i += 1
+                i += 1
 
-            # diplaying screensaver status
-            if self.currentlocation == "Content":
-                sid_temp = sid.lower()
-                sid_temp = sid_temp.replace(" ", "_")
-                if str(self.screensaver_settings[sid_temp]) == "1":
-                    sid_temp = " +"
-                else:
-                    sid_temp = " -"
-                sid = sid + sid_temp
-            self.draw.text((self.scale(10), text_margin_top), sid[cut:(18 + cut)] + tobecontinued, fill=self.text_color,
-                           font=self.font)
+                # diplaying screensaver status
+                if self.currentlocation == "Content":
+                    sid_temp = sid.lower()
+                    sid_temp = sid_temp.replace(" ", "_")
+                    if str(self.screensaver_settings[sid_temp]) == "1":
+                        sid_temp = " +"
+                    else:
+                        sid_temp = " -"
+                    sid = sid + sid_temp
+                self.draw.text((self.scale(10), text_margin_top), sid[cut:(18 + cut)] + tobecontinued, fill=self.text_color,
+                               font=self.font)
 
-            text_margin_top += self.scale(10)
+                text_margin_top += self.scale(10)
 
-        # displaying color example
-        if self.currentlocation == "RGB":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.get_colors()), fill=self.text_color,
-                           font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(self.ledsettings.get_colors()) + ")")
+            # displaying color example
+            if self.currentlocation == "RGB":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.get_colors()), fill=self.text_color,
+                               font=self.font)
+                self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
+                                    fill="rgb(" + str(self.ledsettings.get_colors()) + ")")
 
-        if "RGB_Color" in self.currentlocation:
-            self.draw.text((self.scale(10), self.scale(70)),
-                           str(self.ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color', ''))),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)], fill="rgb(" + str(
-                self.ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color', ''))) + ")")
+            if "RGB_Color" in self.currentlocation:
+                self.draw.text((self.scale(10), self.scale(70)),
+                               str(self.ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color', ''))),
+                               fill=self.text_color, font=self.font)
+                self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)], fill="rgb(" + str(
+                    self.ledsettings.get_multicolors(self.currentlocation.replace('RGB_Color', ''))) + ")")
 
-        if "Backlight_Color" in self.currentlocation:
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.get_backlight_colors()),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(self.ledsettings.get_backlight_colors()) + ")")
+            if "Backlight_Color" in self.currentlocation:
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.get_backlight_colors()),
+                               fill=self.text_color, font=self.font)
+                self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
+                                    fill="rgb(" + str(self.ledsettings.get_backlight_colors()) + ")")
 
-        if "Custom_RGB" in self.currentlocation:
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.get_adjacent_colors()),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(self.ledsettings.get_adjacent_colors()) + ")")
+            if "Custom_RGB" in self.currentlocation:
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.get_adjacent_colors()),
+                               fill=self.text_color, font=self.font)
+                self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
+                                    fill="rgb(" + str(self.ledsettings.get_adjacent_colors()) + ")")
 
-        if "Multicolor" in self.currentlocation:
-            try:
-                self.draw.rectangle([(self.scale(115), self.scale(50)), (self.LCD.width, self.scale(80))],
-                                    fill="rgb(" + str(
-                                        self.ledsettings.get_multicolors(
-                                            self.current_choice.replace('Color', ''))) + ")")
-            except:
-                pass
-
-        if "Color_for_slow_speed" in self.currentlocation:
-            red = self.ledsettings.speed_slowest["red"]
-            green = self.ledsettings.speed_slowest["green"]
-            blue = self.ledsettings.speed_slowest["blue"]
-            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
-
-        if "Color_for_fast_speed" in self.currentlocation:
-            red = self.ledsettings.speed_fastest["red"]
-            green = self.ledsettings.speed_fastest["green"]
-            blue = self.ledsettings.speed_fastest["blue"]
-            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
-
-        if "Gradient_start" in self.currentlocation:
-            red = self.ledsettings.gradient_start["red"]
-            green = self.ledsettings.gradient_start["green"]
-            blue = self.ledsettings.gradient_start["blue"]
-            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
-
-        if "Gradient_end" in self.currentlocation:
-            red = self.ledsettings.gradient_end["red"]
-            green = self.ledsettings.gradient_end["green"]
-            blue = self.ledsettings.gradient_end["blue"]
-            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
-
-        if "Color_in_scale" in self.currentlocation:
-            red = self.ledsettings.key_in_scale["red"]
-            green = self.ledsettings.key_in_scale["green"]
-            blue = self.ledsettings.key_in_scale["blue"]
-            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
-
-        if "Color_not_in_scale" in self.currentlocation:
-            red = self.ledsettings.key_not_in_scale["red"]
-            green = self.ledsettings.key_not_in_scale["green"]
-            blue = self.ledsettings.key_not_in_scale["blue"]
-            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
-
-        # displaying rainbow offset value
-        if self.current_choice == "Offset":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_offset), fill=self.text_color,
-                           font=self.font)
-
-        if self.current_choice == "Scale":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_scale) + "%",
-                           fill=self.text_color,
-                           font=self.font)
-
-        if self.current_choice == "Timeshift":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_timeshift),
-                           fill=self.text_color,
-                           font=self.font)
-
-        # displaying brightness value
-        if self.currentlocation == "Brightness":
-            self.draw.text((self.scale(10), self.scale(35)), str(self.ledstrip.brightness_percent) + "%",
-                           fill=self.text_color, font=self.font)
-            miliamps = int(self.ledstrip.LED_COUNT) * (60 / (100 / float(self.ledstrip.brightness_percent)))
-            amps = round(float(miliamps) / float(1000), 2)
-            self.draw.text((self.scale(10), self.scale(50)), "Amps needed to " + "\n" + "power " + str(
-                self.ledstrip.LED_COUNT) + " LEDS with " + "\n" + "white color: " + str(amps), fill=self.text_color,
-                           font=self.font)
-
-        if self.currentlocation == "Backlight_Brightness":
-            self.draw.text((self.scale(10), self.scale(35)), str(self.ledsettings.backlight_brightness_percent) + "%",
-                           fill=self.text_color, font=self.font)
-
-        # displaying led count
-        if self.currentlocation == "Led_count":
-            self.draw.text((self.scale(10), self.scale(35)), str(self.ledstrip.led_number), fill=self.text_color,
-                           font=self.font)
-
-        # displaying shift
-        if self.currentlocation == "Shift":
-            self.draw.text((self.scale(10), self.scale(35)), str(self.ledstrip.shift), fill=self.text_color,
-                           font=self.font)
-
-        # displaying reverse
-        if self.currentlocation == "Reverse":
-            self.draw.text((self.scale(10), self.scale(35)), str(self.ledstrip.reverse), fill=self.text_color,
-                           font=self.font)
-
-        if self.current_choice == "LED Number" and self.currentlocation.startswith("Offset"):
+            if "Multicolor" in self.currentlocation:
                 try:
-                    self.draw.text((self.scale(10), self.scale(50)), str(
-                        self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][0]),
-                                   fill=self.text_color, font=self.font)
+                    self.draw.rectangle([(self.scale(115), self.scale(50)), (self.LCD.width, self.scale(80))],
+                                        fill="rgb(" + str(
+                                            self.ledsettings.get_multicolors(
+                                                self.current_choice.replace('Color', ''))) + ")")
                 except:
                     pass
 
-        if self.current_choice == "LED Offset" and self.currentlocation.startswith("Offset"):
-                try:
-                    self.draw.text((self.scale(10), self.scale(50)), str(
-                        self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][1]),
-                                   fill=self.text_color, font=self.font)
-                except:
-                    pass
+            if "Color_for_slow_speed" in self.currentlocation:
+                red = self.ledsettings.speed_slowest["red"]
+                green = self.ledsettings.speed_slowest["green"]
+                blue = self.ledsettings.speed_slowest["blue"]
+                self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
+                               fill=self.text_color, font=self.font)
+                self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
+                                    fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
 
-        if "Key_range" in self.currentlocation:
-            if self.current_choice == "Start":
-                try:
-                    self.draw.text((self.scale(10), self.scale(50)), str(
-                        self.ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range', '')) - 1][0]),
-                                   fill=self.text_color, font=self.font)
-                except:
-                    pass
-            else:
-                self.draw.text((self.scale(10), self.scale(50)), str(
-                    self.ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range', '')) - 1][1]),
+            if "Color_for_fast_speed" in self.currentlocation:
+                red = self.ledsettings.speed_fastest["red"]
+                green = self.ledsettings.speed_fastest["green"]
+                blue = self.ledsettings.speed_fastest["blue"]
+                self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
+                               fill=self.text_color, font=self.font)
+                self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
+                                    fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+
+            if "Gradient_start" in self.currentlocation:
+                red = self.ledsettings.gradient_start["red"]
+                green = self.ledsettings.gradient_start["green"]
+                blue = self.ledsettings.gradient_start["blue"]
+                self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
+                               fill=self.text_color, font=self.font)
+                self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
+                                    fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+
+            if "Gradient_end" in self.currentlocation:
+                red = self.ledsettings.gradient_end["red"]
+                green = self.ledsettings.gradient_end["green"]
+                blue = self.ledsettings.gradient_end["blue"]
+                self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
+                               fill=self.text_color, font=self.font)
+                self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
+                                    fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+
+            if "Color_in_scale" in self.currentlocation:
+                red = self.ledsettings.key_in_scale["red"]
+                green = self.ledsettings.key_in_scale["green"]
+                blue = self.ledsettings.key_in_scale["blue"]
+                self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
+                               fill=self.text_color, font=self.font)
+                self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
+                                    fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+
+            if "Color_not_in_scale" in self.currentlocation:
+                red = self.ledsettings.key_not_in_scale["red"]
+                green = self.ledsettings.key_not_in_scale["green"]
+                blue = self.ledsettings.key_not_in_scale["blue"]
+                self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
+                               fill=self.text_color, font=self.font)
+                self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
+                                    fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+
+            # displaying rainbow offset value
+            if self.current_choice == "Offset":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_offset), fill=self.text_color,
+                               font=self.font)
+
+            if self.current_choice == "Scale":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_scale) + "%",
+                               fill=self.text_color,
+                               font=self.font)
+
+            if self.current_choice == "Timeshift":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_timeshift),
+                               fill=self.text_color,
+                               font=self.font)
+
+            # displaying brightness value
+            if self.currentlocation == "Brightness":
+                self.draw.text((self.scale(10), self.scale(35)), str(self.ledstrip.brightness_percent) + "%",
+                               fill=self.text_color, font=self.font)
+                miliamps = int(self.ledstrip.LED_COUNT) * (60 / (100 / float(self.ledstrip.brightness_percent)))
+                amps = round(float(miliamps) / float(1000), 2)
+                self.draw.text((self.scale(10), self.scale(50)), "Amps needed to " + "\n" + "power " + str(
+                    self.ledstrip.LED_COUNT) + " LEDS with " + "\n" + "white color: " + str(amps), fill=self.text_color,
+                               font=self.font)
+
+            if self.currentlocation == "Backlight_Brightness":
+                self.draw.text((self.scale(10), self.scale(35)), str(self.ledsettings.backlight_brightness_percent) + "%",
                                fill=self.text_color, font=self.font)
 
-        # displaying screensaver settings
-        if self.currentlocation == "Start_delay":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.screensaver_delay), fill=self.text_color,
-                           font=self.font)
+            # displaying led count
+            if self.currentlocation == "Led_count":
+                self.draw.text((self.scale(10), self.scale(35)), str(self.ledstrip.led_number), fill=self.text_color,
+                               font=self.font)
 
-        if self.currentlocation == "Turn_off_screen_delay":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.screen_off_delay), fill=self.text_color,
-                           font=self.font)
+            # displaying shift
+            if self.currentlocation == "Shift":
+                self.draw.text((self.scale(10), self.scale(35)), str(self.ledstrip.shift), fill=self.text_color,
+                               font=self.font)
 
-        if self.currentlocation == "Led_animation_delay":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.led_animation_delay), fill=self.text_color,
-                           font=self.font)
+            # displaying reverse
+            if self.currentlocation == "Reverse":
+                self.draw.text((self.scale(10), self.scale(35)), str(self.ledstrip.reverse), fill=self.text_color,
+                               font=self.font)
 
-        # displaying speed values
-        if self.currentlocation == "Period":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.speed_period_in_seconds),
-                           fill=self.text_color, font=self.font)
+            if self.current_choice == "LED Number" and self.currentlocation.startswith("Offset"):
+                    try:
+                        self.draw.text((self.scale(10), self.scale(50)), str(
+                            self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][0]),
+                                       fill=self.text_color, font=self.font)
+                    except:
+                        pass
 
-        if self.currentlocation == "Max_notes_in_period":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.speed_max_notes),
-                           fill=self.text_color,
-                           font=self.font)
+            if self.current_choice == "LED Offset" and self.currentlocation.startswith("Offset"):
+                    try:
+                        self.draw.text((self.scale(10), self.scale(50)), str(
+                            self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][1]),
+                                       fill=self.text_color, font=self.font)
+                    except:
+                        pass
 
-        # displaying scale key
-        if self.currentlocation == "Scale_Coloring":
-            self.draw.text((self.scale(10), self.scale(70)), "scale: " + str(
-                self.ledsettings.scales[self.ledsettings.scale_key]),
-                           fill=self.text_color, font=self.font)
+            if "Key_range" in self.currentlocation:
+                if self.current_choice == "Start":
+                    try:
+                        self.draw.text((self.scale(10), self.scale(50)), str(
+                            self.ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range', '')) - 1][0]),
+                                       fill=self.text_color, font=self.font)
+                    except:
+                        pass
+                else:
+                    self.draw.text((self.scale(10), self.scale(50)), str(
+                        self.ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range', '')) - 1][1]),
+                                   fill=self.text_color, font=self.font)
 
-        # Learn MIDI
-        if self.currentlocation == "Learn_MIDI":
-            #  Position 1: display Load song
-            self.draw.text((self.scale(90), self.scale(5 + 10)), str(self.learning.loadingList[self.learning.loading]),
-                           fill=self.text_color, font=self.font)
+            # displaying screensaver settings
+            if self.currentlocation == "Start_delay":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.screensaver_delay), fill=self.text_color,
+                               font=self.font)
 
-            #  Position 2: display Learning Start/Stop
-            self.draw.text((self.scale(90), self.scale(5 + 20)), str(
-                self.learning.learningList[self.learning.is_started_midi]),
-                           fill=self.text_color, font=self.font)
-            #  Position 3: display Practice
-            self.draw.text((self.scale(90), self.scale(5 + 30)), str(
-                self.learning.practiceList[self.learning.practice]),
-                           fill=self.text_color, font=self.font)
-            #  Position 4: display Hands
-            self.draw.text((self.scale(90), self.scale(5 + 40)), str(self.learning.handsList[self.learning.hands]),
-                           fill=self.text_color, font=self.font)
-            #  Position 5: display Mute hand
-            self.draw.text((self.scale(90), self.scale(5 + 50)), str(
-                self.learning.mute_handList[self.learning.mute_hand]),
-                           fill=self.text_color, font=self.font)
-            #  Position 6: display Start point
-            self.draw.text((self.scale(90), self.scale(5 + 60)), str(self.learning.start_point) + "%",
-                           fill=self.text_color,
-                           font=self.font)
-            #  Position 7: display End point
-            self.draw.text((self.scale(90), self.scale(5 + 70)), str(self.learning.end_point) + "%",
-                           fill=self.text_color,
-                           font=self.font)
-            #  Position 8: display Set tempo
-            self.draw.text((self.scale(90), self.scale(5 + 80)), str(self.learning.set_tempo) + "%",
-                           fill=self.text_color,
-                           font=self.font)
-            #  Position 9,10: display Hands colors
-            coordR = 7 + 90
-            coordL = 7 + 100
-            self.draw.rectangle([(self.scale(90), self.scale(coordR)), (self.LCD.width, self.scale(coordR + 7))],
-                                fill="rgb(" + str(self.learning.hand_colorList[self.learning.hand_colorR])[1:-1] + ")")
-            self.draw.rectangle([(self.scale(90), self.scale(coordL)), (self.LCD.width, self.scale(coordL + 7))],
-                                fill="rgb(" + str(self.learning.hand_colorList[self.learning.hand_colorL])[1:-1] + ")")
+            if self.currentlocation == "Turn_off_screen_delay":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.screen_off_delay), fill=self.text_color,
+                               font=self.font)
 
-        # Metronome
-        if self.currentlocation == "Metronome":
-            #  Position 1: display Tempo
-            self.draw.text((self.scale(90), self.scale(5 + 10)), str(self.casio.metronome_tempo),
-                           fill=self.text_color, font=self.font)
-            #  Position 2: display Volume
-            self.draw.text((self.scale(90), self.scale(5 + 20)), str(self.casio.metronome_volume),
-                           fill=self.text_color, font=self.font)
-            #  Position 3: display Beat type
-            self.draw.text((self.scale(90), self.scale(5 + 30)), self.casio.metronome_beat_type_string(),
-                           fill=self.text_color, font=self.font)
-                           
-        if self.currentlocation == "Instrument":            
-            selected_position = 15 + self.casio.instrument * 10            
-            if menu_offset != -1:
-                selected_position = selected_position - menu_offset*10
-            if selected_position > 10 and selected_position<120:
-                self.draw.text((self.scale(10), self.scale(selected_position)), staffs[self.casio.instrument].getAttribute("text")[:3],
-                           fill="green", font=self.font)
-            
-        # Tone
-        if self.currentlocation == "Tone":
-            #  Position 1: display Traspose
-            self.draw.text((self.scale(90), self.scale(5 + 10)), str(self.casio.traspose),
-                           fill=self.text_color, font=self.font)
-        self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
+            if self.currentlocation == "Led_animation_delay":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.led_animation_delay), fill=self.text_color,
+                               font=self.font)
+
+            # displaying speed values
+            if self.currentlocation == "Period":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.speed_period_in_seconds),
+                               fill=self.text_color, font=self.font)
+
+            if self.currentlocation == "Max_notes_in_period":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.speed_max_notes),
+                               fill=self.text_color,
+                               font=self.font)
+
+            # displaying scale key
+            if self.currentlocation == "Scale_Coloring":
+                self.draw.text((self.scale(10), self.scale(70)), "scale: " + str(
+                    self.ledsettings.scales[self.ledsettings.scale_key]),
+                               fill=self.text_color, font=self.font)
+
+            # Learn MIDI
+            if self.currentlocation == "Learn_MIDI":
+                #  Position 1: display Load song
+                self.draw.text((self.scale(90), self.scale(5 + 10)), str(self.learning.loadingList[self.learning.loading]),
+                               fill=self.text_color, font=self.font)
+
+                #  Position 2: display Learning Start/Stop
+                self.draw.text((self.scale(90), self.scale(5 + 20)), str(
+                    self.learning.learningList[self.learning.is_started_midi]),
+                               fill=self.text_color, font=self.font)
+                #  Position 3: display Practice
+                self.draw.text((self.scale(65), self.scale(5 + 30)), str(
+                    self.learning.practiceList[self.learning.practice]),
+                               fill=self.text_color, font=self.font)
+                #  Position 4: display Hands
+                self.draw.text((self.scale(90), self.scale(5 + 40)), str(self.learning.handsList[self.learning.hands]),
+                               fill=self.text_color, font=self.font)
+                #  Position 5: display Mute hand
+                self.draw.text((self.scale(90), self.scale(5 + 50)), str(
+                    self.learning.mute_handList[self.learning.mute_hand]),
+                               fill=self.text_color, font=self.font)
+                #  Position 6: display Start point
+                self.draw.text((self.scale(90), self.scale(5 + 60)), str(int(self.learning.start_point)),
+                               fill=self.text_color,
+                               font=self.font)
+                #  Position 7: display End point
+                self.draw.text((self.scale(90), self.scale(5 + 70)), str(int(self.learning.end_point)),
+                               fill=self.text_color,
+                               font=self.font)
+                #  Position 8: display Set tempo
+                self.draw.text((self.scale(90), self.scale(5 + 80)), str(self.learning.set_tempo) + "%",
+                               fill=self.text_color,
+                               font=self.font)
+                #  Position 9,10: display Hands colors
+                coordR = 7 + 90
+                coordL = 7 + 100
+                self.draw.rectangle([(self.scale(90), self.scale(coordR)), (self.LCD.width, self.scale(coordR + 7))],
+                                    fill="rgb(" + str(self.learning.hand_colorList[self.learning.hand_colorR])[1:-1] + ")")
+                self.draw.rectangle([(self.scale(90), self.scale(coordL)), (self.LCD.width, self.scale(coordL + 7))],
+                                    fill="rgb(" + str(self.learning.hand_colorList[self.learning.hand_colorL])[1:-1] + ")")
+
+            # Metronome
+            if self.currentlocation == "Metronome":
+                #  Position 1: display Tempo
+                self.draw.text((self.scale(90), self.scale(5 + 10)), str(self.casio.metronome_tempo),
+                               fill=self.text_color, font=self.font)
+                #  Position 2: display Volume
+                self.draw.text((self.scale(90), self.scale(5 + 20)), str(self.casio.metronome_volume),
+                               fill=self.text_color, font=self.font)
+                #  Position 3: display Beat type
+                self.draw.text((self.scale(90), self.scale(5 + 30)), self.casio.metronome_beat_type_string(),
+                               fill=self.text_color, font=self.font)
+                               
+            if self.currentlocation == "Instrument":            
+                selected_position = 15 + self.casio.instrument * 10            
+                if menu_offset != -1:
+                    selected_position = selected_position - menu_offset*10
+                if selected_position > 10 and selected_position<120:
+                    self.draw.text((self.scale(10), self.scale(selected_position)), staffs[self.casio.instrument].getAttribute("text")[:3],
+                               fill="green", font=self.font)
+                
+            # Tone
+            if self.currentlocation == "Tone":
+                #  Position 1: display Traspose
+                self.draw.text((self.scale(90), self.scale(5 + 10)), str(self.casio.traspose),
+                               fill=self.text_color, font=self.font)
+                               
+            if self.learning.learning_midi:
+                self.draw.rectangle(
+                    [
+                        (0, self.LCD.height-self.scale(40)),
+                        (self.LCD.width, self.LCD.height)
+                    ],
+                    fill="darkblue"
+                )
+                font_score = ImageFont.truetype(self.score_ttf, self.scale(32))
+                font_measure = ImageFont.truetype(self.measure_ttf, self.scale(24))
+                self.midiports.last_activity = time.time()
+                if self.learning.practice == PRACTICE_ARCADE:
+                    color_score = "white"
+                    if self.learning.current_score < 30:
+                        color_score = "yellow"
+                    if self.learning.current_score < 10:
+                        color_score = "red"                    
+                    score = format(max(0,self.learning.current_score),'05.1f')
+                    self.draw.text((self.scale(3), self.LCD.height-self.scale(38)), score,
+                               fill=color_score, font=font_score)
+                    self.draw.text((self.scale(90), self.LCD.height-self.scale(38)), str(self.learning.current_measure + 1),
+                               fill="cyan", font=font_measure)
+                else:
+                    self.draw.text((self.scale(3), self.LCD.height-self.scale(38)), str(self.learning.current_measure + 1),
+                               fill="cyan", font=font_score)
+
+                self.draw.text((self.scale(90), self.LCD.height-self.scale(13)), str(self.learning.wrong_keys),
+                           fill="red", font=self.font)                               
+            self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
+        #end lock
 
     def change_pointer(self, direction):
         if direction == 0:
@@ -904,9 +945,11 @@ class MenuLCD:
 
         # Learn MIDI
         if location == "Load_song":
-            self.learning.t = threading.Thread(target=self.learning.load_midi, args=(choice,))
+            self.learning.t = threading.Thread(target=self.learning.load_midi, args=(choice+".mid",))
             self.learning.t.start()
+            self.update_songs()
             self.go_back()
+            self.change_pointer(1)
         if location == "Learn_MIDI":
             if choice == "Learning":
                 if not self.learning.is_started_midi:
@@ -1320,9 +1363,9 @@ class MenuLCD:
             if self.current_choice == "Mute hand":
                 self.learning.change_mute_hand(value)
             if self.current_choice == "Start point":
-                self.learning.change_start_point(value)
+                self.learning.change_start_point(value * self.speed_multiplier)
             if self.current_choice == "End point":
-                self.learning.change_end_point(value)
+                self.learning.change_end_point(value * self.speed_multiplier)
             if self.current_choice == "Set tempo":
                 self.learning.change_set_tempo(value)
             if self.current_choice == "Hand color R":

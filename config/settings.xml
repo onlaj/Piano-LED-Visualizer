@@ -1,13 +1,13 @@
 <settings>
 	<screen_on>1</screen_on>
-	<brightness_percent>50</brightness_percent>
+	<brightness_percent>10</brightness_percent>
 	<background_color>BLACK</background_color>
 	<text_color>WHITE</text_color>
 
 	<mode>Normal</mode>
-	<red>255</red>
-	<green>255</green>
-	<blue>255</blue>
+	<red>0</red>
+	<green>128</green>
+	<blue>128</blue>
 
 	<fadingspeed>1</fadingspeed>
 	<color_mode>Single</color_mode>
@@ -25,9 +25,9 @@
 	<backlight_brightness>0</backlight_brightness>
 	<backlight_brightness_percent>0</backlight_brightness_percent>
 
-	<backlight_red>255</backlight_red>
-	<backlight_green>255</backlight_green>
-	<backlight_blue>255</backlight_blue>
+	<backlight_red>250</backlight_red>
+	<backlight_green>0</backlight_green>
+	<backlight_blue>0</backlight_blue>
 
 	<speed_slowest_red>255</speed_slowest_red>
 	<speed_slowest_green>255</speed_slowest_green>
@@ -65,7 +65,7 @@
 
 	<skipped_notes>None</skipped_notes>
 
-	<note_offsets>[[92, 2], [55, 1]]</note_offsets>
+	<note_offsets>[[82, 2],[46, 1]]</note_offsets>
 
 	<time>1</time>
 	<date>1</date>
@@ -77,13 +77,13 @@
 	<sd_card_space>0</sd_card_space>
 	<local_ip>0</local_ip>
 
-	<screensaver_delay>10</screensaver_delay>
+	<screensaver_delay>1</screensaver_delay>
 	<screen_off_delay>60</screen_off_delay>
 	<led_animation_delay>0</led_animation_delay>
 	<led_animation>Scanner</led_animation>
 
-	<led_count>176</led_count>
-	<shift>0</shift>
+	<led_count>220</led_count>
+	<shift>22</shift>
 	<reverse>0</reverse>
 
 	<input_port>CASIO USB-MIDI:CASIO USB-MIDI MIDI 1 20:0</input_port>
@@ -91,23 +91,20 @@
 	<play_port>CASIO USB-MIDI:CASIO USB-MIDI MIDI 1 20:0</play_port>
 
 	
-	<practice>0</practice>
+	<practice>4</practice>
 	<hands>0</hands>
 	<mute_hand>0</mute_hand>
-	<start_point>0</start_point>
-	<end_point>100</end_point>
+	<start_point>1</start_point>
+	<end_point>16</end_point>
 	<set_tempo>100</set_tempo>
 	
-	<hand_colorList>[[0, 255, 0], [0, 0, 255], [255, 128, 0], [255, 255, 0], [0, 255, 255], [255, 0, 255], [255, 0, 0], [255, 255, 255], [0, 0, 0]]</hand_colorList>
-	<hand_colorR>0</hand_colorR>
-	<hand_colorL>1</hand_colorL>
+	<hand_colorList>[[0, 255, 0], [0, 128, 0], [0, 0, 255],[0, 0, 128], [255, 128, 0], [255, 255, 0], [0, 255, 255],[0, 128, 128], [255, 0, 255], [255, 0, 0], [255, 255, 255], [0, 0, 0]]</hand_colorList>
+	<hand_colorR>6</hand_colorR>
+	<hand_colorL>8</hand_colorL>
 
 	<is_loop_active>1</is_loop_active>
 	<midi_logging>1</midi_logging>
 	<low_density>0</low_density>
 
 
-       <metronome_tempo>46</metronome_tempo>
-       <metronome_volume>42</metronome_volume>
-       <metronome_beat_type>0</metronome_beat_type>
 </settings>

@@ -33,13 +33,6 @@
                      <Instrument text="18:Bass"></Instrument>
               </Tone>
 	</menu>       
-    <menu text="Play MIDI">
-        <Play_MIDI text="Choose song"></Play_MIDI>
-        <Play_MIDI text="Stop playing"></Play_MIDI>
-        <Play_MIDI text="Start recording"></Play_MIDI>
-        <Play_MIDI text="Cancel recording"></Play_MIDI>
-        <Play_MIDI text="Save MIDI"></Play_MIDI>
-    </menu>
     <menu text="Learn MIDI">
         <Learn_MIDI text="Load song"></Learn_MIDI>
         <Learn_MIDI text="Learning"></Learn_MIDI>
@@ -51,6 +44,13 @@
         <Learn_MIDI text="Set tempo"></Learn_MIDI>
         <Learn_MIDI text="Hand color R"></Learn_MIDI>
         <Learn_MIDI text="Hand color L"></Learn_MIDI>
+    </menu>
+    <menu text="Play MIDI">
+        <Play_MIDI text="Choose song"></Play_MIDI>
+        <Play_MIDI text="Stop playing"></Play_MIDI>
+        <Play_MIDI text="Start recording"></Play_MIDI>
+        <Play_MIDI text="Cancel recording"></Play_MIDI>
+        <Play_MIDI text="Save MIDI"></Play_MIDI>
     </menu>
     <menu text="Ports Settings">
         <Ports_Settings text="Input"></Ports_Settings>

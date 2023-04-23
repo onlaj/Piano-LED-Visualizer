@@ -1038,7 +1038,7 @@ def change_setting():
         webinterface.learning.t = threading.Thread(target=webinterface.learning.load_midi, args=(value,))
         webinterface.learning.t.start()
 
-        return jsonify(success=True, reload_learning_settings=True)
+        return jsonify(success=True, reload_learning_settings=True, reload_songs=True)
 
     if setting_name == "start_learning_song":
         webinterface.learning.t = threading.Thread(target=webinterface.learning.learn_midi)
@@ -1100,7 +1100,7 @@ def change_setting():
         value = int(value)
         webinterface.learning.end_point = value
         webinterface.learning.end_point = clamp(webinterface.learning.end_point, webinterface.learning.start_point + 1,
-                                                100)
+                                                300)
         webinterface.usersettings.change_setting_value("end_point", webinterface.learning.end_point)
         webinterface.learning.restart_learning()
 

@@ -24,10 +24,13 @@ class UserSettings:
     def save_changes(self):
         if self.pending_changes:
             self.pending_changes = False
-
-            #self.tree.write("config/settings.xml")
-            #self.tree = ET.parse("config/settings.xml")
-            #self.root = self.tree.getroot()
+            try:
+                self.tree.write("config/settings.xml")
+                self.tree = ET.parse("config/settings.xml")
+                self.root = self.tree.getroot()
+            except OSError:
+                # Handle the error when the file system is read-only
+                print("Warning: Failed to save changes. The file system is read-only.")
 
     def reset_to_default(self):
         self.tree = ET.parse("config/default_settings.xml")

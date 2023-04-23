@@ -251,6 +251,8 @@
                             <option value="0">Melody</option>
                             <option value="1">Rhythm</option>
                             <option value="2">Listen</option>
+                            <option value="3">Arcade</option>
+                            <option value="4">Progressive</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -333,7 +335,7 @@
                 </div>
             </div>
 
-            <div class="w-full md:w-1/2 m-auto">
+            <div class="w-full md:w-1/2 m-auto" style="width: 100%">
                 <div id="learning_slider_wrapper" class="mt-4">
                     <div slider="" id="slider-distance">
                         <div>
@@ -346,20 +348,20 @@
                                 <span id="value1">0</span>
                             </div>
                             <div sign="" style="left:100%;">
-                                <span id="value2">100</span>
+                                <span id="value2">300</span>
                             </div>
                         </div>
-                        <input id="learning_start_point" type="range" tabindex="0" value="0" max="100" min="0" step="1"
+                        <input id="learning_start_point" style="width: 30%" type="range" tabindex="0" value="0" max="300" min="1" step="1"
                                oninput="show_left_slider(this)" onchange="change_setting('learning_start_point', this.value);
                                document.getElementById('start_point').innerHTML = this.value">
-                        <input id="learning_end_point" type="range" tabindex="0" value="100" max="100" min="0" step="1"
+                        <input id="learning_end_point"  style="width: 30%" type="range" tabindex="0" value="300" max="300" min="1" step="1"
                                oninput="show_right_slider(this)" onchange="change_setting('learning_end_point', this.value);
                                document.getElementById('end_point').innerHTML = this.value">
                     </div>
                 </div>
                 <div class="flex">
                     <label class="w-1/2 block text-xs text-gray-600 dark:text-gray-400">
-                        Start point (<b id="start_point">0</b>%)</b>
+                        Start point (Measure <b id="start_point">0</b>)</b>
 
                         <div class='has-tooltip float-left'>
                         <span class='inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
@@ -376,7 +378,7 @@
 
                     </label>
                     <label class="w-1/2 float-right text-xs text-right block text-gray-600 dark:text-gray-400">
-                        End point (<b id="end_point">0</b>%)</b>
+                        End point (Measure <b id="end_point">0</b>)</b>
                         <div class='has-tooltip float-right'>
                         <span class='inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
                             Set the current track time as the loop end

@@ -1169,7 +1169,7 @@ function get_learning_status(loop_call = false) {
                 }
 
                 var min = 0
-                var max = 100
+                var max = 300
 
                 var value_left = response.start_point;
                 var value_right = response.end_point;
@@ -1193,10 +1193,10 @@ function get_learning_status(loop_call = false) {
                     '       <span id="value2">' + value_right + '</span>\n' +
                     '   </div>\n' +
                     '</div>\n' +
-                    '<input id="learning_start_point" type="range" tabindex="0" value="' + value_left + '" max="100" min="0" step="1"\n' +
+                    '<input id="learning_start_point" type="range" tabindex="0" value="' + value_left + '" max="300" min="1" step="1"\n' +
                     '   oninput="show_left_slider(this)" onchange="change_setting(\'learning_start_point\', this.value);\n' +
                     '   document.getElementById(\'start_point\').innerHTML = this.value">\n' +
-                    '<input id="learning_end_point" type="range" tabindex="0" value="' + value_right + '" max="100" min="0" step="1"\n' +
+                    '<input id="learning_end_point" type="range" tabindex="0" value="' + value_right + '" max="300" min="1" step="1"\n' +
                     '   oninput="show_right_slider(this)" onchange="change_setting(\'learning_end_point\', this.value);\n' +
                     '   document.getElementById(\'end_point\').innerHTML = this.value">\n' +
                     '</div>';
