@@ -31,6 +31,15 @@ The program also detects when the settings have been changed in the piano and up
 
 All commands related to this casio model are in the file et_casio.py
 
+This branch adds also some enhancements:
+  - LEDs for Black keys are shown darker
+  - start_point, end_point are based on measure and not on percentage
+  - Before waiting for keys to be pressed, the LEDs are refreshed 
+  - The screensaver won't show while learning
+  - There are two new modes:
+     - Arcade mode: Score decreases by rhythm or key misses, when it reaches zero you restart again
+     - Progressive mode: Each measure is played before practicing
+
 # Features
 [Detailed feature showcase with images](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/features.md)
 
