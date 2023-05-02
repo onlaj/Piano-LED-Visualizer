@@ -254,12 +254,15 @@ def get_note_position(note, ledstrip, ledsettings):
             break
     note_offset -= ledstrip.shift
 
+    
     if (ledsettings.low_density == 1):
-        density = 1
+        leds_per_meter = 60
     else:
-        density = 2
+        leds_per_meter = 144
 
-    note_pos_raw = density * (note - 20) - note_offset
+    density = leds_per_meter/72
+
+    note_pos_raw = int(density * (note - 20) - note_offset)
     if ledstrip.reverse:
         return max(0, ledstrip.led_number - note_pos_raw)
     else:
