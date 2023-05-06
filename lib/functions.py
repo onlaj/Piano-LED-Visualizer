@@ -36,6 +36,7 @@ def clamp(val, val_min, val_max):
 def shift(l, n):
     return l[n:] + l[:n]
 
+
 def touch_file(filename):
     try:
         # Open the file in append mode to update its modification time
@@ -44,6 +45,7 @@ def touch_file(filename):
     except OSError as e:
         print(e)
         pass
+
 
 def read_only_fs():
     # Attempt to create a file in the directory
@@ -54,7 +56,8 @@ def read_only_fs():
         return False
     except Exception as e:
         return True
-    
+
+
 def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     midiports.pending_queue.append(mido.Message('note_on'))
 
@@ -99,7 +102,8 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
 
             else:
                 break
-        print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, total_delay))
+        print('play time: {:.2f} s (expected {:.2f})'.format(
+            time.time() - t0, total_delay))
         # print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, length))
         # saving.is_playing_midi = False
     except:
@@ -148,7 +152,8 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
             menu.screensaver_is_running = True
             if menu.led_animation == "Theater Chase":
                 menu.t = threading.Thread(target=theaterChase, args=(ledstrip.strip,
-                                                                     Color(127, 127, 127),
+                                                                     Color(
+                                                                         127, 127, 127),
                                                                      ledsettings,
                                                                      menu))
                 menu.t.start()
@@ -205,9 +210,11 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
 
         if menu.screensaver_settings["temp"] == "1":
             try:
-                temp = find_between(str(psutil.sensors_temperatures()["cpu_thermal"]), "current=", ",")
+                temp = find_between(str(psutil.sensors_temperatures()[
+                                    "cpu_thermal"]), "current=", ",")
             except:
-                temp = find_between(str(psutil.sensors_temperatures()["cpu-thermal"]), "current=", ",")
+                temp = find_between(str(psutil.sensors_temperatures()[
+                                    "cpu-thermal"]), "current=", ",")
             temp = round(float(temp), 1)
         else:
             temp = 0
@@ -264,6 +271,18 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
             menu.show()
             break
 
+
+def midi_note_num_to_string(note_midi_idx):
+    # Calculate the octave and note number
+    octave = (note_midi_idx // 12) - 1
+    note_num = note_midi_idx % 12
+
+    # Map the note number to a note letter and accidental
+    notes = {0: 'C', 1: 'C#', 2: 'D', 3: 'Eb', 4: 'E', 5: 'F',
+             6: 'F#', 7: 'G', 8: 'G#', 9: 'A', 10: 'Bb', 11: 'B'}
+    return f"{notes[note_num]}{octave}"
+
+
 def get_key_color(note):
     # Calculate the octave and note within the octave
     octave = (note // 12) - 1
@@ -274,8 +293,10 @@ def get_key_color(note):
         return 0
     else:
         return 1
-        
+
 # Get note position on the strip
+
+
 def get_note_position(note, ledstrip, ledsettings):
     note_offsets = ledsettings.note_offsets
     note_offset = 0
@@ -336,6 +357,7 @@ def get_rainbow_colors(pos, color):
         elif color == "blue":
             return 255 - pos * 3
 
+
 def check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
     if ledsettings.adjacent_mode == "Off":
         if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
@@ -350,6 +372,8 @@ def check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
     return False
 
 # LED animations
+
+
 def fastColorWipe(strip, update, ledsettings):
     brightness = ledsettings.backlight_brightness_percent / 100
     red = int(ledsettings.get_backlight_color("Red") * brightness)
@@ -361,18 +385,21 @@ def fastColorWipe(strip, update, ledsettings):
     if update:
         strip.show()
 
+
 def changeAllLedsColor(strip, r, g, b):
-    color = Color(r,g,b)
+    color = Color(r, g, b)
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
     strip.show()
-    
+
+
 def setLedPattern(strip, pattern):
     pattern_pointer = 0
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, pattern[pattern_pointer % len(pattern)])
         pattern_pointer += 1
-    strip.show()    
+    strip.show()
+
 
 def theaterChase(ledstrip, color, ledsettings, menu, wait_ms=25):
     """Movie theater light style chaser animation."""
@@ -501,7 +528,8 @@ def rainbowCycle(ledstrip, ledsettings, menu, wait_ms=20):
 
         for i in range(strip.numPixels()):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255, ledsettings))
+                strip.setPixelColor(
+                    i, wheel((int(i * 256 / strip.numPixels()) + j) & 255, ledsettings))
         j += 1
         if j >= 256:
             j = 0
@@ -536,7 +564,8 @@ def theaterChaseRainbow(ledstrip, ledsettings, menu, wait_ms=25):
         for q in range(5):
             for i in range(0, strip.numPixels(), 5):
                 if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                    strip.setPixelColor(i + q, wheel((i + j) % 255, ledsettings))
+                    strip.setPixelColor(
+                        i + q, wheel((i + j) % 255, ledsettings))
             strip.show()
             time.sleep(wait_ms / 1000.0)
             for i in range(0, strip.numPixels(), 5):
@@ -585,9 +614,12 @@ def breathing(ledstrip, ledsettings, menu, wait_ms=2):
         brightness /= 100
 
         divide = (multiplier / float(100)) * brightness
-        red = int(round(float(ledsettings.get_backlight_color("Red")) * float(divide)))
-        green = int(round(float(ledsettings.get_backlight_color("Green")) * float(divide)))
-        blue = int(round(float(ledsettings.get_backlight_color("Blue")) * float(divide)))
+        red = int(
+            round(float(ledsettings.get_backlight_color("Red")) * float(divide)))
+        green = int(
+            round(float(ledsettings.get_backlight_color("Green")) * float(divide)))
+        blue = int(
+            round(float(ledsettings.get_backlight_color("Blue")) * float(divide)))
 
         for i in range(strip.numPixels()):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
@@ -691,7 +723,8 @@ def scanner(ledstrip, ledsettings, menu, wait_ms=1):
 
                 brightness /= 100
 
-                divide = ((scanner_length / 2) - distance_from_position) / float(scanner_length / 2)
+                divide = ((scanner_length / 2) -
+                          distance_from_position) / float(scanner_length / 2)
 
                 red = int(float(red_fixed) * float(divide) * brightness)
                 green = int(float(green_fixed) * float(divide) * brightness)
@@ -755,7 +788,8 @@ def chords(scale, ledstrip, ledsettings, menu):
             leds_to_update.remove(note_position)
 
             if check_if_led_can_be_overwrite(note_position, ledstrip, ledsettings):
-                strip.setPixelColor(note_position, Color(int(c[1] * bright), int(c[0] * bright), int(c[2] * bright)))
+                strip.setPixelColor(note_position, Color(
+                    int(c[1] * bright), int(c[0] * bright), int(c[2] * bright)))
 
         for i in leds_to_update:
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
