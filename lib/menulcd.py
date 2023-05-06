@@ -14,7 +14,7 @@ import RPi.GPIO as GPIO
 
 from lib import et_casio
 
-from lib.learnmidi import PRACTICE_PROGRESSIVE, PRACTICE_ARCADE
+from lib.learnmidi import PRACTICE_PROGRESSIVE, PRACTICE_ARCADE, PRACTICE_PERFECTION
 
 class MenuLCD:
     def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports):
@@ -29,7 +29,7 @@ class MenuLCD:
         if args.fontdir != None:
             fontdir = args.fontdir
         self.lcd_ttf = fontdir + "/FreeSansBold.ttf"
-        self.measure_ttf = fontdir + "/FreeSerif.ttf"
+        self.measure_ttf = fontdir + "/FreeSerifBold.ttf"
         self.score_ttf = fontdir + "/FreeSans.ttf"
         if not os.path.exists(self.lcd_ttf):
             raise RuntimeError("Cannot locate font file: %s" % self.lcd_ttf)
@@ -344,6 +344,9 @@ class MenuLCD:
             self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
             self.draw = ImageDraw.Draw(self.image)
             self.draw.text((self.scale(2), self.scale(5)), position.replace("_", " "), fill=self.text_color, font=self.font)
+            
+            time_str = datetime.datetime.now().strftime("%H:%M")
+            self.draw.text((self.scale(95), self.scale(0)), time_str, fill="magenta", font=self.font)
 
             # getting list of items in current menu
             staffs = self.DOMTree.getElementsByTagName(position)
@@ -682,45 +685,66 @@ class MenuLCD:
 
             # Learn MIDI
             if self.currentlocation == "Learn_MIDI":
-                #  Position 1: display Load song
-                self.draw.text((self.scale(90), self.scale(5 + 10)), str(self.learning.loadingList[self.learning.loading]),
-                               fill=self.text_color, font=self.font)
+                offset = 0
+                if menu_offset != -1:
+                    offset = - menu_offset*10
+                
+                text_position = 5 + 10 + offset
+                if text_position >= 15:
+                    #  Position 1: display Load song
+                    self.draw.text((self.scale(90), self.scale(text_position)), str(self.learning.loadingList[self.learning.loading]),
+                                   fill=self.text_color, font=self.font)
 
-                #  Position 2: display Learning Start/Stop
-                self.draw.text((self.scale(90), self.scale(5 + 20)), str(
-                    self.learning.learningList[self.learning.is_started_midi]),
-                               fill=self.text_color, font=self.font)
+                text_position += 10
+                if text_position >= 15:
+                    #  Position 2: display Learning Start/Stop
+                    self.draw.text((self.scale(90), self.scale(text_position)), str(
+                        self.learning.learningList[self.learning.is_started_midi]),
+                                   fill=self.text_color, font=self.font)
+                                   
+                text_position += 10
                 #  Position 3: display Practice
-                self.draw.text((self.scale(65), self.scale(5 + 30)), str(
+                self.draw.text((self.scale(65), self.scale(text_position)), str(
                     self.learning.practiceList[self.learning.practice]),
                                fill=self.text_color, font=self.font)
-                #  Position 4: display Hands
-                self.draw.text((self.scale(90), self.scale(5 + 40)), str(self.learning.handsList[self.learning.hands]),
-                               fill=self.text_color, font=self.font)
-                #  Position 5: display Mute hand
-                self.draw.text((self.scale(90), self.scale(5 + 50)), str(
-                    self.learning.mute_handList[self.learning.mute_hand]),
-                               fill=self.text_color, font=self.font)
-                #  Position 6: display Start point
-                self.draw.text((self.scale(90), self.scale(5 + 60)), str(int(self.learning.start_point)),
+                text_position += 10
+                #  Position 4: display Start point
+                self.draw.text((self.scale(90), self.scale(text_position)), str(int(self.learning.start_point)),
                                fill=self.text_color,
                                font=self.font)
-                #  Position 7: display End point
-                self.draw.text((self.scale(90), self.scale(5 + 70)), str(int(self.learning.end_point)),
+                text_position += 10
+                #  Position 5: display End point
+                self.draw.text((self.scale(90), self.scale(text_position)), str(int(self.learning.end_point)),
                                fill=self.text_color,
                                font=self.font)
-                #  Position 8: display Set tempo
-                self.draw.text((self.scale(90), self.scale(5 + 80)), str(self.learning.set_tempo) + "%",
+                text_position += 10
+                #  Position 6: display Step
+                self.draw.text((self.scale(90), self.scale(text_position)), self.learning.learnStepList[self.learning.learn_step],
                                fill=self.text_color,
                                font=self.font)
-                #  Position 9,10: display Hands colors
-                coordR = 7 + 90
-                coordL = 7 + 100
+                text_position += 10
+                #  Position 7: display Set tempo
+                self.draw.text((self.scale(90), self.scale(text_position)), str(self.learning.set_tempo) + "%",
+                               fill=self.text_color,
+                               font=self.font)
+                text_position += 10
+                #  Position 8,9: display Hands colors
+                coordR = 2 + text_position
+                coordL = 12 + text_position
                 self.draw.rectangle([(self.scale(90), self.scale(coordR)), (self.LCD.width, self.scale(coordR + 7))],
                                     fill="rgb(" + str(self.learning.hand_colorList[self.learning.hand_colorR])[1:-1] + ")")
                 self.draw.rectangle([(self.scale(90), self.scale(coordL)), (self.LCD.width, self.scale(coordL + 7))],
                                     fill="rgb(" + str(self.learning.hand_colorList[self.learning.hand_colorL])[1:-1] + ")")
-
+                text_position += 20
+                #  Position 10: display Hands
+                self.draw.text((self.scale(90), self.scale(text_position)), str(self.learning.handsList[self.learning.hands]),
+                               fill=self.text_color, font=self.font)
+                text_position += 10
+                #  Position 11: display Mute hand
+                self.draw.text((self.scale(90), self.scale(text_position)), str(
+                    self.learning.mute_handList[self.learning.mute_hand]),
+                               fill=self.text_color, font=self.font)
+                               
             # Metronome
             if self.currentlocation == "Metronome":
                 #  Position 1: display Tempo
@@ -753,28 +777,36 @@ class MenuLCD:
                         (0, self.LCD.height-self.scale(40)),
                         (self.LCD.width, self.LCD.height)
                     ],
-                    fill="darkblue"
+                    fill="darkblue" if self.learning.blind_mode == False else (24,0,0)
                 )
                 font_score = ImageFont.truetype(self.score_ttf, self.scale(32))
                 font_measure = ImageFont.truetype(self.measure_ttf, self.scale(24))
                 self.midiports.last_activity = time.time()
+                color_score = "white"
+                   
                 if self.learning.practice == PRACTICE_ARCADE:
-                    color_score = "white"
                     if self.learning.current_score < 30:
                         color_score = "yellow"
                     if self.learning.current_score < 10:
                         color_score = "red"                    
+                elif self.learning.practice == PRACTICE_PERFECTION:
+                    if self.learning.current_score > 5:
+                        color_score = "yellow"
+                    if self.learning.current_score >= 10:
+                        color_score = "red"                    
+
+                if self.learning.practice in (PRACTICE_ARCADE, PRACTICE_PERFECTION):
                     score = format(max(0,self.learning.current_score),'05.1f')
                     self.draw.text((self.scale(3), self.LCD.height-self.scale(38)), score,
                                fill=color_score, font=font_score)
-                    self.draw.text((self.scale(90), self.LCD.height-self.scale(38)), str(self.learning.current_measure + 1),
+                    self.draw.text((self.scale(90), self.LCD.height-self.scale(41)), str(self.learning.current_measure + 1),
                                fill="cyan", font=font_measure)
                 else:
                     self.draw.text((self.scale(3), self.LCD.height-self.scale(38)), str(self.learning.current_measure + 1),
                                fill="cyan", font=font_score)
 
-                self.draw.text((self.scale(90), self.LCD.height-self.scale(13)), str(self.learning.wrong_keys),
-                           fill="red", font=self.font)                               
+                self.draw.text((self.scale(90), self.LCD.height-self.scale(22)), str(self.learning.wrong_keys),
+                           fill="red", font=font_measure)                               
             self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
         #end lock
 
@@ -1372,6 +1404,8 @@ class MenuLCD:
                 self.learning.change_hand_color(value, 'RIGHT')
             if self.current_choice == "Hand color L":
                 self.learning.change_hand_color(value, 'LEFT')
+            if self.current_choice == "Learn step":
+                self.learning.change_learn_step(value)
 
         self.show()
 

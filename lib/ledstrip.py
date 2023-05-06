@@ -1,5 +1,5 @@
 from lib.functions import *
-
+import threading
 
 class LedStrip:
     def __init__(self, usersettings, ledsettings):
@@ -30,8 +30,13 @@ class LedStrip:
         # Create NeoPixel object with appropriate configuration.
         self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
                                        self.LED_BRIGHTNESS, self.LED_CHANNEL)
+        self.strip.setBrightness(self.LED_BRIGHTNESS)
+        threading.Timer(20.0, self.adjust_brightness).start()
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
+        
+    def adjust_brightness(self):
+        self.strip.setBrightness(self.LED_BRIGHTNESS)
 
     def change_brightness(self, value, ispercent=False):
         if ispercent:

@@ -91,7 +91,12 @@ GPIO.setup(KEY3, GPIO.IN, GPIO.PUD_UP)
 GPIO.setup(JPRESS, GPIO.IN, GPIO.PUD_UP)
 
 usersettings = UserSettings()
-midiports = MidiPorts(usersettings)
+while True:
+    midiports = MidiPorts(usersettings)
+    if hasattr(midiports.playport,"send"):
+        break
+    time.sleep(1)  
+
 ledsettings = LedSettings(usersettings)
 ledstrip = LedStrip(usersettings, ledsettings)
 learning = LearnMIDI(usersettings, ledsettings, midiports, ledstrip)
@@ -143,7 +148,6 @@ while True:
     # screensaver
     if int(menu.screensaver_delay) > 0:
         if (time.time() - midiports.last_activity) > (int(menu.screensaver_delay) * 60):
-            print ("Start screensaver : "+str((time.time() - midiports.last_activity)))
             screensaver(menu, midiports, saving, ledstrip, ledsettings)
     try:
         elapsed_time = time.time() - saving.start_time
@@ -408,7 +412,8 @@ while True:
                 brightness = 1
                 
             if not isBlack:
-                red = 255
+                red = max(green,blue)
+                green = 0
             if ledsettings.mode == "Fading":
                 ledstrip.keylist[note_position] = 1001
             if ledsettings.mode == "Velocity":

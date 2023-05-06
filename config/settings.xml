@@ -1,13 +1,13 @@
 <settings>
 	<screen_on>1</screen_on>
-	<brightness_percent>10</brightness_percent>
+	<brightness_percent>24</brightness_percent>
 	<background_color>BLACK</background_color>
 	<text_color>WHITE</text_color>
 
 	<mode>Normal</mode>
 	<red>0</red>
-	<green>128</green>
-	<blue>128</blue>
+	<green>32</green>
+	<blue>32</blue>
 
 	<fadingspeed>1</fadingspeed>
 	<color_mode>Single</color_mode>
@@ -65,7 +65,7 @@
 
 	<skipped_notes>None</skipped_notes>
 
-	<note_offsets>[[82, 2],[46, 1]]</note_offsets>
+	<note_offsets>[[82, 2],[45, 1]]</note_offsets>
 
 	<time>1</time>
 	<date>1</date>
@@ -91,11 +91,12 @@
 	<play_port>CASIO USB-MIDI:CASIO USB-MIDI MIDI 1 20:0</play_port>
 
 	
-	<practice>4</practice>
+	<practice>5</practice>
 	<hands>0</hands>
 	<mute_hand>0</mute_hand>
-	<start_point>1</start_point>
-	<end_point>16</end_point>
+	<start_point>113</start_point>
+    <learn_step>4</learn_step>
+	<end_point>192</end_point>
 	<set_tempo>100</set_tempo>
 	
 	<hand_colorList>[[0, 255, 0], [0, 128, 0], [0, 0, 255],[0, 0, 128], [255, 128, 0], [255, 255, 0], [0, 255, 255],[0, 128, 128], [255, 0, 255], [255, 0, 0], [255, 255, 255], [0, 0, 0]]</hand_colorList>

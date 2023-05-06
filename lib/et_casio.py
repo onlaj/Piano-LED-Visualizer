@@ -1,5 +1,6 @@
 import threading
 import mido
+import time
 
 class CasioPiano:
     def __init__(self, midiports, menuLCD):
@@ -109,6 +110,10 @@ class CasioPiano:
     def set_metronome_beat_type(self, value):
         self.metronome_beat_type = int(value)
         self.send_metronome_data()
+        
+    def set_metronome_active(self, value):
+        self.midicmd_metronome_onOff[13] = 1 if value else 0
+        self.send_midi(self.midicmd_metronome_onOff)    
 
     def send_metronome_data(self):
         if self.metronome_tempo < 10:
@@ -129,13 +134,11 @@ class CasioPiano:
         self.midicmd_metronome_rate[13] = self.metronome_tempo % 128
         self.midicmd_metronome_volume[13] = self.metronome_volume
         if self.metronome_beat_type < 0:
-            self.midicmd_metronome_onOff[13] = 0
-            self.send_midi(self.midicmd_metronome_onOff)
+            self.set_metronome_active(False)
         else:
+            self.set_metronome_active(True)
             self.midicmd_metronome_beat_type[13] = self.metronome_beat_type
-            self.midicmd_metronome_onOff[13] = 1
             self.send_midi(self.midicmd_metronome_beat_type)
-            self.send_midi(self.midicmd_metronome_onOff)
         self.send_midi(self.midicmd_metronome_rate)
         self.send_midi(self.midicmd_metronome_volume)
 

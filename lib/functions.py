@@ -45,6 +45,16 @@ def touch_file(filename):
         print(e)
         pass
 
+def read_only_fs():
+    # Attempt to create a file in the directory
+    try:
+        with open("test_ro.tmp", "w") as f:
+            f.write("Test")
+        os.remove("test_ro.tmp")
+        return False
+    except Exception as e:
+        return True
+    
 def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     midiports.pending_queue.append(mido.Message('note_on'))
 
@@ -356,6 +366,13 @@ def changeAllLedsColor(strip, r, g, b):
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
     strip.show()
+    
+def setLedPattern(strip, pattern):
+    pattern_pointer = 0
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, pattern[pattern_pointer % len(pattern)])
+        pattern_pointer += 1
+    strip.show()    
 
 def theaterChase(ledstrip, color, ledsettings, menu, wait_ms=25):
     """Movie theater light style chaser animation."""
