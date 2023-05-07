@@ -300,7 +300,6 @@ def get_key_color(note):
 def get_note_position(note, ledstrip, ledsettings):
     note_offsets = ledsettings.note_offsets
     note_offset = 0
-    # print("NOTE "+str(note))
     for i in range(0, len(note_offsets)):
         if note > note_offsets[i][0]:
             note_offset = note_offsets[i][1]

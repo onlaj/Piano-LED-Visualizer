@@ -68,8 +68,10 @@ class LearnMIDI:
         self.learningList = ['Start', 'Stop']
         self.practiceList = ['Melody', 'Rhythm', 'Listen',
                              'Arcade', 'Progressive', 'Perfection']
-        self.learnStepList = ['1/2', '1/3', '2/1', '2/2',
-                              '2/3', '2/4', '3/1', '3/2', '3/3', '3/4']
+        self.learnStepList = ['1/2', '1/3',
+                              '2/1', '2/2', '2/3', '2/4',
+                              '3/1', '3/2', '3/3', '3/4',
+                              '4/1', '4/2', '4/3', '4/4']
         self.handsList = ['Both', 'Right', 'Left']
         self.mute_handList = ['Off', 'Right', 'Left']
         self.hand_colorList = ast.literal_eval(
@@ -379,7 +381,6 @@ class LearnMIDI:
         self.switch_off_leds.clear()
 
     def switch_off_markers(self):
-        now = time.time()
         remove = []
         for led_idx in self.switch_off_leds:
             if (self.switch_off_leds[led_idx] == "MARKER"):
@@ -414,15 +415,54 @@ class LearnMIDI:
     def wait_notes_to_press(self, current_index, start_score, notes_to_press, ignore_first_delay):
         if not notes_to_press:
             return
-        notes_pressed = []
         if not self.blind_mode:
             self.show_notes_to_press(current_index, notes_to_press)
 
         start_waiting = time.time()
-
         start_wrong_keys = self.wrong_keys
+        refresh_led_strip = False
+        elapsed_already = 0
 
         while notes_to_press and self.is_started_midi:
+            self.process_midi_events()
+            if self.restart_blind:
+                break
+            while not self.midi_messages.empty():
+                msg = self.midi_messages.get()
+
+                note_position = msg["position"]
+                velocity = msg["velocity"]
+                note = msg["note"]
+
+                if velocity > 0:
+                    if note in notes_to_press:
+                        if len(notes_to_press[note]) == 1:
+                            notes_to_press.pop(note)
+                            self.set_pixel_color(note_position, Color(32, 0, 0), "NOTE_OFF")
+                            refresh_led_strip = True
+                        else:
+                            notes_to_press[note].pop(0)
+                            if self.blind_mode:
+                                self.set_pixel_color(note_position, Color(32, 0, 0), "NOTE_OFF")
+                                refresh_led_strip = True
+                            else:
+                                self.show_notes_to_press(current_index, notes_to_press)
+
+                    else:
+                        self.wrong_keys += 1
+                        self.set_pixel_color(note_position, Color(0, 32, 0), "NOTE_OFF")
+                        if self.wrong_keys > 0:
+                            brightness1 = min(self.wrong_keys, 3)
+                            brightness2 = max(min(self.wrong_keys-3, 3), 0)
+                            led_brightness1 = [0, LOWEST_LED_BRIGHT, MIDDLE_LED_BRIGHT, MAX_LED_BRIGHT][brightness1]
+                            led_brightness2 = [0, LOWEST_LED_BRIGHT, MIDDLE_LED_BRIGHT, MAX_LED_BRIGHT][brightness2]
+                            self.color_led_strip_borders(Color(0, led_brightness1, 0), 0, 3)
+                            self.color_led_strip_borders(Color(0, led_brightness2, 0), 3, 6)
+                        if (self.wrong_keys - start_wrong_keys == 16 and self.blind_mode):
+                            self.blind_mode = False
+                            self.show_notes_to_press(current_index, notes_to_press)
+                        else:
+                            refresh_led_strip = True
             elapsed_already = max(0, time.time()-start_waiting - 0.25)
             if ignore_first_delay:
                 elapsed_already = 0
@@ -440,50 +480,10 @@ class LearnMIDI:
                 if self.wrong_keys - start_wrong_keys > 15:
                     self.blind_mode = False
 
-            self.process_midi_events()
-            if self.restart_blind:
-                break
-            while not self.midi_messages.empty():
-                msg = self.midi_messages.get()
+            if refresh_led_strip:
+                self.ledstrip.strip.show()
+                refresh_led_strip = False
 
-                note_position = msg["position"]
-                velocity = msg["velocity"]
-                note = msg["note"]
-
-                if velocity > 0:
-                    if note not in notes_pressed:
-                        notes_pressed.append(note)
-                        if note in notes_to_press:
-                            if len(notes_to_press[note]) == 1:
-                                notes_to_press.pop(note)
-                                self.set_pixel_color(note_position, Color(32, 0, 0), "NOTE_OFF")
-                                self.ledstrip.strip.show()
-                            else:
-                                notes_to_press[note].pop(0)
-                                if self.blind_mode:
-                                    self.set_pixel_color(note_position, Color(32, 0, 0), "NOTE_OFF")
-                                else:
-                                    self.show_notes_to_press(current_index, notes_to_press)
-
-                        else:
-                            self.wrong_keys += 1
-                            self.set_pixel_color(note_position, Color(0, 32, 0), "NOTE_OFF")
-                            self.ledstrip.strip.show()
-                            if (self.wrong_keys - start_wrong_keys == 16 and self.blind_mode):
-                                self.blind_mode = False
-                                self.show_notes_to_press(current_index, notes_to_press)
-                                self.ledstrip.strip.show()
-
-                try:
-                    notes_pressed.remove(note)
-                except ValueError:
-                    pass  # do nothing
-
-        elapsed_already = max(0, time.time()-start_waiting - 0.25)
-        if elapsed_already > 1:
-            elapsed_already = 1
-        if ignore_first_delay:
-            elapsed_already = 0
         self.switch_off_markers()
         self.total_wait_time += elapsed_already
 
@@ -502,6 +502,13 @@ class LearnMIDI:
         gb = 1 if green > 0 else 0
         bb = 1 if blue > 0 else 0
         return Color(gb * new_brightness, rb * new_brightness, bb * new_brightness)
+
+    def color_led_strip_borders(self, color, start, end):
+        lowest = get_note_position(21, self.ledstrip, self.ledsettings)
+        highest = get_note_position(108, self.ledstrip, self.ledsettings)
+        for i in range(start, end):
+            self.ledstrip.strip.setPixelColor(lowest - 3 - i, color)
+            self.ledstrip.strip.setPixelColor(highest + 3 + i, color)
 
     def listen_measures(self, start, end):
         try:
@@ -641,8 +648,7 @@ class LearnMIDI:
             elif self.blind_mode:
                 pattern = []
                 if self.repetition_count == 0:
-                    pattern.append(
-                        Color(LOWEST_LED_BRIGHT, LOWEST_LED_BRIGHT, LOWEST_LED_BRIGHT))
+                    pattern.append(Color(LOWEST_LED_BRIGHT, LOWEST_LED_BRIGHT, LOWEST_LED_BRIGHT))
                     for i in range(self.get_repetitions() - 1):
                         pattern.append(Color(0, 0, 0))
                 else:
@@ -657,6 +663,7 @@ class LearnMIDI:
             else:
                 changeAllLedsColor(
                     self.ledstrip.strip, LOWEST_LED_BRIGHT, LOWEST_LED_BRIGHT, MIDDLE_LED_BRIGHT)
+
             time.sleep(0.25)
             if self.practice == PRACTICE_PERFECTION and last_played_measure != start_measure:
                 last_played_measure = start_measure
@@ -686,6 +693,9 @@ class LearnMIDI:
                     self.process_midi_events()
                     self.midi_messages.queue.clear()
 
+                if self.practice in (PRACTICE_MELODY, PRACTICE_ARCADE, PRACTICE_PROGRESSIVE, PRACTICE_PERFECTION):
+                    self.color_led_strip_borders(Color(MIDDLE_LED_BRIGHT, 0, 0), 0, 6)
+
                 self.restart_blind = False
                 for msg in self.song_tracks[start_idx:end_idx]:
                     # Exit thread if learning is stopped
@@ -708,7 +718,6 @@ class LearnMIDI:
                             self.wait_notes_to_press(msg_index,
                                                      start_score, notes_to_press, ignore_first_delay)
 
-                            self.switch_off_all_leds()
                             self.listen_measures(
                                 self.current_measure, self.current_measure + 1)
                             # Flush pending notes
@@ -802,8 +811,7 @@ class LearnMIDI:
                             self.ledstrip.strip.show()
                     msg_index += 1
 
-                if (self.practice in (PRACTICE_MELODY, PRACTICE_ARCADE, PRACTICE_PROGRESSIVE, PRACTICE_PERFECTION)
-                        and not self.blind_mode):
+                if self.practice in (PRACTICE_MELODY, PRACTICE_ARCADE, PRACTICE_PROGRESSIVE, PRACTICE_PERFECTION):
                     self.wait_notes_to_press(msg_index,
                                              start_score, notes_to_press, ignore_first_delay)
 
