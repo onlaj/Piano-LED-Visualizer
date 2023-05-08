@@ -173,9 +173,9 @@ class MusicSplitter:
                           and (gaps['time_to_next'][1] is None or gaps['time_to_next'][1] > 0.02)):
                         chord0 = self.get_next_chord(msg_index, 0)
                         chord1 = self.get_next_chord(msg_index, 1)
-                        if chord0 is None:
+                        if not chord0:
                             first_chord = chord1
-                        elif chord1 is None:
+                        elif not chord1:
                             first_chord = chord0
                         else:
                             first_chord = chord0 if self.notes_time[chord0[0]] < self.notes_time[chord1[0]] else chord1

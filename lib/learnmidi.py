@@ -622,7 +622,7 @@ class LearnMIDI:
         end_measure = clamp(end_measure, start_measure,
                             len(self.measure_data)-1)
 
-        if self.practice == PRACTICE_PERFECTION:
+        if self.practice in (PRACTICE_PERFECTION, PRACTICE_PROGRESSIVE):
             end_measure = clamp(start_measure + self.get_measures_per_exercise(),
                                 start_measure, len(self.measure_data)-1)
 
@@ -665,7 +665,7 @@ class LearnMIDI:
                     self.ledstrip.strip, LOWEST_LED_BRIGHT, LOWEST_LED_BRIGHT, MIDDLE_LED_BRIGHT)
 
             time.sleep(0.25)
-            if self.practice == PRACTICE_PERFECTION and last_played_measure != start_measure:
+            if self.practice in (PRACTICE_PERFECTION, PRACTICE_PROGRESSIVE) and last_played_measure != start_measure:
                 last_played_measure = start_measure
                 self.listen_measures(start_measure, end_measure)
 
@@ -713,19 +713,6 @@ class LearnMIDI:
                         if DEBUG:
                             print("--------------   Measure " +
                                   str(self.current_measure))
-                        if self.practice == PRACTICE_PROGRESSIVE:
-                            # Wait for accumulated notes before going to next measure
-                            self.wait_notes_to_press(msg_index,
-                                                     start_score, notes_to_press, ignore_first_delay)
-
-                            self.listen_measures(
-                                self.current_measure, self.current_measure + 1)
-                            # Flush pending notes
-                            self.process_midi_events()
-                            self.midi_messages.queue.clear()
-
-                            ignore_first_delay = True
-                            accDelay = 0
 
                     if self.practice == PRACTICE_ARCADE:
                         self.current_score = start_score - \
@@ -733,7 +720,7 @@ class LearnMIDI:
                         if self.current_score < 0:
                             # print("Score reached zero")
                             break
-                    elif self.practice == PRACTICE_PERFECTION:
+                    elif self.practice in (PRACTICE_PERFECTION, PRACTICE_PROGRESSIVE):
                         self.current_score = self.total_wait_time * 3 + self.wrong_keys * 10
                         if self.restart_blind:
                             break
@@ -849,6 +836,10 @@ class LearnMIDI:
                     end_measure = clamp(
                         start_measure + self.get_measures_per_exercise(), start_measure, len(self.measure_data)-1)
                 else:
+                    if self.practice == PRACTICE_PROGRESSIVE:
+                        start_measure += 1
+                        end_measure = clamp(
+                            start_measure + self.get_measures_per_exercise(), start_measure, len(self.measure_data)-1)
                     time.sleep(3)
 
             self.switch_off_all_leds()
