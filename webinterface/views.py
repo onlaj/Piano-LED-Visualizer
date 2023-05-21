@@ -1,5 +1,6 @@
 from webinterface import webinterface
 from flask import render_template, flash, redirect, request, url_for, jsonify, send_file
+from lib.functions import read_only_fs, set_read_only
 import os
 
 ALLOWED_EXTENSIONS = {'mid', 'musicxml', 'mxl', 'xml', 'abc'}
@@ -23,9 +24,11 @@ def home():
 def ledsettings():
     return render_template('ledsettings.html')
 
+
 @webinterface.route('/piano')
 def piano():
     return render_template('piano.html')
+
 
 @webinterface.route('/ledanimations')
 def ledanimations():
@@ -60,7 +63,10 @@ def upload_file():
             return jsonify(success=False, error="not a midi file", song_name=filename)
 
         filename = filename.replace("'", "")
+        readonlyfs = read_only_fs()
+        if readonlyfs:
+            set_read_only(False)
         file.save(os.path.join(webinterface.config['UPLOAD_FOLDER'], filename))
+        if readonlyfs:
+            set_read_only(True)
         return jsonify(success=True, reload_songs=True, song_name=filename)
-
-

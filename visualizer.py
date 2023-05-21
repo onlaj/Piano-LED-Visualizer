@@ -24,6 +24,7 @@ os.chdir(sys.path[0])
 # Ensure there is only one instance of the script running.
 fh = 0
 
+
 def singleton():
     global fh
     fh = open(os.path.realpath(__file__), 'r')
@@ -55,7 +56,7 @@ print(args)
 if not args.skipupdate:
     # make sure connectall.py file exists and is updated
     if not os.path.exists('/usr/local/bin/connectall.py') or \
-        filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
+            filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
         print("connectall.py script is outdated, updating...")
         copyfile('lib/connectall.py', '/usr/local/bin/connectall.py')
         os.chmod('/usr/local/bin/connectall.py', 493)
@@ -93,9 +94,9 @@ GPIO.setup(JPRESS, GPIO.IN, GPIO.PUD_UP)
 usersettings = UserSettings()
 while True:
     midiports = MidiPorts(usersettings)
-    if hasattr(midiports.playport,"send"):
+    if hasattr(midiports.playport, "send"):
         break
-    time.sleep(1)  
+    time.sleep(1)
 
 ledsettings = LedSettings(usersettings)
 ledstrip = LedStrip(usersettings, ledsettings)
@@ -118,7 +119,7 @@ midiports.last_activity = time.time()
 last_control_change = 0
 pedal_deadzone = 10
 timeshift_start = time.time()
-
+ledstrip_on = True
 
 fastColorWipe(ledstrip.strip, True, ledsettings)
 
@@ -136,11 +137,12 @@ def start_webserver():
     webinterface.menu = menu
     webinterface.jinja_env.auto_reload = True
     webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
-    #webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
+    # webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
     serve(webinterface, host='0.0.0.0', port=args.port)
 
+
 if args.webinterface != "false":
-    print ("Starting webinterface")
+    print("Starting webinterface")
     processThread = threading.Thread(target=start_webserver, daemon=True)
     processThread.start()
 
@@ -197,11 +199,19 @@ while True:
         if ledsettings.sequence_active == True:
             ledsettings.set_sequence(0, 1)
         else:
-            active_input = usersettings.get_setting_value("input_port")
-            secondary_input = usersettings.get_setting_value("secondary_input_port")
-            midiports.change_port("inport", secondary_input)
-            usersettings.change_setting_value("secondary_input_port", active_input)
-            usersettings.change_setting_value("input_port", secondary_input)
+            # active_input = usersettings.get_setting_value("input_port")
+            # secondary_input = usersettings.get_setting_value("secondary_input_port")
+            # midiports.change_port("inport", secondary_input)
+            # usersettings.change_setting_value("secondary_input_port", active_input)
+            # usersettings.change_setting_value("input_port", secondary_input)
+            if ledstrip_on and not learning.learning_midi:
+                ledstrip.strip.setBrightness(0)
+                ledstrip_on = False
+            else:
+                ledstrip.strip.setBrightness(ledstrip.LED_BRIGHTNESS)
+                ledstrip_on = True
+                if learning.learning_midi:
+                    learning.listen_again = True
             fastColorWipe(ledstrip.strip, True, ledsettings)
 
         while GPIO.input(KEY3) == 0:
@@ -240,11 +250,11 @@ while True:
             if int(note) > 0:
                 if ledsettings.color_mode == "Rainbow":
                     red = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (
-                            float(ledsettings.rainbow_scale) / 100)) & 255, "red")
+                        float(ledsettings.rainbow_scale) / 100)) & 255, "red")
                     green = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (
-                            float(ledsettings.rainbow_scale) / 100)) & 255, "green")
+                        float(ledsettings.rainbow_scale) / 100)) & 255, "green")
                     blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (
-                            float(ledsettings.rainbow_scale) / 100)) & 255, "blue")
+                        float(ledsettings.rainbow_scale) / 100)) & 255, "blue")
 
                     if int(note) == 1001:
                         ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
@@ -303,6 +313,10 @@ while True:
             midiports.midipending = midiports.pending_queue
     except:
         continue
+
+    initial_red = red
+    initial_green = green
+    initial_blue = blue
     # loop through incoming midi messages
     for msg in midiports.midipending:
         if int(usersettings.get_setting_value("midi_logging")) == 1:
@@ -311,6 +325,9 @@ while True:
                     learning.socket_send.append("midi_event" + str(msg))
                 except Exception as e:
                     print(e)
+        red = initial_red
+        green = initial_green
+        blue = initial_blue
         menu.casio.process_midi(msg)
         midiports.last_activity = time.time()
         note = find_between(str(msg), "note=", " ")
@@ -341,8 +358,6 @@ while True:
 
         # changing offset to adjust the distance between the LEDs to the key spacing
         note_position = get_note_position(note, ledstrip, ledsettings)
-        
-        isBlack = get_key_color(note)
 
         if (note_position >= ledstrip.led_number or note_position < 0) and control_change is False:
             continue
@@ -351,11 +366,11 @@ while True:
 
         if ledsettings.color_mode == "Rainbow":
             red = get_rainbow_colors(int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
-                    float(ledsettings.rainbow_scale) / 100)) & 255, "red")
+                float(ledsettings.rainbow_scale) / 100)) & 255, "red")
             green = get_rainbow_colors(int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
-                    float(ledsettings.rainbow_scale) / 100)) & 255, "green")
+                float(ledsettings.rainbow_scale) / 100)) & 255, "green")
             blue = get_rainbow_colors(int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
-                    float(ledsettings.rainbow_scale) / 100)) & 255, "blue")
+                float(ledsettings.rainbow_scale) / 100)) & 255, "blue")
 
         if ledsettings.color_mode == "Speed":
             speed_colors = ledsettings.speed_get_colors()
@@ -410,9 +425,11 @@ while True:
                 brightness = (100 / (float(velocity) / 127)) / 100
             else:
                 brightness = 1
-                
+
+            isBlack = get_key_color(note)
+
             if not isBlack:
-                red = max(green,blue)
+                red = max(green, blue)
                 green = 0
             if ledsettings.mode == "Fading":
                 ledstrip.keylist[note_position] = 1001
@@ -437,7 +454,7 @@ while True:
             else:
                 if ledsettings.skipped_notes != "Normal":
                     s_color = Color(int(int(green) / float(brightness)), int(int(red) / float(brightness)),
-                                   int(int(blue) / float(brightness)))
+                                    int(int(blue) / float(brightness)))
                     ledstrip.strip.setPixelColor(note_position, s_color)
                     ledstrip.set_adjacent_colors(note_position, s_color, False)
             if saving.isrecording:

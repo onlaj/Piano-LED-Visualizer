@@ -8,6 +8,7 @@ import socket
 import RPi.GPIO as GPIO
 import traceback
 import os
+import subprocess
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
@@ -45,6 +46,13 @@ def touch_file(filename):
     except OSError as e:
         print(e)
         pass
+
+
+def set_read_only(enable):
+    if enable:
+        subprocess.call(["/bin/bash", '-c', '-i', 'ro && exit'])
+    else:
+        subprocess.call(["/bin/bash", '-c', '-i', 'rw && exit'])
 
 
 def read_only_fs():

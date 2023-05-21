@@ -16,6 +16,7 @@ from lib import et_casio
 
 from lib.learnmidi import PRACTICE_PROGRESSIVE, PRACTICE_ARCADE, PRACTICE_PERFECTION
 
+
 class MenuLCD:
     def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports):
         self.usersettings = usersettings
@@ -113,9 +114,9 @@ class MenuLCD:
         replace_node.parentNode.replaceChild(load_song_mc, replace_node)
         path = 'Songs/'
         songs_list = os.listdir(path)
-        songs_list = [os.path.join(path, i) for i in songs_list]        
+        songs_list = [os.path.join(path, i) for i in songs_list]
         songs_list = sorted(songs_list, key=os.path.getmtime, reverse=True)
-        
+
         for song in songs_list:
             if song.endswith(".mid"):
                 # List of songs for Play_MIDI
@@ -344,7 +345,7 @@ class MenuLCD:
             self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
             self.draw = ImageDraw.Draw(self.image)
             self.draw.text((self.scale(2), self.scale(5)), position.replace("_", " "), fill=self.text_color, font=self.font)
-            
+
             time_str = datetime.datetime.now().strftime("%H:%M")
             self.draw.text((self.scale(95), self.scale(0)), time_str, fill="magenta", font=self.font)
 
@@ -604,7 +605,7 @@ class MenuLCD:
                 amps = round(float(miliamps) / float(1000), 2)
                 self.draw.text((self.scale(10), self.scale(50)), "Amps needed to " + "\n" + "power " + str(
                     self.ledstrip.LED_COUNT) + " LEDS with " + "\n" + "white color: " + str(amps), fill=self.text_color,
-                               font=self.font)
+                    font=self.font)
 
             if self.currentlocation == "Backlight_Brightness":
                 self.draw.text((self.scale(10), self.scale(35)), str(self.ledsettings.backlight_brightness_percent) + "%",
@@ -626,33 +627,33 @@ class MenuLCD:
                                font=self.font)
 
             if self.current_choice == "LED Number" and self.currentlocation.startswith("Offset"):
-                    try:
-                        self.draw.text((self.scale(10), self.scale(50)), str(
-                            self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][0]),
-                                       fill=self.text_color, font=self.font)
-                    except:
-                        pass
+                try:
+                    self.draw.text((self.scale(10), self.scale(50)), str(
+                        self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][0]),
+                        fill=self.text_color, font=self.font)
+                except:
+                    pass
 
             if self.current_choice == "LED Offset" and self.currentlocation.startswith("Offset"):
-                    try:
-                        self.draw.text((self.scale(10), self.scale(50)), str(
-                            self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][1]),
-                                       fill=self.text_color, font=self.font)
-                    except:
-                        pass
+                try:
+                    self.draw.text((self.scale(10), self.scale(50)), str(
+                        self.ledsettings.note_offsets[int(self.currentlocation.replace('Offset', '')) - 1][1]),
+                        fill=self.text_color, font=self.font)
+                except:
+                    pass
 
             if "Key_range" in self.currentlocation:
                 if self.current_choice == "Start":
                     try:
                         self.draw.text((self.scale(10), self.scale(50)), str(
                             self.ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range', '')) - 1][0]),
-                                       fill=self.text_color, font=self.font)
+                            fill=self.text_color, font=self.font)
                     except:
                         pass
                 else:
                     self.draw.text((self.scale(10), self.scale(50)), str(
                         self.ledsettings.multicolor_range[int(self.currentlocation.replace('Key_range', '')) - 1][1]),
-                                   fill=self.text_color, font=self.font)
+                        fill=self.text_color, font=self.font)
 
             # displaying screensaver settings
             if self.currentlocation == "Start_delay":
@@ -681,14 +682,14 @@ class MenuLCD:
             if self.currentlocation == "Scale_Coloring":
                 self.draw.text((self.scale(10), self.scale(70)), "scale: " + str(
                     self.ledsettings.scales[self.ledsettings.scale_key]),
-                               fill=self.text_color, font=self.font)
+                    fill=self.text_color, font=self.font)
 
             # Learn MIDI
             if self.currentlocation == "Learn_MIDI":
                 offset = 0
                 if menu_offset != -1:
                     offset = - menu_offset*10
-                
+
                 text_position = 5 + 10 + offset
                 if text_position >= 15:
                     #  Position 1: display Load song
@@ -700,13 +701,13 @@ class MenuLCD:
                     #  Position 2: display Learning Start/Stop
                     self.draw.text((self.scale(90), self.scale(text_position)), str(
                         self.learning.learningList[self.learning.is_started_midi]),
-                                   fill=self.text_color, font=self.font)
-                                   
+                        fill=self.text_color, font=self.font)
+
                 text_position += 10
                 #  Position 3: display Practice
                 self.draw.text((self.scale(65), self.scale(text_position)), str(
                     self.learning.practiceList[self.learning.practice]),
-                               fill=self.text_color, font=self.font)
+                    fill=self.text_color, font=self.font)
                 text_position += 10
                 #  Position 4: display Start point
                 self.draw.text((self.scale(90), self.scale(text_position)), str(int(self.learning.start_point)),
@@ -743,8 +744,8 @@ class MenuLCD:
                 #  Position 11: display Mute hand
                 self.draw.text((self.scale(90), self.scale(text_position)), str(
                     self.learning.mute_handList[self.learning.mute_hand]),
-                               fill=self.text_color, font=self.font)
-                               
+                    fill=self.text_color, font=self.font)
+
             # Metronome
             if self.currentlocation == "Metronome":
                 #  Position 1: display Tempo
@@ -756,59 +757,64 @@ class MenuLCD:
                 #  Position 3: display Beat type
                 self.draw.text((self.scale(90), self.scale(5 + 30)), self.casio.metronome_beat_type_string(),
                                fill=self.text_color, font=self.font)
-                               
-            if self.currentlocation == "Instrument":            
-                selected_position = 15 + self.casio.instrument * 10            
+
+            if self.currentlocation == "Instrument":
+                selected_position = 15 + self.casio.instrument * 10
                 if menu_offset != -1:
                     selected_position = selected_position - menu_offset*10
-                if selected_position > 10 and selected_position<120:
+                if selected_position > 10 and selected_position < 120:
                     self.draw.text((self.scale(10), self.scale(selected_position)), staffs[self.casio.instrument].getAttribute("text")[:3],
-                               fill="green", font=self.font)
-                
+                                   fill="green", font=self.font)
+
             # Tone
             if self.currentlocation == "Tone":
                 #  Position 1: display Traspose
                 self.draw.text((self.scale(90), self.scale(5 + 10)), str(self.casio.traspose),
                                fill=self.text_color, font=self.font)
-                               
+
             if self.learning.learning_midi:
                 self.draw.rectangle(
                     [
                         (0, self.LCD.height-self.scale(40)),
                         (self.LCD.width, self.LCD.height)
                     ],
-                    fill="darkblue" if self.learning.blind_mode == False else (24,0,0)
+                    fill="darkblue" if self.learning.blind_mode == False else (24, 0, 0)
                 )
                 font_score = ImageFont.truetype(self.score_ttf, self.scale(32))
                 font_measure = ImageFont.truetype(self.measure_ttf, self.scale(24))
                 self.midiports.last_activity = time.time()
                 color_score = "white"
-                   
+
                 if self.learning.practice == PRACTICE_ARCADE:
                     if self.learning.current_score < 30:
                         color_score = "yellow"
                     if self.learning.current_score < 10:
-                        color_score = "red"                    
+                        color_score = "red"
                 elif self.learning.practice == PRACTICE_PERFECTION:
                     if self.learning.current_score > 5:
                         color_score = "yellow"
                     if self.learning.current_score >= 10:
-                        color_score = "red"                    
+                        color_score = "red"
 
                 if self.learning.practice in (PRACTICE_ARCADE, PRACTICE_PERFECTION):
-                    score = format(max(0,self.learning.current_score),'05.1f')
-                    self.draw.text((self.scale(3), self.LCD.height-self.scale(38)), score,
-                               fill=color_score, font=font_score)
+                    score = format(max(0, self.learning.current_score), '05.1f')
+                    self.draw.text((self.scale(3), self.LCD.height-self.scale(40)), score,
+                                   fill=color_score, font=font_score)
                     self.draw.text((self.scale(90), self.LCD.height-self.scale(41)), str(self.learning.current_measure + 1),
-                               fill="cyan", font=font_measure)
+                                   fill="cyan", font=font_measure)
+                    if self.learning.prev_score is not None:
+                        prev_score = format(max(0, self.learning.prev_score), '04.1f')
+                        self.draw.text((self.scale(3), self.LCD.height-self.scale(9)), "prev: "+prev_score+" ("
+                                       + str(self.learning.prev_wrong)+")", fill="cyan", font=self.font)
+
                 else:
                     self.draw.text((self.scale(3), self.LCD.height-self.scale(38)), str(self.learning.current_measure + 1),
-                               fill="cyan", font=font_score)
+                                   fill="cyan", font=font_score)
 
                 self.draw.text((self.scale(90), self.LCD.height-self.scale(22)), str(self.learning.wrong_keys),
-                           fill="red", font=font_measure)                               
+                               fill="red", font=font_measure)
             self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
-        #end lock
+        # end lock
 
     def change_pointer(self, direction):
         if direction == 0:
@@ -945,10 +951,10 @@ class MenuLCD:
         if self.text_color == self.background_color:
             self.text_color = "Red"
             self.usersettings.change_setting_value("text_color", self.text_color)
-            
+
         if location == "Instrument":
             self.casio.set_instrument(int(choice.split(":")[0])-1)
-            
+
         if location == "Hall_settings":
             self.casio.set_hall_type(int(choice.split(":")[0]))
 
@@ -1283,7 +1289,7 @@ class MenuLCD:
                                                     value * self.speed_multiplier)
         if self.current_choice == "Traspose":
             self.casio.modify_traspose(value)
-            
+
         if self.current_choice == "Tempo":
             self.casio.modify_metronome_tempo(value * self.speed_multiplier)
 
@@ -1293,7 +1299,6 @@ class MenuLCD:
         if self.current_choice == "Beat Type":
             self.casio.modify_beat_type(value)
 
-            
         if self.current_choice == "Offset":
             self.ledsettings.rainbow_offset = self.ledsettings.rainbow_offset + value * 5 * self.speed_multiplier
         if self.current_choice == "Scale":
@@ -1405,7 +1410,8 @@ class MenuLCD:
             if self.current_choice == "Hand color L":
                 self.learning.change_hand_color(value, 'LEFT')
             if self.current_choice == "Learn step":
-                self.learning.change_learn_step(value)
+                multiplier = 1 if self.speed_multiplier == 1 else 4
+                self.learning.change_learn_step(value*multiplier)
 
         self.show()
 

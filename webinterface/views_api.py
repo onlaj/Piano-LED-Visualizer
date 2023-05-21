@@ -1,7 +1,7 @@
 from webinterface import webinterface
 from flask import render_template, send_file, request, jsonify
 from werkzeug.utils import safe_join
-from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
+from lib.functions import find_between, read_only_fs, set_read_only, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
     rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp
 import psutil
 import threading
@@ -106,8 +106,8 @@ def start_animation():
 
     if choice == "chords":
         webinterface.t = threading.Thread(target=chords, args=(speed, webinterface.ledstrip,
-                                                                     webinterface.ledsettings,
-                                                                     webinterface.menu))
+                                                               webinterface.ledsettings,
+                                                               webinterface.menu))
         webinterface.t.start()
 
     if choice == "stop":
@@ -147,6 +147,7 @@ def get_homepage_data():
     }
     return jsonify(homepage_data)
 
+
 @webinterface.route('/api/get_piano')
 def get_piano_data():
     piano_data = {
@@ -158,6 +159,7 @@ def get_piano_data():
         'metronome_beat_type': webinterface.menu.casio.metronome_beat_type
     }
     return jsonify(piano_data)
+
 
 @webinterface.route('/api/change_setting', methods=['GET'])
 def change_setting():
@@ -962,7 +964,12 @@ def change_setting():
                 if name_no_suffix in fname:
                     os.remove("Songs/" + fname)
         else:
+            readonlyfs = read_only_fs()
+            if readonlyfs:
+                set_read_only(False)
             os.remove("Songs/" + value)
+            if readonlyfs:
+                set_read_only(True)
 
             file_types = [".musicxml", ".xml", ".mxl", ".abc"]
             for file_type in file_types:
@@ -1169,7 +1176,6 @@ def change_setting():
     if setting_name == "metronome_beat_type":
         webinterface.menu.casio.set_metronome_beat_type(int(value))
         return jsonify(success=True)
-
 
     return jsonify(success=True)
 

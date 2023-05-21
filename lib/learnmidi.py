@@ -3,17 +3,17 @@ import numpy as np
 from mido import MetaMessage
 from lib.music_splitter import MusicSplitter, still_notes_in_chord
 from lib.neopixel import getRGB, Color
-from lib.functions import clamp, fastColorWipe, changeAllLedsColor, midi_note_num_to_string, setLedPattern, find_between, get_note_position, get_key_color, touch_file, read_only_fs
+from lib.functions import clamp, fastColorWipe, changeAllLedsColor, midi_note_num_to_string, set_read_only, setLedPattern, find_between, get_note_position, get_key_color, touch_file, read_only_fs
 import ast
 import threading
 import time
 import traceback
 
 import mido
-import subprocess
 import re
 import os
 import queue
+import subprocess
 
 DEBUG = False
 
@@ -68,10 +68,13 @@ class LearnMIDI:
         self.learningList = ['Start', 'Stop']
         self.practiceList = ['Melody', 'Rhythm', 'Listen',
                              'Arcade', 'Progressive', 'Perfection']
-        self.learnStepList = ['1/2', '1/3',
+        self.learnStepList = ['1/1', '1/2', '1/3', '1/4',
                               '2/1', '2/2', '2/3', '2/4',
                               '3/1', '3/2', '3/3', '3/4',
-                              '4/1', '4/2', '4/3', '4/4']
+                              '4/1', '4/2', '4/3', '4/4',
+                              '5/1', '5/2', '5/3', '5/4'
+                              '6/1', '6/2', '6/3', '6/4'
+                              '7/1', '7/2', '7/3', '7/4']
         self.handsList = ['Both', 'Right', 'Left']
         self.mute_handList = ['Off', 'Right', 'Left']
         self.hand_colorList = ast.literal_eval(
@@ -88,10 +91,12 @@ class LearnMIDI:
         self.wrong_keys = 0
         self.learning_midi = False
         self.current_score = 0
-        self.current_idx = 0
         self.blind_mode = False
         self.is_read_only_fs = read_only_fs()
         self.midi_messages = queue.Queue()
+        self.prev_score = None
+        self.prev_wrong = None
+        self.listen_again = False
         if self.is_read_only_fs:
             print("Read only FS")
 
@@ -483,6 +488,14 @@ class LearnMIDI:
             if refresh_led_strip:
                 self.ledstrip.strip.show()
                 refresh_led_strip = False
+            if self.listen_again:
+                self.listen_measures()
+                if not self.blind_mode:
+                    self.show_notes_to_press(current_index, notes_to_press)
+                    self.ledstrip.strip.show()
+                else:
+                    self.switch_off_all_leds()
+                self.listen_again = False
 
         self.switch_off_markers()
         self.total_wait_time += elapsed_already
@@ -510,7 +523,11 @@ class LearnMIDI:
             self.ledstrip.strip.setPixelColor(lowest - 3 - i, color)
             self.ledstrip.strip.setPixelColor(highest + 3 + i, color)
 
-    def listen_measures(self, start, end):
+    def listen_measures(self, start=None, end=None):
+        if start is None or end is None:
+            start = self.last_heard_range[0]
+            end = self.last_heard_range[1]
+        self.last_heard_range = [start, end]
         try:
             self.switch_off_all_leds()
             time_prev = time.time()
@@ -519,7 +536,6 @@ class LearnMIDI:
 
             start_idx = self.measure_data[start]['note_index']
 
-            self.current_idx = start_idx
             msg_index = start_idx
             self.current_measure = start
 
@@ -593,7 +609,8 @@ class LearnMIDI:
         return int(self.learnStepList[self.learn_step].split("/")[1])
 
     def learn_midi(self):
-        loops_count = 0
+        self.prev_score = None
+        self.prev_wrong = None
         self.switch_off_leds = {}
         self.blind_mode = False
         self.repetition_count = 0
@@ -678,9 +695,6 @@ class LearnMIDI:
                 start_idx = self.measure_data[start_measure]['note_index']
                 self.current_measure = start_measure - 1
 
-                self.current_idx = start_idx
-                msg_index = start_idx
-
                 self.total_wait_time = 0.0
                 self.wrong_keys = 0
                 start_score = 100
@@ -697,7 +711,7 @@ class LearnMIDI:
                     self.color_led_strip_borders(Color(MIDDLE_LED_BRIGHT, 0, 0), 0, 6)
 
                 self.restart_blind = False
-                for msg in self.song_tracks[start_idx:end_idx]:
+                for msg_index, msg in enumerate(self.song_tracks[start_idx:end_idx]):
                     # Exit thread if learning is stopped
                     if not self.is_started_midi:
                         break
@@ -774,7 +788,6 @@ class LearnMIDI:
                             self.socket_send.append(self.notes_time[msg_index])
                         except Exception as e:
                             print(e)
-                        self.current_idx += 1
 
                         self.dump_note(msg_index)
 
@@ -788,15 +801,13 @@ class LearnMIDI:
                             ignore_first_delay = False
                             accDelay = 0
 
-                    # Switch off LEDs with the notes to press
-                    if (not msg.is_meta
-                            and self.practice not in (PRACTICE_MELODY, PRACTICE_ARCADE, PRACTICE_PROGRESSIVE, PRACTICE_PERFECTION)):
-                        # Calculate note position on the strip and display
-                        if ((msg.type == 'note_on' and msg.velocity == 0) and not self.blind_mode):
-                            note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
-                            self.set_pixel_color(note_position, Color(0, 0, 0), None)
-                            self.ledstrip.strip.show()
-                    msg_index += 1
+                        # Switch off LEDs with the notes to press
+                        if self.practice not in (PRACTICE_MELODY, PRACTICE_ARCADE, PRACTICE_PROGRESSIVE, PRACTICE_PERFECTION):
+                            # Calculate note position on the strip and display
+                            if ((hasattr(msg, "velocity") and msg.velocity == 0) and not self.blind_mode):
+                                note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
+                                self.set_pixel_color(note_position, Color(0, 0, 0), None)
+                                self.ledstrip.strip.show()
 
                 if self.practice in (PRACTICE_MELODY, PRACTICE_ARCADE, PRACTICE_PROGRESSIVE, PRACTICE_PERFECTION):
                     self.wait_notes_to_press(msg_index,
@@ -824,15 +835,18 @@ class LearnMIDI:
                                 self.blind_mode = False
                                 changeAllLedsColor(
                                     self.ledstrip.strip, 16, 0, 0)
-                                time.sleep(1)
+                                time.sleep(0.5)
                         else:
                             self.blind_mode = True
                             self.repetition_count = 0
-                            time.sleep(1)
+                            time.sleep(0.5)
                     if self.restart_blind or (self.current_score >= 10 and self.blind_mode):
                         changeAllLedsColor(self.ledstrip.strip, 0, 16, 0)
                         self.repetition_count = 0
-                        time.sleep(1)
+                        time.sleep(0.5)
+                    if not self.restart_blind:
+                        self.prev_score = self.current_score
+                        self.prev_wrong = self.wrong_keys
                     end_measure = clamp(
                         start_measure + self.get_measures_per_exercise(), start_measure, len(self.measure_data)-1)
                 else:
@@ -840,9 +854,14 @@ class LearnMIDI:
                         start_measure += 1
                         end_measure = clamp(
                             start_measure + self.get_measures_per_exercise(), start_measure, len(self.measure_data)-1)
-                    time.sleep(3)
+                    if self.practice in (PRACTICE_MELODY, PRACTICE_ARCADE, PRACTICE_PROGRESSIVE):
+                        time.sleep(0.5)
 
             self.switch_off_all_leds()
+            # stop all notes
+            for channel in range(16):
+                self.midiports.playport.send(mido.Message('control_change', channel=channel, control=123, value=0))
+
             self.learning_midi = False
             if (not self.is_loop_active or self.is_started_midi == False):
                 keep_looping = False
@@ -866,10 +885,7 @@ class LearnMIDI:
 
     def readonly(self, enable):
         if self.is_read_only_fs:
-            if enable:
-                subprocess.call(["/bin/bash", '-c', '-i', 'ro && exit'])
-            else:
-                subprocess.call(["/bin/bash", '-c', '-i', 'rw && exit'])
+            set_read_only(enable)
 
     def install_midi2abc(self):
         print("Installing abcmidi")
