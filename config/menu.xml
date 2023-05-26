@@ -35,7 +35,6 @@
 	</menu>       
     <menu text="Learn MIDI">
         <Learn_MIDI text="Load song"></Learn_MIDI>
-        <Learn_MIDI text="Learning"></Learn_MIDI>
         <Learn_MIDI text="Practice"></Learn_MIDI>
         <Learn_MIDI text="Start point"></Learn_MIDI>
         <Learn_MIDI text="End point"></Learn_MIDI>

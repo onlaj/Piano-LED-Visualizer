@@ -698,16 +698,14 @@ class MenuLCD:
 
                 text_position += 10
                 if text_position >= 15:
-                    #  Position 2: display Learning Start/Stop
-                    self.draw.text((self.scale(90), self.scale(text_position)), str(
-                        self.learning.learningList[self.learning.is_started_midi]),
-                        fill=self.text_color, font=self.font)
-
-                text_position += 10
-                #  Position 3: display Practice
-                self.draw.text((self.scale(65), self.scale(text_position)), str(
-                    self.learning.practiceList[self.learning.practice]),
-                    fill=self.text_color, font=self.font)
+                    #  Position 3: display Practice
+                    if self.learning.is_started_midi == 1:
+                        self.draw.text((self.scale(65), self.scale(text_position)), "Stop",
+                                       fill=self.text_color, font=self.font)
+                    else:
+                        self.draw.text((self.scale(65), self.scale(text_position)), str(
+                            self.learning.practiceList[self.learning.practice]),
+                            fill=self.text_color, font=self.font)
                 text_position += 10
                 #  Position 4: display Start point
                 self.draw.text((self.scale(90), self.scale(text_position)), str(int(self.learning.start_point)),
@@ -989,7 +987,7 @@ class MenuLCD:
             self.go_back()
             self.change_pointer(1)
         if location == "Learn_MIDI":
-            if choice == "Learning":
+            if choice == "Practice":
                 if not self.learning.is_started_midi:
                     self.learning.t = threading.Thread(target=self.learning.learn_midi)
                     self.learning.t.start()
