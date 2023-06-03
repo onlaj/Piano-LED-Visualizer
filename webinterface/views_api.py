@@ -968,8 +968,6 @@ def change_setting():
             if readonlyfs:
                 set_read_only(False)
             os.remove("Songs/" + value)
-            if readonlyfs:
-                set_read_only(True)
 
             file_types = [".musicxml", ".xml", ".mxl", ".abc"]
             for file_type in file_types:
@@ -982,6 +980,9 @@ def change_setting():
                 os.remove("Songs/cache/" + value + ".p")
             except:
                 print("No cache file for " + value)
+
+            if readonlyfs:
+                set_read_only(True)
 
         return jsonify(success=True, reload_songs=True)
 

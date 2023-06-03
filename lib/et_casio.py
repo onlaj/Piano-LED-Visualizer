@@ -2,21 +2,24 @@ import threading
 import mido
 import time
 
+
 class CasioPiano:
     def __init__(self, midiports, menuLCD):
         self.midiports = midiports
         self.midicmd_instrument = bytearray.fromhex('f0 44 7e 7e 7f 0f 01 10 10 01 02 01 00 02 00 00 00 00 f7')
         self.midicmd_hall = bytearray.fromhex('f0 44 7e 7e 7f 0f 01 52 00 01 02 01 00 04 00 00 00 00 f7')
+        self.midicmd_touch_response = bytearray.fromhex('f0 44 7e 7e 7f 0f 01 02 00 01 02 01 00 05 00 00 00 00 f7')
+        self.touch_response_str = ["off", "lt2", "lt1", "nrm", "hv1", "hv2"]
         self.midicmd_traspose_pos = bytearray.fromhex('f0 44 7e 7e 7f 0f 01 03 00 01 02 01 00 01 00 00 00 00 f7')
         self.midicmd_traspose_neg = bytearray.fromhex('f0 44 7e 7e 7f 0f 01 03 00 01 02 01 00 7d 7f 7f 7f 0f f7')
         self.midicmd_metronome_rate = bytearray.fromhex('f0 44 7e 7e 7f 0f 01 0a 00 01 02 01 00 11 00 00 00 00 f7')
         self.midicmd_metronome_beat_type = bytearray.fromhex('f0 44 7e 7e 7f 0f 01 0b 01 01 02 01 00 11 00 00 00 00 f7')
         self.midicmd_metronome_volume = bytearray.fromhex('f0 44 7e 7e 7f 0f 01 0b 03 01 02 01 00 11 00 00 00 00 f7')
         self.midicmd_metronome_onOff = bytearray.fromhex('f0 44 7e 7e 7f 0f 01 0b 00 01 00 01 00 66 00 f7')
-        self.midicmd_query_metronome_rate = bytearray.fromhex     ('f0 44 7e 7e 7f 0f 00 0a 00 01 02 01 00 11 00 00 00 00 f7')
+        self.midicmd_query_metronome_rate = bytearray.fromhex('f0 44 7e 7e 7f 0f 00 0a 00 01 02 01 00 11 00 00 00 00 f7')
         self.midicmd_query_metronome_beat_type = bytearray.fromhex('f0 44 7e 7e 7f 0f 00 0b 01 01 02 01 00 11 00 00 00 00 f7')
-        self.midicmd_query_metronome_volume = bytearray.fromhex   ('f0 44 7e 7e 7f 0f 00 0b 03 01 02 01 00 11 00 00 00 00 f7')
-        self.midicmd_query_metronome_onOff = bytearray.fromhex    ('f0 44 7e 7e 7f 0f 00 0b 00 01 00 01 00 01 00 f7')
+        self.midicmd_query_metronome_volume = bytearray.fromhex('f0 44 7e 7e 7f 0f 00 0b 03 01 02 01 00 11 00 00 00 00 f7')
+        self.midicmd_query_metronome_onOff = bytearray.fromhex('f0 44 7e 7e 7f 0f 00 0b 00 01 00 01 00 01 00 f7')
         self.metronome_tempo = 20
         self.metronome_volume = 20
         self.metronome_beat_type = -1
@@ -28,6 +31,7 @@ class CasioPiano:
         self.query_piano_changes()
         self.updateMenu = None
         self.menuLCD = menuLCD
+        self.touch_response = 3
 
     def query_piano_changes(self):
         # Send MIDI commands to query the piano for changes
@@ -36,7 +40,7 @@ class CasioPiano:
         self.send_midi(self.midicmd_query_metronome_volume)
         self.send_midi(self.midicmd_query_metronome_rate)
         self.queryTimer = None
-        
+
     def update_menu(self):
         if self.updateMenu is not None:
             # If a timer is active, cancel it and reset the timer
@@ -44,12 +48,12 @@ class CasioPiano:
         self.updateMenu = threading.Timer(0.25, self.update_menu_now)
         self.updateMenu.start()
 
-    def update_menu_now(self): 
+    def update_menu_now(self):
         self.menuLCD.show()
-        self.updateMenu = None        
-            
-    def process_midi(self,msg):
-        #"sysex data=(68,126,126,127,15,1,8,0,1,0,1,0,2,0) time=0"
+        self.updateMenu = None
+
+    def process_midi(self, msg):
+        # "sysex data=(68,126,126,127,15,1,8,0,1,0,1,0,2,0) time=0"
         if msg.type == 'sysex':
             strmsg = str(msg.data)
             if strmsg.startswith('(68, 126, 126, 127, 15, 1,'):
@@ -78,21 +82,26 @@ class CasioPiano:
                     else:
                         self.metronome_beat_type = -1
                     self.update_menu()
-                #else:
+                # else:
                  #   print("Unknown : ",str(msg.data))
         if msg.type == 'program_change' and hasattr(msg, "program"):
-            #print("Change instrument to "+str(msg.program))
+            # print("Change instrument to "+str(msg.program))
             self.instrument = msg.program
             self.update_menu()
 
     def send_midi(self, data):
         msg = mido.Message.from_bytes(data)
-        self.midiports.playport.send(msg);
+        self.midiports.playport.send(msg)
 
     def set_instrument(self, instrument):
         self.instrument = instrument
         self.midicmd_instrument[13] = instrument
         self.send_midi(self.midicmd_instrument)
+
+    def set_touch_response(self, touch_response):
+        self.touch_response = touch_response
+        self.midicmd_touch_response[13] = touch_response
+        self.send_midi(self.midicmd_touch_response)
 
     def set_hall_type(self, hall_type):
         self.midicmd_hall[13] = hall_type
@@ -110,10 +119,10 @@ class CasioPiano:
     def set_metronome_beat_type(self, value):
         self.metronome_beat_type = int(value)
         self.send_metronome_data()
-        
+
     def set_metronome_active(self, value):
         self.midicmd_metronome_onOff[13] = 1 if value else 0
-        self.send_midi(self.midicmd_metronome_onOff)    
+        self.send_midi(self.midicmd_metronome_onOff)
 
     def send_metronome_data(self):
         if self.metronome_tempo < 10:
@@ -153,6 +162,14 @@ class CasioPiano:
     def modify_beat_type(self, delta):
         self.metronome_beat_type = int(self.metronome_beat_type) + delta
         self.send_metronome_data()
+
+    def modify_touch_response(self, delta):
+        self.touch_response = int(self.touch_response) + delta
+        if self.touch_response < 0:
+            self.touch_response = 0
+        if self.touch_response >= len(self.touch_response_str):
+            self.touch_response = len(self.touch_response_str)-1
+        self.set_touch_response(self.touch_response)
 
     def set_traspose(self, traspose):
         self.traspose = traspose

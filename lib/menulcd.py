@@ -770,6 +770,10 @@ class MenuLCD:
                 self.draw.text((self.scale(90), self.scale(5 + 10)), str(self.casio.traspose),
                                fill=self.text_color, font=self.font)
 
+                #  Position 4: display Touch response
+                self.draw.text((self.scale(110), self.scale(5 + 40)), str(self.casio.touch_response_str[self.casio.touch_response]),
+                               fill=self.text_color, font=self.font)
+
             if self.learning.learning_midi:
                 self.draw.rectangle(
                     [
@@ -1296,6 +1300,9 @@ class MenuLCD:
 
         if self.current_choice == "Beat Type":
             self.casio.modify_beat_type(value)
+
+        if self.current_choice == "Touch response":
+            self.casio.modify_touch_response(value)
 
         if self.current_choice == "Offset":
             self.ledsettings.rainbow_offset = self.ledsettings.rainbow_offset + value * 5 * self.speed_multiplier
