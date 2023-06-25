@@ -266,9 +266,11 @@ def get_note_position(note, ledstrip, ledsettings):
         return max(0, note_pos_raw)
 
 
-# scale: 1 means in C, scale: 2 means in C#, scale: 3 means in D, etc...
-def get_scale_color(scale, note_position, ledsettings):
-    notes_in_scale = [0, 2, 4, 5, 7, 9, 11]
+# scale: 1 means in C, scale: 2 means in C#, scale: 3 means in D, etc... and scale: 1 means in C m, scale: 2 means in C# m, scale: 3 means in D m, etc...
+    if scale <= 12:
+        notes_in_scale = [0, 2, 4, 5, 7, 9, 11]
+    else:
+        notes_in_scale = [0, 2, 3, 5, 7, 8, 10]
     scale = int(scale)
     note_position = (note_position - scale) % 12
 
