@@ -1,6 +1,6 @@
 from webinterface import webinterface
 from flask import render_template, send_file, request, jsonify
-from werkzeug.utils import safe_join
+from werkzeug.security import safe_join
 from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
     rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp
 import psutil
@@ -671,22 +671,22 @@ def change_setting():
         mode.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.mode)))
         step.appendChild(mode)
 
-        # if mode is equal "Fading" or "Velocity" load mode from webinterface.ledsettings and put it into step node
-        if (webinterface.ledsettings.mode == "Fading" or webinterface.ledsettings.mode == "Velocity"):
+        # if mode is equal "Fading" or "Velocity", load fadingspeed from webinterface.ledsettings and put it into step node
+        if webinterface.ledsettings.mode in ["Fading", "Velocity"]:
             fadingspeed = sequences_tree.createElement("fadingspeed")
 
-            # depending on fadingspeed name set different fadingspeed value
-            if (webinterface.ledsettings.fadingspeed == "Slow"):
+            # set the fadingspeed value based on the value of webinterface.ledsettings.fadingspeed
+            if webinterface.ledsettings.fadingspeed == "Slow":
                 fadingspeed.appendChild(sequences_tree.createTextNode("10"))
-            elif (webinterface.ledsettings.fadingspeed == "Medium"):
+            elif webinterface.ledsettings.fadingspeed == "Medium":
                 fadingspeed.appendChild(sequences_tree.createTextNode("20"))
-            elif (webinterface.ledsettings.fadingspeed == "Fast"):
+            elif webinterface.ledsettings.fadingspeed == "Fast":
                 fadingspeed.appendChild(sequences_tree.createTextNode("40"))
-            elif (webinterface.ledsettings.fadingspeed == "Very fast"):
+            elif webinterface.ledsettings.fadingspeed == "Very fast":
                 fadingspeed.appendChild(sequences_tree.createTextNode("50"))
-            elif (webinterface.ledsettings.fadingspeed == "Instant"):
+            elif webinterface.ledsettings.fadingspeed == "Instant":
                 fadingspeed.appendChild(sequences_tree.createTextNode("1000"))
-            elif (webinterface.ledsettings.fadingspeed == "Very slow"):
+            elif webinterface.ledsettings.fadingspeed == "Very slow":
                 fadingspeed.appendChild(sequences_tree.createTextNode("2"))
 
             step.appendChild(fadingspeed)
