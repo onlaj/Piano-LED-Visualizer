@@ -674,21 +674,7 @@ def change_setting():
         # if mode is equal "Fading" or "Velocity", load fadingspeed from webinterface.ledsettings and put it into step node
         if webinterface.ledsettings.mode in ["Fading", "Velocity"]:
             fadingspeed = sequences_tree.createElement("fadingspeed")
-
-            # set the fadingspeed value based on the value of webinterface.ledsettings.fadingspeed
-            if webinterface.ledsettings.fadingspeed == "Slow":
-                fadingspeed.appendChild(sequences_tree.createTextNode("10"))
-            elif webinterface.ledsettings.fadingspeed == "Medium":
-                fadingspeed.appendChild(sequences_tree.createTextNode("20"))
-            elif webinterface.ledsettings.fadingspeed == "Fast":
-                fadingspeed.appendChild(sequences_tree.createTextNode("40"))
-            elif webinterface.ledsettings.fadingspeed == "Very fast":
-                fadingspeed.appendChild(sequences_tree.createTextNode("50"))
-            elif webinterface.ledsettings.fadingspeed == "Instant":
-                fadingspeed.appendChild(sequences_tree.createTextNode("1000"))
-            elif webinterface.ledsettings.fadingspeed == "Very slow":
-                fadingspeed.appendChild(sequences_tree.createTextNode("2"))
-
+            fadingspeed.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.fadingspeed)))
             step.appendChild(fadingspeed)
 
         # if color_mode is equal to "Single" load color from webinterface.ledsettings and put it into step node
