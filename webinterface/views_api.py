@@ -847,6 +847,10 @@ def change_setting():
                 sequences_tree.createTextNode(str(webinterface.ledsettings.key_not_in_scale["blue"])))
             step.appendChild(key_not_in_scale_blue)
 
+            scale_key = sequences_tree.createElement("scale_key")
+            scale_key.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.scale_key)))
+            step.appendChild(scale_key)
+
         try:
             sequences_tree.getElementsByTagName("sequence_" + str(value))[
                 0].insertBefore(step,
