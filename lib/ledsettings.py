@@ -75,7 +75,7 @@ class LedSettings:
                                  "green": int(usersettings.get_setting_value("key_not_in_scale_green")),
                                  "blue": int(usersettings.get_setting_value("key_not_in_scale_blue"))}
 
-        self.scales = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+        self.scales = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "C m", "C# m", "D m", "Eb m", "E m", "F m", "F# m", "G m", "G# m", "A bm", "A m", "Bb m", "B m"]
         self.scale_key = int(usersettings.get_setting_value("scale_key"))
 
         self.sequence_number = 0

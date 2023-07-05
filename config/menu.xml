@@ -87,6 +87,18 @@
                     <Scale_key text="A"></Scale_key>
                     <Scale_key text="Bb"></Scale_key>
                     <Scale_key text="B"></Scale_key>
+                    <Scale_key text="C m"></Scale_key>
+                    <Scale_key text="C# m"></Scale_key>
+                    <Scale_key text="D m"></Scale_key>
+                    <Scale_key text="Eb m"></Scale_key>
+                    <Scale_key text="E m"></Scale_key>
+                    <Scale_key text="F m"></Scale_key>
+                    <Scale_key text="F# m"></Scale_key>
+                    <Scale_key text="G m"></Scale_key>
+                    <Scale_key text="Ab m"></Scale_key>
+                    <Scale_key text="A m"></Scale_key>
+                    <Scale_key text="Bb m"></Scale_key>
+                    <Scale_key text="B m"></Scale_key>
                 </Scale_Coloring>
                 <Scale_Coloring text="Confirm"></Scale_Coloring>
             </LED_Color>
@@ -216,6 +228,18 @@
             <Chords text="A"></Chords>
             <Chords text="Bb"></Chords>
             <Chords text="B"></Chords>
+            <Chords text="C m"></Chords>
+            <Chords text="C# m"></Chords>
+            <Chords text="D m"></Chords>
+            <Chords text="Eb m"></Chords>
+            <Chords text="E m"></Chords>
+            <Chords text="F m"></Chords>
+            <Chords text="F# m"></Chords>
+            <Chords text="G m"></Chords>
+            <Chords text="Ab m"></Chords>
+            <Chords text="A m"></Chords>
+            <Chords text="Bb m"></Chords>
+            <Chords text="B m"></Chords>
         </LED_animations>
         <LED_animations text="Stop animation"></LED_animations>
         <LED_animations text="Clear"></LED_animations>

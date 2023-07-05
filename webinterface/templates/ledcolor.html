@@ -228,7 +228,7 @@
         py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         onchange="change_setting('scale_key', this.value, false, true);">
                     {% set i = 0 %}
-                    {% set scales_list = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"] %}
+                    {% set scales_list = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "C m", "C# m", "D m", "Eb m" "E m", "F m", "F# m", "G m", "G# m", "A m", "Bb m", "B m"] %}
                     {% for scale in scales_list %}
                     <option value="{{ loop.index0 }}">{{ scale }}</option>
                     {% endfor %}
