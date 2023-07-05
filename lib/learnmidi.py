@@ -222,7 +222,7 @@ class LearnMIDI:
         self.t = threading.currentThread()
 
         keep_looping = True
-        while(keep_looping):
+        while keep_looping:
             time.sleep(1)
             try:
                 fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
@@ -313,7 +313,7 @@ class LearnMIDI:
             except Exception as e:
                 self.is_started_midi = False
 
-            if(not self.is_loop_active or self.is_started_midi == False):
+            if not self.is_loop_active or self.is_started_midi == False:
                 keep_looping = False
 
     def convert_midi_to_abc(self, midi_file):

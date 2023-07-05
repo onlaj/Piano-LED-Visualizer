@@ -64,11 +64,11 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
                 current_time = (time.time() - t0) + message.time
                 drift = total_delay - current_time
 
-                if (drift < 0):
+                if drift < 0:
                     delay = message.time + drift
                 else:
                     delay = message.time
-                if (delay < 0):
+                if delay < 0:
                     delay = 0
 
                 if delay > 0:
@@ -255,7 +255,7 @@ def get_note_position(note, ledstrip, ledsettings):
     note_offset -= ledstrip.shift
 
     
-    if (ledsettings.low_density == 1):
+    if ledsettings.low_density == 1:
         leds_per_meter = 60
     else:
         leds_per_meter = 144
@@ -702,7 +702,7 @@ def chords(scale, ledstrip, ledsettings, menu):
 
         bright /= 100
 
-        if (ledsettings.low_density == 1):
+        if ledsettings.low_density == 1:
             density = 1
         else:
             density = 2

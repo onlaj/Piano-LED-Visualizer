@@ -156,10 +156,10 @@ def change_setting():
     disable_sequence = request.args.get('disable_sequence')
 
     reload_sequence = True
-    if (second_value == "no_reload"):
+    if second_value == "no_reload":
         reload_sequence = False
 
-    if (disable_sequence == "true"):
+    if disable_sequence == "true":
         webinterface.ledsettings.__init__(webinterface.usersettings)
         webinterface.ledsettings.sequence_active = False
 
@@ -283,7 +283,7 @@ def change_setting():
 
     if setting_name == "color_mode":
         reload_sequence = True
-        if (second_value == "no_reload"):
+        if second_value == "no_reload":
             reload_sequence = False
 
         webinterface.ledsettings.color_mode = value
@@ -459,7 +459,7 @@ def change_setting():
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "set_sequence":
-        if (int(value) == 0):
+        if int(value) == 0:
             webinterface.ledsettings.__init__(webinterface.usersettings)
             webinterface.ledsettings.sequence_active = False
         else:
@@ -507,7 +507,7 @@ def change_setting():
 
         sequences_amount = 1
         while True:
-            if (len(sequences_tree.getElementsByTagName("sequence_" + str(sequences_amount))) == 0):
+            if len(sequences_tree.getElementsByTagName("sequence_" + str(sequences_amount))) == 0:
                 break
             sequences_amount += 1
 
@@ -569,7 +569,7 @@ def change_setting():
         # changing nodes tag names
         i = 1
         for sequence in sequences_tree.getElementsByTagName("list")[0].childNodes:
-            if (sequence.nodeType == 1):
+            if sequence.nodeType == 1:
                 sequences_tree.getElementsByTagName(sequence.nodeName)[0].tagName = "sequence_" + str(i)
                 i += 1
 
@@ -634,7 +634,7 @@ def change_setting():
         # changing nodes tag names
         i = 1
         for step in sequences_tree.getElementsByTagName("sequence_" + str(value))[0].childNodes:
-            if (step.nodeType == 1 and step.tagName != "settings"):
+            if step.nodeType == 1 and step.tagName != "settings":
                 sequences_tree.getElementsByTagName("sequence_" + str(value))[0].getElementsByTagName(step.nodeName)[
                     0].tagName = "step_" + str(i)
                 i += 1
@@ -678,7 +678,7 @@ def change_setting():
             step.appendChild(fadingspeed)
 
         # if color_mode is equal to "Single" load color from webinterface.ledsettings and put it into step node
-        if (webinterface.ledsettings.color_mode == "Single"):
+        if webinterface.ledsettings.color_mode == "Single":
             red = sequences_tree.createElement("Red")
             red.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.red)))
             step.appendChild(red)
@@ -692,7 +692,7 @@ def change_setting():
             step.appendChild(blue)
 
         # if color_mode is equal to "Multicolor" load colors from webinterface.ledsettings and put it into step node
-        if (webinterface.ledsettings.color_mode == "Multicolor"):
+        if webinterface.ledsettings.color_mode == "Multicolor":
             # load value from webinterface.ledsettings.multicolor
             multicolor = webinterface.ledsettings.multicolor
 
@@ -718,7 +718,7 @@ def change_setting():
                 step.appendChild(color_range)
 
         # if color_mode is equal to "Rainbow" load colors from webinterface.ledsettings and put it into step node
-        if (webinterface.ledsettings.color_mode == "Rainbow"):
+        if webinterface.ledsettings.color_mode == "Rainbow":
             # load values rainbow_offset, rainbow_scale and rainbow_timeshift from webinterface.ledsettings and put them into step node under Offset, Scale and Timeshift
             rainbow_offset = sequences_tree.createElement("Offset")
             rainbow_offset.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.rainbow_offset)))
@@ -734,7 +734,7 @@ def change_setting():
             step.appendChild(rainbow_timeshift)
 
         # if color_mode is equal to "Speed" load colors from webinterface.ledsettings and put it into step node
-        if (webinterface.ledsettings.color_mode == "Speed"):
+        if webinterface.ledsettings.color_mode == "Speed":
             # load values speed_slowest["red"] etc from webinterface.ledsettings and put them under speed_slowest_red etc
             speed_slowest_red = sequences_tree.createElement("speed_slowest_red")
             speed_slowest_red.appendChild(
@@ -780,7 +780,7 @@ def change_setting():
             step.appendChild(speed_period_in_seconds)
 
         # if color_mode is equal to "Gradient" load colors from webinterface.ledsettings and put it into step node
-        if (webinterface.ledsettings.color_mode == "Gradient"):
+        if webinterface.ledsettings.color_mode == "Gradient":
             # load values gradient_start_red etc from webinterface.ledsettings and put them under gradient_start_red etc
             gradient_start_red = sequences_tree.createElement("gradient_start_red")
             gradient_start_red.appendChild(
@@ -814,7 +814,7 @@ def change_setting():
             step.appendChild(gradient_end_blue)
 
         # if color_mode is equal to "Scale" load colors from webinterface.ledsettings and put it into step node
-        if (webinterface.ledsettings.color_mode == "Scale"):
+        if webinterface.ledsettings.color_mode == "Scale":
             # load values key_in_scale_red etc from webinterface.ledsettings and put them under key_in_scale_red etc
             key_in_scale_red = sequences_tree.createElement("key_in_scale_red")
             key_in_scale_red.appendChild(
@@ -864,7 +864,7 @@ def change_setting():
         return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True)
 
     if setting_name == "screen_on":
-        if (int(value) == 0):
+        if int(value) == 0:
             webinterface.menu.disable_screen()
         else:
             webinterface.menu.enable_screen()
@@ -1389,7 +1389,7 @@ def get_songs():
                 continue
 
         i += 1
-        if (i > int(start)):
+        if i > int(start):
             songs_list_dict[song] = date
 
         if len(songs_list_dict) >= int(length):
@@ -1457,8 +1457,8 @@ def get_steps_list():
     i = 0
 
     for step in sequences_tree.getElementsByTagName("sequence_" + str(sequence))[0].childNodes:
-        if (step.nodeType == 1):
-            if (step.nodeName == "settings"):
+        if step.nodeType == 1:
+            if step.nodeName == "settings":
                 response["control_number"] = step.getElementsByTagName("control_number")[0].firstChild.nodeValue
                 response["next_step"] = step.getElementsByTagName("next_step")[0].firstChild.nodeValue
             else:
