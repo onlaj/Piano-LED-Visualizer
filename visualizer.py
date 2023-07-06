@@ -391,19 +391,16 @@ while True:
                 ledstrip.keylist[note_position] = 1001
             if ledsettings.mode == "Velocity":
                 ledstrip.keylist[note_position] = 999 / float(brightness)
-            if find_between(str(msg), "channel=", " ") == "12":
+
+            channel = find_between(str(msg), "channel=", " ")
+            if channel == "12" or channel == "11":
                 if ledsettings.skipped_notes != "Finger-based":
-                    red = int(learning.hand_colorList[learning.hand_colorR][0])
-                    green = int(learning.hand_colorList[learning.hand_colorR][1])
-                    blue = int(learning.hand_colorList[learning.hand_colorR][2])
-                    s_color = Color(green, red, blue)
-                    ledstrip.strip.setPixelColor(note_position, s_color)
-                    ledstrip.set_adjacent_colors(note_position, s_color, False)
-            elif find_between(str(msg), "channel=", " ") == "11":
-                if ledsettings.skipped_notes != "Finger-based":
-                    red = int(learning.hand_colorList[learning.hand_colorL][0])
-                    green = int(learning.hand_colorList[learning.hand_colorL][1])
-                    blue = int(learning.hand_colorList[learning.hand_colorL][2])
+                    if channel == "12":
+                        hand_color = learning.hand_colorR
+                    else:
+                        hand_color = learning.hand_colorL
+
+                    red, green, blue = map(int, learning.hand_colorList[hand_color])
                     s_color = Color(green, red, blue)
                     ledstrip.strip.setPixelColor(note_position, s_color)
                     ledstrip.set_adjacent_colors(note_position, s_color, False)
