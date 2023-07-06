@@ -1,5 +1,5 @@
 from webinterface import webinterface
-from flask import render_template, flash, redirect, request, url_for, jsonify, send_file
+from flask import render_template, request, jsonify
 import os
 
 ALLOWED_EXTENSIONS = {'mid', 'musicxml', 'mxl', 'xml', 'abc'}
@@ -59,5 +59,3 @@ def upload_file():
         filename = filename.replace("'", "")
         file.save(os.path.join(webinterface.config['UPLOAD_FOLDER'], filename))
         return jsonify(success=True, reload_songs=True, song_name=filename)
-
-
