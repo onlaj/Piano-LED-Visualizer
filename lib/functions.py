@@ -88,6 +88,8 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
 
 
 def screensaver(menu, midiports, saving, ledstrip, ledsettings):
+    last_cpu_average = 0
+
     KEY2 = 20
     GPIO.setup(KEY2, GPIO.IN, GPIO.PUD_UP)
 
@@ -727,3 +729,12 @@ def chords(scale, ledstrip, ledsettings, menu):
         time.sleep(0.05)
     menu.screensaver_is_running = False
     fastColorWipe(strip, True, ledsettings)
+
+
+def get_rainbow_colors(ledsettings, note_position, timeshift):
+    rainbow_value = int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
+                float(ledsettings.rainbow_scale) / 100)) & 255
+    red = get_rainbow_colors(rainbow_value, "red")
+    green = get_rainbow_colors(rainbow_value, "green")
+    blue = get_rainbow_colors(rainbow_value, "blue")
+    return red, green, blue

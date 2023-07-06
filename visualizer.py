@@ -24,6 +24,7 @@ os.chdir(sys.path[0])
 # Ensure there is only one instance of the script running.
 fh = 0
 
+
 def singleton():
     global fh
     fh = open(os.path.realpath(__file__), 'r')
@@ -55,7 +56,7 @@ print(args)
 if not args.skipupdate:
     # make sure connectall.py file exists and is updated
     if not os.path.exists('/usr/local/bin/connectall.py') or \
-        filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
+            filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
         print("connectall.py script is outdated, updating...")
         copyfile('lib/connectall.py', '/usr/local/bin/connectall.py')
         os.chmod('/usr/local/bin/connectall.py', 493)
@@ -114,7 +115,6 @@ last_control_change = 0
 pedal_deadzone = 10
 timeshift_start = time.time()
 
-
 fastColorWipe(ledstrip.strip, True, ledsettings)
 
 
@@ -131,11 +131,12 @@ def start_webserver():
     webinterface.menu = menu
     webinterface.jinja_env.auto_reload = True
     webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
-    #webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
+    # webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
     serve(webinterface, host='0.0.0.0', port=args.port)
 
+
 if args.webinterface != "false":
-    print ("Starting webinterface")
+    print("Starting webinterface")
     processThread = threading.Thread(target=start_webserver, daemon=True)
     processThread.start()
 
@@ -234,12 +235,7 @@ while True:
 
             if int(note) > 0:
                 if ledsettings.color_mode == "Rainbow":
-                    red = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (
-                            float(ledsettings.rainbow_scale) / 100)) & 255, "red")
-                    green = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (
-                            float(ledsettings.rainbow_scale) / 100)) & 255, "green")
-                    blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (
-                            float(ledsettings.rainbow_scale) / 100)) & 255, "blue")
+                    red, green, blue = get_rainbow_colors(ledsettings, n, timeshift)
 
                     if int(note) == 1001:
                         ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
@@ -343,12 +339,7 @@ while True:
         elapsed_time = time.time() - saving.start_time
 
         if ledsettings.color_mode == "Rainbow":
-            red = get_rainbow_colors(int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
-                    float(ledsettings.rainbow_scale) / 100)) & 255, "red")
-            green = get_rainbow_colors(int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
-                    float(ledsettings.rainbow_scale) / 100)) & 255, "green")
-            blue = get_rainbow_colors(int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
-                    float(ledsettings.rainbow_scale) / 100)) & 255, "blue")
+            red, green, blue = get_rainbow_colors(ledsettings, note_position, timeshift)
 
         if ledsettings.color_mode == "Speed":
             speed_colors = ledsettings.speed_get_colors()
@@ -384,7 +375,7 @@ while True:
                     color_backlight = Color(int(green_backlight), int(red_backlight), int(blue_backlight))
                     ledstrip.strip.setPixelColor(note_position, color_backlight)
                     ledstrip.set_adjacent_colors(note_position, color_backlight, True)
-                elif (ledsettings.mode == "Normal"):
+                elif ledsettings.mode == "Normal":
                     ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
                     ledstrip.set_adjacent_colors(note_position, Color(0, 0, 0), False)
             if saving.isrecording:
@@ -426,7 +417,7 @@ while True:
             else:
                 if ledsettings.skipped_notes != "Normal":
                     s_color = Color(int(int(green) / float(brightness)), int(int(red) / float(brightness)),
-                                   int(int(blue) / float(brightness)))
+                                    int(int(blue) / float(brightness)))
                     ledstrip.strip.setPixelColor(note_position, s_color)
                     ledstrip.set_adjacent_colors(note_position, s_color, False)
             if saving.isrecording:
