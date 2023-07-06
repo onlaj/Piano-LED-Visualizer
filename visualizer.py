@@ -242,16 +242,10 @@ while True:
                         ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
 
                 if ledsettings.color_mode == "Speed":
-                    speed_colors = ledsettings.speed_get_colors()
-                    red = speed_colors[0]
-                    green = speed_colors[1]
-                    blue = speed_colors[2]
+                    red, green, blue = get_speed_colors(ledsettings)
 
                 if ledsettings.color_mode == "Gradient":
-                    gradient_colors = ledsettings.gradient_get_colors(n)
-                    red = gradient_colors[0]
-                    green = gradient_colors[1]
-                    blue = gradient_colors[2]
+                    red, green, blue = get_gradient_colors(ledsettings, note_position)
 
                 if ledsettings.color_mode == "Scale":
                     try:
@@ -342,16 +336,10 @@ while True:
             red, green, blue = get_rainbow_colors(ledsettings, note_position, timeshift)
 
         if ledsettings.color_mode == "Speed":
-            speed_colors = ledsettings.speed_get_colors()
-            red = speed_colors[0]
-            green = speed_colors[1]
-            blue = speed_colors[2]
+            red, green, blue = get_speed_colors(ledsettings)
 
         if ledsettings.color_mode == "Gradient":
-            gradient_colors = ledsettings.gradient_get_colors(note_position)
-            red = gradient_colors[0]
-            green = gradient_colors[1]
-            blue = gradient_colors[2]
+            red, green, blue = get_gradient_colors(ledsettings, note_position)
 
         if ledsettings.color_mode == "Scale":
             scale_colors = get_scale_color(ledsettings.scale_key, note, ledsettings)

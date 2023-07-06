@@ -738,3 +738,13 @@ def get_rainbow_colors(ledsettings, note_position, timeshift):
     green = get_rainbow_colors(rainbow_value, "green")
     blue = get_rainbow_colors(rainbow_value, "blue")
     return red, green, blue
+
+
+def get_speed_colors(ledsettings):
+    speed_colors = ledsettings.speed_get_colors()
+    return speed_colors
+
+
+def get_gradient_colors(ledsettings, note_position):
+    gradient_colors = ledsettings.gradient_get_colors(note_position)
+    return gradient_colors
