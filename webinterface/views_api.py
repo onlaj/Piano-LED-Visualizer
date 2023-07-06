@@ -970,14 +970,14 @@ def change_setting():
             if songs_count == 1:
                 os.remove("Songs/" + value.replace(".mid", "") + ".zip")
                 return send_file(safe_join("../Songs/" + value), mimetype='application/x-csv',
-                                 attachment_filename=value,
+                                 download_name=value,
                                  as_attachment=True)
             else:
                 return send_file(safe_join("../Songs/" + value.replace(".mid", "")) + ".zip",
                                  mimetype='application/x-csv',
-                                 attachment_filename=value.replace(".mid", "") + ".zip", as_attachment=True)
+                                 download_name=value.replace(".mid", "") + ".zip", as_attachment=True)
         else:
-            return send_file(safe_join("../Songs/" + value), mimetype='application/x-csv', attachment_filename=value,
+            return send_file(safe_join("../Songs/" + value), mimetype='application/x-csv', download_name=value,
                              as_attachment=True)
 
     if setting_name == "download_sheet_music":
@@ -987,14 +987,14 @@ def change_setting():
             try:
                 new_name = value.replace(".mid", file_types[i])
                 return send_file(safe_join("../Songs/" + new_name), mimetype='application/x-csv',
-                                 attachment_filename=new_name,
+                                 download_name=new_name,
                                  as_attachment=True)
             except:
                 i += 1
         webinterface.learning.convert_midi_to_abc(value)
         try:
             return send_file(safe_join("../Songs/", value.replace(".mid", ".abc")), mimetype='application/x-csv',
-                             attachment_filename=value.replace(".mid", ".abc"), as_attachment=True)
+                             download_name=value.replace(".mid", ".abc"), as_attachment=True)
         except:
             print("Converting failed")
 
