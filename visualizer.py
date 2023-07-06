@@ -79,7 +79,7 @@ else:
 KEY2 = 20
 JPRESS = 13
 BACKLIGHT = 24
-# pin numbers are interpreted as BCM pin numbers.
+# pins are interpreted as BCM pins.
 GPIO.setmode(GPIO.BCM)
 # Sets the pin as input and sets Pull-up mode for the pin.
 GPIO.setup(KEYRIGHT, GPIO.IN, GPIO.PUD_UP)
@@ -246,7 +246,7 @@ while True:
                     red, green, blue = calculate_speed_colors(ledsettings)
 
                 if ledsettings.color_mode == "Gradient":
-                    red, green, blue = calculate_gradient_colors(ledsettings, note_position)
+                    red, green, blue = calculate_gradient_colors(ledsettings, n)
 
                 if ledsettings.color_mode == "Scale":
                     try:
