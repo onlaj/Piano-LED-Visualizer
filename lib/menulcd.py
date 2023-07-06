@@ -511,59 +511,30 @@ class MenuLCD:
             except:
                 pass
 
-        if "Color_for_slow_speed" in self.currentlocation:
-            red = self.ledsettings.speed_slowest["red"]
-            green = self.ledsettings.speed_slowest["green"]
-            blue = self.ledsettings.speed_slowest["blue"]
+        def draw_color_example(color_values):
+            red, green, blue = color_values.values()
             self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
                            fill=self.text_color, font=self.font)
             self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
                                 fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+
+        if "Color_for_slow_speed" in self.currentlocation:
+            draw_color_example(self.ledsettings.speed_slowest)
 
         if "Color_for_fast_speed" in self.currentlocation:
-            red = self.ledsettings.speed_fastest["red"]
-            green = self.ledsettings.speed_fastest["green"]
-            blue = self.ledsettings.speed_fastest["blue"]
-            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+            draw_color_example(self.ledsettings.speed_fastest)
 
         if "Gradient_start" in self.currentlocation:
-            red = self.ledsettings.gradient_start["red"]
-            green = self.ledsettings.gradient_start["green"]
-            blue = self.ledsettings.gradient_start["blue"]
-            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+            draw_color_example(self.ledsettings.gradient_start)
 
         if "Gradient_end" in self.currentlocation:
-            red = self.ledsettings.gradient_end["red"]
-            green = self.ledsettings.gradient_end["green"]
-            blue = self.ledsettings.gradient_end["blue"]
-            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+            draw_color_example(self.ledsettings.gradient_end)
 
         if "Color_in_scale" in self.currentlocation:
-            red = self.ledsettings.key_in_scale["red"]
-            green = self.ledsettings.key_in_scale["green"]
-            blue = self.ledsettings.key_in_scale["blue"]
-            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+            draw_color_example(self.ledsettings.key_in_scale)
 
         if "Color_not_in_scale" in self.currentlocation:
-            red = self.ledsettings.key_not_in_scale["red"]
-            green = self.ledsettings.key_not_in_scale["green"]
-            blue = self.ledsettings.key_not_in_scale["blue"]
-            self.draw.text((self.scale(10), self.scale(70)), str(red) + ", " + str(green) + ", " + str(blue),
-                           fill=self.text_color, font=self.font)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+            draw_color_example(self.ledsettings.key_not_in_scale)
 
         # displaying rainbow offset value
         if self.current_choice == "Offset":
