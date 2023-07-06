@@ -376,10 +376,10 @@ while True:
         elif int(velocity) > 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is pressed
             ledsettings.speed_add_note()
             if ledsettings.color_mode == "Multicolor":
-                choosen_color = ledsettings.get_random_multicolor_in_range(note)
-                red = choosen_color[0]
-                green = choosen_color[1]
-                blue = choosen_color[2]
+                chosen_color = ledsettings.get_random_multicolor_in_range(note)
+                red = chosen_color[0]
+                green = chosen_color[1]
+                blue = chosen_color[2]
                 ledstrip.keylist_color[note_position] = [red, green, blue]
 
             ledstrip.keylist_status[note_position] = 1
