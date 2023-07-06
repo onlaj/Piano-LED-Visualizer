@@ -30,7 +30,8 @@ def singleton():
     fh = open(os.path.realpath(__file__), 'r')
     try:
         fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except:
+    except Exception as error:
+        print(f"Unexpected exception occurred: {error}")
         restart_script()
 
 
@@ -148,7 +149,9 @@ while True:
             screensaver(menu, midiports, saving, ledstrip, ledsettings)
     try:
         elapsed_time = time.time() - saving.start_time
-    except:
+    except Exception as e:
+        # Handle any other unexpected exceptions here
+        print(f"Unexpected exception occurred: {e}")
         elapsed_time = 0
     if display_cycle >= 3:
         display_cycle = 0
@@ -191,7 +194,7 @@ while True:
             time.sleep(0.01)
     if GPIO.input(KEY3) == 0:
         midiports.last_activity = time.time()
-        if ledsettings.sequence_active == True:
+        if ledsettings.sequence_active:
             ledsettings.set_sequence(0, 1)
         else:
             active_input = usersettings.get_setting_value("input_port")
@@ -231,8 +234,8 @@ while True:
                     red = ledstrip.keylist_color[n][0]
                     green = ledstrip.keylist_color[n][1]
                     blue = ledstrip.keylist_color[n][2]
-                except:
-                    pass
+                except Exception as e:
+                    print(f"Unexpected exception occurred: {e}")
 
             if int(note) > 0:
                 if ledsettings.color_mode == "Rainbow":
@@ -253,8 +256,8 @@ while True:
                         red = ledstrip.keylist_color[n][0]
                         green = ledstrip.keylist_color[n][1]
                         blue = ledstrip.keylist_color[n][2]
-                    except:
-                        pass
+                    except Exception as e:
+                        print(f"Unexpected exception occurred: {e}")
 
             if ledsettings.mode == "Velocity":
                 if int(last_control_change) < pedal_deadzone and ledstrip.keylist_status[n] == 0:
@@ -287,8 +290,9 @@ while True:
             midiports.midipending = midiports.inport.iter_pending()
         else:
             midiports.midipending = midiports.pending_queue
-    except:
-        continue
+    except Exception as e:
+        print(f"Unexpected exception occurred: {e}")
+
     # loop through incoming midi messages
     for msg in midiports.midipending:
         if int(usersettings.get_setting_value("midi_logging")) == 1:
@@ -322,8 +326,8 @@ while True:
                     else:
                         if int(value) < int(ledsettings.next_step) and control == ledsettings.control_number:
                             ledsettings.set_sequence(0, 1)
-                except:
-                    pass
+                except Exception as e:
+                    print(f"Unexpected exception occurred: {e}")
 
         # changing offset to adjust the distance between the LEDs to the key spacing
         note_position = get_note_position(note, ledstrip, ledsettings)
