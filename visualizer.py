@@ -114,6 +114,7 @@ midiports.last_activity = time.time()
 last_control_change = 0
 pedal_deadzone = 10
 timeshift_start = time.time()
+timeshift = 0
 
 fastColorWipe(ledstrip.strip, True, ledsettings)
 
@@ -235,17 +236,17 @@ while True:
 
             if int(note) > 0:
                 if ledsettings.color_mode == "Rainbow":
-                    red, green, blue = get_rainbow_colors(ledsettings, n, timeshift)
+                    red, green, blue = calculate_rainbow_colors(ledsettings, n, timeshift)
 
                     if int(note) == 1001:
                         ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
                         ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
 
                 if ledsettings.color_mode == "Speed":
-                    red, green, blue = get_speed_colors(ledsettings)
+                    red, green, blue = calculate_speed_colors(ledsettings)
 
                 if ledsettings.color_mode == "Gradient":
-                    red, green, blue = get_gradient_colors(ledsettings, note_position)
+                    red, green, blue = calculate_gradient_colors(ledsettings, note_position)
 
                 if ledsettings.color_mode == "Scale":
                     try:
@@ -333,13 +334,13 @@ while True:
         elapsed_time = time.time() - saving.start_time
 
         if ledsettings.color_mode == "Rainbow":
-            red, green, blue = get_rainbow_colors(ledsettings, note_position, timeshift)
+            red, green, blue = calculate_rainbow_colors(ledsettings, note_position, timeshift)
 
         if ledsettings.color_mode == "Speed":
-            red, green, blue = get_speed_colors(ledsettings)
+            red, green, blue = calculate_speed_colors(ledsettings)
 
         if ledsettings.color_mode == "Gradient":
-            red, green, blue = get_gradient_colors(ledsettings, note_position)
+            red, green, blue = calculate_gradient_colors(ledsettings, note_position)
 
         if ledsettings.color_mode == "Scale":
             scale_colors = get_scale_color(ledsettings.scale_key, note, ledsettings)
