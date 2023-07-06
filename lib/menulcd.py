@@ -949,8 +949,7 @@ class MenuLCD:
 
         if location == "LED_animations":
             if choice == "Theater Chase":
-                self.t = threading.Thread(target=theaterChase, args=(self.ledstrip, Color(127, 127, 127),
-                                                                     self.ledsettings, self))
+                self.t = threading.Thread(target=theaterChase, args=(self.ledstrip, self.ledsettings, self))
                 self.t.start()
             if choice == "Theater Chase Rainbow":
                 self.t = threading.Thread(target=theaterChaseRainbow, args=(self.ledstrip, self.ledsettings,

@@ -88,6 +88,8 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
 
 
 def screensaver(menu, midiports, saving, ledstrip, ledsettings):
+    last_cpu_average = 0
+
     KEY2 = 20
     GPIO.setup(KEY2, GPIO.IN, GPIO.PUD_UP)
 
@@ -112,7 +114,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
     except:
         pass
     while True:
-        if (time.time() - saving.start_time) > 3600 and delay < 0.5 and menu.screensaver_is_running == False:
+        if (time.time() - saving.start_time) > 3600 and delay < 0.5 and menu.screensaver_is_running is False:
             delay = 0.9
             interval = 5 / float(delay)
             cpu_history = [None] * int(interval)
@@ -124,7 +126,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
             GPIO.output(24, 0)
 
         if int(menu.led_animation_delay) > 0 and ((time.time() - saving.start_time) > (
-                int(menu.led_animation_delay) * 60)) and menu.screensaver_is_running == False:
+                int(menu.led_animation_delay) * 60)) and menu.screensaver_is_running is False:
             menu.screensaver_is_running = True
             if menu.led_animation == "Theater Chase":
                 menu.t = threading.Thread(target=theaterChase, args=(ledstrip.strip,
@@ -254,13 +256,12 @@ def get_note_position(note, ledstrip, ledsettings):
             break
     note_offset -= ledstrip.shift
 
-    
     if ledsettings.low_density == 1:
         leds_per_meter = 60
     else:
         leds_per_meter = 144
 
-    density = leds_per_meter/72
+    density = leds_per_meter / 72
 
     note_pos_raw = int(density * (note - 20) - note_offset)
     if ledstrip.reverse:
@@ -269,10 +270,11 @@ def get_note_position(note, ledstrip, ledsettings):
         return max(0, note_pos_raw)
 
 
-# scale: 1 means in C, scale: 2 means in C#, scale: 3 means in D, etc... and scale: 1 means in C m, scale: 2 means in C# m, scale: 3 means in D m, etc...
+# scale: 1 means in C, scale: 2 means in C#, scale: 3 means in D, etc...
+# and scale: 1 means in C m, scale: 2 means in C# m, scale: 3 means in D m, etc...
 def get_scale_color(scale, note_position, ledsettings):
     scale = int(scale)
-    if scale< 12:
+    if scale < 12:
         notes_in_scale = [0, 2, 4, 5, 7, 9, 11]
     else:
         notes_in_scale = [0, 2, 3, 5, 7, 8, 10]
@@ -310,18 +312,20 @@ def get_rainbow_colors(pos, color):
         elif color == "blue":
             return 255 - pos * 3
 
+
 def check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
     if ledsettings.adjacent_mode == "Off":
         if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
             return True
     else:
-        if i > 1 and i < (ledstrip.led_number - 1):
+        if 1 < i < (ledstrip.led_number - 1):
             if ledstrip.keylist[i + 1] == ledstrip.keylist[i - 1] == ledstrip.keylist[i] \
                     == ledstrip.keylist_status[i + 1] == ledstrip.keylist_status[i - 1] == ledstrip.keylist_status[i]:
                 return True
         else:
             return True
     return False
+
 
 # LED animations
 def fastColorWipe(strip, update, ledsettings):
@@ -336,13 +340,24 @@ def fastColorWipe(strip, update, ledsettings):
         strip.show()
 
 
-def theaterChase(ledstrip, color, ledsettings, menu, wait_ms=25):
+def calculate_brightness(ledsettings):
+    if ledsettings.backlight_brightness_percent == 0:
+        brightness = 100
+    else:
+        brightness = ledsettings.backlight_brightness_percent
+
+    brightness /= 100
+
+    return brightness
+
+def theaterChase(ledstrip, ledsettings, menu, wait_ms=25):
     """Movie theater light style chaser animation."""
-    strip = ledstrip.strip
     menu.screensaver_is_running = False
     time.sleep(0.5)
+    strip = ledstrip.strip
     if menu.screensaver_is_running:
         return
+    fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
     j = 0
     menu.screensaver_is_running = True
@@ -358,12 +373,7 @@ def theaterChase(ledstrip, color, ledsettings, menu, wait_ms=25):
             last_state = cover_opened
             cover_opened = GPIO.input(SENSECOVER)
 
-        if ledsettings.backlight_brightness_percent == 0:
-            brightness = 100
-        else:
-            brightness = ledsettings.backlight_brightness_percent
-
-        brightness /= 100
+        brightness = calculate_brightness(ledsettings)
 
         red = int(ledsettings.get_backlight_color("Red") * brightness)
         green = int(ledsettings.get_backlight_color("Green") * brightness)
@@ -388,12 +398,7 @@ def theaterChase(ledstrip, color, ledsettings, menu, wait_ms=25):
 def wheel(pos, ledsettings):
     """Generate rainbow colors across 0-255 positions."""
 
-    if ledsettings.backlight_brightness_percent == 0:
-        brightness = 100
-    else:
-        brightness = ledsettings.backlight_brightness_percent
-
-    brightness /= 100
+    brightness = calculate_brightness(ledsettings)
 
     if pos < 85:
         return Color(int((pos * 3) * brightness), int((255 - pos * 3) * brightness), 0)
@@ -484,6 +489,7 @@ def theaterChaseRainbow(ledstrip, ledsettings, menu, wait_ms=25):
     menu.t = threading.currentThread()
     j = 0
     menu.screensaver_is_running = True
+
     while menu.screensaver_is_running:
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
@@ -539,12 +545,7 @@ def breathing(ledstrip, ledsettings, menu, wait_ms=2):
             direction *= -1
         multiplier += direction
 
-        if ledsettings.backlight_brightness_percent == 0:
-            brightness = 100
-        else:
-            brightness = ledsettings.backlight_brightness_percent
-
-        brightness /= 100
+        brightness = calculate_brightness(ledsettings)
 
         divide = (multiplier / float(100)) * brightness
         red = int(round(float(ledsettings.get_backlight_color("Red")) * float(divide)))
@@ -587,12 +588,7 @@ def sound_of_da_police(ledstrip, ledsettings, menu, wait_ms=5):
         r_start += 14
         l_start -= 14
 
-        if ledsettings.backlight_brightness_percent == 0:
-            brightness = 100
-        else:
-            brightness = ledsettings.backlight_brightness_percent
-
-        brightness /= 100
+        brightness = calculate_brightness(ledsettings)
 
         for i in range(strip.numPixels()):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
@@ -646,12 +642,7 @@ def scanner(ledstrip, ledsettings, menu, wait_ms=1):
                 if distance_from_position < 0:
                     distance_from_position *= -1
 
-                if ledsettings.backlight_brightness_percent == 0:
-                    brightness = 100
-                else:
-                    brightness = ledsettings.backlight_brightness_percent
-
-                brightness /= 100
+                brightness = calculate_brightness(ledsettings)
 
                 divide = ((scanner_length / 2) - distance_from_position) / float(scanner_length / 2)
 
@@ -695,12 +686,7 @@ def chords(scale, ledstrip, ledsettings, menu):
             last_state = cover_opened
             cover_opened = GPIO.input(SENSECOVER)
 
-        if ledsettings.backlight_brightness_percent == 0:
-            bright = 100
-        else:
-            bright = ledsettings.backlight_brightness_percent
-
-        bright /= 100
+        brightness = calculate_brightness(ledsettings)
 
         if ledsettings.low_density == 1:
             density = 1
@@ -717,7 +703,7 @@ def chords(scale, ledstrip, ledsettings, menu):
             leds_to_update.remove(note_position)
 
             if check_if_led_can_be_overwrite(note_position, ledstrip, ledsettings):
-                strip.setPixelColor(note_position, Color(int(c[1] * bright), int(c[0] * bright), int(c[2] * bright)))
+                strip.setPixelColor(note_position, Color(int(c[1] * brightness), int(c[0] * brightness), int(c[2] * brightness)))
 
         for i in leds_to_update:
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
@@ -727,3 +713,22 @@ def chords(scale, ledstrip, ledsettings, menu):
         time.sleep(0.05)
     menu.screensaver_is_running = False
     fastColorWipe(strip, True, ledsettings)
+
+
+def calculate_rainbow_colors(ledsettings, note_position, timeshift):
+    rainbow_value = int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
+            float(ledsettings.rainbow_scale) / 100)) & 255
+    red = get_rainbow_colors(rainbow_value, "red")
+    green = get_rainbow_colors(rainbow_value, "green")
+    blue = get_rainbow_colors(rainbow_value, "blue")
+    return red, green, blue
+
+
+def calculate_speed_colors(ledsettings):
+    speed_colors = ledsettings.speed_get_colors()
+    return speed_colors
+
+
+def calculate_gradient_colors(ledsettings, note_position):
+    gradient_colors = ledsettings.gradient_get_colors(note_position)
+    return gradient_colors

@@ -30,7 +30,6 @@ def start_animation():
     speed = request.args.get('speed')
     if choice == "theaterchase":
         webinterface.menu.t = threading.Thread(target=theaterChase, args=(webinterface.ledstrip,
-                                                                          Color(127, 127, 127),
                                                                           webinterface.ledsettings,
                                                                           webinterface.menu))
         webinterface.menu.t.start()

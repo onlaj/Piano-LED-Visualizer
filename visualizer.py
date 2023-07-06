@@ -24,12 +24,14 @@ os.chdir(sys.path[0])
 # Ensure there is only one instance of the script running.
 fh = 0
 
+
 def singleton():
     global fh
     fh = open(os.path.realpath(__file__), 'r')
     try:
         fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except:
+    except Exception as error:
+        print(f"Unexpected exception occurred: {error}")
         restart_script()
 
 
@@ -55,7 +57,7 @@ print(args)
 if not args.skipupdate:
     # make sure connectall.py file exists and is updated
     if not os.path.exists('/usr/local/bin/connectall.py') or \
-        filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
+            filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
         print("connectall.py script is outdated, updating...")
         copyfile('lib/connectall.py', '/usr/local/bin/connectall.py')
         os.chmod('/usr/local/bin/connectall.py', 493)
@@ -78,7 +80,7 @@ else:
 KEY2 = 20
 JPRESS = 13
 BACKLIGHT = 24
-# pin numbers are interpreted as BCM pin numbers.
+# pins are interpreted as BCM pins.
 GPIO.setmode(GPIO.BCM)
 # Sets the pin as input and sets Pull-up mode for the pin.
 GPIO.setup(KEYRIGHT, GPIO.IN, GPIO.PUD_UP)
@@ -113,7 +115,7 @@ midiports.last_activity = time.time()
 last_control_change = 0
 pedal_deadzone = 10
 timeshift_start = time.time()
-
+timeshift = 0
 
 fastColorWipe(ledstrip.strip, True, ledsettings)
 
@@ -131,11 +133,12 @@ def start_webserver():
     webinterface.menu = menu
     webinterface.jinja_env.auto_reload = True
     webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
-    #webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
+    # webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
     serve(webinterface, host='0.0.0.0', port=args.port)
 
+
 if args.webinterface != "false":
-    print ("Starting webinterface")
+    print("Starting webinterface")
     processThread = threading.Thread(target=start_webserver, daemon=True)
     processThread.start()
 
@@ -146,7 +149,9 @@ while True:
             screensaver(menu, midiports, saving, ledstrip, ledsettings)
     try:
         elapsed_time = time.time() - saving.start_time
-    except:
+    except Exception as e:
+        # Handle any other unexpected exceptions here
+        print(f"Unexpected exception occurred: {e}")
         elapsed_time = 0
     if display_cycle >= 3:
         display_cycle = 0
@@ -189,7 +194,7 @@ while True:
             time.sleep(0.01)
     if GPIO.input(KEY3) == 0:
         midiports.last_activity = time.time()
-        if ledsettings.sequence_active == True:
+        if ledsettings.sequence_active:
             ledsettings.set_sequence(0, 1)
         else:
             active_input = usersettings.get_setting_value("input_port")
@@ -229,41 +234,30 @@ while True:
                     red = ledstrip.keylist_color[n][0]
                     green = ledstrip.keylist_color[n][1]
                     blue = ledstrip.keylist_color[n][2]
-                except:
-                    pass
+                except Exception as e:
+                    print(f"Unexpected exception occurred: {e}")
 
             if int(note) > 0:
                 if ledsettings.color_mode == "Rainbow":
-                    red = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (
-                            float(ledsettings.rainbow_scale) / 100)) & 255, "red")
-                    green = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (
-                            float(ledsettings.rainbow_scale) / 100)) & 255, "green")
-                    blue = get_rainbow_colors(int((int(n) + ledsettings.rainbow_offset + int(timeshift)) * (
-                            float(ledsettings.rainbow_scale) / 100)) & 255, "blue")
+                    red, green, blue = calculate_rainbow_colors(ledsettings, n, timeshift)
 
                     if int(note) == 1001:
                         ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
                         ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
 
                 if ledsettings.color_mode == "Speed":
-                    speed_colors = ledsettings.speed_get_colors()
-                    red = speed_colors[0]
-                    green = speed_colors[1]
-                    blue = speed_colors[2]
+                    red, green, blue = calculate_speed_colors(ledsettings)
 
                 if ledsettings.color_mode == "Gradient":
-                    gradient_colors = ledsettings.gradient_get_colors(n)
-                    red = gradient_colors[0]
-                    green = gradient_colors[1]
-                    blue = gradient_colors[2]
+                    red, green, blue = calculate_gradient_colors(ledsettings, n)
 
                 if ledsettings.color_mode == "Scale":
                     try:
                         red = ledstrip.keylist_color[n][0]
                         green = ledstrip.keylist_color[n][1]
                         blue = ledstrip.keylist_color[n][2]
-                    except:
-                        pass
+                    except Exception as e:
+                        print(f"Unexpected exception occurred: {e}")
 
             if ledsettings.mode == "Velocity":
                 if int(last_control_change) < pedal_deadzone and ledstrip.keylist_status[n] == 0:
@@ -296,8 +290,9 @@ while True:
             midiports.midipending = midiports.inport.iter_pending()
         else:
             midiports.midipending = midiports.pending_queue
-    except:
-        continue
+    except Exception as e:
+        print(f"Unexpected exception occurred: {e}")
+
     # loop through incoming midi messages
     for msg in midiports.midipending:
         if int(usersettings.get_setting_value("midi_logging")) == 1:
@@ -331,8 +326,8 @@ while True:
                     else:
                         if int(value) < int(ledsettings.next_step) and control == ledsettings.control_number:
                             ledsettings.set_sequence(0, 1)
-                except:
-                    pass
+                except Exception as e:
+                    print(f"Unexpected exception occurred: {e}")
 
         # changing offset to adjust the distance between the LEDs to the key spacing
         note_position = get_note_position(note, ledstrip, ledsettings)
@@ -343,24 +338,13 @@ while True:
         elapsed_time = time.time() - saving.start_time
 
         if ledsettings.color_mode == "Rainbow":
-            red = get_rainbow_colors(int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
-                    float(ledsettings.rainbow_scale) / 100)) & 255, "red")
-            green = get_rainbow_colors(int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
-                    float(ledsettings.rainbow_scale) / 100)) & 255, "green")
-            blue = get_rainbow_colors(int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
-                    float(ledsettings.rainbow_scale) / 100)) & 255, "blue")
+            red, green, blue = calculate_rainbow_colors(ledsettings, note_position, timeshift)
 
         if ledsettings.color_mode == "Speed":
-            speed_colors = ledsettings.speed_get_colors()
-            red = speed_colors[0]
-            green = speed_colors[1]
-            blue = speed_colors[2]
+            red, green, blue = calculate_speed_colors(ledsettings)
 
         if ledsettings.color_mode == "Gradient":
-            gradient_colors = ledsettings.gradient_get_colors(note_position)
-            red = gradient_colors[0]
-            green = gradient_colors[1]
-            blue = gradient_colors[2]
+            red, green, blue = calculate_gradient_colors(ledsettings, note_position)
 
         if ledsettings.color_mode == "Scale":
             scale_colors = get_scale_color(ledsettings.scale_key, note, ledsettings)
@@ -384,7 +368,7 @@ while True:
                     color_backlight = Color(int(green_backlight), int(red_backlight), int(blue_backlight))
                     ledstrip.strip.setPixelColor(note_position, color_backlight)
                     ledstrip.set_adjacent_colors(note_position, color_backlight, True)
-                elif (ledsettings.mode == "Normal"):
+                elif ledsettings.mode == "Normal":
                     ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
                     ledstrip.set_adjacent_colors(note_position, Color(0, 0, 0), False)
             if saving.isrecording:
@@ -392,10 +376,10 @@ while True:
         elif int(velocity) > 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is pressed
             ledsettings.speed_add_note()
             if ledsettings.color_mode == "Multicolor":
-                choosen_color = ledsettings.get_random_multicolor_in_range(note)
-                red = choosen_color[0]
-                green = choosen_color[1]
-                blue = choosen_color[2]
+                chosen_color = ledsettings.get_random_multicolor_in_range(note)
+                red = chosen_color[0]
+                green = chosen_color[1]
+                blue = chosen_color[2]
                 ledstrip.keylist_color[note_position] = [red, green, blue]
 
             ledstrip.keylist_status[note_position] = 1
@@ -407,26 +391,23 @@ while True:
                 ledstrip.keylist[note_position] = 1001
             if ledsettings.mode == "Velocity":
                 ledstrip.keylist[note_position] = 999 / float(brightness)
-            if find_between(str(msg), "channel=", " ") == "12":
+
+            channel = find_between(str(msg), "channel=", " ")
+            if channel == "12" or channel == "11":
                 if ledsettings.skipped_notes != "Finger-based":
-                    red = int(learning.hand_colorList[learning.hand_colorR][0])
-                    green = int(learning.hand_colorList[learning.hand_colorR][1])
-                    blue = int(learning.hand_colorList[learning.hand_colorR][2])
-                    s_color = Color(green, red, blue)
-                    ledstrip.strip.setPixelColor(note_position, s_color)
-                    ledstrip.set_adjacent_colors(note_position, s_color, False)
-            elif find_between(str(msg), "channel=", " ") == "11":
-                if ledsettings.skipped_notes != "Finger-based":
-                    red = int(learning.hand_colorList[learning.hand_colorL][0])
-                    green = int(learning.hand_colorList[learning.hand_colorL][1])
-                    blue = int(learning.hand_colorList[learning.hand_colorL][2])
+                    if channel == "12":
+                        hand_color = learning.hand_colorR
+                    else:
+                        hand_color = learning.hand_colorL
+
+                    red, green, blue = map(int, learning.hand_colorList[hand_color])
                     s_color = Color(green, red, blue)
                     ledstrip.strip.setPixelColor(note_position, s_color)
                     ledstrip.set_adjacent_colors(note_position, s_color, False)
             else:
                 if ledsettings.skipped_notes != "Normal":
                     s_color = Color(int(int(green) / float(brightness)), int(int(red) / float(brightness)),
-                                   int(int(blue) / float(brightness)))
+                                    int(int(blue) / float(brightness)))
                     ledstrip.strip.setPixelColor(note_position, s_color)
                     ledstrip.set_adjacent_colors(note_position, s_color, False)
             if saving.isrecording:
