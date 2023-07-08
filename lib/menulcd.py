@@ -306,6 +306,18 @@ class MenuLCD:
         self.usersettings.change_setting_value("screen_on", 1)
 
     def show(self, position="default", back_pointer_location=False):
+
+        def draw_pointer(self):
+            self.draw.rectangle(
+                [
+                    (0, text_margin_top),
+                    (self.LCD.width, text_margin_top + self.scale(11))
+                ],
+                fill="Crimson"
+            )
+            self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
+            self.current_choice = sid
+
         if self.screen_on == 0:
             return False
 
@@ -376,25 +388,27 @@ class MenuLCD:
                         self.parent_menu = staff.parentNode.tagName
                     except:
                         self.parent_menu = "end"
-                    self.draw.rectangle(
-                        [
-                            (0, text_margin_top),
-                            (self.LCD.width, text_margin_top + self.scale(11))
-                        ],
-                        fill="Crimson"
-                    )
-                    self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
-                    self.current_choice = sid
+                    draw_pointer(self)
+                    # self.draw.rectangle(
+                    #     [
+                    #         (0, text_margin_top),
+                    #         (self.LCD.width, text_margin_top + self.scale(11))
+                    #     ],
+                    #     fill="Crimson"
+                    # )
+                    # self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
+                    # self.current_choice = sid
             else:
                 if sid == back_pointer_location:
                     try:
                         self.parent_menu = staff.parentNode.tagName
                     except:
                         self.parent_menu = "data"
-                    self.draw.rectangle([(0, text_margin_top), (self.LCD.width, text_margin_top + self.scale(11))],
-                                        fill="Crimson")
-                    self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
-                    self.current_choice = sid
+                    draw_pointer(self)
+                    # self.draw.rectangle([(0, text_margin_top), (self.LCD.width, text_margin_top + self.scale(11))],
+                    #                     fill="Crimson")
+                    # self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
+                    # self.current_choice = sid
                     self.pointer_position = i
             # drawing little arrow to show there are more items below
             if i == 10 and self.pointer_position < list_count and list_count > 10:
