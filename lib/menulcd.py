@@ -1185,23 +1185,20 @@ class MenuLCD:
                                                    led_setting[self.current_choice.lower()])
 
         # Learn MIDI
-        if self.currentlocation == "Learn_MIDI":
-            if self.current_choice == "Practice":
-                self.learning.change_practice(value)
-            if self.current_choice == "Hands":
-                self.learning.change_hands(value)
-            if self.current_choice == "Mute hand":
-                self.learning.change_mute_hand(value)
-            if self.current_choice == "Start point":
-                self.learning.change_start_point(value)
-            if self.current_choice == "End point":
-                self.learning.change_end_point(value)
-            if self.current_choice == "Set tempo":
-                self.learning.change_set_tempo(value)
-            if self.current_choice == "Hand color R":
-                self.learning.change_hand_color(value, 'RIGHT')
-            if self.current_choice == "Hand color L":
-                self.learning.change_hand_color(value, 'LEFT')
+        learning_operations = {
+            "Practice": self.learning.change_practice,
+            "Hands": self.learning.change_hands,
+            "Mute hand": self.learning.change_mute_hand,
+            "Start point": self.learning.change_start_point,
+            "End point": self.learning.change_end_point,
+            "Set tempo": self.learning.change_set_tempo,
+            "Hand color R": lambda value: self.learning.change_hand_color(value, 'RIGHT'),
+            "Hand color L": lambda value: self.learning.change_hand_color(value, 'LEFT')
+        }
+
+        if self.currentlocation == "Learn_MIDI" and self.current_choice in learning_operations:
+            learning_operation = learning_operations[self.current_choice]
+            learning_operation(value)
 
         self.show()
 
