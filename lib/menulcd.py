@@ -1152,23 +1152,21 @@ class MenuLCD:
                 self.led_animation_delay = 0
             self.usersettings.change_setting_value("led_animation_delay", self.led_animation_delay)
 
-        if self.currentlocation == "Color_for_slow_speed":
-            self.ledsettings.speed_slowest[self.current_choice.lower()] += value * self.speed_multiplier
-            if self.ledsettings.speed_slowest[self.current_choice.lower()] > 255:
-                self.ledsettings.speed_slowest[self.current_choice.lower()] = 255
-            if self.ledsettings.speed_slowest[self.current_choice.lower()] < 0:
-                self.ledsettings.speed_slowest[self.current_choice.lower()] = 0
-            self.usersettings.change_setting_value("speed_slowest_" + self.current_choice.lower(),
-                                                   self.ledsettings.speed_slowest[self.current_choice.lower()])
+        speed_colors_settings_map = {
+            "Color_for_slow_speed": "speed_slowest",
+            "Color_for_fast_speed": "speed_fastest"
+        }
 
-        if self.currentlocation == "Color_for_fast_speed":
-            self.ledsettings.speed_fastest[self.current_choice.lower()] += value * self.speed_multiplier
-            if self.ledsettings.speed_fastest[self.current_choice.lower()] > 255:
-                self.ledsettings.speed_fastest[self.current_choice.lower()] = 255
-            if self.ledsettings.speed_fastest[self.current_choice.lower()] < 0:
-                self.ledsettings.speed_fastest[self.current_choice.lower()] = 0
-            self.usersettings.change_setting_value("speed_fastest_" + self.current_choice.lower(),
-                                                   self.ledsettings.speed_fastest[self.current_choice.lower()])
+        color_setting_key = speed_colors_settings_map.get(self.currentlocation)
+        if color_setting_key is not None:
+            current_color_setting = self.ledsettings.__getattribute__(color_setting_key)
+            current_color_setting[self.current_choice.lower()] += value * self.speed_multiplier
+            if current_color_setting[self.current_choice.lower()] > 255:
+                current_color_setting[self.current_choice.lower()] = 255
+            if current_color_setting[self.current_choice.lower()] < 0:
+                current_color_setting[self.current_choice.lower()] = 0
+            self.usersettings.change_setting_value(color_setting_key + "_" + self.current_choice.lower(),
+                                                   current_color_setting[self.current_choice.lower()])
 
         if self.currentlocation == "Period":
             self.ledsettings.speed_period_in_seconds = round(self.ledsettings.speed_period_in_seconds + (value * .1) *
