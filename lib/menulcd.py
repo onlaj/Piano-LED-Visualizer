@@ -705,8 +705,10 @@ class MenuLCD:
         self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
         LCD_Config.Driver_Delay_ms(delay)
 
-    def render_screensaver(self, hour, date, cpu, cpu_average, ram, temp, cpu_history=[], upload=0, download=0,
+    def render_screensaver(self, hour, date, cpu, cpu_average, ram, temp, cpu_history=None, upload=0, download=0,
                            card_space=0, local_ip="0.0.0.0"):
+        if cpu_history is None:
+            cpu_history = []
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
 
