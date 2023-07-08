@@ -1152,22 +1152,6 @@ class MenuLCD:
                 self.led_animation_delay = 0
             self.usersettings.change_setting_value("led_animation_delay", self.led_animation_delay)
 
-        speed_colors_settings_map = {
-            "Color_for_slow_speed": "speed_slowest",
-            "Color_for_fast_speed": "speed_fastest"
-        }
-
-        color_setting_key = speed_colors_settings_map.get(self.currentlocation)
-        if color_setting_key is not None:
-            current_color_setting = self.ledsettings.__getattribute__(color_setting_key)
-            current_color_setting[self.current_choice.lower()] += value * self.speed_multiplier
-            if current_color_setting[self.current_choice.lower()] > 255:
-                current_color_setting[self.current_choice.lower()] = 255
-            if current_color_setting[self.current_choice.lower()] < 0:
-                current_color_setting[self.current_choice.lower()] = 0
-            self.usersettings.change_setting_value(color_setting_key + "_" + self.current_choice.lower(),
-                                                   current_color_setting[self.current_choice.lower()])
-
         if self.currentlocation == "Period":
             self.ledsettings.speed_period_in_seconds = round(self.ledsettings.speed_period_in_seconds + (value * .1) *
                                                              self.speed_multiplier, 1)
@@ -1181,41 +1165,24 @@ class MenuLCD:
                 self.ledsettings.speed_max_notes = 2
             self.usersettings.change_setting_value("speed_max_notes", self.ledsettings.speed_max_notes)
 
-        if self.currentlocation == "Gradient_start":
-            self.ledsettings.gradient_start[self.current_choice.lower()] += value * self.speed_multiplier
-            if self.ledsettings.gradient_start[self.current_choice.lower()] > 255:
-                self.ledsettings.gradient_start[self.current_choice.lower()] = 255
-            if self.ledsettings.gradient_start[self.current_choice.lower()] < 0:
-                self.ledsettings.gradient_start[self.current_choice.lower()] = 0
-            self.usersettings.change_setting_value("gradient_start_" + self.current_choice.lower(),
-                                                   self.ledsettings.gradient_start[self.current_choice.lower()])
+        led_settings_map = {
+            "Color_for_slow_speed": self.ledsettings.speed_slowest,
+            "Color_for_fast_speed": self.ledsettings.speed_fastest,
+            "Gradient_start": self.ledsettings.gradient_start,
+            "Gradient_end": self.ledsettings.gradient_end,
+            "Color_in_scale": self.ledsettings.key_in_scale,
+            "Color_not_in_scale": self.ledsettings.key_not_in_scale
+        }
 
-        if self.currentlocation == "Gradient_end":
-            self.ledsettings.gradient_end[self.current_choice.lower()] += value * self.speed_multiplier
-            if self.ledsettings.gradient_end[self.current_choice.lower()] > 255:
-                self.ledsettings.gradient_end[self.current_choice.lower()] = 255
-            if self.ledsettings.gradient_end[self.current_choice.lower()] < 0:
-                self.ledsettings.gradient_end[self.current_choice.lower()] = 0
-            self.usersettings.change_setting_value("gradient_end_" + self.current_choice.lower(),
-                                                   self.ledsettings.gradient_end[self.current_choice.lower()])
-
-        if self.currentlocation == "Color_in_scale":
-            self.ledsettings.key_in_scale[self.current_choice.lower()] += value * self.speed_multiplier
-            if self.ledsettings.key_in_scale[self.current_choice.lower()] > 255:
-                self.ledsettings.key_in_scale[self.current_choice.lower()] = 255
-            if self.ledsettings.key_in_scale[self.current_choice.lower()] < 0:
-                self.ledsettings.key_in_scale[self.current_choice.lower()] = 0
-            self.usersettings.change_setting_value("key_in_scale_" + self.current_choice.lower(),
-                                                   self.ledsettings.key_in_scale[self.current_choice.lower()])
-
-        if self.currentlocation == "Color_not_in_scale":
-            self.ledsettings.key_not_in_scale[self.current_choice.lower()] += value * self.speed_multiplier
-            if self.ledsettings.key_not_in_scale[self.current_choice.lower()] > 255:
-                self.ledsettings.key_not_in_scale[self.current_choice.lower()] = 255
-            if self.ledsettings.key_not_in_scale[self.current_choice.lower()] < 0:
-                self.ledsettings.key_not_in_scale[self.current_choice.lower()] = 0
-            self.usersettings.change_setting_value("key_not_in_scale_" + self.current_choice.lower(),
-                                                   self.ledsettings.key_not_in_scale[self.current_choice.lower()])
+        if self.currentlocation in led_settings_map:
+            led_setting = led_settings_map[self.currentlocation]
+            led_setting[self.current_choice.lower()] += value * self.speed_multiplier
+            if led_setting[self.current_choice.lower()] > 255:
+                led_setting[self.current_choice.lower()] = 255
+            if led_setting[self.current_choice.lower()] < 0:
+                led_setting[self.current_choice.lower()] = 0
+            self.usersettings.change_setting_value(self.currentlocation.lower() + "_" + self.current_choice.lower(),
+                                                   led_setting[self.current_choice.lower()])
 
         # Learn MIDI
         if self.currentlocation == "Learn_MIDI":
