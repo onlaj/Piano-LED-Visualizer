@@ -14,6 +14,7 @@ import RPi.GPIO as GPIO
 
 class MenuLCD:
     def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports):
+        self.t = None
         self.usersettings = usersettings
         self.ledsettings = ledsettings
         self.ledstrip = ledstrip
@@ -931,36 +932,28 @@ class MenuLCD:
             self.t = threading.Thread(target=chords, args=(chord, self.ledstrip, self.ledsettings, self))
             self.t.start()
 
-        if location == "Breathing":
-            if choice == "Fast":
-                self.t = threading.Thread(target=breathing, args=(self.ledstrip, self.ledsettings, self, 5))
-                self.t.start()
-            if choice == "Medium":
-                self.t = threading.Thread(target=breathing, args=(self.ledstrip, self.ledsettings, self, 10))
-                self.t.start()
-            if choice == "Slow":
-                self.t = threading.Thread(target=breathing, args=(self.ledstrip, self.ledsettings, self, 25))
-                self.t.start()
-        if location == "Rainbow":
-            if choice == "Fast":
-                self.t = threading.Thread(target=rainbow, args=(self.ledstrip, self.ledsettings, self, 2))
-                self.t.start()
-            if choice == "Medium":
-                self.t = threading.Thread(target=rainbow, args=(self.ledstrip, self.ledsettings, self, 20))
-                self.t.start()
-            if choice == "Slow":
-                self.t = threading.Thread(target=rainbow, args=(self.ledstrip, self.ledsettings, self, 50))
-                self.t.start()
-        if location == "Rainbow_Cycle":
-            if choice == "Fast":
-                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip, self.ledsettings, self, 1))
-                self.t.start()
-            if choice == "Medium":
-                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip, self.ledsettings, self, 20))
-                self.t.start()
-            if choice == "Slow":
-                self.t = threading.Thread(target=rainbowCycle, args=(self.ledstrip, self.ledsettings, self, 50))
-                self.t.start()
+        duration_map = {
+            "Rainbow": {
+                "Fast": 2,
+                "Medium": 20,
+                "Slow": 50
+            },
+            "Rainbow_Cycle": {
+                "Fast": 1,
+                "Medium": 20,
+                "Slow": 50
+            },
+            "Breathing": {
+                "Fast": 5,
+                "Medium": 10,
+                "Slow": 25
+            }
+        }
+
+        if location in duration_map and choice in duration_map[location]:
+            self.t = threading.Thread(target=rainbow,
+                                      args=(self.ledstrip, self.ledsettings, self, duration_map[location][choice]))
+            self.t.start()
 
         if location == "LED_animations":
             if choice == "Stop animation":
