@@ -851,35 +851,29 @@ class MenuLCD:
             self.ledsettings.color_mode = "Single"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
 
-        if location == "Fading":
-            self.ledsettings.mode = "Fading"
-            self.usersettings.change_setting_value("mode", self.ledsettings.mode)
-            if choice == "Very fast":
-                self.ledsettings.fadingspeed = 50
-            elif choice == "Fast":
-                self.ledsettings.fadingspeed = 40
-            elif choice == "Medium":
-                self.ledsettings.fadingspeed = 20
-            elif choice == "Slow":
-                self.ledsettings.fadingspeed = 10
-            elif choice == "Very slow":
-                self.ledsettings.fadingspeed = 2
-            elif choice == "Instant":
-                self.ledsettings.fadingspeed = 1000
-            self.usersettings.change_setting_value("fadingspeed", self.ledsettings.fadingspeed)
+        mode_mapping = {
+            "Fading": {
+                "Very fast": 50,
+                "Fast": 40,
+                "Medium": 20,
+                "Slow": 10,
+                "Very slow": 2,
+                "Instant": 1000
+            },
+            "Velocity": {
+                "Fast": 10,
+                "Medium": 8,
+                "Slow": 6,
+                "Very slow": 3
+            }
+        }
 
-        if location == "Velocity":
-            self.ledsettings.mode = "Velocity"
+        if location in mode_mapping:
+            self.ledsettings.mode = location
             self.usersettings.change_setting_value("mode", self.ledsettings.mode)
-            if choice == "Fast":
-                self.ledsettings.fadingspeed = 10
-            elif choice == "Medium":
-                self.ledsettings.fadingspeed = 8
-            elif choice == "Slow":
-                self.ledsettings.fadingspeed = 6
-            elif choice == "Very slow":
-                self.ledsettings.fadingspeed = 3
-            self.usersettings.change_setting_value("fadingspeed", self.ledsettings.fadingspeed)
+            if choice in mode_mapping[location]:
+                self.ledsettings.fadingspeed = mode_mapping[location][choice]
+                self.usersettings.change_setting_value("fadingspeed", self.ledsettings.fadingspeed)
 
         if location == "Light_mode":
             if choice == "Disabled":
@@ -1017,7 +1011,6 @@ class MenuLCD:
         if location == "Scale_Coloring" and choice == "Confirm":
             self.ledsettings.color_mode = "Scale"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
-            print("color mode set to Scale")
 
         if location == "Scale_key":
             self.ledsettings.scale_key = self.ledsettings.scales.index(choice)
