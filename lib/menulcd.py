@@ -149,33 +149,24 @@ class MenuLCD:
         return ret
 
     def update_ports(self):
-        ports = mido.get_input_names()
-        ports = list(dict.fromkeys(ports))
+        ports = list(dict.fromkeys(mido.get_input_names()))
         self.update_sequence_list()
-        # Replace Input and Playback with empty elements
-        element = self.DOMTree.createElement("Ports_Settings")
-        element.appendChild(self.DOMTree.createTextNode(""))
-        element.setAttribute("text", "Input")
-        mc = self.DOMTree.getElementsByTagName("Ports_Settings")[0]
-        mc.parentNode.replaceChild(element, mc)
-        element = self.DOMTree.createElement("Ports_Settings")
-        element.appendChild(self.DOMTree.createTextNode(""))
-        element.setAttribute("text", "Playback")
-        mc = self.DOMTree.getElementsByTagName("Ports_Settings")[1]
-        mc.parentNode.replaceChild(element, mc)
+
+        port_texts = ["Input", "Playback"]
+        for index, port_text in enumerate(port_texts):
+            element = self.DOMTree.createElement("Ports_Settings")
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text", port_text)
+            mc = self.DOMTree.getElementsByTagName("Ports_Settings")[index]
+            mc.parentNode.replaceChild(element, mc)
 
         for port in ports:
-            element = self.DOMTree.createElement("Input")
-            element.appendChild(self.DOMTree.createTextNode(""))
-            element.setAttribute("text", port)
-            mc = self.DOMTree.getElementsByTagName("Ports_Settings")[0]
-            mc.appendChild(element)
-
-            element = self.DOMTree.createElement("Playback")
-            element.appendChild(self.DOMTree.createTextNode(""))
-            element.setAttribute("text", port)
-            mc = self.DOMTree.getElementsByTagName("Ports_Settings")[1]
-            mc.appendChild(element)
+            for index, port_text in enumerate(port_texts):
+                element = self.DOMTree.createElement(port_text)
+                element.appendChild(self.DOMTree.createTextNode(""))
+                element.setAttribute("text", port)
+                mc = self.DOMTree.getElementsByTagName("Ports_Settings")[index]
+                mc.appendChild(element)
 
     def update_led_note_offsets(self):
         note_offsets = self.ledsettings.note_offsets
