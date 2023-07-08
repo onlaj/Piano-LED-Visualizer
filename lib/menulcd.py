@@ -22,16 +22,16 @@ class MenuLCD:
         self.saving = saving
         self.midiports = midiports
         self.args = args
-        fontdir = "/usr/share/fonts/truetype/freefont"
-        if args.fontdir != None:
-            fontdir = args.fontdir
-        self.lcd_ttf = fontdir + "/FreeSansBold.ttf"
+        font_dir = "/usr/share/fonts/truetype/freefont"
+        if args.fontdir is not None:
+            font_dir = args.fontdir
+        self.lcd_ttf = font_dir + "/FreeSansBold.ttf"
         if not os.path.exists(self.lcd_ttf):
             raise RuntimeError("Cannot locate font file: %s" % self.lcd_ttf)
 
         if args.display == '1in3':
             self.LCD = LCD_1in3.LCD()
-            self.font = ImageFont.truetype(fontdir + '/FreeMonoBold.ttf', self.scale(10))
+            self.font = ImageFont.truetype(font_dir + '/FreeMonoBold.ttf', self.scale(10))
             self.image = Image.open('webinterface/static/logo240_240.bmp')
         else:
             self.LCD = LCD_1in44.LCD()
@@ -182,8 +182,7 @@ class MenuLCD:
         element.setAttribute("text", "Add Note Offset")
         mc_note_offsets.appendChild(element)
         i = 0
-        for note_offset in note_offsets:
-            i += 1
+        for i, note_offset in enumerate(note_offsets):
             element = self.DOMTree.createElement("LED_Note_Offsets")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", "Offset%s" % i)
