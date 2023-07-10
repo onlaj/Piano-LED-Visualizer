@@ -307,7 +307,7 @@ class MenuLCD:
         self.screen_on = 1
         self.usersettings.change_setting_value("screen_on", 1)
 
-    def show(self, position="default", back_pointer_location=False):
+    def show(self, position="default", back_pointer_location=None):
 
         def draw_pointer():
             self.draw.rectangle(
