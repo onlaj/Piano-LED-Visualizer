@@ -14,6 +14,8 @@ import RPi.GPIO as GPIO
 
 class MenuLCD:
     def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports):
+        self.parent_menu = None
+        self.current_choice = None
         self.draw = None
         self.t = None
         self.usersettings = usersettings
@@ -307,7 +309,7 @@ class MenuLCD:
 
     def show(self, position="default", back_pointer_location=False):
 
-        def draw_pointer(self):
+        def draw_pointer():
             self.draw.rectangle(
                 [
                     (0, text_margin_top),
@@ -388,27 +390,14 @@ class MenuLCD:
                         self.parent_menu = staff.parentNode.tagName
                     except:
                         self.parent_menu = "end"
-                    draw_pointer(self)
-                    # self.draw.rectangle(
-                    #     [
-                    #         (0, text_margin_top),
-                    #         (self.LCD.width, text_margin_top + self.scale(11))
-                    #     ],
-                    #     fill="Crimson"
-                    # )
-                    # self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
-                    # self.current_choice = sid
+                    draw_pointer()
             else:
                 if sid == back_pointer_location:
                     try:
                         self.parent_menu = staff.parentNode.tagName
                     except:
                         self.parent_menu = "data"
-                    draw_pointer(self)
-                    # self.draw.rectangle([(0, text_margin_top), (self.LCD.width, text_margin_top + self.scale(11))],
-                    #                     fill="Crimson")
-                    # self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
-                    # self.current_choice = sid
+                    draw_pointer()
                     self.pointer_position = i
             # drawing little arrow to show there are more items below
             if i == 10 and self.pointer_position < list_count and list_count > 10:
