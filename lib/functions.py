@@ -354,6 +354,7 @@ def calculate_brightness(ledsettings):
 
     return brightness
 
+
 def theaterChase(ledstrip, ledsettings, menu, wait_ms=25):
     """Movie theater light style chaser animation."""
     menu.screensaver_is_running = False
@@ -596,9 +597,9 @@ def sound_of_da_police(ledstrip, ledsettings, menu, wait_ms=5):
 
         for i in range(strip.numPixels()):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                if (i > middle) and i > r_start and i < (r_start + 40):
+                if (i > middle) and r_start < i < (r_start + 40):
                     strip.setPixelColor(i, Color(0, int(255 * brightness), 0))
-                elif (i < middle) and i < l_start and i > (l_start - 40):
+                elif (i < middle) and l_start > i > (l_start - 40):
                     strip.setPixelColor(i, Color(0, 0, int(255 * brightness)))
                 else:
                     strip.setPixelColor(i, Color(0, 0, 0))
@@ -641,7 +642,7 @@ def scanner(ledstrip, ledsettings, menu, wait_ms=1):
 
         position += direction
         for i in range(strip.numPixels()):
-            if i > (position - scanner_length) and i < (position + scanner_length):
+            if (position - scanner_length) < i < (position + scanner_length):
                 distance_from_position = position - i
                 if distance_from_position < 0:
                     distance_from_position *= -1
@@ -677,7 +678,6 @@ def chords(scale, ledstrip, ledsettings, menu):
         return
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
-    j = 0
     menu.screensaver_is_running = True
     while menu.screensaver_is_running:
         last_state = 1
