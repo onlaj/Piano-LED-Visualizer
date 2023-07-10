@@ -23,7 +23,7 @@ def get_ip_address():
 def find_between(s, start, end):
     try:
         return (s.split(start))[1].split(end)[0]
-    except:
+    except IndexError:
         return False
 
 
@@ -31,8 +31,8 @@ def clamp(val, val_min, val_max):
     return max(val_min, min(val, val_max))
 
 
-def shift(l, n):
-    return l[n:] + l[:n]
+def shift(lst, num_shifts):
+    return lst[num_shifts:] + lst[:num_shifts]
 
 
 def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
@@ -82,8 +82,11 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
         print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, total_delay))
         # print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, length))
         # saving.is_playing_midi = False
-    except:
-        menu.render_message(song_path, "Can't play this file", 2000)
+    except FileNotFoundError:
+        menu.render_message(song_path, "File not found", 2000)
+    except Exception as e:
+        menu.render_message(song_path, "Error while playing song "+str(e), 2000)
+        print(e)
     saving.is_playing_midi.clear()
 
 
@@ -111,8 +114,9 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
 
     try:
         midiports.inport.poll()
-    except:
-        pass
+    except Exception as e:
+        menu.render_message("Error while getting ports " + str(e), 2000)
+        print("Error while getting ports " + str(e))
     while True:
         if (time.time() - saving.start_time) > 3600 and delay < 0.5 and menu.screensaver_is_running is False:
             delay = 0.9
@@ -703,7 +707,8 @@ def chords(scale, ledstrip, ledsettings, menu):
             leds_to_update.remove(note_position)
 
             if check_if_led_can_be_overwrite(note_position, ledstrip, ledsettings):
-                strip.setPixelColor(note_position, Color(int(c[1] * brightness), int(c[0] * brightness), int(c[2] * brightness)))
+                strip.setPixelColor(note_position,
+                                    Color(int(c[1] * brightness), int(c[0] * brightness), int(c[2] * brightness)))
 
         for i in leds_to_update:
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
