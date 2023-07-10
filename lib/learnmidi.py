@@ -22,6 +22,7 @@ def find_nearest(array, target):
 
 class LearnMIDI:
     def __init__(self, usersettings, ledsettings, midiports, ledstrip):
+        self.menu = None
         self.usersettings = usersettings
         self.ledsettings = ledsettings
         self.midiports = midiports
@@ -138,7 +139,7 @@ class LearnMIDI:
 
 
     def load_midi(self, song_path):
-        while self.loading < 4 and self.loading > 0:
+        while 4 > self.loading > 0:
             time.sleep(1)
 
         if song_path in self.is_loaded_midi.keys():
@@ -209,9 +210,9 @@ class LearnMIDI:
         if self.loading == 0:
             self.menu.render_message("Load song to start", "", 1500)
             return
-        elif self.loading > 0 and self.loading < 4:
+        elif 0 < self.loading < 4:
             self.is_started_midi = True  # Prevent restarting the Thread
-            while self.loading > 0 and self.loading < 4:
+            while 0 < self.loading < 4:
                 time.sleep(0.1)
         if self.loading == 4:
             self.is_started_midi = True  # Prevent restarting the Thread

@@ -79,15 +79,14 @@ class LedStrip:
         self.usersettings.change_setting_value("reverse", self.reverse)
 
     def set_adjacent_colors(self, note, color, led_turn_off, fading=1):
-        if self.ledsettings.adjacent_mode == "RGB" and color != 0 and led_turn_off != True:
+        if self.ledsettings.adjacent_mode == "RGB" and color != 0 and led_turn_off is not True:
             color = Color(int(self.ledsettings.adjacent_green * fading), int(self.ledsettings.adjacent_red * fading),
                           int(self.ledsettings.adjacent_blue * fading))
         if self.ledsettings.adjacent_mode != "Off":
 
-            if note > 1 and note < (self.led_number - 2):
+            if 1 < note < (self.led_number - 2):
                 if self.keylist_status[int(note) + 2] == 0:
                     self.strip.setPixelColor(int(note) + 1, color)
 
                 if self.keylist_status[int(note) - 2] == 0:
                     self.strip.setPixelColor(int(note) - 1, color)
-
