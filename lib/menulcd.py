@@ -428,11 +428,11 @@ class MenuLCD:
 
             # scrolling text if too long
             if self.pointer_position == i and len(sid) > 18:
-                tobecontinued = ".."
+                to_be_continued = ".."
                 if refresh == 1:
                     try:
                         self.cut_count += 1
-                    except:
+                    except AttributeError:
                         self.cut_count = -6
                 else:
                     cut = 0
@@ -442,18 +442,16 @@ class MenuLCD:
                     if self.scroll_hold < 8:
                         self.cut_count -= 1
                         self.scroll_hold += 1
-                        tobecontinued = ""
+                        to_be_continued = ""
                     else:
                         self.cut_count = -6
                         self.scroll_hold = 0
                     cut = self.cut_count
-                if self.cut_count >= 0:
-                    cut = self.cut_count
                 else:
-                    cut = 0
+                    cut = self.cut_count if self.cut_count >= 0 else 0
             else:
                 cut = 0
-                tobecontinued = ""
+                to_be_continued = ""
 
             i += 1
 
@@ -466,7 +464,7 @@ class MenuLCD:
                 else:
                     sid_temp = " -"
                 sid = sid + sid_temp
-            self.draw.text((self.scale(10), text_margin_top), sid[cut:(18 + cut)] + tobecontinued, fill=self.text_color,
+            self.draw.text((self.scale(10), text_margin_top), sid[cut:(18 + cut)] + to_be_continued, fill=self.text_color,
                            font=self.font)
 
             text_margin_top += self.scale(10)
