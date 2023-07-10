@@ -464,7 +464,8 @@ class MenuLCD:
                 else:
                     sid_temp = " -"
                 sid = sid + sid_temp
-            self.draw.text((self.scale(10), text_margin_top), sid[cut:(18 + cut)] + to_be_continued, fill=self.text_color,
+            self.draw.text((self.scale(10), text_margin_top), sid[cut:(18 + cut)] + to_be_continued,
+                           fill=self.text_color,
                            font=self.font)
 
             text_margin_top += self.scale(10)

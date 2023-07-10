@@ -1312,7 +1312,7 @@ def get_recording_status():
     response["input_port"] = webinterface.usersettings.get_setting_value("input_port")
     response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
 
-    response["isrecording"] = webinterface.saving.isrecording
+    response["isrecording"] = webinterface.saving.is_recording
 
     response["isplaying"] = webinterface.saving.is_playing_midi
 
