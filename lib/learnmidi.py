@@ -111,7 +111,6 @@ class LearnMIDI:
             self.hand_colorL = clamp(self.hand_colorL, 0, len(self.hand_colorList) - 1)
             self.usersettings.change_setting_value("hand_colorL", self.hand_colorL)
 
-
     # Get midi song tempo
     def get_tempo(self, mid):
         for msg in mid:  # Search for tempo
@@ -136,7 +135,6 @@ class LearnMIDI:
                 return False
         except Exception as e:
             print(e)
-
 
     def load_midi(self, song_path):
         while 4 > self.loading > 0:
@@ -192,7 +190,7 @@ class LearnMIDI:
             # Save to cache
             with open('Songs/cache/' + song_path + '.p', 'wb') as handle:
                 cache = {'song_tempo': self.song_tempo, 'ticks_per_beat': self.ticks_per_beat,
-                         'notes_time': self.notes_time, 'song_tracks': self.song_tracks,}
+                         'notes_time': self.notes_time, 'song_tracks': self.song_tracks, }
                 pickle.dump(cache, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
             self.loading = 4  # 4 = Done
@@ -200,7 +198,6 @@ class LearnMIDI:
             print(e)
             self.loading = 5  # 5 = Error!
             self.is_loaded_midi.clear()
-
 
     def learn_midi(self):
         loops_count = 0
@@ -314,16 +311,16 @@ class LearnMIDI:
             except Exception as e:
                 self.is_started_midi = False
 
-            if not self.is_loop_active or self.is_started_midi == False:
+            if not self.is_loop_active or self.is_started_midi is False:
                 keep_looping = False
 
     def convert_midi_to_abc(self, midi_file):
         if not os.path.isfile('Songs/' + midi_file.replace(".mid", ".abc")):
-            #subprocess.call(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
+            # subprocess.call(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
             try:
                 subprocess.check_output(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
             except Exception as e:
-                #check if e contains the string 'No such file or directory'
+                # check if e contains the string 'No such file or directory'
                 if 'No such file or directory' in str(e):
                     print("Midiabc not found, installing...")
                     self.install_midi2abc()
@@ -334,4 +331,3 @@ class LearnMIDI:
     def install_midi2abc(self):
         print("Installing abcmidi")
         subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
-
