@@ -7,27 +7,40 @@
 
 [![Everything Is AWESOME](https://i.imgur.com/xpfZ0Z6.png)](https://www.youtube.com/watch?v=IZgYViHcXdM "Piano LED Visualizer")
 
+The Piano LED Visualizer is a project that enables you to connect an LED strip to your Raspberry Pi and enhance your piano playing with captivating visual effects. This repository provides detailed instructions on how to set up the LED strip, connect it to a digital piano, and synchronize the lighting with your playing. Additionally, it offers integration with external software such as Synthesia for an enhanced learning experience.
 # Features
+
+- Acts as a sound visualizer, enhancing the appeal of piano playing.
+- Provides visual guidance for learning piano by lighting up the corresponding LED above the next key to play.
+- Receives MIDI messages from the piano or external software like Synthesia for synchronized lighting effects.
+- Offers customizable LED settings such as colors and brightness.
+- Allows recording and playback of songs.
+- Supports loading MIDI files to illuminate the next-to-play keys.
+- Enables the creation of "sequences" for switching between different LED settings during performances.
+- Provides a web interface for easy configuration and control of LED settings.
+- Optional hat extension available, featuring dedicated keys and a screen for enhanced control.
+- Includes pre-designed light animations for ambient visual effects.
+
 [Detailed feature showcase with images](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/features.md)
 
 # What you need:
 
   - Piano with MIDI or USB output
-  - MIDI to USB interface (if your piano doesn't have USB output) ~~[Amazon US](https://amzn.to/2xZUipg) | [Aliexpress](http://s.click.aliexpress.com/e/b9mjFaIy)~~ (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use iConnectivity mio [Amazon US](https://amzn.to/2nhsYBl) )
-  - Raspberry Pi Zero WH [Amazon US](https://amzn.to/2TPz3CQ) | [Aliexpress](https://s.click.aliexpress.com/e/_dXc8jGl) | [Aliexpress #2](http://s.click.aliexpress.com/e/3r32Dass)
-  - MicroSD card (16 GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Aliexpress](https://s.click.aliexpress.com/e/_DeWQsB1)
-  - USB OTG [Amazon US](https://amzn.to/3yVpdmV) | [Aliexpress](https://s.click.aliexpress.com/e/_DDV6z6T)
+  - MIDI to USB interface (if your piano doesn't have USB output) [Amazon US](https://amzn.to/2nhsYBl) | [Aliexpress](https://s.click.aliexpress.com/e/_DBobxwH) (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use iConnectivity mio 
+  - Raspberry Pi Zero WH [Amazon US](https://amzn.to/3D9hMdc) | [Aliexpress](https://s.click.aliexpress.com/e/_dXc8jGl) | [Aliexpress #2](https://s.click.aliexpress.com/e/_DmR3jvb)
+  - MicroSD card (16 GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Aliexpress](https://s.click.aliexpress.com/e/_DdNW6lB)
+  - USB OTG [Amazon US](https://amzn.to/3yVpdmV) | [Aliexpress](https://s.click.aliexpress.com/e/_DBrYA2p)
   - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Aliexpress](https://s.click.aliexpress.com/e/_DEEkJyR)
   - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/3O5zAJc) | [Aliexpress](https://s.click.aliexpress.com/e/_Dn5Mt0n)
-  - DC 5.5x2.5mm socket with quick connection [Amazon US](https://amzn.to/2YizYOC) | [Aliexpress](http://s.click.aliexpress.com/e/T8YSkbq)
+  - DC 5.5x2.5mm socket with quick connection [Amazon US](https://amzn.to/3NJcTfP) | [Aliexpress](http://s.click.aliexpress.com/e/T8YSkbq)
   - Some wires [Amazon US](https://amzn.to/3ky6k2G) | [Aliexpress](https://s.click.aliexpress.com/e/_AKKvPu)
 
 **Not required but worth having, to make everything look neat:**
 
-  - Custom 3d printed case (*I attached STL file with modified 3d model, there is additional space and holes for power socket and wires, [here](https://www.thingiverse.com/thing:3393553) is original model*) 
+  - Custom 3d printed case (*I attached [STL file](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/RPICaseModel.stl) with modified 3d model, there is additional space and holes for power socket and wires, [here](https://www.thingiverse.com/thing:3393553) is original model*). Optionally you can use models without a holes for screen, hdmi and sd port, provided by [fermaton](https://github.com/fermaton)
   - Waveshare LCD TFT 1,44'' 128x128px [Amazon US](https://amzn.to/2YkW5nC) | [Aliexpress](http://s.click.aliexpress.com/e/cpk00blQ)
-  - Braid for cables [Amazon US](https://amzn.to/2yd2Fhz) | [Aliexpress](http://s.click.aliexpress.com/e/cG7ur6Di)
-  - Heat shrink bands [Amazon US](https://amzn.to/2SsSYok) | [Aliexpress](http://s.click.aliexpress.com/e/UwKVLo8)
+  - Braid for cables [Amazon US](https://amzn.to/3rmCrYF) | [Aliexpress](http://s.click.aliexpress.com/e/cG7ur6Di)
+  - Heat shrink bands [Amazon US](https://amzn.to/3NPO3uy) | [Aliexpress](http://s.click.aliexpress.com/e/UwKVLo8)
   - Aluminium LED Profile with diffuser (*highly recommend to search for the right one in local shops*) [pic#1](https://i.imgur.com/MF7dd1R.png) [pic#2](https://i.imgur.com/fFWOs3v.png) 
   Alternative made of silica gel: [Aliexpress](https://s.click.aliexpress.com/e/_A0HNfF)  *(choose T0515 for 12mm 2 meters, credits to [vzoltan](https://github.com/vzoltan) for finding this)*
   - Double side tape to stick everything on the piano
