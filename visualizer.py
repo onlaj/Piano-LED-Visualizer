@@ -1,4 +1,5 @@
 import webcolors as wc
+import colorsys
 import sys
 import os
 import fcntl
@@ -245,6 +246,14 @@ while True:
                         ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
                         ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
 
+                if ledsettings.color_mode == "VelocityRainbow":
+                    try:
+                        red = ledstrip.keylist_color[n][0]
+                        green = ledstrip.keylist_color[n][1]
+                        blue = ledstrip.keylist_color[n][2]
+                    except:
+                        pass
+
                 if ledsettings.color_mode == "Speed":
                     red, green, blue = calculate_speed_colors(ledsettings)
 
@@ -353,6 +362,13 @@ while True:
             blue = scale_colors[2]
             ledstrip.keylist_color[note_position] = scale_colors
 
+        if ledsettings.color_mode == "VelocityRainbow":
+            if (int(velocity) > 0):
+                x = int(((255 * powercurve(int(velocity)/127, ledsettings.velocityrainbow_curve/100)
+                    * (ledsettings.velocityrainbow_scale/100) % 256) + ledsettings.velocityrainbow_offset) % 256)
+                x2 = colorsys.hsv_to_rgb(x/255, 1, (int(velocity)/127)*0.3 + 0.7);
+                (red,green,blue) = map(lambda x: round(x*255), x2);
+
         if int(velocity) == 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is lifted (off)
             ledstrip.keylist_status[note_position] = 0
             if ledsettings.mode == "Fading":
@@ -380,6 +396,12 @@ while True:
                 red = chosen_color[0]
                 green = chosen_color[1]
                 blue = chosen_color[2]
+                ledstrip.keylist_color[note_position] = [red, green, blue]
+            if ledsettings.color_mode == "VelocityRainbow":
+                x = int(((255 * powercurve(int(velocity)/127, ledsettings.velocityrainbow_curve/100)
+                    * (ledsettings.velocityrainbow_scale/100) % 256) + ledsettings.velocityrainbow_offset) % 256)
+                x2 = colorsys.hsv_to_rgb(x/255, 1, (int(velocity)/127)*0.3 + 0.7);
+                (red,green,blue) = map(lambda x: round(x*255), x2);
                 ledstrip.keylist_color[note_position] = [red, green, blue]
 
             ledstrip.keylist_status[note_position] = 1
