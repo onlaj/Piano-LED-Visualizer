@@ -13,12 +13,34 @@ class UserSettings:
 
         self.pending_reset = False
 
+        self.default_tree = ET.parse("config/default_settings.xml")
+        self.default_root = self.default_tree.getroot()
+
     def get_setting_value(self, name):
-        value = self.root.find(name).text
-        return value
+        elem = self.root.find(name)
+        if elem is None:
+            elem = self.default_root.find(name)
+
+        if elem is None:
+            return None
+
+        return elem.text
 
     def change_setting_value(self, name, value):
-        self.root.find(str(name)).text = str(value)
+        elem = self.root.find(str(name))
+        if elem is None:
+            elem = ET.Element(str(name))
+            elem.text = str(value)
+            self.root.append(elem)
+            # Appended item will have no whitespace formatting
+
+            # ElementTree.indent only available in Python 3.9+
+            # This will reformat the whole file and remove extraneous line-breaks, so leaving commented out
+            #if "indent" in dir(ET):
+            #    ET.indent(self.root)
+        else:
+            elem.text = str(value)
+
         self.pending_changes = True
 
     def save_changes(self):
