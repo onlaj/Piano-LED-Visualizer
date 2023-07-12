@@ -37,7 +37,9 @@ Each setting can be changed from the web interface or RPi's screen.
 
 - ### **Velocity Rainbow**
 
-  Color is based on the speed at which a key is pressed.
+  Color is based on the speed at which a key is pressed.- 
+
+  [Credits to](https://github.com/onlaj/Piano-LED-Visualizer/pull/454) [@stephen322](https://github.com/stephen322)
 
   ![learnmidi_pic](https://imgur.com/b65QO45.jpg)
 
