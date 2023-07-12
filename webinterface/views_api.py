@@ -1238,6 +1238,9 @@ def get_sequence_setting():
     response["rainbow_scale"] = rainbow_scale
     response["rainbow_offset"] = rainbow_offset
     response["rainbow_timeshift"] = rainbow_timeshift
+    response["velocityrainbow_scale"] = velocityrainbow_scale
+    response["velocityrainbow_offset"] = velocityrainbow_offset
+    response["velocityrainbow_curve"] = velocityrainbow_curve
     return jsonify(response)
 
 
