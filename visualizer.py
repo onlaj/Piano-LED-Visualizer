@@ -135,7 +135,7 @@ def start_webserver():
     webinterface.jinja_env.auto_reload = True
     webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
     # webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
-    serve(webinterface, host='0.0.0.0', port=args.port)
+    serve(webinterface, host='0.0.0.0', port=args.port, threads=20)
 
 
 if args.webinterface != "false":
