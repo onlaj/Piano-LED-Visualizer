@@ -566,19 +566,38 @@ class MenuLCD:
                                 fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
 
         # displaying rainbow offset value
-        if self.current_choice == "Offset":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_offset), fill=self.text_color,
-                           font=self.font)
+        if "Rainbow_Colors" in self.currentlocation:
+            if self.current_choice == "Offset":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_offset), fill=self.text_color,
+                               font=self.font)
 
-        if self.current_choice == "Scale":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_scale) + "%",
-                           fill=self.text_color,
-                           font=self.font)
+            if self.current_choice == "Scale":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_scale) + "%",
+                               fill=self.text_color,
+                               font=self.font)
 
-        if self.current_choice == "Timeshift":
-            self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_timeshift),
-                           fill=self.text_color,
-                           font=self.font)
+            if self.current_choice == "Timeshift":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_timeshift),
+                               fill=self.text_color,
+                               font=self.font)
+
+
+        # displaying velocityrainbow offset value
+        if "Velocity_Rainbow" in self.currentlocation:
+            if self.current_choice == "Offset":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.velocityrainbow_offset),
+                               fill=self.text_color,
+                               font=self.font)
+
+            if self.current_choice == "Scale":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.velocityrainbow_scale) + "%",
+                               fill=self.text_color,
+                               font=self.font)
+
+            if self.current_choice == "Curve":
+                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.velocityrainbow_curve),
+                               fill=self.text_color,
+                               font=self.font)
 
         # displaying brightness value
         if self.currentlocation == "Brightness":
@@ -1176,12 +1195,21 @@ class MenuLCD:
             self.ledsettings.update_note_offset_lcd(self.current_choice, self.currentlocation,
                                                     value * self.speed_multiplier)
 
-        if self.current_choice == "Offset":
-            self.ledsettings.rainbow_offset = self.ledsettings.rainbow_offset + value * 5 * self.speed_multiplier
-        if self.current_choice == "Scale":
-            self.ledsettings.rainbow_scale = self.ledsettings.rainbow_scale + value * 5 * self.speed_multiplier
-        if self.current_choice == "Timeshift":
-            self.ledsettings.rainbow_timeshift = self.ledsettings.rainbow_timeshift + value * self.speed_multiplier
+        if "Rainbow_Colors" in self.currentlocation:
+            if self.current_choice == "Offset":
+                self.ledsettings.rainbow_offset = self.ledsettings.rainbow_offset + value * 5 * self.speed_multiplier
+            if self.current_choice == "Scale":
+                self.ledsettings.rainbow_scale = self.ledsettings.rainbow_scale + value * 5 * self.speed_multiplier
+            if self.current_choice == "Timeshift":
+                self.ledsettings.rainbow_timeshift = self.ledsettings.rainbow_timeshift + value * self.speed_multiplier
+
+        if "Velocity_Rainbow" in self.currentlocation:
+            if self.current_choice == "Offset":
+                self.ledsettings.velocityrainbow_offset = self.ledsettings.velocityrainbow_offset + value * 5 * self.speed_multiplier
+            if self.current_choice == "Scale":
+                self.ledsettings.velocityrainbow_scale = self.ledsettings.velocityrainbow_scale + value * 5 * self.speed_multiplier
+            if self.current_choice == "Curve":
+                self.ledsettings.velocityrainbow_curve = self.ledsettings.velocityrainbow_curve + value * self.speed_multiplier
 
         if self.currentlocation == "Start_delay":
             self.screensaver_delay = int(self.screensaver_delay) + (value * self.speed_multiplier)
