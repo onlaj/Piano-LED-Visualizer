@@ -2,7 +2,7 @@ Instruction is under
 
 > MIDI BLUETOOTH SETUP
 
-on [THIS PAGE](https://neuma.studio/rpi-midi-complete.html)
+on [THIS PAGE](https://web.archive.org/web/20221210063153/https://neuma.studio/rpi-midi-complete.html)
  
 If you have problems with connecting your PC to RPI try to add 
 
