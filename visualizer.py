@@ -363,11 +363,11 @@ while True:
             ledstrip.keylist_color[note_position] = scale_colors
 
         if ledsettings.color_mode == "VelocityRainbow":
-            if (int(velocity) > 0):
-                x = int(((255 * powercurve(int(velocity)/127, ledsettings.velocityrainbow_curve/100)
-                    * (ledsettings.velocityrainbow_scale/100) % 256) + ledsettings.velocityrainbow_offset) % 256)
-                x2 = colorsys.hsv_to_rgb(x/255, 1, (int(velocity)/127)*0.3 + 0.7);
-                (red,green,blue) = map(lambda x: round(x*255), x2);
+            if int(velocity) > 0:
+                x = int(((255 * powercurve(int(velocity) / 127, ledsettings.velocityrainbow_curve / 100)
+                          * (ledsettings.velocityrainbow_scale / 100) % 256) + ledsettings.velocityrainbow_offset) % 256)
+                x2 = colorsys.hsv_to_rgb(x / 255, 1, (int(velocity) / 127) * 0.3 + 0.7)
+                (red, green, blue) = map(lambda x: round(x * 255), x2)
 
         if int(velocity) == 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is lifted (off)
             ledstrip.keylist_status[note_position] = 0
@@ -398,10 +398,11 @@ while True:
                 blue = chosen_color[2]
                 ledstrip.keylist_color[note_position] = [red, green, blue]
             if ledsettings.color_mode == "VelocityRainbow":
-                x = int(((255 * powercurve(int(velocity)/127, ledsettings.velocityrainbow_curve/100)
-                    * (ledsettings.velocityrainbow_scale/100) % 256) + ledsettings.velocityrainbow_offset) % 256)
-                x2 = colorsys.hsv_to_rgb(x/255, 1, (int(velocity)/127)*0.3 + 0.7);
-                (red,green,blue) = map(lambda x: round(x*255), x2);
+                x = int(((255 * powercurve(int(velocity) / 127, ledsettings.velocityrainbow_curve / 100)
+                          * (
+                                      ledsettings.velocityrainbow_scale / 100) % 256) + ledsettings.velocityrainbow_offset) % 256)
+                x2 = colorsys.hsv_to_rgb(x / 255, 1, (int(velocity) / 127) * 0.3 + 0.7)
+                (red, green, blue) = map(lambda x: round(x * 255), x2)
                 ledstrip.keylist_color[note_position] = [red, green, blue]
 
             ledstrip.keylist_status[note_position] = 1
