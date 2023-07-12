@@ -37,7 +37,7 @@ Each setting can be changed from the web interface or RPi's screen.
 
 - ### **Velocity Rainbow**
 
-  Color depends is based on the speed at which a specific key is pressed.
+  Color is based on the speed at which a key is pressed.
 
   ![learnmidi_pic](https://imgur.com/b65QO45.jpg)
 
