@@ -363,6 +363,24 @@ def change_setting():
                                                        int(webinterface.ledsettings.rainbow_timeshift))
         return jsonify(success=True, reload_sequence=reload_sequence)
 
+    if setting_name == "velocityrainbow_offset":
+        webinterface.ledsettings.velocityrainbow_offset = int(value)
+        webinterface.usersettings.change_setting_value("velocityrainbow_offset",
+                                                       int(webinterface.ledsettings.velocityrainbow_offset))
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+    if setting_name == "velocityrainbow_scale":
+        webinterface.ledsettings.velocityrainbow_scale = int(value)
+        webinterface.usersettings.change_setting_value("velocityrainbow_scale",
+                                                       int(webinterface.ledsettings.velocityrainbow_scale))
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+    if setting_name == "velocityrainbow_curve":
+        webinterface.ledsettings.velocityrainbow_curve = int(value)
+        webinterface.usersettings.change_setting_value("velocityrainbow_curve",
+                                                       int(webinterface.ledsettings.velocityrainbow_curve))
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "speed_slowest_color":
         rgb = wc.hex_to_rgb("#" + value)
         webinterface.ledsettings.speed_slowest["red"] = rgb[0]
@@ -731,6 +749,20 @@ def change_setting():
             rainbow_timeshift.appendChild(
                 sequences_tree.createTextNode(str(webinterface.ledsettings.rainbow_timeshift)))
             step.appendChild(rainbow_timeshift)
+
+        # if color_mode is equal to "VelocityRainbow" load colors from webinterface.ledsettings and put it into step node
+        if (webinterface.ledsettings.color_mode == "VelocityRainbow"):
+            velocityrainbow_offset = sequences_tree.createElement("Offset")
+            velocityrainbow_offset.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.velocityrainbow_offset)))
+            step.appendChild(velocityrainbow_offset)
+
+            velocityrainbow_scale = sequences_tree.createElement("Scale")
+            velocityrainbow_scale.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.velocityrainbow_scale)))
+            step.appendChild(velocityrainbow_scale)
+
+            velocityrainbow_curve = sequences_tree.createElement("Curve")
+            velocityrainbow_curve.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.velocityrainbow_curve)))
+            step.appendChild(velocityrainbow_curve)
 
         # if color_mode is equal to "Speed" load colors from webinterface.ledsettings and put it into step node
         if webinterface.ledsettings.color_mode == "Speed":
@@ -1154,6 +1186,10 @@ def get_sequence_setting():
     rainbow_offset = webinterface.ledsettings.rainbow_offset
     rainbow_timeshift = webinterface.ledsettings.rainbow_timeshift
 
+    velocityrainbow_scale = webinterface.ledsettings.velocityrainbow_scale
+    velocityrainbow_offset = webinterface.ledsettings.velocityrainbow_offset
+    velocityrainbow_curve = webinterface.ledsettings.velocityrainbow_curve
+
     speed_slowest_red = webinterface.ledsettings.speed_slowest["red"]
     speed_slowest_green = webinterface.ledsettings.speed_slowest["green"]
     speed_slowest_blue = webinterface.ledsettings.speed_slowest["blue"]
@@ -1260,6 +1296,10 @@ def get_settings():
     response["rainbow_offset"] = webinterface.usersettings.get_setting_value("rainbow_offset")
     response["rainbow_scale"] = webinterface.usersettings.get_setting_value("rainbow_scale")
     response["rainbow_timeshift"] = webinterface.usersettings.get_setting_value("rainbow_timeshift")
+
+    response["velocityrainbow_offset"] = webinterface.usersettings.get_setting_value("velocityrainbow_offset")
+    response["velocityrainbow_scale"] = webinterface.usersettings.get_setting_value("velocityrainbow_scale")
+    response["velocityrainbow_curve"] = webinterface.usersettings.get_setting_value("velocityrainbow_curve")
 
     speed_slowest_red = webinterface.usersettings.get_setting_value("speed_slowest_red")
     speed_slowest_green = webinterface.usersettings.get_setting_value("speed_slowest_green")

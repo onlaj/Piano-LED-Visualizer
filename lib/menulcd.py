@@ -1012,6 +1012,10 @@ class MenuLCD:
             self.ledsettings.color_mode = "Rainbow"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
 
+        if location == "Velocity_Rainbow":
+            self.ledsettings.color_mode = "VelocityRainbow"
+            self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
+
         if location == "Cycle_colors":
             choice = 1 if choice == "Enable" else 0
             self.usersettings.change_setting_value("multicolor_iteration", choice)
