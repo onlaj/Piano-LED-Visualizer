@@ -16,9 +16,13 @@
 	<rainbow_scale>100</rainbow_scale>
 	<rainbow_timeshift>0</rainbow_timeshift>
 
+	<velocityrainbow_offset>210</velocityrainbow_offset>
+	<velocityrainbow_scale>120</velocityrainbow_scale>
+	<velocityrainbow_curve>0</velocityrainbow_curve>
+
 	<multicolor>[[255, 255, 255], [0, 0, 255], [0, 255, 0]]</multicolor>
 	<multicolor_range>[[20, 54], [54, 108], [35, 75]]</multicolor_range>
-	<multicolor_iteration>0</multicolor_iteration>
+    <multicolor_iteration>0</multicolor_iteration>
 
 	<sequence_active>False</sequence_active>
 
@@ -36,7 +40,7 @@
 	<speed_fastest_red>255</speed_fastest_red>
 	<speed_fastest_green>0</speed_fastest_green>
 	<speed_fastest_blue>0</speed_fastest_blue>
-	
+
 	<speed_max_notes>18</speed_max_notes>
 	<speed_period_in_seconds>0.8</speed_period_in_seconds>
 
@@ -57,7 +61,7 @@
 	<key_not_in_scale_blue>0</key_not_in_scale_blue>
 
 	<scale_key>0</scale_key>
-	
+
 	<adjacent_mode>Off</adjacent_mode>
 	<adjacent_red>255</adjacent_red>
 	<adjacent_green>255</adjacent_green>
@@ -103,8 +107,8 @@
 	<hand_colorL>1</hand_colorL>
 
 	<is_loop_active>1</is_loop_active>
-	<midi_logging>1</midi_logging>
-	<low_density>0</low_density>
+    <midi_logging>1</midi_logging>
+    <low_density>0</low_density>
 
 
 </settings>
