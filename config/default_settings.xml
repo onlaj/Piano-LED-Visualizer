@@ -16,6 +16,10 @@
 	<rainbow_scale>100</rainbow_scale>
 	<rainbow_timeshift>0</rainbow_timeshift>
 
+	<velocityrainbow_offset>210</velocityrainbow_offset>
+	<velocityrainbow_scale>120</velocityrainbow_scale>
+	<velocityrainbow_curve>0</velocityrainbow_curve>
+
 	<multicolor>[[255, 255, 255], [0, 0, 255], [0, 255, 0]]</multicolor>
 	<multicolor_range>[[20, 54], [54, 108], [35, 75]]</multicolor_range>
     <multicolor_iteration>0</multicolor_iteration>

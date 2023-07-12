@@ -285,6 +285,10 @@ function get_settings(home = true) {
                 document.getElementById("rainbow_scale").value = response.rainbow_scale;
                 document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
 
+                document.getElementById("velocityrainbow_offset").value = response.velocityrainbow_offset;
+                document.getElementById("velocityrainbow_scale").value = response.velocityrainbow_scale;
+                document.getElementById("velocityrainbow_curve").value = response.velocityrainbow_curve;
+
                 document.getElementById("speed_slow_color").value = response.speed_slowest_color;
                 document.getElementById("speed_fast_color").value = response.speed_fastest_color;
 
@@ -313,6 +317,55 @@ function get_settings(home = true) {
     };
     xhttp.open("GET", "/api/get_settings", true);
     xhttp.send();
+}
+
+function calculate_rainbow(x) {
+    var red, green, blue;
+    x = x % 255;
+    y = x % 85;
+    const t1 = y*3;
+    const t2 = 255 - (y*3);
+
+    if (x < 85) return rgbToHex(t2, t1, 0);
+    else if (x < 170) return rgbToHex(0, t2, t1);
+    else return rgbToHex(t1, 0, t2);
+}
+
+/**
+ * Converts an HSV color value to RGB. Conversion formula
+ * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+ * Assumes h, s, and v are contained in the set [0, 1] and
+ * returns r, g, and b in the set [0, 255].
+ *
+ * @param   Number  h       The hue
+ * @param   Number  s       The saturation
+ * @param   Number  v       The value
+ * @return  Array           The RGB representation
+ */
+function hsvToRgb(h, s, v){
+    var r, g, b;
+
+    var i = Math.floor(h * 6);
+    var f = h * 6 - i;
+    var p = v * (1 - s);
+    var q = v * (1 - f * s);
+    var t = v * (1 - (1 - f) * s);
+
+    switch(i % 6){
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+    }
+
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+
+function powercurve(x,p) {
+    if (p == 0) return x;
+    return (Math.exp(-p*x)-1) / (Math.exp(-p)-1);
 }
 
 function get_current_sequence_setting(home = true, is_loading_step = false) {
@@ -545,6 +598,52 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 }
             }
 
+            if (response.color_mode == "VelocityRainbow") {
+                const offset = ((~~document.getElementById("velocityrainbow_offset").value % 256) + 256) % 256;
+                const scale = ~~document.getElementById("velocityrainbow_scale").value;
+                const curve = ~~document.getElementById("velocityrainbow_curve").value;
+
+                const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+                  const hex = x.toString(16)
+                  return hex.length === 1 ? '0' + hex : hex
+                }).join('');
+
+                const rgbToHexA = (a) => '#' + [~~a[0], ~~a[1], ~~a[2]].map(x => {
+                  const hex = x.toString(16)
+                  return hex.length === 1 ? '0' + hex : hex
+                }).join('');
+
+                document.getElementById("current_led_color").innerHTML = '<canvas id="VelocityRainbowPreview" style="width: 100%;" height=40px></canvas>';
+                var canvas = document.getElementById('VelocityRainbowPreview');
+                var width = canvas.clientWidth;
+                var ctx = canvas.getContext("2d");
+                var grd = ctx.createLinearGradient(0,0,width,0);
+                for (let i=0; i <= 127; i+=5) {
+                    const vel = ~~(i*255/127);
+                    const vel2 = 255 * powercurve(i/127, curve/100);
+                    const vel3 = ~~(vel2 * scale/100) % 256;
+                    const vel4 = ~~(vel3 + offset) % 256;
+
+                    grd.addColorStop(i/127, rgbToHexA(hsvToRgb(vel4/255, 1, (i/127)*0.3 + 0.7)));
+                }
+                ctx.fillStyle = grd;
+                ctx.fillRect(0,0,width,40);
+
+
+                if (is_editing_sequence == "true") {
+                    document.getElementById("velocityrainbow_offset").value = response.velocityrainbow_offset;
+                    document.getElementById("velocityrainbow_scale").value = response.velocityrainbow_scale;
+                    document.getElementById("velocityrainbow_curve").value = response.velocityrainbow_curve;
+
+                    remove_color_modes();
+                    document.getElementById('VelocityRainbow').hidden = false;
+
+                    change_setting("velocityrainbow_offset", response.velocityrainbow_offset, "no_reload", true);
+                    change_setting("velocityrainbow_scale", response.velocityrainbow_scale, "no_reload", true);
+                    change_setting("velocityrainbow_curve", response.velocityrainbow_curve, "no_reload", true);
+                }
+            }
+
             if (response.color_mode == "Scale") {
                 //document.getElementById("led_color").innerHTML = response.scale_key
                 let scale_key_array = [response.key_in_scale_color, response.key_not_in_scale_color];
@@ -737,6 +836,18 @@ function initialize_led_settings() {
         change_setting("rainbow_timeshift", this.value, false, true)
     }
 
+    document.getElementById('velocityrainbow_offset').onchange = function () {
+        change_setting("velocityrainbow_offset", this.value, false, true)
+    }
+
+    document.getElementById('velocityrainbow_scale').onchange = function () {
+        change_setting("velocityrainbow_scale", this.value, false, true)
+    }
+
+    document.getElementById('velocityrainbow_curve').onchange = function () {
+        change_setting("velocityrainbow_curve", this.value, false, true)
+    }
+
     document.getElementById('color_mode').onchange = function () {
         switch (this.value) {
             case "Single":
@@ -754,6 +865,11 @@ function initialize_led_settings() {
                 remove_color_modes();
                 document.getElementById('Rainbow').hidden = false;
                 change_setting("color_mode", "Rainbow", false, true);
+                break;
+            case "VelocityRainbow":
+                remove_color_modes();
+                document.getElementById('VelocityRainbow').hidden = false;
+                change_setting("color_mode", "VelocityRainbow", false, true);
                 break;
             case "Speed":
                 remove_color_modes();
