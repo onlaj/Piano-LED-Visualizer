@@ -387,7 +387,7 @@ while True:
                 elif ledsettings.mode == "Normal":
                     ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
                     ledstrip.set_adjacent_colors(note_position, Color(0, 0, 0), False)
-            if saving.isrecording:
+            if saving.is_recording:
                 saving.add_track("note_off", original_note, velocity, midiports.last_activity)
         elif int(velocity) > 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is pressed
             ledsettings.speed_add_note()
@@ -432,7 +432,7 @@ while True:
                                     int(int(blue) / float(brightness)))
                     ledstrip.strip.setPixelColor(note_position, s_color)
                     ledstrip.set_adjacent_colors(note_position, s_color, False)
-            if saving.isrecording:
+            if saving.is_recording:
                 if ledsettings.color_mode == "Multicolor":
                     saving.add_track("note_on", original_note, velocity, midiports.last_activity,
                                      wc.rgb_to_hex((red, green, blue)))
@@ -441,7 +441,7 @@ while True:
         else:
             control = find_between(str(msg), "control=", " ")
             value = find_between(str(msg), "value=", " ")
-            if saving.isrecording:
+            if saving.is_recording:
                 saving.add_control_change("control_change", 0, control, value, midiports.last_activity)
         saving.restart_time()
         if len(saving.is_playing_midi) > 0:

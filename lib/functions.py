@@ -24,7 +24,7 @@ def get_ip_address():
 def find_between(s, start, end):
     try:
         return (s.split(start))[1].split(end)[0]
-    except:
+    except IndexError:
         return False
 
 
@@ -32,8 +32,8 @@ def clamp(val, val_min, val_max):
     return max(val_min, min(val, val_max))
 
 
-def shift(l, n):
-    return l[n:] + l[:n]
+def shift(lst, num_shifts):
+    return lst[num_shifts:] + lst[:num_shifts]
 
 
 def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
@@ -83,8 +83,11 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
         print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, total_delay))
         # print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, length))
         # saving.is_playing_midi = False
-    except:
-        menu.render_message(song_path, "Can't play this file", 2000)
+    except FileNotFoundError:
+        menu.render_message(song_path, "File not found", 2000)
+    except Exception as e:
+        menu.render_message(song_path, "Error while playing song "+str(e), 2000)
+        print(e)
     saving.is_playing_midi.clear()
 
 
@@ -112,8 +115,9 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
 
     try:
         midiports.inport.poll()
-    except:
-        pass
+    except Exception as e:
+        menu.render_message("Error while getting ports " + str(e), 2000)
+        print("Error while getting ports " + str(e))
     while True:
         if (time.time() - saving.start_time) > 3600 and delay < 0.5 and menu.screensaver_is_running is False:
             delay = 0.9
@@ -360,6 +364,7 @@ def calculate_brightness(ledsettings):
 
     return brightness
 
+
 def theaterChase(ledstrip, ledsettings, menu, wait_ms=25):
     """Movie theater light style chaser animation."""
     menu.screensaver_is_running = False
@@ -602,9 +607,9 @@ def sound_of_da_police(ledstrip, ledsettings, menu, wait_ms=5):
 
         for i in range(strip.numPixels()):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                if (i > middle) and i > r_start and i < (r_start + 40):
+                if (i > middle) and r_start < i < (r_start + 40):
                     strip.setPixelColor(i, Color(0, int(255 * brightness), 0))
-                elif (i < middle) and i < l_start and i > (l_start - 40):
+                elif (i < middle) and l_start > i > (l_start - 40):
                     strip.setPixelColor(i, Color(0, 0, int(255 * brightness)))
                 else:
                     strip.setPixelColor(i, Color(0, 0, 0))
@@ -647,7 +652,7 @@ def scanner(ledstrip, ledsettings, menu, wait_ms=1):
 
         position += direction
         for i in range(strip.numPixels()):
-            if i > (position - scanner_length) and i < (position + scanner_length):
+            if (position - scanner_length) < i < (position + scanner_length):
                 distance_from_position = position - i
                 if distance_from_position < 0:
                     distance_from_position *= -1
@@ -683,7 +688,6 @@ def chords(scale, ledstrip, ledsettings, menu):
         return
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
-    j = 0
     menu.screensaver_is_running = True
     while menu.screensaver_is_running:
         last_state = 1
@@ -713,7 +717,8 @@ def chords(scale, ledstrip, ledsettings, menu):
             leds_to_update.remove(note_position)
 
             if check_if_led_can_be_overwrite(note_position, ledstrip, ledsettings):
-                strip.setPixelColor(note_position, Color(int(c[1] * brightness), int(c[0] * brightness), int(c[2] * brightness)))
+                strip.setPixelColor(note_position,
+                                    Color(int(c[1] * brightness), int(c[0] * brightness), int(c[2] * brightness)))
 
         for i in leds_to_update:
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):

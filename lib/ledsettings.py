@@ -551,15 +551,15 @@ class LedSettings:
 
     def change_backlight_color(self, color, value):
         if color == "Red":
-            if self.backlight_red <= 255 and self.backlight_red >= 0:
+            if 255 >= self.backlight_red >= 0:
                 self.backlight_red += int(value)
                 self.backlight_red = clamp(self.backlight_red, 0, 255)
         elif color == "Green":
-            if self.backlight_green <= 255 and self.backlight_green >= 0:
+            if 255 >= self.backlight_green >= 0:
                 self.backlight_green += int(value)
                 self.backlight_green = clamp(self.backlight_green, 0, 255)
         elif color == "Blue":
-            if self.backlight_blue <= 255 and self.backlight_blue >= 0:
+            if 255 >= self.backlight_blue >= 0:
                 self.backlight_blue += int(value)
                 self.backlight_blue = clamp(self.backlight_blue, 0, 255)
         self.usersettings.change_setting_value("backlight_red", self.backlight_red)
@@ -572,15 +572,15 @@ class LedSettings:
         self.adjacent_mode = "RGB"
         self.usersettings.change_setting_value("adjacent_mode", self.adjacent_mode)
         if color == "Red":
-            if self.adjacent_red <= 255 and self.adjacent_red >= 0:
+            if 255 >= self.adjacent_red >= 0:
                 self.adjacent_red += int(value)
                 self.adjacent_red = clamp(self.adjacent_red, 0, 255)
         elif color == "Green":
-            if self.adjacent_green <= 255 and self.adjacent_green >= 0:
+            if 255 >= self.adjacent_green >= 0:
                 self.adjacent_green += int(value)
                 self.adjacent_green = clamp(self.adjacent_green, 0, 255)
         elif color == "Blue":
-            if self.adjacent_blue <= 255 and self.adjacent_blue >= 0:
+            if 255 >= self.adjacent_blue >= 0:
                 self.adjacent_blue += int(value)
                 self.adjacent_blue = clamp(self.adjacent_blue, 0, 255)
         self.usersettings.change_setting_value("adjacent_red", self.adjacent_red)
@@ -616,11 +616,14 @@ class LedSettings:
 
     def gradient_get_colors(self, position):
 
-        red = ((position / self.ledstrip.led_number) * (self.gradient_end["red"] - self.gradient_start["red"])) + \
+        red = ((position / self.ledstrip.led_number) *
+               (self.gradient_end["red"] - self.gradient_start["red"])) + \
               self.gradient_start["red"]
-        green = ((position / self.ledstrip.led_number) * (self.gradient_end["green"] - self.gradient_start["green"])) + \
+        green = ((position / self.ledstrip.led_number) *
+                 (self.gradient_end["green"] - self.gradient_start["green"])) + \
                 self.gradient_start["green"]
-        blue = ((position / self.ledstrip.led_number) * (self.gradient_end["blue"] - self.gradient_start["blue"])) + \
+        blue = ((position / self.ledstrip.led_number) *
+                (self.gradient_end["blue"] - self.gradient_start["blue"])) + \
                self.gradient_start["blue"]
 
         return [round(red), round(green), round(blue)]

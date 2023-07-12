@@ -5,7 +5,6 @@ from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound
     rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp
 import psutil
 import threading
-from lib.neopixel import *
 import webcolors as wc
 import mido
 from xml.dom import minidom
@@ -688,7 +687,7 @@ def change_setting():
         mode.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.mode)))
         step.appendChild(mode)
 
-        # if mode is equal "Fading" or "Velocity", load fadingspeed from webinterface.ledsettings and put it into step node
+        # if mode is equal "Fading" or "Velocity", load fadingspeed from ledsettings and put it into step node
         if webinterface.ledsettings.mode in ["Fading", "Velocity"]:
             fadingspeed = sequences_tree.createElement("fadingspeed")
             fadingspeed.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.fadingspeed)))
@@ -713,7 +712,8 @@ def change_setting():
             # load value from webinterface.ledsettings.multicolor
             multicolor = webinterface.ledsettings.multicolor
 
-            # loop through multicolor object and add each color to step node under "sequence_"+str(value) with tag name "color_"+str(i)
+            # loop through multicolor object and add each color to step node
+            # under "sequence_"+str(value) with tag name "color_"+str(i)
             for i in range(len(multicolor)):
                 color = sequences_tree.createElement("color_" + str(i + 1))
                 new_multicolor = str(multicolor[i])
@@ -1351,31 +1351,26 @@ def get_settings():
 
 @webinterface.route('/api/get_recording_status', methods=['GET'])
 def get_recording_status():
-    response = {}
-    response["input_port"] = webinterface.usersettings.get_setting_value("input_port")
-    response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
-
-    response["isrecording"] = webinterface.saving.isrecording
-
-    response["isplaying"] = webinterface.saving.is_playing_midi
+    response = {"input_port": webinterface.usersettings.get_setting_value("input_port"),
+                "play_port": webinterface.usersettings.get_setting_value("play_port"),
+                "isrecording": webinterface.saving.is_recording, "isplaying": webinterface.saving.is_playing_midi}
 
     return jsonify(response)
 
 
 @webinterface.route('/api/get_learning_status', methods=['GET'])
 def get_learning_status():
-    response = {}
-    response["loading"] = webinterface.learning.loading
-    response["practice"] = webinterface.usersettings.get_setting_value("practice")
-    response["hands"] = webinterface.usersettings.get_setting_value("hands")
-    response["mute_hand"] = webinterface.usersettings.get_setting_value("mute_hand")
-    response["start_point"] = webinterface.usersettings.get_setting_value("start_point")
-    response["end_point"] = webinterface.usersettings.get_setting_value("end_point")
-    response["set_tempo"] = webinterface.usersettings.get_setting_value("set_tempo")
-    response["hand_colorR"] = webinterface.usersettings.get_setting_value("hand_colorR")
-    response["hand_colorL"] = webinterface.usersettings.get_setting_value("hand_colorL")
-    response["hand_colorList"] = ast.literal_eval(webinterface.usersettings.get_setting_value("hand_colorList"))
-    response["is_loop_active"] = ast.literal_eval(webinterface.usersettings.get_setting_value("is_loop_active"))
+    response = {"loading": webinterface.learning.loading,
+                "practice": webinterface.usersettings.get_setting_value("practice"),
+                "hands": webinterface.usersettings.get_setting_value("hands"),
+                "mute_hand": webinterface.usersettings.get_setting_value("mute_hand"),
+                "start_point": webinterface.usersettings.get_setting_value("start_point"),
+                "end_point": webinterface.usersettings.get_setting_value("end_point"),
+                "set_tempo": webinterface.usersettings.get_setting_value("set_tempo"),
+                "hand_colorR": webinterface.usersettings.get_setting_value("hand_colorR"),
+                "hand_colorL": webinterface.usersettings.get_setting_value("hand_colorL"),
+                "hand_colorList": ast.literal_eval(webinterface.usersettings.get_setting_value("hand_colorList")),
+                "is_loop_active": ast.literal_eval(webinterface.usersettings.get_setting_value("is_loop_active"))}
 
     return jsonify(response)
 
@@ -1445,13 +1440,11 @@ def get_songs():
 def get_ports():
     ports = mido.get_input_names()
     ports = list(dict.fromkeys(ports))
-    response = {}
-    response["ports_list"] = ports
-    response["input_port"] = webinterface.usersettings.get_setting_value("input_port")
-    response["secondary_input_port"] = webinterface.usersettings.get_setting_value("secondary_input_port")
-    response["play_port"] = webinterface.usersettings.get_setting_value("play_port")
-    response["connected_ports"] = str(subprocess.check_output(["aconnect", "-i", "-l"]))
-    response["midi_logging"] = webinterface.usersettings.get_setting_value("midi_logging")
+    response = {"ports_list": ports, "input_port": webinterface.usersettings.get_setting_value("input_port"),
+                "secondary_input_port": webinterface.usersettings.get_setting_value("secondary_input_port"),
+                "play_port": webinterface.usersettings.get_setting_value("play_port"),
+                "connected_ports": str(subprocess.check_output(["aconnect", "-i", "-l"])),
+                "midi_logging": webinterface.usersettings.get_setting_value("midi_logging")}
 
     return jsonify(response)
 

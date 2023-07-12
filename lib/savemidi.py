@@ -5,16 +5,21 @@ from mido import MidiFile, MidiTrack, Message
 
 class SaveMIDI:
     def __init__(self):
-        self.isrecording = False
+        self.last_note_time = None
+        self.track = None
+        self.mid = None
+        self.first_note_time = None
+        self.messages_to_save = None
+        self.menu = None
+        self.is_recording = False
         self.is_playing_midi = {}
         self.start_time = time.time()
 
     def add_instance(self, menu):
         self.menu = menu
 
-
     def start_recording(self):
-        self.isrecording = True
+        self.is_recording = True
         self.menu.render_message("Recording started", "", 500)
         self.messages_to_save = dict()
         self.messages_to_save["main"] = []
@@ -22,7 +27,7 @@ class SaveMIDI:
         self.first_note_time = 0
 
     def cancel_recording(self):
-        self.isrecording = False
+        self.is_recording = False
         self.menu.render_message("Recording canceled", "", 1500)
 
     def add_track(self, status, note, velocity, time_value, hex_color="main"):
@@ -49,10 +54,11 @@ class SaveMIDI:
             self.mid = MidiFile(None, None, 0, 20000)  # 20000 is a ticks_per_beat value
             self.track = MidiTrack()
             self.mid.tracks.append(self.track)
+            previous_message_time = 0
             for message in multicolor_track:
                 try:
                     time_delay = message[1] - previous_message_time
-                except:
+                except IndexError:
                     time_delay = 0
                 previous_message_time = message[1]
                 if time_delay < 0:
@@ -69,7 +75,7 @@ class SaveMIDI:
             self.mid.save('Songs/' + filename + '_' + str(key) + '.mid')
 
         self.messages_to_save = []
-        self.isrecording = False
+        self.is_recording = False
         self.menu.render_message("File saved", filename + ".mid", 1500)
 
     def restart_time(self):
