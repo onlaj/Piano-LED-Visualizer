@@ -10,6 +10,14 @@ from lib.neopixel import Color
 class LedSettings:
     def __init__(self, usersettings):
 
+        self.step_number = None
+        self.sequence_active_name = None
+        self.count_steps = None
+        self.control_number = None
+        self.next_step = None
+        self.sequences_tree = None
+        self.ledstrip = None
+        self.menu = None
         self.usersettings = usersettings
 
         self.red = int(usersettings.get_setting_value("red"))
@@ -204,12 +212,12 @@ class LedSettings:
                 left_to_right_distance = right - left
                 percent_value = (note - left) / left_to_right_distance
 
-                red = (percent_value * (color_on_the_right[right][0] - color_on_the_left[left][0])) + \
-                      color_on_the_left[left][0]
-                green = (percent_value * (color_on_the_right[right][1] - color_on_the_left[left][1])) + \
-                        color_on_the_left[left][1]
-                blue = (percent_value * (color_on_the_right[right][2] - color_on_the_left[left][2])) + \
-                       color_on_the_left[left][2]
+                red = (percent_value * (color_on_the_right[right][0] -
+                                        color_on_the_left[left][0])) + color_on_the_left[left][0]
+                green = (percent_value * (color_on_the_right[right][1] -
+                                          color_on_the_left[left][1])) + color_on_the_left[left][1]
+                blue = (percent_value * (color_on_the_right[right][2] -
+                                         color_on_the_left[left][2])) + color_on_the_left[left][2]
 
                 chosen_color = [int(red), int(green), int(blue)]
             else:
@@ -606,24 +614,21 @@ class LedSettings:
             green = self.speed_fastest["green"]
             blue = self.speed_fastest["blue"]
         else:
-            red = ((self.speed_fastest["red"] - self.speed_slowest["red"]) * float(speed_percent)) + self.speed_slowest[
-                "red"]
-            green = ((self.speed_fastest["green"] - self.speed_slowest["green"]) * float(speed_percent)) + \
-                    self.speed_slowest["green"]
-            blue = ((self.speed_fastest["blue"] - self.speed_slowest["blue"]) * float(speed_percent)) + \
-                   self.speed_slowest["blue"]
+            red = ((self.speed_fastest["red"] - self.speed_slowest["red"]) *
+                   float(speed_percent)) + self.speed_slowest["red"]
+            green = ((self.speed_fastest["green"] - self.speed_slowest["green"]) *
+                     float(speed_percent)) + self.speed_slowest["green"]
+            blue = ((self.speed_fastest["blue"] - self.speed_slowest["blue"]) *
+                    float(speed_percent)) + self.speed_slowest["blue"]
         return [round(red), round(green), round(blue)]
 
     def gradient_get_colors(self, position):
 
         red = ((position / self.ledstrip.led_number) *
-               (self.gradient_end["red"] - self.gradient_start["red"])) + \
-              self.gradient_start["red"]
+               (self.gradient_end["red"] - self.gradient_start["red"])) + self.gradient_start["red"]
         green = ((position / self.ledstrip.led_number) *
-                 (self.gradient_end["green"] - self.gradient_start["green"])) + \
-                self.gradient_start["green"]
+                 (self.gradient_end["green"] - self.gradient_start["green"])) + self.gradient_start["green"]
         blue = ((position / self.ledstrip.led_number) *
-                (self.gradient_end["blue"] - self.gradient_start["blue"])) + \
-               self.gradient_start["blue"]
+                (self.gradient_end["blue"] - self.gradient_start["blue"])) + self.gradient_start["blue"]
 
         return [round(red), round(green), round(blue)]
