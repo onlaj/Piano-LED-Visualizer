@@ -162,7 +162,7 @@ while True:
             timeshift_start = time.time()
     display_cycle += 1
 
-    if (time.time() - midiports.last_activity) > 1:
+    if (time.time() - usersettings.last_save) > 1:
         usersettings.save_changes()
         if usersettings.pending_reset:
             usersettings.pending_reset = False
