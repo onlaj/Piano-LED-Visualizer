@@ -1,9 +1,10 @@
 from xml.etree import ElementTree as ET
-
+import time
 
 class UserSettings:
     def __init__(self):
         self.pending_changes = False
+        self.last_save = 0
         try:
             self.tree = ET.parse("config/settings.xml")
             self.root = self.tree.getroot()
@@ -50,9 +51,11 @@ class UserSettings:
             self.tree.write("config/settings.xml")
             self.tree = ET.parse("config/settings.xml")
             self.root = self.tree.getroot()
+            self.last_save = time.time()
 
     def reset_to_default(self):
         self.tree = ET.parse("config/default_settings.xml")
         self.tree.write("config/settings.xml")
         self.root = self.tree.getroot()
         self.pending_reset = True
+        self.last_save = time.time()
