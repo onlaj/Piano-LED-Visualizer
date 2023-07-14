@@ -939,7 +939,7 @@ class MenuLCD:
                 self.t.start()
             if choice == "Theater Chase Rainbow":
                 self.t = threading.Thread(target=theaterChaseRainbow, args=(self.ledstrip, self.ledsettings,
-                                                                            self, 5))
+                                                                            self, "Medium"))
                 self.t.start()
             if choice == "Sound of da police":
                 self.t = threading.Thread(target=sound_of_da_police, args=(self.ledstrip, self.ledsettings,
@@ -955,28 +955,27 @@ class MenuLCD:
             self.t = threading.Thread(target=chords, args=(chord, self.ledstrip, self.ledsettings, self))
             self.t.start()
 
-        duration_map = {
+        speed_map = {
             "Rainbow": {
-                "Fast": (rainbow, 2),
-                "Medium": (rainbow, 20),
-                "Slow": (rainbow, 50)
+                "Fast": rainbow,
+                "Medium": rainbow,
+                "Slow": rainbow
             },
             "Rainbow_Cycle": {
-                "Fast": (rainbowCycle, 1),
-                "Medium": (rainbowCycle, 20),
-                "Slow": (rainbowCycle, 50)
+                "Fast": rainbowCycle,
+                "Medium": rainbowCycle,
+                "Slow": rainbowCycle
             },
             "Breathing": {
-                "Fast": (breathing, 5),
-                "Medium": (breathing, 10),
-                "Slow": (breathing, 25)
+                "Fast": breathing,
+                "Medium": breathing,
+                "Slow": breathing
             }
         }
 
-        if location in duration_map and choice in duration_map[location]:
-            target_func, duration = duration_map[location][choice]
-            self.t = threading.Thread(target=target_func,
-                                      args=(self.ledstrip, self.ledsettings, self, duration))
+        if location in speed_map and choice in speed_map[location]:
+            speed_func = speed_map[location][choice]
+            self.t = threading.Thread(target=speed_func, args=(self.ledstrip, self.ledsettings, self, choice))
             self.t.start()
 
         if location == "LED_animations":

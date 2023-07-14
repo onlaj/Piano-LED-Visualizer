@@ -36,7 +36,7 @@ def start_animation():
     if choice == "theaterchaserainbow":
         webinterface.t = threading.Thread(target=theaterChaseRainbow, args=(webinterface.ledstrip,
                                                                             webinterface.ledsettings,
-                                                                            webinterface.menu, 5))
+                                                                            webinterface.menu, "Medium"))
         webinterface.t.start()
 
     if choice == "soundofdapolice":
@@ -52,55 +52,22 @@ def start_animation():
         webinterface.t.start()
 
     if choice == "breathing":
-        if speed == "fast":
-            webinterface.t = threading.Thread(target=breathing, args=(webinterface.ledstrip,
-                                                                      webinterface.ledsettings,
-                                                                      webinterface.menu, 5))
-            webinterface.t.start()
-        if speed == "medium":
-            webinterface.t = threading.Thread(target=breathing, args=(webinterface.ledstrip,
-                                                                      webinterface.ledsettings,
-                                                                      webinterface.menu, 10))
-            webinterface.t.start()
-        if speed == "slow":
-            webinterface.t = threading.Thread(target=breathing, args=(webinterface.ledstrip,
-                                                                      webinterface.ledsettings,
-                                                                      webinterface.menu, 25))
-            webinterface.t.start()
+        webinterface.t = threading.Thread(target=breathing, args=(webinterface.ledstrip,
+                                                                  webinterface.ledsettings,
+                                                                  webinterface.menu, speed.capitalize()))
+        webinterface.t.start()
 
     if choice == "rainbow":
-        if speed == "fast":
-            webinterface.t = threading.Thread(target=rainbow, args=(webinterface.ledstrip,
-                                                                    webinterface.ledsettings,
-                                                                    webinterface.menu, 2))
-            webinterface.t.start()
-        if speed == "medium":
-            webinterface.t = threading.Thread(target=rainbow, args=(webinterface.ledstrip,
-                                                                    webinterface.ledsettings,
-                                                                    webinterface.menu, 20))
-            webinterface.t.start()
-        if speed == "slow":
-            webinterface.t = threading.Thread(target=rainbow, args=(webinterface.ledstrip,
-                                                                    webinterface.ledsettings,
-                                                                    webinterface.menu, 50))
-            webinterface.t.start()
+        webinterface.t = threading.Thread(target=rainbow, args=(webinterface.ledstrip,
+                                                                webinterface.ledsettings,
+                                                                webinterface.menu, speed.capitalize()))
+        webinterface.t.start()
 
     if choice == "rainbowcycle":
-        if speed == "fast":
-            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip,
-                                                                         webinterface.ledsettings,
-                                                                         webinterface.menu, 1))
-            webinterface.t.start()
-        if speed == "medium":
-            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip,
-                                                                         webinterface.ledsettings,
-                                                                         webinterface.menu, 20))
-            webinterface.t.start()
-        if speed == "slow":
-            webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip,
-                                                                         webinterface.ledsettings,
-                                                                         webinterface.menu, 50))
-            webinterface.t.start()
+        webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip,
+                                                                     webinterface.ledsettings,
+                                                                     webinterface.menu, speed.capitalize()))
+        webinterface.t.start()
 
     if choice == "chords":
         webinterface.t = threading.Thread(target=chords, args=(speed, webinterface.ledstrip,

@@ -142,7 +142,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
             if menu.led_animation == "Breathing Slow":
                 menu.t = threading.Thread(target=breathing, args=(ledstrip.strip,
                                                                   ledsettings,
-                                                                  menu, 25))
+                                                                  menu, "Slow"))
                 menu.t.start()
             if menu.led_animation == "Rainbow Slow":
                 menu.t = threading.Thread(target=rainbow, args=(ledstrip.strip,
@@ -425,7 +425,14 @@ def wheel(pos, ledsettings):
         return Color(0, int((pos * 3) * brightness), int((255 - pos * 3) * brightness))
 
 
-def rainbow(ledstrip, ledsettings, menu, wait_ms=20):
+def rainbow(ledstrip, ledsettings, menu, speed="Medium"):
+    speed_map = {
+        "Slow": 50,
+        "Fast": 2,
+    }
+
+    wait_ms = speed_map.get(speed, 20)
+
     """Draw rainbow that fades across all pixels at once."""
     menu.screensaver_is_running = False
     time.sleep(0.2)
@@ -459,7 +466,14 @@ def rainbow(ledstrip, ledsettings, menu, wait_ms=20):
     fastColorWipe(strip, True, ledsettings)
 
 
-def rainbowCycle(ledstrip, ledsettings, menu, wait_ms=20):
+def rainbowCycle(ledstrip, ledsettings, menu, speed="Medium"):
+    speed_map = {
+        "Slow": 50,
+        "Fast": 1,
+    }
+
+    wait_ms = speed_map.get(speed, 20)
+
     """Draw rainbow that uniformly distributes itself across all pixels."""
     menu.screensaver_is_running = False
     time.sleep(0.2)
@@ -493,7 +507,14 @@ def rainbowCycle(ledstrip, ledsettings, menu, wait_ms=20):
     fastColorWipe(strip, True, ledsettings)
 
 
-def theaterChaseRainbow(ledstrip, ledsettings, menu, wait_ms=25):
+def theaterChaseRainbow(ledstrip, ledsettings, menu, speed="Medium"):
+    speed_map = {
+        "Slow": 10,
+        "Fast": 2,
+    }
+
+    wait_ms = speed_map.get(speed, 5)
+
     """Rainbow movie theater light style chaser animation."""
     menu.screensaver_is_running = False
     time.sleep(0.5)
@@ -533,7 +554,15 @@ def theaterChaseRainbow(ledstrip, ledsettings, menu, wait_ms=25):
     fastColorWipe(strip, True, ledsettings)
 
 
-def breathing(ledstrip, ledsettings, menu, wait_ms=2):
+def breathing(ledstrip, ledsettings, menu, speed="Medium"):
+
+    speed_map = {
+        "Slow": 25,
+        "Fast": 5,
+    }
+
+    wait_ms = speed_map.get(speed, 10)
+
     menu.screensaver_is_running = False
     time.sleep(0.1)
     strip = ledstrip.strip
