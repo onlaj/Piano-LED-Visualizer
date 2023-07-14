@@ -957,25 +957,26 @@ class MenuLCD:
 
         duration_map = {
             "Rainbow": {
-                "Fast": 2,
-                "Medium": 20,
-                "Slow": 50
+                "Fast": (rainbow, 2),
+                "Medium": (rainbow, 20),
+                "Slow": (rainbow, 50)
             },
             "Rainbow_Cycle": {
-                "Fast": 1,
-                "Medium": 20,
-                "Slow": 50
+                "Fast": (rainbowCycle, 1),
+                "Medium": (rainbowCycle, 20),
+                "Slow": (rainbowCycle, 50)
             },
             "Breathing": {
-                "Fast": 5,
-                "Medium": 10,
-                "Slow": 25
+                "Fast": (breathing, 5),
+                "Medium": (breathing, 10),
+                "Slow": (breathing, 25)
             }
         }
 
         if location in duration_map and choice in duration_map[location]:
-            self.t = threading.Thread(target=rainbow,
-                                      args=(self.ledstrip, self.ledsettings, self, duration_map[location][choice]))
+            target_func, duration = duration_map[location][choice]
+            self.t = threading.Thread(target=target_func,
+                                      args=(self.ledstrip, self.ledsettings, self, duration))
             self.t.start()
 
         if location == "LED_animations":
