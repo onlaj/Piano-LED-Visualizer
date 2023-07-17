@@ -58,21 +58,19 @@ def start_animation():
         webinterface.t.start()
 
     if choice == "rainbow":
-        webinterface.t = threading.Thread(target=rainbow, args=(webinterface.ledstrip,
-                                                                webinterface.ledsettings,
-                                                                webinterface.menu, speed.capitalize()))
+        webinterface.t = threading.Thread(target=rainbow, args=(
+            webinterface.ledstrip, webinterface.ledsettings, webinterface.menu, speed.capitalize()))
         webinterface.t.start()
 
     if choice == "rainbowcycle":
-        webinterface.t = threading.Thread(target=rainbowCycle, args=(webinterface.ledstrip,
-                                                                     webinterface.ledsettings,
-                                                                     webinterface.menu, speed.capitalize()))
+        webinterface.t = threading.Thread(target=rainbowCycle, args=(
+            webinterface.ledstrip, webinterface.ledsettings, webinterface.menu, speed.capitalize()))
+
         webinterface.t.start()
 
     if choice == "chords":
-        webinterface.t = threading.Thread(target=chords, args=(speed, webinterface.ledstrip,
-                                                                     webinterface.ledsettings,
-                                                                     webinterface.menu))
+        webinterface.t = threading.Thread(target=chords, args=(
+            speed, webinterface.ledstrip, webinterface.ledsettings, webinterface.menu))
         webinterface.t.start()
 
     if choice == "stop":
@@ -718,17 +716,20 @@ def change_setting():
             step.appendChild(rainbow_timeshift)
 
         # if color_mode is equal to "VelocityRainbow" load colors from webinterface.ledsettings and put it into step node
-        if (webinterface.ledsettings.color_mode == "VelocityRainbow"):
+        if webinterface.ledsettings.color_mode == "VelocityRainbow":
             velocityrainbow_offset = sequences_tree.createElement("Offset")
-            velocityrainbow_offset.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.velocityrainbow_offset)))
+            velocityrainbow_offset.appendChild(
+                sequences_tree.createTextNode(str(webinterface.ledsettings.velocityrainbow_offset)))
             step.appendChild(velocityrainbow_offset)
 
             velocityrainbow_scale = sequences_tree.createElement("Scale")
-            velocityrainbow_scale.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.velocityrainbow_scale)))
+            velocityrainbow_scale.appendChild(
+                sequences_tree.createTextNode(str(webinterface.ledsettings.velocityrainbow_scale)))
             step.appendChild(velocityrainbow_scale)
 
             velocityrainbow_curve = sequences_tree.createElement("Curve")
-            velocityrainbow_curve.appendChild(sequences_tree.createTextNode(str(webinterface.ledsettings.velocityrainbow_curve)))
+            velocityrainbow_curve.appendChild(
+                sequences_tree.createTextNode(str(webinterface.ledsettings.velocityrainbow_curve)))
             step.appendChild(velocityrainbow_curve)
 
         # if color_mode is equal to "Speed" load colors from webinterface.ledsettings and put it into step node

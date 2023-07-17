@@ -1,6 +1,7 @@
 from xml.etree import ElementTree as ET
 import time
 
+
 class UserSettings:
     def __init__(self):
         self.pending_changes = False
@@ -37,7 +38,7 @@ class UserSettings:
 
             # ElementTree.indent only available in Python 3.9+
             # This will reformat the whole file and remove extraneous line-breaks, so leaving commented out
-            #if "indent" in dir(ET):
+            # if "indent" in dir(ET):
             #    ET.indent(self.root)
         else:
             elem.text = str(value)

@@ -72,7 +72,7 @@ class MidiPorts:
                 self.playport = mido.open_output(portname)
                 self.usersettings.change_setting_value("play_port", portname)
             self.menu.render_message("Changing " + port + " to:", portname, 1500)
-            if destroy_old != None:
+            if destroy_old is not None:
                 destory_old.close()
             self.menu.show()
         except:
@@ -84,7 +84,7 @@ class MidiPorts:
             destroy_old = self.inport
             port = self.usersettings.get_setting_value("input_port")
             self.inport = mido.open_input(port)
-            if destroy_old != None:
+            if destroy_old is not None:
                 time.sleep(0.002)
                 destroy_old.close()
         except:
@@ -93,7 +93,7 @@ class MidiPorts:
             destroy_old = self.playport
             port = self.usersettings.get_setting_value("play_port")
             self.playport = mido.open_output(port)
-            if destroy_old != None:
+            if destroy_old is not None:
                 time.sleep(0.002)
                 destroy_old.close()
         except:

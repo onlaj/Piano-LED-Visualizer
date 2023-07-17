@@ -547,7 +547,8 @@ class MenuLCD:
             elif self.current_choice == "Curve":
                 rainbow_attribute_value = self.ledsettings.velocityrainbow_curve
         if rainbow_attribute_value is not None:
-            self.draw.text((self.scale(10), self.scale(70)), str(rainbow_attribute_value), fill=self.text_color, font=self.font)
+            self.draw.text((self.scale(10), self.scale(70)), str(rainbow_attribute_value), fill=self.text_color,
+                           font=self.font)
 
         # displaying brightness value
         if self.current_location == "Brightness":
@@ -1094,7 +1095,8 @@ class MenuLCD:
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
 
         if "RGB_Color" in self.current_location:
-            self.ledsettings.change_multicolor(self.current_choice, self.current_location, value * self.speed_multiplier)
+            self.ledsettings.change_multicolor(self.current_choice, self.current_location,
+                                               value * self.speed_multiplier)
 
         if "Key_range" in self.current_location:
             self.ledsettings.change_multicolor_range(self.current_choice, self.current_location,
@@ -1118,11 +1120,14 @@ class MenuLCD:
 
         if "Velocity_Rainbow" in self.current_location:
             if self.current_choice == "Offset":
-                self.ledsettings.velocityrainbow_offset = self.ledsettings.velocityrainbow_offset + value * 5 * self.speed_multiplier
+                self.ledsettings.velocityrainbow_offset = \
+                    self.ledsettings.velocityrainbow_offset + value * 5 * self.speed_multiplier
             if self.current_choice == "Scale":
-                self.ledsettings.velocityrainbow_scale = self.ledsettings.velocityrainbow_scale + value * 5 * self.speed_multiplier
+                self.ledsettings.velocityrainbow_scale = \
+                    self.ledsettings.velocityrainbow_scale + value * 5 * self.speed_multiplier
             if self.current_choice == "Curve":
-                self.ledsettings.velocityrainbow_curve = self.ledsettings.velocityrainbow_curve + value * self.speed_multiplier
+                self.ledsettings.velocityrainbow_curve = \
+                    self.ledsettings.velocityrainbow_curve + value * self.speed_multiplier
 
         if self.current_location == "Start_delay":
             self.screensaver_delay = int(self.screensaver_delay) + (value * self.speed_multiplier)

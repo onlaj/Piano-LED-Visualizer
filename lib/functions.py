@@ -317,15 +317,19 @@ def get_rainbow_colors(pos, color):
         elif color == "blue":
             return 255 - pos * 3
 
+
 def powercurve(x, p):
-    if p == 0: return x
+    if p == 0:
+        return x
     return (math.exp(-p*x)-1) / (math.exp(-p)-1)
+
 
 def gammacurve(x, p):
     if p != 0:
         return x**(1/p)
     else:
         return 1
+
 
 def check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
     if ledsettings.adjacent_mode == "Off":
