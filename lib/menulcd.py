@@ -531,38 +531,25 @@ class MenuLCD:
             draw_color_example(self.ledsettings.key_not_in_scale)
 
         # displaying rainbow offset value
+        rainbow_attribute_value = None
+
         if "Rainbow_Colors" in self.current_location:
             if self.current_choice == "Offset":
-                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_offset), fill=self.text_color,
-                               font=self.font)
+                rainbow_attribute_value = self.ledsettings.rainbow_offset
+            elif self.current_choice == "Scale":
+                rainbow_attribute_value = self.ledsettings.rainbow_scale
+            elif self.current_choice == "Timeshift":
+                rainbow_attribute_value = self.ledsettings.rainbow_timeshift
 
-            if self.current_choice == "Scale":
-                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_scale) + "%",
-                               fill=self.text_color,
-                               font=self.font)
-
-            if self.current_choice == "Timeshift":
-                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.rainbow_timeshift),
-                               fill=self.text_color,
-                               font=self.font)
-
-
-        # displaying velocityrainbow offset value
-        if "Velocity_Rainbow" in self.current_location:
+        elif "Velocity_Rainbow" in self.current_location:
             if self.current_choice == "Offset":
-                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.velocityrainbow_offset),
-                               fill=self.text_color,
-                               font=self.font)
-
-            if self.current_choice == "Scale":
-                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.velocityrainbow_scale) + "%",
-                               fill=self.text_color,
-                               font=self.font)
-
-            if self.current_choice == "Curve":
-                self.draw.text((self.scale(10), self.scale(70)), str(self.ledsettings.velocityrainbow_curve),
-                               fill=self.text_color,
-                               font=self.font)
+                rainbow_attribute_value = self.ledsettings.velocityrainbow_offset
+            elif self.current_choice == "Scale":
+                rainbow_attribute_value = self.ledsettings.velocityrainbow_scale
+            elif self.current_choice == "Curve":
+                rainbow_attribute_value = self.ledsettings.velocityrainbow_curve
+        if rainbow_attribute_value is not None:
+            self.draw.text((self.scale(10), self.scale(70)), str(rainbow_attribute_value), fill=self.text_color, font=self.font)
 
         # displaying brightness value
         if self.current_location == "Brightness":
