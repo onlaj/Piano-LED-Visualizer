@@ -244,7 +244,6 @@ def change_setting():
         webinterface.usersettings.change_setting_value("reverse", int(value))
         webinterface.ledstrip.change_reverse(int(value), True)
 
-
     if setting_name == "color_mode":
         reload_sequence = True
         if second_value == "no_reload":

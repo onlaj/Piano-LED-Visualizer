@@ -730,17 +730,17 @@ def chords(scale, ledstrip, ledsettings, menu):
 
         brightness = calculate_brightness(ledsettings)
 
-        # TODO fix alignment
-        density = 2
-
+        density = ledstrip.leds_per_meter / 72
         leds_to_update = list(range(strip.numPixels()))
 
         for i in range(int(strip.numPixels() / density)):
             note = i + 21
             note_position = get_note_position(note, ledstrip, ledsettings)
             c = get_scale_color(scale, note, ledsettings)
-
-            leds_to_update.remove(note_position)
+            try:
+                leds_to_update.remove(note_position)
+            except ValueError:
+                pass
 
             if check_if_led_can_be_overwrite(note_position, ledstrip, ledsettings):
                 strip.setPixelColor(note_position,
