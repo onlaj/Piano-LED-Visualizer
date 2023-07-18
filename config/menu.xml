@@ -159,6 +159,9 @@
         <LED_Strip_Settings text="Led count">
             <Led_count text="Number"></Led_count>
         </LED_Strip_Settings>
+        <LED_Strip_Settings text="Leds per meter">
+            <Leds_per_meter text="Number"></Leds_per_meter>
+        </LED_Strip_Settings>
         <LED_Strip_Settings text="Shift">
             <Shift text="Number"></Shift>
         </LED_Strip_Settings>
@@ -167,10 +170,6 @@
         </LED_Strip_Settings>
         <LED_Strip_Settings text="LED Note Offsets">
             <LED_Note_Offsets text="Add Note Offset"></LED_Note_Offsets>
-        </LED_Strip_Settings>
-        <LED_Strip_Settings text="Low density">
-            <Low_density text="Disable"></Low_density>
-            <Low_density text="Enable"></Low_density>
         </LED_Strip_Settings>
     </menu>
     <menu text="Play MIDI">

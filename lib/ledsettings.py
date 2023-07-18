@@ -92,8 +92,6 @@ class LedSettings:
 
         self.sequence_number = 0
 
-        self.low_density = int(usersettings.get_setting_value("low_density"))
-
         # if self.mode == "Disabled" and self.color_mode != "disabled":
         #    usersettings.change_setting_value("color_mode", "disabled")
 
