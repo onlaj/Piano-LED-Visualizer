@@ -8,6 +8,7 @@ class LedStrip:
 
         self.brightness_percent = int(self.usersettings.get_setting_value("brightness_percent"))
         self.led_number = int(self.usersettings.get_setting_value("led_count"))
+        self.leds_per_meter = int(self.usersettings.get_setting_value("leds_per_meter"))
         self.shift = int(self.usersettings.get_setting_value("shift"))
         self.reverse = int(self.usersettings.get_setting_value("reverse"))
 

@@ -87,6 +87,7 @@
 	<led_animation>Scanner</led_animation>
 
 	<led_count>176</led_count>
+	<leds_per_meter>144</leds_per_meter>
 	<shift>0</shift>
 	<reverse>0</reverse>
 
