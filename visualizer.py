@@ -143,6 +143,9 @@ if args.webinterface != "false":
     processThread = threading.Thread(target=start_webserver, daemon=True)
     processThread.start()
 
+
+
+# Main event loop
 while True:
     # screensaver
     if int(menu.screensaver_delay) > 0:
@@ -154,6 +157,9 @@ while True:
         # Handle any other unexpected exceptions here
         print(f"Unexpected exception occurred: {e}")
         elapsed_time = 0
+
+
+    # ???
     if display_cycle >= 3:
         display_cycle = 0
 
@@ -162,6 +168,8 @@ while True:
             timeshift_start = time.time()
     display_cycle += 1
 
+
+    # Save settings if changed
     if (time.time() - usersettings.last_save) > 1:
         usersettings.save_changes()
         if usersettings.pending_reset:
@@ -171,6 +179,9 @@ while True:
             menu.show()
             ledsettings = LedSettings(usersettings)
 
+
+
+    # Process GPIO keys
     if GPIO.input(KEYUP) == 0:
         midiports.last_activity = time.time()
         menu.change_pointer(0)
@@ -221,38 +232,40 @@ while True:
         while GPIO.input(JPRESS) == 0:
             time.sleep(0.01)
 
-    red = ledsettings.get_color("Red")
-    green = ledsettings.get_color("Green")
-    blue = ledsettings.get_color("Blue")
 
+
+
+    # Rainbow timeshift calculation
     timeshift = (time.time() - timeshift_start) * ledsettings.rainbow_timeshift
 
-    if ledsettings.mode == "Fading" or ledsettings.mode == "Velocity":
-        n = 0
-        for note in ledstrip.keylist:
-            if ledsettings.color_mode == "Multicolor":
-                try:
-                    red = ledstrip.keylist_color[n][0]
-                    green = ledstrip.keylist_color[n][1]
-                    blue = ledstrip.keylist_color[n][2]
-                except Exception as e:
-                    print(f"Unexpected exception occurred: {e}")
 
-            if int(note) > 0:
+    # Fade processing
+    for n, strength in enumerate(ledstrip.keylist):
+        # Restore led colors
+        try:
+            if type(ledstrip.keylist_color[n]) is list:
+                red = ledstrip.keylist_color[n][0]
+                green = ledstrip.keylist_color[n][1]
+                blue = ledstrip.keylist_color[n][2]
+            else:
+                red, green, blue = (0, 0, 0)
+        except Exception as e:
+            print(f"Unexpected exception occurred: {e}")
+
+
+        if ledsettings.mode == "Normal":
+            # color_mode Rainbow needs update because of timeshift
+            if ledsettings.color_mode == "Rainbow":
+                red, green, blue = calculate_rainbow_colors(ledsettings, n, timeshift)
+
+        elif ledsettings.mode == "Fading" or ledsettings.mode == "Velocity":
+            if int(strength) > 0:
                 if ledsettings.color_mode == "Rainbow":
                     red, green, blue = calculate_rainbow_colors(ledsettings, n, timeshift)
 
-                    if int(note) == 1001:
+                    if int(strength) == 1001:
                         ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
                         ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
-
-                if ledsettings.color_mode == "VelocityRainbow":
-                    try:
-                        red = ledstrip.keylist_color[n][0]
-                        green = ledstrip.keylist_color[n][1]
-                        blue = ledstrip.keylist_color[n][2]
-                    except:
-                        pass
 
                 if ledsettings.color_mode == "Speed":
                     red, green, blue = calculate_speed_colors(ledsettings)
@@ -260,21 +273,15 @@ while True:
                 if ledsettings.color_mode == "Gradient":
                     red, green, blue = calculate_gradient_colors(ledsettings, n)
 
-                if ledsettings.color_mode == "Scale":
-                    try:
-                        red = ledstrip.keylist_color[n][0]
-                        green = ledstrip.keylist_color[n][1]
-                        blue = ledstrip.keylist_color[n][2]
-                    except Exception as e:
-                        print(f"Unexpected exception occurred: {e}")
 
             if ledsettings.mode == "Velocity":
+                # If sustain pedal is off and note is off, turn of fade processing
                 if int(last_control_change) < pedal_deadzone and ledstrip.keylist_status[n] == 0:
                     ledstrip.keylist[n] = 0
 
             if ledstrip.keylist_status[n] == 0 or ledsettings.mode == "Velocity":
-                if int(note) > 0:
-                    fading = (note / float(100)) / 10
+                if int(strength) > 0:
+                    fading = (strength / float(100)) / 10
                     ledstrip.strip.setPixelColor(n, Color(int(int(green) * fading), int(int(red) * fading),
                                                           int(int(blue) * fading)))
                     ledstrip.set_adjacent_colors(n, Color(int(int(green) * fading), int(int(red) * fading),
@@ -293,7 +300,10 @@ while True:
                 else:
                     ledstrip.keylist[n] = 0
 
-            n += 1
+
+
+
+    # Prep midi event queue
     try:
         if len(saving.is_playing_midi) == 0 and learning.is_started_midi is False:
             midiports.midipending = midiports.inport.iter_pending()
@@ -346,28 +356,7 @@ while True:
 
         elapsed_time = time.time() - saving.start_time
 
-        if ledsettings.color_mode == "Rainbow":
-            red, green, blue = calculate_rainbow_colors(ledsettings, note_position, timeshift)
 
-        if ledsettings.color_mode == "Speed":
-            red, green, blue = calculate_speed_colors(ledsettings)
-
-        if ledsettings.color_mode == "Gradient":
-            red, green, blue = calculate_gradient_colors(ledsettings, note_position)
-
-        if ledsettings.color_mode == "Scale":
-            scale_colors = get_scale_color(ledsettings.scale_key, note, ledsettings)
-            red = scale_colors[0]
-            green = scale_colors[1]
-            blue = scale_colors[2]
-            ledstrip.keylist_color[note_position] = scale_colors
-
-        if ledsettings.color_mode == "VelocityRainbow":
-            if int(velocity) > 0:
-                x = int(((255 * powercurve(int(velocity) / 127, ledsettings.velocityrainbow_curve / 100)
-                          * (ledsettings.velocityrainbow_scale / 100) % 256) + ledsettings.velocityrainbow_offset) % 256)
-                x2 = colorsys.hsv_to_rgb(x / 255, 1, (int(velocity) / 127) * 0.3 + 0.7)
-                (red, green, blue) = map(lambda x: round(x * 255), x2)
 
         if int(velocity) == 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is lifted (off)
             ledstrip.keylist_status[note_position] = 0
@@ -391,20 +380,45 @@ while True:
                 saving.add_track("note_off", original_note, velocity, midiports.last_activity)
         elif int(velocity) > 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is pressed
             ledsettings.speed_add_note()
+
+            if ledsettings.color_mode == "Single":
+                red = ledsettings.get_color("Red")
+                green = ledsettings.get_color("Green")
+                blue = ledsettings.get_color("Blue")
+
+            if ledsettings.color_mode == "Rainbow":
+                red, green, blue = calculate_rainbow_colors(ledsettings, note_position, timeshift)
+
+            if ledsettings.color_mode == "Speed":
+                red, green, blue = calculate_speed_colors(ledsettings)
+
+            if ledsettings.color_mode == "Gradient":
+                red, green, blue = calculate_gradient_colors(ledsettings, note_position)
+
+            if ledsettings.color_mode == "Scale":
+                scale_colors = get_scale_color(ledsettings.scale_key, note, ledsettings)
+                red = scale_colors[0]
+                green = scale_colors[1]
+                blue = scale_colors[2]
+
             if ledsettings.color_mode == "Multicolor":
                 chosen_color = ledsettings.get_random_multicolor_in_range(note)
                 red = chosen_color[0]
                 green = chosen_color[1]
                 blue = chosen_color[2]
-                ledstrip.keylist_color[note_position] = [red, green, blue]
+
             if ledsettings.color_mode == "VelocityRainbow":
                 x = int(((255 * powercurve(int(velocity) / 127, ledsettings.velocityrainbow_curve / 100)
-                          * (
-                                      ledsettings.velocityrainbow_scale / 100) % 256) + ledsettings.velocityrainbow_offset) % 256)
+                          * (ledsettings.velocityrainbow_scale / 100) % 256) + ledsettings.velocityrainbow_offset) % 256)
                 x2 = colorsys.hsv_to_rgb(x / 255, 1, (int(velocity) / 127) * 0.3 + 0.7)
                 (red, green, blue) = map(lambda x: round(x * 255), x2)
-                ledstrip.keylist_color[note_position] = [red, green, blue]
 
+
+            # Save ledstrip led colors
+            ledstrip.keylist_color[note_position] = [red, green, blue]
+
+
+            # Set initial fade processing state
             ledstrip.keylist_status[note_position] = 1
             if ledsettings.mode == "Velocity":
                 brightness = (100 / (float(velocity) / 127)) / 100
@@ -415,6 +429,8 @@ while True:
             if ledsettings.mode == "Velocity":
                 ledstrip.keylist[note_position] = 999 / float(brightness)
 
+
+            # Apply learning colors
             channel = find_between(str(msg), "channel=", " ")
             if channel == "12" or channel == "11":
                 if ledsettings.skipped_notes != "Finger-based":
@@ -433,18 +449,31 @@ while True:
                                     int(int(blue) / float(brightness)))
                     ledstrip.strip.setPixelColor(note_position, s_color)
                     ledstrip.set_adjacent_colors(note_position, s_color, False)
+
+
+            # Saving
             if saving.is_recording:
                 if ledsettings.color_mode == "Multicolor":
                     saving.add_track("note_on", original_note, velocity, midiports.last_activity,
                                      wc.rgb_to_hex((red, green, blue)))
                 else:
                     saving.add_track("note_on", original_note, velocity, midiports.last_activity)
+
+
+
+        # Midi control change event
         else:
             control = find_between(str(msg), "control=", " ")
             value = find_between(str(msg), "value=", " ")
             if saving.is_recording:
                 saving.add_control_change("control_change", 0, control, value, midiports.last_activity)
+
+        # Save event-loop update
         saving.restart_time()
         if len(saving.is_playing_midi) > 0:
             midiports.pending_queue.remove(msg)
+
+
+
+    # Update ledstrip
     ledstrip.strip.show()
