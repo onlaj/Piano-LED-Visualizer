@@ -1257,7 +1257,6 @@ def get_settings():
     response["leds_per_meter"] = webinterface.usersettings.get_setting_value("leds_per_meter")
     response["led_shift"] = webinterface.usersettings.get_setting_value("shift")
     response["led_reverse"] = webinterface.usersettings.get_setting_value("reverse")
-    response["low_density"] = webinterface.usersettings.get_setting_value("low_density")
 
     response["color_mode"] = webinterface.usersettings.get_setting_value("color_mode")
 
