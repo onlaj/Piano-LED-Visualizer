@@ -232,6 +232,10 @@ def change_setting():
         webinterface.usersettings.change_setting_value("led_count", int(value))
         webinterface.ledstrip.change_led_count(int(value), True)
 
+    if setting_name == "leds_per_meter":
+        webinterface.usersettings.change_setting_value("leds_per_meter", int(value))
+        webinterface.ledstrip.leds_per_meter = int(value)
+
     if setting_name == "shift":
         webinterface.usersettings.change_setting_value("shift", int(value))
         webinterface.ledstrip.change_shift(int(value), True)
@@ -240,9 +244,6 @@ def change_setting():
         webinterface.usersettings.change_setting_value("reverse", int(value))
         webinterface.ledstrip.change_reverse(int(value), True)
 
-    if setting_name == "low_density":
-        webinterface.usersettings.change_setting_value("low_density", int(value))
-        webinterface.ledsettings.low_density = int(value)
 
     if setting_name == "color_mode":
         reload_sequence = True
@@ -1254,6 +1255,7 @@ def get_settings():
     response["skipped_notes"] = webinterface.usersettings.get_setting_value("skipped_notes")
     response["note_offsets"] = webinterface.usersettings.get_setting_value("note_offsets")
     response["led_count"] = webinterface.usersettings.get_setting_value("led_count")
+    response["leds_per_meter"] = webinterface.usersettings.get_setting_value("leds_per_meter")
     response["led_shift"] = webinterface.usersettings.get_setting_value("shift")
     response["led_reverse"] = webinterface.usersettings.get_setting_value("reverse")
     response["low_density"] = webinterface.usersettings.get_setting_value("low_density")

@@ -256,9 +256,9 @@ function get_settings(home = true) {
                     document.getElementById("backlight_brightness_percent").value = response.backlight_brightness + "%";
                     document.getElementById("skipped_notes").value = response.skipped_notes;
                     document.getElementById("led_count").value = response.led_count;
+                    document.getElementById("leds_per_meter").value = response.leds_per_meter;
                     document.getElementById("shift").value = response.led_shift;
                     document.getElementById("reverse").value = response.led_reverse;
-                    document.getElementById("low_density").value = response.low_density;
                     document.getElementById("sides_color").dispatchEvent(new Event('input'));
                     document.getElementById("backlight_color").dispatchEvent(new Event('input'));
                 }
@@ -749,6 +749,10 @@ function initialize_led_settings() {
             change_setting("led_count", this.value)
         }
 
+        document.getElementById('leds_per_meter').onchange = function () {
+            change_setting("leds_per_meter", this.value)
+        }
+
         document.getElementById('shift').onchange = function () {
             change_setting("shift", this.value)
         }
@@ -756,11 +760,6 @@ function initialize_led_settings() {
         document.getElementById('reverse').onchange = function () {
             change_setting("reverse", this.value)
         }
-
-        document.getElementById('low_density').onchange = function () {
-            change_setting("low_density", this.value)
-        }
-
 
         document.getElementById('sides_color_mode').onchange = function () {
             change_setting("sides_color_mode", this.value)

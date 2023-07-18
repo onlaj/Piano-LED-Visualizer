@@ -730,10 +730,8 @@ def chords(scale, ledstrip, ledsettings, menu):
 
         brightness = calculate_brightness(ledsettings)
 
-        if ledsettings.low_density == 1:
-            density = 1
-        else:
-            density = 2
+        # TODO fix alignment
+        density = 2
 
         leds_to_update = list(range(strip.numPixels()))
 

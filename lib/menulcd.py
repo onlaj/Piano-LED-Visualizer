@@ -565,6 +565,10 @@ class MenuLCD:
         if self.current_location == "Led_count":
             draw_value(self.ledstrip.led_number)
 
+        # displaying leds per meter
+        if self.current_location == "Leds_per_meter":
+            draw_value(self.ledstrip.leds_per_meter)
+
         # displaying shift
         if self.current_location == "Shift":
             draw_value(self.ledstrip.shift)
@@ -977,14 +981,6 @@ class MenuLCD:
             else:
                 self.ledsettings.deletecolor(location.replace('Color', ''))
 
-        if location == "Low_density":
-            if choice == "Enable":
-                self.usersettings.change_setting_value("low_density", 1)
-                self.ledsettings.low_density = 1
-            else:
-                self.usersettings.change_setting_value("low_density", 0)
-                self.ledsettings.low_density = 0
-
         if location == "Multicolor" and choice == "Confirm":
             self.ledsettings.color_mode = "Multicolor"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
@@ -1073,6 +1069,9 @@ class MenuLCD:
 
         if self.current_location == "Led_count":
             self.ledstrip.change_led_count(value)
+
+        if self.current_location == "Leds_per_meter":
+            self.ledstrip.leds_per_meter = self.ledstrip.leds_per_meter + value
 
         if self.current_location == "Shift":
             self.ledstrip.change_shift(value)
