@@ -255,8 +255,11 @@ while True:
 
         if ledsettings.mode == "Normal":
             # color_mode Rainbow needs update because of timeshift
-            if ledsettings.color_mode == "Rainbow":
-                red, green, blue = calculate_rainbow_colors(ledsettings, n, timeshift)
+            if ledstrip.keylist_status[n] == 1:
+                if ledsettings.color_mode == "Rainbow":
+                    red, green, blue = calculate_rainbow_colors(ledsettings, n, timeshift)
+                    ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
+                    ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
 
         elif ledsettings.mode == "Fading" or ledsettings.mode == "Velocity":
             if int(strength) > 0:
