@@ -199,6 +199,48 @@ class LearnMIDI:
             self.loading = 5  # 5 = Error!
             self.is_loaded_midi.clear()
 
+    # predict future notes in MIDI messages
+    def predict_future_notes(self, starting_note, ending_note):
+        predicted_future_notes = []
+        current_note = starting_note
+        for msg in self.song_tracks[starting_note:ending_note]:
+            # Get time delay
+            tDelay = mido.tick2second(msg.time, self.ticks_per_beat, self.song_tempo * 100 / self.set_tempo)
+
+            if not msg.is_meta and tDelay > 0 and (
+                    msg.type == 'note_on' or msg.type == 'note_off') and predicted_future_notes and self.practice == 0:
+
+                self.light_up_predicted_future_notes(predicted_future_notes)
+                return
+
+            if msg.type == 'note_on' and msg.velocity > 0:
+                predicted_future_notes.append(msg)
+
+            current_note += 1
+
+    def light_up_predicted_future_notes(self, notes):
+        dim = 10
+        for msg in notes:
+            # Light-up LEDs with the notes to press
+            if not msg.is_meta:
+                # Calculate note position on the strip and display
+                if msg.type == 'note_on' or msg.type == 'note_off':
+                    note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
+
+                    brightness = 0.5
+                    brightness /= dim
+                    if msg.channel == 1:
+                        red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
+                        green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
+                        blue = int(self.hand_colorList[self.hand_colorR][2] * brightness)
+                    if msg.channel == 2:
+                        red = int(self.hand_colorList[self.hand_colorL][0] * brightness)
+                        green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
+                        blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
+
+                    self.ledstrip.strip.setPixelColor(note_position, Color(green, red, blue))
+                    self.ledstrip.strip.show()
+
     def learn_midi(self):
         loops_count = 0
         # Preliminary checks
@@ -230,7 +272,11 @@ class LearnMIDI:
                 start_idx = int(self.start_point * len(self.song_tracks) / 100)
                 end_idx = int(self.end_point * len(self.song_tracks) / 100)
 
+                # self.current_idx does not count meta messages (used for sheet music sync in web interface)
+                # absolute_idx counts all messages (used for predicting messages)
+
                 self.current_idx = start_idx
+                absolute_idx = start_idx
 
                 for msg in self.song_tracks[start_idx:end_idx]:
                     # Exit thread if learning is stopped
@@ -251,6 +297,7 @@ class LearnMIDI:
                         if tDelay > 0 and (
                                 msg.type == 'note_on' or msg.type == 'note_off') and notes_to_press and self.practice == 0:
                             notes_pressed = []
+                            self.predict_future_notes(absolute_idx, end_idx)
                             while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
                                 for msg_in in self.midiports.inport.iter_pending():
                                     note = int(find_between(str(msg_in), "note=", " "))
@@ -282,7 +329,11 @@ class LearnMIDI:
                         # Calculate note position on the strip and display
                         if msg.type == 'note_on' or msg.type == 'note_off':
                             note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
-                            brightness = msg.velocity / 127
+                            if(msg.velocity == 0):
+                                brightness = 0
+                            else:
+                                brightness = 0.5
+
                             if msg.channel == 1:
                                 red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
                                 green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
@@ -308,6 +359,7 @@ class LearnMIDI:
                                 # send midi sound for Right hand
                                 self.practice == 2):  # send midi sound for Listen only
                             self.midiports.playport.send(msg)
+                    absolute_idx += 1
             except Exception as e:
                 self.is_started_midi = False
 
