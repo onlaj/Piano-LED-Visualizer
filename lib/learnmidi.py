@@ -200,7 +200,7 @@ class LearnMIDI:
             self.is_loaded_midi.clear()
 
     # predict future notes in MIDI messages
-    def predict_future_notes(self, starting_note, ending_note):
+    def predict_future_notes(self, starting_note, ending_note, notes_to_press):
         predicted_future_notes = []
         current_note = starting_note
         for msg in self.song_tracks[starting_note:ending_note]:
@@ -214,7 +214,9 @@ class LearnMIDI:
                 return
 
             if msg.type == 'note_on' and msg.velocity > 0:
-                predicted_future_notes.append(msg)
+                # make sure msg.note is not in notes_to_press list
+                if msg.note not in notes_to_press:
+                    predicted_future_notes.append(msg)
 
             current_note += 1
 
@@ -297,7 +299,7 @@ class LearnMIDI:
                         if tDelay > 0 and (
                                 msg.type == 'note_on' or msg.type == 'note_off') and notes_to_press and self.practice == 0:
                             notes_pressed = []
-                            self.predict_future_notes(absolute_idx, end_idx)
+                            self.predict_future_notes(absolute_idx, end_idx, notes_to_press)
                             while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
                                 for msg_in in self.midiports.inport.iter_pending():
                                     note = int(find_between(str(msg_in), "note=", " "))
