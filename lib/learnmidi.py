@@ -243,6 +243,25 @@ class LearnMIDI:
                     self.ledstrip.strip.setPixelColor(note_position, Color(green, red, blue))
                     self.ledstrip.strip.show()
 
+    def handle_wrong_notes(self, wrong_notes):
+        # loop through wrong_notes and light them up
+        for msg in wrong_notes:
+
+            note = int(find_between(str(msg), "note=", " "))
+
+            if "note_off" in str(msg):
+                velocity = 0
+            else:
+                velocity = int(find_between(str(msg), "velocity=", " "))
+
+            note_position = get_note_position(note, self.ledstrip, self.ledsettings)
+            if velocity > 0:
+                self.ledstrip.strip.setPixelColor(note_position, Color(0, 255, 0))
+            else:
+                self.ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
+
+        self.ledstrip.strip.show()
+
     def learn_midi(self):
         loops_count = 0
         # Preliminary checks
@@ -299,14 +318,21 @@ class LearnMIDI:
                         if tDelay > 0 and (
                                 msg.type == 'note_on' or msg.type == 'note_off') and notes_to_press and self.practice == 0:
                             notes_pressed = []
+                            wrong_notes = []
                             self.predict_future_notes(absolute_idx, end_idx, notes_to_press)
                             while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
                                 for msg_in in self.midiports.inport.iter_pending():
                                     note = int(find_between(str(msg_in), "note=", " "))
+
                                     if "note_off" in str(msg_in):
                                         velocity = 0
                                     else:
                                         velocity = int(find_between(str(msg_in), "velocity=", " "))
+
+                                    # check if note is in the list of notes to press
+                                    if note not in notes_to_press:
+                                        wrong_notes.append(msg_in)
+
                                     if velocity > 0:
                                         if note not in notes_pressed:
                                             notes_pressed.append(note)
@@ -315,6 +341,13 @@ class LearnMIDI:
                                             notes_pressed.remove(note)
                                         except ValueError:
                                             pass  # do nothing
+
+                                self.handle_wrong_notes(wrong_notes)
+                                wrong_notes.clear()
+
+                                # light up predicted future notes again in case the future note was pressed
+                                # and color was overwritten
+                                self.predict_future_notes(absolute_idx, end_idx, notes_to_press)
 
                             # Turn off the pressed LEDs
                             fastColorWipe(self.ledstrip.strip, True, self.ledsettings)  # ideally clear only pressed notes!
@@ -331,7 +364,7 @@ class LearnMIDI:
                         # Calculate note position on the strip and display
                         if msg.type == 'note_on' or msg.type == 'note_off':
                             note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
-                            if(msg.velocity == 0):
+                            if msg.velocity == 0:
                                 brightness = 0
                             else:
                                 brightness = 0.5
