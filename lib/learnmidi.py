@@ -38,6 +38,9 @@ class LearnMIDI:
         self.hand_colorR = int(usersettings.get_setting_value("hand_colorR"))
         self.hand_colorL = int(usersettings.get_setting_value("hand_colorL"))
 
+        self.show_wrong_notes = int(usersettings.get_setting_value("show_wrong_notes"))
+        self.show_future_notes = int(usersettings.get_setting_value("show_future_notes"))
+
         self.notes_time = []
         self.socket_send = []
 
@@ -201,6 +204,10 @@ class LearnMIDI:
 
     # predict future notes in MIDI messages
     def predict_future_notes(self, starting_note, ending_note, notes_to_press):
+
+        if self.show_future_notes != 1:
+            return
+
         predicted_future_notes = []
         current_note = starting_note
         for msg in self.song_tracks[starting_note:ending_note]:
@@ -244,6 +251,10 @@ class LearnMIDI:
                     self.ledstrip.strip.show()
 
     def handle_wrong_notes(self, wrong_notes):
+
+        if self.show_wrong_notes != 1:
+            return
+
         # loop through wrong_notes and light them up
         for msg in wrong_notes:
 
