@@ -20,6 +20,19 @@ def find_nearest(array, target):
     return idx
 
 
+def install_midi2abc():
+    print("Installing abcmidi")
+    subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
+
+
+# Get midi song tempo
+def get_tempo(mid):
+    for msg in mid:  # Search for tempo
+        if msg.type == 'set_tempo':
+            return msg.tempo
+    return 500000  # If not found return default tempo
+
+
 class LearnMIDI:
     def __init__(self, usersettings, ledsettings, midiports, ledstrip):
         self.menu = None
@@ -114,13 +127,6 @@ class LearnMIDI:
             self.hand_colorL = clamp(self.hand_colorL, 0, len(self.hand_colorList) - 1)
             self.usersettings.change_setting_value("hand_colorL", self.hand_colorL)
 
-    # Get midi song tempo
-    def get_tempo(self, mid):
-        for msg in mid:  # Search for tempo
-            if msg.type == 'set_tempo':
-                return msg.tempo
-        return 500000  # If not found return default tempo
-
     def load_song_from_cache(self, song_path):
         # Load song from cache
         try:
@@ -162,7 +168,7 @@ class LearnMIDI:
             mid = mido.MidiFile('Songs/' + song_path)
 
             # Get tempo and Ticks per beat
-            self.song_tempo = self.get_tempo(mid)
+            self.song_tempo = get_tempo(mid)
             self.ticks_per_beat = mid.ticks_per_beat
 
             # Assign Tracks to different channels before merging to know the message origin
@@ -364,7 +370,8 @@ class LearnMIDI:
                                 self.predict_future_notes(absolute_idx, end_idx, notes_to_press)
 
                             # Turn off the pressed LEDs
-                            fastColorWipe(self.ledstrip.strip, True, self.ledsettings)  # ideally clear only pressed notes!
+                            fastColorWipe(self.ledstrip.strip, True,
+                                          self.ledsettings)  # ideally clear only pressed notes!
                             notes_to_press.clear()
 
                     # Realize time delay, consider also the time lost during computation
@@ -422,16 +429,13 @@ class LearnMIDI:
         if not os.path.isfile('Songs/' + midi_file.replace(".mid", ".abc")):
             # subprocess.call(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
             try:
-                subprocess.check_output(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
+                subprocess.check_output(
+                    ['midi2abc', 'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
             except Exception as e:
                 # check if e contains the string 'No such file or directory'
                 if 'No such file or directory' in str(e):
                     print("Midiabc not found, installing...")
-                    self.install_midi2abc()
+                    install_midi2abc()
                     self.convert_midi_to_abc(midi_file)
         else:
             print("file already converted")
-
-    def install_midi2abc(self):
-        print("Installing abcmidi")
-        subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
