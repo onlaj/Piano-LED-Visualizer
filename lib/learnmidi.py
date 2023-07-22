@@ -238,14 +238,17 @@ class LearnMIDI:
 
                     brightness = 0.5
                     brightness /= dim
+                    red, green, blue = [0, 0, 0]
                     if msg.channel == 1:
-                        red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
-                        green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
-                        blue = int(self.hand_colorList[self.hand_colorR][2] * brightness)
+                        # red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
+                        # green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
+                        # blue = int(self.hand_colorList[self.hand_colorR][2] * brightness)
+                        red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorR]]
                     if msg.channel == 2:
-                        red = int(self.hand_colorList[self.hand_colorL][0] * brightness)
-                        green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
-                        blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
+                        # red = int(self.hand_colorList[self.hand_colorL][0] * brightness)
+                        # green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
+                        # blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
+                        red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
 
                     self.ledstrip.strip.setPixelColor(note_position, Color(green, red, blue))
                     self.ledstrip.strip.show()
@@ -380,14 +383,17 @@ class LearnMIDI:
                             else:
                                 brightness = 0.5
 
+                            red, green, blue = [0, 0, 0]
                             if msg.channel == 1:
-                                red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
-                                green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
-                                blue = int(self.hand_colorList[self.hand_colorR][2] * brightness)
+                                # red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
+                                # green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
+                                # blue = int(self.hand_colorList[self.hand_colorR][2] * brightness)
+                                red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorR]]
                             if msg.channel == 2:
-                                red = int(self.hand_colorList[self.hand_colorL][0] * brightness)
-                                green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
-                                blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
+                                # red = int(self.hand_colorList[self.hand_colorL][0] * brightness)
+                                # green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
+                                # blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
+                                red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
                             self.ledstrip.strip.setPixelColor(note_position, Color(green, red, blue))
                             self.ledstrip.strip.show()
 
