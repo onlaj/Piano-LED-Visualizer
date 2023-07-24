@@ -264,55 +264,43 @@ while True:
         if new_color is not None:
             red, green, blue = ColorInt2RGB(new_color)
 
+
+        # color_mode Rainbow needs update because of timeshift
+        if ledsettings.color_mode == "Rainbow":
+            red, green, blue = calculate_rainbow_colors(ledsettings, n, timeshift)
+
+
+        fading = 1
         if ledsettings.mode == "Normal":
-            # color_mode Rainbow needs update because of timeshift
-            if ledstrip.keylist_status[n] == 1:
-                if ledsettings.color_mode == "Rainbow":
-                    red, green, blue = calculate_rainbow_colors(ledsettings, n, timeshift)
-                    ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
-                    ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
-
+            pass
         elif ledsettings.mode == "Fading" or ledsettings.mode == "Velocity":
-            if int(strength) > 0:
-                if ledsettings.color_mode == "Rainbow":
-                    red, green, blue = calculate_rainbow_colors(ledsettings, n, timeshift)
-
-                    if int(strength) == 1001:
-                        ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
-                        ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False)
-
-                if ledsettings.color_mode == "Speed":
-                    red, green, blue = calculate_speed_colors(ledsettings)
-
-                if ledsettings.color_mode == "Gradient":
-                    red, green, blue = calculate_gradient_colors(ledsettings, n)
-
-
             if ledsettings.mode == "Velocity":
                 # If sustain pedal is off and note is off, turn of fade processing
                 if int(last_control_change) < pedal_deadzone and ledstrip.keylist_status[n] == 0:
                     ledstrip.keylist[n] = 0
+                    red, green, blue = (0, 0, 0)
 
             if ledstrip.keylist_status[n] == 0 or ledsettings.mode == "Velocity":
                 if int(strength) > 0:
                     fading = (strength / float(100)) / 10
-                    ledstrip.strip.setPixelColor(n, Color(int(int(green) * fading), int(int(red) * fading),
-                                                          int(int(blue) * fading)))
-                    ledstrip.set_adjacent_colors(n, Color(int(int(green) * fading), int(int(red) * fading),
-                                                          int(int(blue) * fading)), False, fading)
+                    red = int(red * fading)
+                    green = int(green * fading)
+                    blue = int(blue * fading)
                     ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
-                    if ledstrip.keylist[n] <= 0 and menu.screensaver_is_running is not True:
-                        red_fading = int(ledsettings.get_backlight_color("Red")) * float(
-                            ledsettings.backlight_brightness_percent) / 100
-                        green_fading = int(ledsettings.get_backlight_color("Green")) * float(
-                            ledsettings.backlight_brightness_percent) / 100
-                        blue_fading = int(ledsettings.get_backlight_color("Blue")) * float(
-                            ledsettings.backlight_brightness_percent) / 100
-                        color = Color(int(green_fading), int(red_fading), int(blue_fading))
-                        ledstrip.strip.setPixelColor(n, color)
-                        ledstrip.set_adjacent_colors(n, color, False, fading)
                 else:
                     ledstrip.keylist[n] = 0
+                    red, green, blue = (0, 0, 0)
+
+        # If fade mode complete, apply backlight
+        if (ledstrip.keylist_status[n] == 0 or ledsettings.mode == "Velocity") and ledstrip.keylist[n] <= 0 and menu.screensaver_is_running is not True:
+            backlight_level = float(ledsettings.backlight_brightness_percent) / 100
+            red = int(ledsettings.get_backlight_color("Red")) * backlight_level
+            green = int(ledsettings.get_backlight_color("Green")) * backlight_level
+            blue = int(ledsettings.get_backlight_color("Blue")) * backlight_level
+
+        # Apply fade mode colors to ledstrip
+        ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
+        ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False, fading)
 
 
 
