@@ -13,6 +13,7 @@ from lib.savemidi import SaveMIDI
 from lib.usersettings import UserSettings
 from lib.functions import *
 from lib.neopixel import *
+from lib.color_mode import *
 import argparse
 import threading
 from webinterface import webinterface
@@ -117,6 +118,8 @@ last_control_change = 0
 pedal_deadzone = 10
 timeshift_start = time.time()
 timeshift = 0
+ledshow_timestamp = time.time()
+color_mode_name = ""
 
 fastColorWipe(ledstrip.strip, True, ledsettings)
 
@@ -144,7 +147,6 @@ if args.webinterface != "false":
     processThread.start()
 
 
-
 # Main event loop
 while True:
     # screensaver
@@ -159,7 +161,7 @@ while True:
         elapsed_time = 0
 
 
-    # ???
+    # Show menulcd
     if display_cycle >= 3:
         display_cycle = 0
 
@@ -169,9 +171,16 @@ while True:
     display_cycle += 1
 
 
+    # Create ColorMode if first-run or changed
+    if ledsettings.color_mode != color_mode_name:
+        color_mode = ColorMode(ledsettings.color_mode, ledsettings)
+        color_mode_name = ledsettings.color_mode
+
     # Save settings if changed
     if (time.time() - usersettings.last_save) > 1:
-        usersettings.save_changes()
+        if usersettings.pending_changes:
+            color_mode.LoadSettings(ledsettings)
+            usersettings.save_changes()
         if usersettings.pending_reset:
             usersettings.pending_reset = False
             ledstrip = LedStrip(usersettings, ledsettings)
@@ -234,7 +243,6 @@ while True:
 
 
 
-
     # Rainbow timeshift calculation
     timeshift = (time.time() - timeshift_start) * ledsettings.rainbow_timeshift
 
@@ -252,6 +260,9 @@ while True:
         except Exception as e:
             print(f"Unexpected exception occurred: {e}")
 
+        new_color = color_mode.ColorUpdate(time.time() - ledshow_timestamp, n, Color(red,green,blue))
+        if new_color is not None:
+            red, green, blue = ColorInt2RGB(new_color)
 
         if ledsettings.mode == "Normal":
             # color_mode Rainbow needs update because of timeshift
@@ -382,6 +393,8 @@ while True:
             if saving.is_recording:
                 saving.add_track("note_off", original_note, velocity, midiports.last_activity)
         elif int(velocity) > 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is pressed
+            red, green, blue = ColorInt2RGB(color_mode.NoteOn(msg, None, note_position))
+
             ledsettings.speed_add_note()
 
             if ledsettings.color_mode == "Single":
@@ -409,12 +422,6 @@ while True:
                 red = chosen_color[0]
                 green = chosen_color[1]
                 blue = chosen_color[2]
-
-            if ledsettings.color_mode == "VelocityRainbow":
-                x = int(((255 * powercurve(int(velocity) / 127, ledsettings.velocityrainbow_curve / 100)
-                          * (ledsettings.velocityrainbow_scale / 100) % 256) + ledsettings.velocityrainbow_offset) % 256)
-                x2 = colorsys.hsv_to_rgb(x / 255, 1, (int(velocity) / 127) * 0.3 + 0.7)
-                (red, green, blue) = map(lambda x: round(x * 255), x2)
 
 
             # Save ledstrip led colors
@@ -463,13 +470,14 @@ while True:
                     saving.add_track("note_on", original_note, velocity, midiports.last_activity)
 
 
-
         # Midi control change event
         else:
             control = find_between(str(msg), "control=", " ")
             value = find_between(str(msg), "value=", " ")
             if saving.is_recording:
                 saving.add_control_change("control_change", 0, control, value, midiports.last_activity)
+
+        color_mode.MidiEvent(msg, None, ledstrip)
 
         # Save event-loop update
         saving.restart_time()
