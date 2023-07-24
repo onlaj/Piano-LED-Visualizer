@@ -190,6 +190,8 @@
         <Learn_MIDI text="Set tempo"></Learn_MIDI>
         <Learn_MIDI text="Hand color R"></Learn_MIDI>
         <Learn_MIDI text="Hand color L"></Learn_MIDI>
+        <Learn_MIDI text="Wrong notes"></Learn_MIDI>
+        <Learn_MIDI text="Future notes"></Learn_MIDI>
     </menu>
     <menu text="Ports Settings">
         <Ports_Settings text="Input"></Ports_Settings>
