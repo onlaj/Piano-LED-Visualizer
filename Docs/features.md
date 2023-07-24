@@ -115,7 +115,28 @@ There are 3 modes
   In the Web interface it will also show sheet music. Conversion is automatic and far from perfect,
   so if it doesn't suit your needs you can load your custom sheet.
 
-  ![learnmidi_pic](https://i.imgur.com/zEBs4Gj.png)
+  For practicing, the following 3 modes can be used:
+
+- Melody: The song will wait for you to hit the correct notes. Take your time and try to avoid mistakes. Holding notes to their full duration is also important, otherwise you might develop muscle memory with the mistakes included.
+- Rhythm: Adjust the speed using Set tempo option until you can play without mistakes. Play as fast as you can comfortably. Work your way up to 100% speed. Practice the Melody first to make this step easier.
+- Listen: In this mode the song will play in listen only mode at the Set tempo speed.
+
+
+  Different combinations of practicing modes be realized using the Hands and Mute Hand options. To practice only a section of the song, adjust the Start point and the End point values.
+
+  The sheet music is thoughtfully synchronized with your playing, providing real-time feedback by highlighting the currently played part.
+
+  Additionally, you have the freedom to change the tempo of the song, allowing you to practice at a pace that suits your learning curve.
+
+
+  To enhance the learning experience, there are two optional features:
+
+  - Firstly, there is an option to light up incorrectly pressed keys with a red color, providing immediate feedback to help you identify and correct mistakes. 
+ 
+  - Secondly, an option to light up future notes with a subtle faded glow, giving you a glimpse into the upcoming notes.
+  
+
+  ![learnmidi_pic](https://i.imgur.com/2BDSkS8.jpg)
 
 ## Managing songs <a name="managing_songs"></a>
 
