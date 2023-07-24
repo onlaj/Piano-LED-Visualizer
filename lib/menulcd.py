@@ -14,6 +14,7 @@ import RPi.GPIO as GPIO
 
 class MenuLCD:
     def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports):
+        self.list_count = None
         self.parent_menu = None
         self.current_choice = None
         self.draw = None
@@ -348,8 +349,8 @@ class MenuLCD:
         staffs = self.DOMTree.getElementsByTagName(position)
         text_margin_top = self.scale(15)
         i = 0
-        list_count = len(staffs)
-        list_count -= 1
+        self.list_count = len(staffs)
+        self.list_count -= 1
 
         if self.pointer_position > 9:
             menu_offset = self.pointer_position - 9
@@ -358,7 +359,7 @@ class MenuLCD:
 
         # looping through menu list
         for staff in staffs:
-            self.pointer_position = clamp(self.pointer_position, 0, list_count)
+            self.pointer_position = clamp(self.pointer_position, 0, self.list_count)
             # drawing little arrow to show there are more items above
             if self.pointer_position > 9 and i < menu_offset:
                 self.draw.line(
@@ -406,7 +407,7 @@ class MenuLCD:
                     draw_pointer()
                     self.pointer_position = i
             # drawing little arrow to show there are more items below
-            if i == 10 and self.pointer_position < list_count and list_count > 10:
+            if i == 10 and self.pointer_position < self.list_count and self.list_count > 10:
                 self.draw.line(
                     [
                         (self.scale(119), self.scale(120)),
@@ -670,9 +671,16 @@ class MenuLCD:
 
     def change_pointer(self, direction):
         if direction == 0:
-            self.pointer_position -= 1
+            if (self.pointer_position - 1) < 0:
+                self.pointer_position = self.list_count
+            else:
+                self.pointer_position -= 1
+
         elif direction == 1:
-            self.pointer_position += 1
+            if(self.pointer_position + 1) > self.list_count:
+                self.pointer_position = 0
+            else:
+                self.pointer_position += 1
         self.cut_count = -6
         self.show()
 
