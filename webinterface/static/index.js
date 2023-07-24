@@ -1218,6 +1218,9 @@ function get_learning_status(loop_call = false) {
                 document.getElementById("hands").value = response.hands;
                 document.getElementById("mute_hand").value = response.mute_hand;
 
+                document.getElementById("wrong_notes").value = response.show_wrong_notes;
+                document.getElementById("future_notes").value = response.show_future_notes;
+
                 document.getElementById("start_point").innerHTML = response.start_point;
                 document.getElementById("end_point").innerHTML = response.end_point;
 
