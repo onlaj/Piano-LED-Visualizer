@@ -107,6 +107,8 @@
 	<hand_colorR>0</hand_colorR>
 	<hand_colorL>1</hand_colorL>
 
+    <show_wrong_notes>1</show_wrong_notes>
+    <show_future_notes>1</show_future_notes>
 	<is_loop_active>1</is_loop_active>
     <midi_logging>1</midi_logging>
 

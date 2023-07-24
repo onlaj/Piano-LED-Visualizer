@@ -20,6 +20,19 @@ def find_nearest(array, target):
     return idx
 
 
+def install_midi2abc():
+    print("Installing abcmidi")
+    subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
+
+
+# Get midi song tempo
+def get_tempo(mid):
+    for msg in mid:  # Search for tempo
+        if msg.type == 'set_tempo':
+            return msg.tempo
+    return 500000  # If not found return default tempo
+
+
 class LearnMIDI:
     def __init__(self, usersettings, ledsettings, midiports, ledstrip):
         self.menu = None
@@ -37,6 +50,9 @@ class LearnMIDI:
         self.set_tempo = int(usersettings.get_setting_value("set_tempo"))
         self.hand_colorR = int(usersettings.get_setting_value("hand_colorR"))
         self.hand_colorL = int(usersettings.get_setting_value("hand_colorL"))
+
+        self.show_wrong_notes = int(usersettings.get_setting_value("show_wrong_notes"))
+        self.show_future_notes = int(usersettings.get_setting_value("show_future_notes"))
 
         self.notes_time = []
         self.socket_send = []
@@ -101,6 +117,16 @@ class LearnMIDI:
         self.set_tempo = clamp(self.set_tempo, 10, 200)
         self.usersettings.change_setting_value("set_tempo", self.set_tempo)
 
+    def change_show_wrong_notes(self, value):
+        self.show_wrong_notes += value
+        self.show_wrong_notes = clamp(self.show_wrong_notes, 0, 1)
+        self.usersettings.change_setting_value("show_wrong_notes", self.show_wrong_notes)
+
+    def change_show_future_notes(self, value):
+        self.show_future_notes += value
+        self.show_future_notes = clamp(self.show_future_notes, 0, 1)
+        self.usersettings.change_setting_value("show_future_notes", self.show_future_notes)
+
     def change_hand_color(self, value, hand):
         if hand == 'RIGHT':
             self.hand_colorR += value
@@ -110,13 +136,6 @@ class LearnMIDI:
             self.hand_colorL += value
             self.hand_colorL = clamp(self.hand_colorL, 0, len(self.hand_colorList) - 1)
             self.usersettings.change_setting_value("hand_colorL", self.hand_colorL)
-
-    # Get midi song tempo
-    def get_tempo(self, mid):
-        for msg in mid:  # Search for tempo
-            if msg.type == 'set_tempo':
-                return msg.tempo
-        return 500000  # If not found return default tempo
 
     def load_song_from_cache(self, song_path):
         # Load song from cache
@@ -159,7 +178,7 @@ class LearnMIDI:
             mid = mido.MidiFile('Songs/' + song_path)
 
             # Get tempo and Ticks per beat
-            self.song_tempo = self.get_tempo(mid)
+            self.song_tempo = get_tempo(mid)
             self.ticks_per_beat = mid.ticks_per_beat
 
             # Assign Tracks to different channels before merging to know the message origin
@@ -199,6 +218,80 @@ class LearnMIDI:
             self.loading = 5  # 5 = Error!
             self.is_loaded_midi.clear()
 
+    # predict future notes in MIDI messages
+    def predict_future_notes(self, starting_note, ending_note, notes_to_press):
+
+        if self.show_future_notes != 1:
+            return
+
+        predicted_future_notes = []
+        current_note = starting_note
+        for msg in self.song_tracks[starting_note:ending_note]:
+            # Get time delay
+            tDelay = mido.tick2second(msg.time, self.ticks_per_beat, self.song_tempo * 100 / self.set_tempo)
+
+            if not msg.is_meta and tDelay > 0 and (
+                    msg.type == 'note_on' or msg.type == 'note_off') and predicted_future_notes and self.practice == 0:
+
+                self.light_up_predicted_future_notes(predicted_future_notes)
+                return
+
+            if msg.type == 'note_on' and msg.velocity > 0:
+                # make sure msg.note is not in notes_to_press list
+                if msg.note not in notes_to_press:
+                    predicted_future_notes.append(msg)
+
+            current_note += 1
+
+    def light_up_predicted_future_notes(self, notes):
+        dim = 10
+        for msg in notes:
+            # Light-up LEDs with the notes to press
+            if not msg.is_meta:
+                # Calculate note position on the strip and display
+                if msg.type == 'note_on' or msg.type == 'note_off':
+                    note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
+
+                    brightness = 0.5
+                    brightness /= dim
+                    red, green, blue = [0, 0, 0]
+                    if msg.channel == 1:
+                        # red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
+                        # green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
+                        # blue = int(self.hand_colorList[self.hand_colorR][2] * brightness)
+                        red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorR]]
+                    if msg.channel == 2:
+                        # red = int(self.hand_colorList[self.hand_colorL][0] * brightness)
+                        # green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
+                        # blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
+                        red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
+
+                    self.ledstrip.strip.setPixelColor(note_position, Color(green, red, blue))
+                    self.ledstrip.strip.show()
+
+    def handle_wrong_notes(self, wrong_notes):
+
+        if self.show_wrong_notes != 1:
+            return
+
+        # loop through wrong_notes and light them up
+        for msg in wrong_notes:
+
+            note = int(find_between(str(msg), "note=", " "))
+
+            if "note_off" in str(msg):
+                velocity = 0
+            else:
+                velocity = int(find_between(str(msg), "velocity=", " "))
+
+            note_position = get_note_position(note, self.ledstrip, self.ledsettings)
+            if velocity > 0:
+                self.ledstrip.strip.setPixelColor(note_position, Color(0, 255, 0))
+            else:
+                self.ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
+
+        self.ledstrip.strip.show()
+
     def learn_midi(self):
         loops_count = 0
         # Preliminary checks
@@ -230,7 +323,11 @@ class LearnMIDI:
                 start_idx = int(self.start_point * len(self.song_tracks) / 100)
                 end_idx = int(self.end_point * len(self.song_tracks) / 100)
 
+                # self.current_idx does not count meta messages (used for sheet music sync in web interface)
+                # absolute_idx counts all messages (used for predicting messages)
+
                 self.current_idx = start_idx
+                absolute_idx = start_idx
 
                 for msg in self.song_tracks[start_idx:end_idx]:
                     # Exit thread if learning is stopped
@@ -251,13 +348,21 @@ class LearnMIDI:
                         if tDelay > 0 and (
                                 msg.type == 'note_on' or msg.type == 'note_off') and notes_to_press and self.practice == 0:
                             notes_pressed = []
+                            wrong_notes = []
+                            self.predict_future_notes(absolute_idx, end_idx, notes_to_press)
                             while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
                                 for msg_in in self.midiports.inport.iter_pending():
                                     note = int(find_between(str(msg_in), "note=", " "))
+
                                     if "note_off" in str(msg_in):
                                         velocity = 0
                                     else:
                                         velocity = int(find_between(str(msg_in), "velocity=", " "))
+
+                                    # check if note is in the list of notes to press
+                                    if note not in notes_to_press:
+                                        wrong_notes.append(msg_in)
+
                                     if velocity > 0:
                                         if note not in notes_pressed:
                                             notes_pressed.append(note)
@@ -267,8 +372,16 @@ class LearnMIDI:
                                         except ValueError:
                                             pass  # do nothing
 
+                                self.handle_wrong_notes(wrong_notes)
+                                wrong_notes.clear()
+
+                                # light up predicted future notes again in case the future note was pressed
+                                # and color was overwritten
+                                self.predict_future_notes(absolute_idx, end_idx, notes_to_press)
+
                             # Turn off the pressed LEDs
-                            fastColorWipe(self.ledstrip.strip, True, self.ledsettings)  # ideally clear only pressed notes!
+                            fastColorWipe(self.ledstrip.strip, True,
+                                          self.ledsettings)  # ideally clear only pressed notes!
                             notes_to_press.clear()
 
                     # Realize time delay, consider also the time lost during computation
@@ -282,15 +395,22 @@ class LearnMIDI:
                         # Calculate note position on the strip and display
                         if msg.type == 'note_on' or msg.type == 'note_off':
                             note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
-                            brightness = msg.velocity / 127
+                            if msg.velocity == 0:
+                                brightness = 0
+                            else:
+                                brightness = 0.5
+
+                            red, green, blue = [0, 0, 0]
                             if msg.channel == 1:
-                                red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
-                                green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
-                                blue = int(self.hand_colorList[self.hand_colorR][2] * brightness)
+                                # red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
+                                # green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
+                                # blue = int(self.hand_colorList[self.hand_colorR][2] * brightness)
+                                red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorR]]
                             if msg.channel == 2:
-                                red = int(self.hand_colorList[self.hand_colorL][0] * brightness)
-                                green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
-                                blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
+                                # red = int(self.hand_colorList[self.hand_colorL][0] * brightness)
+                                # green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
+                                # blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
+                                red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
                             self.ledstrip.strip.setPixelColor(note_position, Color(green, red, blue))
                             self.ledstrip.strip.show()
 
@@ -308,6 +428,7 @@ class LearnMIDI:
                                 # send midi sound for Right hand
                                 self.practice == 2):  # send midi sound for Listen only
                             self.midiports.playport.send(msg)
+                    absolute_idx += 1
             except Exception as e:
                 self.is_started_midi = False
 
@@ -318,16 +439,13 @@ class LearnMIDI:
         if not os.path.isfile('Songs/' + midi_file.replace(".mid", ".abc")):
             # subprocess.call(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
             try:
-                subprocess.check_output(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
+                subprocess.check_output(
+                    ['midi2abc', 'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
             except Exception as e:
                 # check if e contains the string 'No such file or directory'
                 if 'No such file or directory' in str(e):
                     print("Midiabc not found, installing...")
-                    self.install_midi2abc()
+                    install_midi2abc()
                     self.convert_midi_to_abc(midi_file)
         else:
             print("file already converted")
-
-    def install_midi2abc(self):
-        print("Installing abcmidi")
-        subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])

@@ -14,6 +14,7 @@ import RPi.GPIO as GPIO
 
 class MenuLCD:
     def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports):
+        self.list_count = None
         self.parent_menu = None
         self.current_choice = None
         self.draw = None
@@ -310,6 +311,8 @@ class MenuLCD:
     def show(self, position="default", back_pointer_location=None):
 
         def draw_value(value, x=10, y=35):
+            if y < 0:
+                return
             self.draw.text((self.scale(x), self.scale(y)), str(value),
                            fill=self.text_color, font=self.font)
 
@@ -346,8 +349,8 @@ class MenuLCD:
         staffs = self.DOMTree.getElementsByTagName(position)
         text_margin_top = self.scale(15)
         i = 0
-        list_count = len(staffs)
-        list_count -= 1
+        self.list_count = len(staffs)
+        self.list_count -= 1
 
         if self.pointer_position > 9:
             menu_offset = self.pointer_position - 9
@@ -356,7 +359,7 @@ class MenuLCD:
 
         # looping through menu list
         for staff in staffs:
-            self.pointer_position = clamp(self.pointer_position, 0, list_count)
+            self.pointer_position = clamp(self.pointer_position, 0, self.list_count)
             # drawing little arrow to show there are more items above
             if self.pointer_position > 9 and i < menu_offset:
                 self.draw.line(
@@ -404,7 +407,7 @@ class MenuLCD:
                     draw_pointer()
                     self.pointer_position = i
             # drawing little arrow to show there are more items below
-            if i == 10 and self.pointer_position < list_count and list_count > 10:
+            if i == 10 and self.pointer_position < self.list_count and self.list_count > 10:
                 self.draw.line(
                     [
                         (self.scale(119), self.scale(120)),
@@ -627,37 +630,57 @@ class MenuLCD:
 
         # Learn MIDI
         if self.current_location == "Learn_MIDI":
+
+            # calculate height so if self.pointer_position is 10 or more the height will be negative
+            if self.pointer_position > 9:
+                height = 95 - (self.pointer_position * 10)
+            else:
+                height = 5
+
             #  Position 1: display Load song
-            draw_value(self.learning.loadingList[self.learning.loading], 90, 5+10)
+            draw_value(self.learning.loadingList[self.learning.loading], 90, height + 10)
             #  Position 2: display Learning Start/Stop
-            draw_value(self.learning.learningList[self.learning.is_started_midi], 90, 5 + 20)
+            draw_value(self.learning.learningList[self.learning.is_started_midi], 90, height + 20)
             #  Position 3: display Practice
-            draw_value(self.learning.practiceList[self.learning.practice], 90, 5 + 30)
+            draw_value(self.learning.practiceList[self.learning.practice], 90, height + 30)
             #  Position 4: display Hands
-            draw_value(self.learning.handsList[self.learning.hands], 90, 5 + 40)
+            draw_value(self.learning.handsList[self.learning.hands], 90, height + 40)
             #  Position 5: display Mute hand
-            draw_value(self.learning.mute_handList[self.learning.mute_hand], 90, 5 + 50)
+            draw_value(self.learning.mute_handList[self.learning.mute_hand], 90, height + 50)
             #  Position 6: display Start point
-            draw_value(str(self.learning.start_point) + "%", 90, 5 + 60)
+            draw_value(str(self.learning.start_point) + "%", 90, height + 60)
             #  Position 7: display End point
-            draw_value(str(self.learning.end_point) + "%", 90, 5 + 70)
+            draw_value(str(self.learning.end_point) + "%", 90, height + 70)
             #  Position 8: display Set tempo
-            draw_value(str(self.learning.set_tempo) + "%", 90, 5 + 80)
+            draw_value(str(self.learning.set_tempo) + "%", 90, height + 80)
             #  Position 9,10: display Hands colors
-            coord_r = 7 + 90
-            coord_l = 7 + 100
+            coord_r = height + 2 + 90
+            coord_l = height + 2 + 100
             self.draw.rectangle([(self.scale(90), self.scale(coord_r)), (self.LCD.width, self.scale(coord_r + 7))],
                                 fill="rgb(" + str(self.learning.hand_colorList[self.learning.hand_colorR])[1:-1] + ")")
             self.draw.rectangle([(self.scale(90), self.scale(coord_l)), (self.LCD.width, self.scale(coord_l + 7))],
                                 fill="rgb(" + str(self.learning.hand_colorList[self.learning.hand_colorL])[1:-1] + ")")
+            #  Position 11: display wrong notes setting
+            wrong_notes_status = "Enabled" if self.learning.show_wrong_notes else "Disabled"
+            draw_value(wrong_notes_status, 90, height + 110)
+            #  Position 12: display future notes setting
+            future_notes_status = "Enabled" if self.learning.show_future_notes else "Disabled"
+            draw_value(future_notes_status, 90, height + 120)
 
         self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
 
     def change_pointer(self, direction):
         if direction == 0:
-            self.pointer_position -= 1
+            if (self.pointer_position - 1) < 0:
+                self.pointer_position = self.list_count
+            else:
+                self.pointer_position -= 1
+
         elif direction == 1:
-            self.pointer_position += 1
+            if(self.pointer_position + 1) > self.list_count:
+                self.pointer_position = 0
+            else:
+                self.pointer_position += 1
         self.cut_count = -6
         self.show()
 
@@ -1193,6 +1216,14 @@ class MenuLCD:
         if self.current_location == "Learn_MIDI" and self.current_choice in learning_operations:
             learning_operation = learning_operations[self.current_choice]
             learning_operation(value)
+
+        # changing settings value for Wrong notes and Future notes
+        if self.current_location == "Learn_MIDI":
+            if self.current_choice == "Wrong notes":
+                self.learning.change_show_wrong_notes(value)
+
+            if self.current_choice == "Future notes":
+                self.learning.change_show_future_notes(value)
 
         self.show()
 

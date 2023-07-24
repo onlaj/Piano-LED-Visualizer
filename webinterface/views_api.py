@@ -1122,6 +1122,16 @@ def change_setting():
 
         return jsonify(success=True, reload_learning_settings=True)
 
+    if setting_name == "change_wrong_notes":
+        value = int(value)
+        webinterface.learning.show_wrong_notes = value
+        webinterface.usersettings.change_setting_value("show_wrong_notes", webinterface.learning.show_wrong_notes)
+
+    if setting_name == "change_future_notes":
+        value = int(value)
+        webinterface.learning.show_future_notes = value
+        webinterface.usersettings.change_setting_value("show_future_notes", webinterface.learning.show_future_notes)
+
     if setting_name == "change_learning_loop":
         value = int(value == 'true')
         webinterface.learning.is_loop_active = value
@@ -1337,6 +1347,8 @@ def get_learning_status():
                 "set_tempo": webinterface.usersettings.get_setting_value("set_tempo"),
                 "hand_colorR": webinterface.usersettings.get_setting_value("hand_colorR"),
                 "hand_colorL": webinterface.usersettings.get_setting_value("hand_colorL"),
+                "show_wrong_notes": webinterface.usersettings.get_setting_value("show_wrong_notes"),
+                "show_future_notes": webinterface.usersettings.get_setting_value("show_future_notes"),
                 "hand_colorList": ast.literal_eval(webinterface.usersettings.get_setting_value("hand_colorList")),
                 "is_loop_active": ast.literal_eval(webinterface.usersettings.get_setting_value("is_loop_active"))}
 
