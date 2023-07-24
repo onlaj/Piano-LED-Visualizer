@@ -393,7 +393,9 @@ while True:
             if saving.is_recording:
                 saving.add_track("note_off", original_note, velocity, midiports.last_activity)
         elif int(velocity) > 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is pressed
-            red, green, blue = ColorInt2RGB(color_mode.NoteOn(msg, None, note_position))
+            color = color_mode.NoteOn(msg, None, note_position)
+            if color is not None:
+                red, green, blue = ColorInt2RGB(color)
 
             ledsettings.speed_add_note()
 

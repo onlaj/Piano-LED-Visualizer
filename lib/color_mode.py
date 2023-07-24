@@ -18,6 +18,8 @@ class ColorMode(object):
             #    new_cls = Rainbow
             if name == 'VelocityRainbow':
                 new_cls = VelocityRainbow
+            else:
+                new_cls = cls
         else:
             new_cls = cls
 
