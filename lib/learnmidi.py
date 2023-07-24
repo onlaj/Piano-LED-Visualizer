@@ -232,7 +232,6 @@ class LearnMIDI:
 
             if not msg.is_meta and tDelay > 0 and (
                     msg.type == 'note_on' or msg.type == 'note_off') and predicted_future_notes and self.practice == 0:
-
                 self.light_up_predicted_future_notes(predicted_future_notes)
                 return
 

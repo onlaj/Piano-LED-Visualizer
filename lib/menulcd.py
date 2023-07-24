@@ -677,7 +677,7 @@ class MenuLCD:
                 self.pointer_position -= 1
 
         elif direction == 1:
-            if(self.pointer_position + 1) > self.list_count:
+            if (self.pointer_position + 1) > self.list_count:
                 self.pointer_position = 0
             else:
                 self.pointer_position += 1

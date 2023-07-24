@@ -37,7 +37,7 @@ Each setting can be changed from the web interface or RPi's screen.
 
 - ### **Velocity Rainbow**
 
-  Color is based on the speed at which a key is pressed.- 
+  Color is based on the speed at which a key is pressed.-
 
   [Credits to](https://github.com/onlaj/Piano-LED-Visualizer/pull/454) [@stephen322](https://github.com/stephen322)
 
@@ -63,80 +63,82 @@ Each setting can be changed from the web interface or RPi's screen.
 
 There are 3 modes
 
-
-- ### Normal    
+- ### Normal
 - ### Fading
 
-    When the key is released, it slowly turns off the LED.
+  When the key is released, it slowly turns off the LED.
 - ### Velocity
-    The faster (with more velocity) you press the key, the brighter the led will light up. It will also slowly fade
-    when the key is released AND the sustain pedal is pressed. If the sustain pedal is not pressed, the fading effect is not present.
+  The faster (with more velocity) you press the key, the brighter the led will light up. It will also slowly fade
+  when the key is released AND the sustain pedal is pressed. If the sustain pedal is not pressed, the fading effect is
+  not present.
 
 ## Other settings <a name="other_settings"></a>
 
 - ### Brightness
 - ### Backlight
-    It lights up all the keys when they are not pressed.
+  It lights up all the keys when they are not pressed.
 - ### Sides colors
-    Light up 3 LEDs instead of 1. Adjacent LEDs can be set to a separate color.
+  Light up 3 LEDs instead of 1. Adjacent LEDs can be set to a separate color.
 - ### Skipped notes
-    Allows to filter notes with left/right hand information. Useful when Synthesia is doubling the input
+  Allows to filter notes with left/right hand information. Useful when Synthesia is doubling the input
 - ### Led count
-    For keyboards with less than 88 keys
+  For keyboards with less than 88 keys
 - ### Shift
-    Helps align the LED strip
+  Helps align the LED strip
 - ### Reverse
-    For setups with led strip mounted from right to left (input cables on right)
+  For setups with led strip mounted from right to left (input cables on right)
 - ### LED notes offset
-    By default, it offsets LEDs by 1 for notes bigger than 55 and by 1 for notes bigger than 92.
-    Can be modified if LEDs are not aligned with keys.
+  By default, it offsets LEDs by 1 for notes bigger than 55 and by 1 for notes bigger than 92.
+  Can be modified if LEDs are not aligned with keys.
 
 # Recording/playing songs <a name="songs"></a>
 
 ## Recording <a name="recording"></a>
 
-  Visualizer can record your playing. When Multicolor mode is selected, it will record each color on separate midi file.
-  Songs are saved into the "Songs" folder, they can be downloaded using the Web interface.
-  
-  ![learnmidi_pic](https://i.imgur.com/jAcR3kT.png)
- 
+Visualizer can record your playing. When Multicolor mode is selected, it will record each color on separate midi file.
+Songs are saved into the "Songs" folder, they can be downloaded using the Web interface.
+
+![learnmidi_pic](https://i.imgur.com/jAcR3kT.png)
+
 ## Playing <a name="playing"></a>
 
-  Songs can be played directly in the Web interface or through your piano.
-  When playing in the browser, it also displays simple falling note visualisation.
+Songs can be played directly in the Web interface or through your piano.
+When playing in the browser, it also displays simple falling note visualisation.
 
-  ![learnmidi_pic](https://i.imgur.com/izbDAYb.png)
-
+![learnmidi_pic](https://i.imgur.com/izbDAYb.png)
 
 ## Learning <a name="playing"></a>
 
-  Visualizer comes with a built-in learning tool.
-  You can load any midi file, and it will light up the next-to-play key.
-  In the Web interface it will also show sheet music. Conversion is automatic and far from perfect,
-  so if it doesn't suit your needs you can load your custom sheet.
+Visualizer comes with a built-in learning tool.
+You can load any midi file, and it will light up the next-to-play key.
+In the Web interface it will also show sheet music. Conversion is automatic and far from perfect,
+so if it doesn't suit your needs you can load your custom sheet.
 
-  For practicing, the following 3 modes can be used:
+For practicing, the following 3 modes can be used:
 
-- Melody: The song will wait for you to hit the correct notes. Take your time and try to avoid mistakes. Holding notes to their full duration is also important, otherwise you might develop muscle memory with the mistakes included.
-- Rhythm: Adjust the speed using Set tempo option until you can play without mistakes. Play as fast as you can comfortably. Work your way up to 100% speed. Practice the Melody first to make this step easier.
+- Melody: The song will wait for you to hit the correct notes. Take your time and try to avoid mistakes. Holding notes
+  to their full duration is also important, otherwise you might develop muscle memory with the mistakes included.
+- Rhythm: Adjust the speed using Set tempo option until you can play without mistakes. Play as fast as you can
+  comfortably. Work your way up to 100% speed. Practice the Melody first to make this step easier.
 - Listen: In this mode the song will play in listen only mode at the Set tempo speed.
 
+Different combinations of practicing modes be realized using the Hands and Mute Hand options. To practice only a section
+of the song, adjust the Start point and the End point values.
 
-  Different combinations of practicing modes be realized using the Hands and Mute Hand options. To practice only a section of the song, adjust the Start point and the End point values.
+The sheet music is thoughtfully synchronized with your playing, providing real-time feedback by highlighting the
+currently played part.
 
-  The sheet music is thoughtfully synchronized with your playing, providing real-time feedback by highlighting the currently played part.
+Additionally, you have the freedom to change the tempo of the song, allowing you to practice at a pace that suits your
+learning curve.
 
-  Additionally, you have the freedom to change the tempo of the song, allowing you to practice at a pace that suits your learning curve.
+To enhance the learning experience, there are two optional features:
 
+- Firstly, there is an option to light up incorrectly pressed keys with a red color, providing immediate feedback to
+  help you identify and correct mistakes.
 
-  To enhance the learning experience, there are two optional features:
+- Secondly, an option to light up future notes with a subtle faded glow, giving you a glimpse into the upcoming notes.
 
-  - Firstly, there is an option to light up incorrectly pressed keys with a red color, providing immediate feedback to help you identify and correct mistakes. 
- 
-  - Secondly, an option to light up future notes with a subtle faded glow, giving you a glimpse into the upcoming notes.
-  
-
-  ![learnmidi_pic](https://i.imgur.com/2BDSkS8.jpg)
+![learnmidi_pic](https://i.imgur.com/2BDSkS8.jpg)
 
 ## Managing songs <a name="managing_songs"></a>
 
@@ -144,45 +146,48 @@ You can search, sort, edit names, play, start learning, download, and delete son
 
 ![learnmidi_pic](https://i.imgur.com/X3RAPPE.png)
 
-## Uploading 
+## Uploading
+
 You can upload songs through the Web interface
 
 ![learnmidi_pic](https://i.imgur.com/3QxBxgB.png)
 
-
 # Sequences <a name="sequences"></a>
 
 ## Using the sequences
-In the visualizer menu and in the web interface you can find a setting called "Sequences". 
+
+In the visualizer menu and in the web interface you can find a setting called "Sequences".
 It allows you to change led properties while playing using the third key on Waveshare hat, your piano pedals,
 or by clicking "next step"/pressing space in the Web interface.
 You can edit or create new sequences by editing the "sequences.xml" file or through Web interface.
 The "control_number" defines which pedal is used to go to the next step.
 
-|Control number| Pedal name |
-|--|--|
-| 64 | Damper Pedal (Sustain/Hold) On/Off  |
-| 65 | Portamento On/Off |
-| 66 | Sostenuto On/Off |
-| 67 | Soft Pedal On/Off |
+| Control number | Pedal name                         |
+|----------------|------------------------------------|
+| 64             | Damper Pedal (Sustain/Hold) On/Off |
+| 65             | Portamento On/Off                  |
+| 66             | Sostenuto On/Off                   |
+| 67             | Soft Pedal On/Off                  |
 
-The "next_step" value decides if next step is activated when you press or release the pedal. For example, if you want to change settings after fully pressing Sostenuto pedal you should write it like:
+The "next_step" value decides if next step is activated when you press or release the pedal. For example, if you want to
+change settings after fully pressing Sostenuto pedal you should write it like:
 
     <control_number>66</control_number> 
     <next_step>126</next_step>
-   127 is the maximum value when pedal is fully pressed, so you are saying to script to change settings when value is bigger than 126.
+
+127 is the maximum value when pedal is fully pressed, so you are saying to script to change settings when value is
+bigger than 126.
 This is how it should look when you want to change settings when fully releasing pedal.
 
       <control_number>66</control_number> 
 	  <next_step>-1</next_step>
 
- (-) before the number means that next step will be activated when pedal value is below 1.
+(-) before the number means that next step will be activated when pedal value is below 1.
 
 You can also use sequences as a way to save your presets under custom names.
 
 ![learnmidi_pic](https://i.imgur.com/iDedXym.png)
 ![learnmidi_pic](https://i.imgur.com/1FT1zXJ.png)
-
 
 # Led animations <a name="led_animations"></a>
 
