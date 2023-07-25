@@ -377,11 +377,6 @@ while True:
 
             ledsettings.speed_add_note()
 
-            if ledsettings.color_mode == "Single":
-                red = ledsettings.get_color("Red")
-                green = ledsettings.get_color("Green")
-                blue = ledsettings.get_color("Blue")
-
             if ledsettings.color_mode == "Speed":
                 red, green, blue = calculate_speed_colors(ledsettings)
 

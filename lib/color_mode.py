@@ -14,7 +14,9 @@ class ColorMode(object):
         and https://stackoverflow.com/questions/5953759/using-a-class-new-method-as-a-factory-init-gets-called-twice
         """
         if cls is ColorMode:
-            if name == 'Rainbow':
+            if name == 'Single':
+                new_cls = SingleColor
+            elif name == 'Rainbow':
                 new_cls = Rainbow
             elif name == 'VelocityRainbow':
                 new_cls = VelocityRainbow
@@ -59,6 +61,15 @@ class ColorMode(object):
         """
         pass
 
+
+class SingleColor(ColorMode):
+    def LoadSettings(self, ledsettings):
+        self.red = ledsettings.get_color("Red")
+        self.green = ledsettings.get_color("Green")
+        self.blue = ledsettings.get_color("Blue")
+
+    def NoteOn(self, midi_event: mido.Message, midi_state, note_position):
+        return Color(self.red, self.green, self.blue)
 
 
 class Rainbow(ColorMode):
