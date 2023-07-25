@@ -116,8 +116,6 @@ midiports.last_activity = time.time()
 
 last_control_change = 0
 pedal_deadzone = 10
-timeshift_start = time.time()
-timeshift = 0
 ledshow_timestamp = time.time()
 color_mode_name = ""
 
@@ -167,7 +165,6 @@ while True:
 
         if elapsed_time > screen_hold_time:
             menu.show()
-            timeshift_start = time.time()
     display_cycle += 1
 
 
@@ -243,8 +240,6 @@ while True:
 
 
 
-    # Rainbow timeshift calculation
-    timeshift = (time.time() - timeshift_start) * ledsettings.rainbow_timeshift
 
 
     # Fade processing
@@ -263,11 +258,6 @@ while True:
         new_color = color_mode.ColorUpdate(time.time() - ledshow_timestamp, n, Color(red,green,blue))
         if new_color is not None:
             red, green, blue = ColorInt2RGB(new_color)
-
-
-        # color_mode Rainbow needs update because of timeshift
-        if ledsettings.color_mode == "Rainbow":
-            red, green, blue = calculate_rainbow_colors(ledsettings, n, timeshift)
 
 
         fading = 1
@@ -391,9 +381,6 @@ while True:
                 red = ledsettings.get_color("Red")
                 green = ledsettings.get_color("Green")
                 blue = ledsettings.get_color("Blue")
-
-            if ledsettings.color_mode == "Rainbow":
-                red, green, blue = calculate_rainbow_colors(ledsettings, note_position, timeshift)
 
             if ledsettings.color_mode == "Speed":
                 red, green, blue = calculate_speed_colors(ledsettings)

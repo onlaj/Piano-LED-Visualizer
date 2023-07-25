@@ -756,14 +756,6 @@ def chords(scale, ledstrip, ledsettings, menu):
     fastColorWipe(strip, True, ledsettings)
 
 
-def calculate_rainbow_colors(ledsettings, note_position, timeshift):
-    rainbow_value = int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
-            float(ledsettings.rainbow_scale) / 100)) & 255
-    red = get_rainbow_colors(rainbow_value, "red")
-    green = get_rainbow_colors(rainbow_value, "green")
-    blue = get_rainbow_colors(rainbow_value, "blue")
-    return red, green, blue
-
 
 def calculate_speed_colors(ledsettings):
     speed_colors = ledsettings.speed_get_colors()

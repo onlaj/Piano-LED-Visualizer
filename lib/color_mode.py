@@ -14,9 +14,9 @@ class ColorMode(object):
         and https://stackoverflow.com/questions/5953759/using-a-class-new-method-as-a-factory-init-gets-called-twice
         """
         if cls is ColorMode:
-            #if name == 'Rainbow':
-            #    new_cls = Rainbow
-            if name == 'VelocityRainbow':
+            if name == 'Rainbow':
+                new_cls = Rainbow
+            elif name == 'VelocityRainbow':
                 new_cls = VelocityRainbow
             else:
                 new_cls = cls
@@ -60,7 +60,7 @@ class ColorMode(object):
         pass
 
 
-# Not yet in use
+
 class Rainbow(ColorMode):
     def LoadSettings(self, ledsettings):
         self.offset = int(ledsettings.rainbow_offset)
