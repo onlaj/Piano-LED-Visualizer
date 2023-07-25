@@ -761,7 +761,3 @@ def calculate_speed_colors(ledsettings):
     speed_colors = ledsettings.speed_get_colors()
     return speed_colors
 
-
-def calculate_gradient_colors(ledsettings, note_position):
-    gradient_colors = ledsettings.gradient_get_colors(note_position)
-    return gradient_colors

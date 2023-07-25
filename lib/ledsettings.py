@@ -620,13 +620,3 @@ class LedSettings:
                     float(speed_percent)) + self.speed_slowest["blue"]
         return [round(red), round(green), round(blue)]
 
-    def gradient_get_colors(self, position):
-
-        red = ((position / self.ledstrip.led_number) *
-               (self.gradient_end["red"] - self.gradient_start["red"])) + self.gradient_start["red"]
-        green = ((position / self.ledstrip.led_number) *
-                 (self.gradient_end["green"] - self.gradient_start["green"])) + self.gradient_start["green"]
-        blue = ((position / self.ledstrip.led_number) *
-                (self.gradient_end["blue"] - self.gradient_start["blue"])) + self.gradient_start["blue"]
-
-        return [round(red), round(green), round(blue)]

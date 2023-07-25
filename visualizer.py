@@ -380,9 +380,6 @@ while True:
             if ledsettings.color_mode == "Speed":
                 red, green, blue = calculate_speed_colors(ledsettings)
 
-            if ledsettings.color_mode == "Gradient":
-                red, green, blue = calculate_gradient_colors(ledsettings, note_position)
-
             if ledsettings.color_mode == "Scale":
                 scale_colors = get_scale_color(ledsettings.scale_key, note, ledsettings)
                 red = scale_colors[0]

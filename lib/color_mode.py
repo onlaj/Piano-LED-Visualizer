@@ -18,6 +18,8 @@ class ColorMode(object):
                 new_cls = SingleColor
             elif name == 'Rainbow':
                 new_cls = Rainbow
+            elif name == 'Gradient':
+                new_cls = Gradient
             elif name == 'VelocityRainbow':
                 new_cls = VelocityRainbow
             else:
@@ -94,6 +96,30 @@ class Rainbow(ColorMode):
         blue = get_rainbow_colors(rainbow_value, "blue")
         return red, green, blue
 
+
+class Gradient(ColorMode):
+    def LoadSettings(self, ledsettings):
+        self.led_number = ledsettings.ledstrip.led_number
+        self.gradient_start = {"red": int(ledsettings.usersettings.get_setting_value("gradient_start_red")),
+                               "green": int(ledsettings.usersettings.get_setting_value("gradient_start_green")),
+                               "blue": int(ledsettings.usersettings.get_setting_value("gradient_start_blue"))}
+
+        self.gradient_end = {"red": int(ledsettings.usersettings.get_setting_value("gradient_end_red")),
+                             "green": int(ledsettings.usersettings.get_setting_value("gradient_end_green")),
+                             "blue": int(ledsettings.usersettings.get_setting_value("gradient_end_blue"))}
+
+    def NoteOn(self, midi_event: mido.Message, midi_state, note_position):
+        return Color(*self.gradient_get_colors(note_position))
+
+    def gradient_get_colors(self, position):
+        red = ((position / self.led_number) *
+               (self.gradient_end["red"] - self.gradient_start["red"])) + self.gradient_start["red"]
+        green = ((position / self.led_number) *
+                 (self.gradient_end["green"] - self.gradient_start["green"])) + self.gradient_start["green"]
+        blue = ((position / self.led_number) *
+                (self.gradient_end["blue"] - self.gradient_start["blue"])) + self.gradient_start["blue"]
+
+        return (round(red), round(green), round(blue))
 
 
 class VelocityRainbow(ColorMode):
