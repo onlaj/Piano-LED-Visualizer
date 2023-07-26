@@ -9,6 +9,7 @@ class MidiPorts:
         self.last_activity = 0
         self.inport = None
         self.playport = None
+        self.midipending = []
 
         # checking if the input port was previously set by the user
         port = self.usersettings.get_setting_value("input_port")

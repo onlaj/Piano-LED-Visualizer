@@ -296,7 +296,8 @@ while True:
             n += 1
     try:
         if len(saving.is_playing_midi) == 0 and learning.is_started_midi is False:
-            midiports.midipending = midiports.inport.iter_pending()
+            if hasattr(midiports.inport, 'iter_pending') and callable(midiports.inport.iter_pending):
+                midiports.midipending = midiports.inport.iter_pending()
         else:
             midiports.midipending = midiports.pending_queue
     except Exception as e:
