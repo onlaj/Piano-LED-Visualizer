@@ -130,7 +130,6 @@ function remove_page_indicators() {
     document.getElementById("ledanimations").classList.remove("dark:bg-gray-700", "bg-gray-100");
 }
 
-
 function get_homepage_data_loop() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
@@ -233,6 +232,56 @@ function switch_ports() {
     xhttp.send();
 }
 
+function get_wifi_list() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        let response;
+        if (this.readyState == 4 && this.status == 200) {
+            response = JSON.parse(this.responseText);
+            update_wifi_list(response["wifi_list"]);
+        }
+    };
+    xhttp.open("GET", "/api/get_wifi_list", true);
+    xhttp.send();
+}
+
+function update_wifi_list(wifi_list) {
+    const wifiListElement = document.getElementById("wifi-list");
+    wifiListElement.innerHTML = '';
+
+    // Loop through wifi_list
+    wifi_list.forEach(wifi => {
+        const listItem = document.createElement("li");
+        listItem.className = "bg-gray-800 p-4 rounded-md flex items-center justify-between";
+
+        const wifiIcon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" ' +
+            'stroke-width="1.5" stroke="currentColor" class="w-6 h-6">'+getWifiIcon(wifi["Signal Strength"])+'</svg>';
+        listItem.innerHTML = `
+      ${wifiIcon}
+      <div class="ml-4">${wifi["ESSID"]}</div>
+      <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Connect</button>
+    `;
+
+        wifiListElement.appendChild(listItem);
+    });
+}
+
+function getWifiIcon(signalStrength) {
+    // Map the signal strength percentage to icons
+    if (signalStrength >= 75) {
+        return '<path d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />';
+    } else if (signalStrength >= 50) {
+        return '<path d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />';
+    } else if (signalStrength >= 25) {
+        return '<path d="M8.288 15.038a5.25 5.25 0 017.424 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />';
+    } else if (signalStrength >= 0) {
+        return '<path d="M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />';
+    } else {
+        return ''; // Empty string for no icon
+    }
+}
+
+
 function get_settings(home = true) {
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
@@ -323,8 +372,8 @@ function calculate_rainbow(x) {
     var red, green, blue;
     x = x % 255;
     y = x % 85;
-    const t1 = y*3;
-    const t2 = 255 - (y*3);
+    const t1 = y * 3;
+    const t2 = 255 - (y * 3);
 
     if (x < 85) return rgbToHex(t2, t1, 0);
     else if (x < 170) return rgbToHex(0, t2, t1);
@@ -342,7 +391,7 @@ function calculate_rainbow(x) {
  * @param   Number  v       The value
  * @return  Array           The RGB representation
  */
-function hsvToRgb(h, s, v){
+function hsvToRgb(h, s, v) {
     var r, g, b;
 
     var i = Math.floor(h * 6);
@@ -351,21 +400,33 @@ function hsvToRgb(h, s, v){
     var q = v * (1 - f * s);
     var t = v * (1 - (1 - f) * s);
 
-    switch(i % 6){
-        case 0: r = v, g = t, b = p; break;
-        case 1: r = q, g = v, b = p; break;
-        case 2: r = p, g = v, b = t; break;
-        case 3: r = p, g = q, b = v; break;
-        case 4: r = t, g = p, b = v; break;
-        case 5: r = v, g = p, b = q; break;
+    switch (i % 6) {
+        case 0:
+            r = v, g = t, b = p;
+            break;
+        case 1:
+            r = q, g = v, b = p;
+            break;
+        case 2:
+            r = p, g = v, b = t;
+            break;
+        case 3:
+            r = p, g = q, b = v;
+            break;
+        case 4:
+            r = t, g = p, b = v;
+            break;
+        case 5:
+            r = v, g = p, b = q;
+            break;
     }
 
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
-function powercurve(x,p) {
+function powercurve(x, p) {
     if (p == 0) return x;
-    return (Math.exp(-p*x)-1) / (Math.exp(-p)-1);
+    return (Math.exp(-p * x) - 1) / (Math.exp(-p) - 1);
 }
 
 function get_current_sequence_setting(home = true, is_loading_step = false) {
@@ -604,30 +665,30 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 const curve = ~~document.getElementById("velocityrainbow_curve").value;
 
                 const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
-                  const hex = x.toString(16)
-                  return hex.length === 1 ? '0' + hex : hex
+                    const hex = x.toString(16)
+                    return hex.length === 1 ? '0' + hex : hex
                 }).join('');
 
                 const rgbToHexA = (a) => '#' + [~~a[0], ~~a[1], ~~a[2]].map(x => {
-                  const hex = x.toString(16)
-                  return hex.length === 1 ? '0' + hex : hex
+                    const hex = x.toString(16)
+                    return hex.length === 1 ? '0' + hex : hex
                 }).join('');
 
                 document.getElementById("current_led_color").innerHTML = '<canvas id="VelocityRainbowPreview" style="width: 100%;" height=40px></canvas>';
                 var canvas = document.getElementById('VelocityRainbowPreview');
                 var width = canvas.clientWidth;
                 var ctx = canvas.getContext("2d");
-                var grd = ctx.createLinearGradient(0,0,width,0);
-                for (let i=0; i <= 127; i+=5) {
-                    const vel = ~~(i*255/127);
-                    const vel2 = 255 * powercurve(i/127, curve/100);
-                    const vel3 = ~~(vel2 * scale/100) % 256;
+                var grd = ctx.createLinearGradient(0, 0, width, 0);
+                for (let i = 0; i <= 127; i += 5) {
+                    const vel = ~~(i * 255 / 127);
+                    const vel2 = 255 * powercurve(i / 127, curve / 100);
+                    const vel3 = ~~(vel2 * scale / 100) % 256;
                     const vel4 = ~~(vel3 + offset) % 256;
 
-                    grd.addColorStop(i/127, rgbToHexA(hsvToRgb(vel4/255, 1, (i/127)*0.3 + 0.7)));
+                    grd.addColorStop(i / 127, rgbToHexA(hsvToRgb(vel4 / 255, 1, (i / 127) * 0.3 + 0.7)));
                 }
                 ctx.fillStyle = grd;
-                ctx.fillRect(0,0,width,40);
+                ctx.fillRect(0, 0, width, 40);
 
 
                 if (is_editing_sequence == "true") {
@@ -1211,7 +1272,7 @@ function get_learning_status(loop_call = false) {
             }
 
 
-            if(response.loading === 4 || loop_call === false) {
+            if (response.loading === 4 || loop_call === false) {
 
                 document.getElementById("practice").value = response.practice;
                 document.getElementById("tempo_slider").value = response.set_tempo;
@@ -1228,13 +1289,13 @@ function get_learning_status(loop_call = false) {
                 hand_colorR = response.hand_colorR;
                 hand_colorL = response.hand_colorL;
 
-                hand_colorR_RGB = response.hand_colorList[hand_colorR][0]+", "+response.hand_colorList[hand_colorR][1]+", "+response.hand_colorList[hand_colorR][2];
-                hand_colorL_RGB = response.hand_colorList[hand_colorL][0]+", "+response.hand_colorList[hand_colorL][1]+", "+response.hand_colorList[hand_colorL][2];
+                hand_colorR_RGB = response.hand_colorList[hand_colorR][0] + ", " + response.hand_colorList[hand_colorR][1] + ", " + response.hand_colorList[hand_colorR][2];
+                hand_colorL_RGB = response.hand_colorList[hand_colorL][0] + ", " + response.hand_colorList[hand_colorL][1] + ", " + response.hand_colorList[hand_colorL][2];
 
-                document.getElementById("hand_colorR").style.fill = 'rgb('+hand_colorR_RGB+')';
-                document.getElementById("hand_colorL").style.fill = 'rgb('+hand_colorL_RGB+')';
+                document.getElementById("hand_colorR").style.fill = 'rgb(' + hand_colorR_RGB + ')';
+                document.getElementById("hand_colorL").style.fill = 'rgb(' + hand_colorL_RGB + ')';
 
-                if(response.is_loop_active === 1) {
+                if (response.is_loop_active === 1) {
                     document.getElementById("is_loop_active").checked = true;
                 }
 
