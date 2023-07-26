@@ -380,6 +380,8 @@ while True:
             color = color_mode.NoteOn(msg, None, note_position)
             if color is not None:
                 red, green, blue = color
+            else:
+                red, green, blue = (0, 0, 0)
 
 
             # Save ledstrip led colors
