@@ -756,8 +756,3 @@ def chords(scale, ledstrip, ledsettings, menu):
     fastColorWipe(strip, True, ledsettings)
 
 
-
-def calculate_speed_colors(ledsettings):
-    speed_colors = ledsettings.speed_get_colors()
-    return speed_colors
-

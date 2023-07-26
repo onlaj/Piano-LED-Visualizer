@@ -18,6 +18,8 @@ class ColorMode(object):
                 new_cls = SingleColor
             elif name == 'Rainbow':
                 new_cls = Rainbow
+            elif name == 'Speed':
+                new_cls = SpeedColor
             elif name == 'Gradient':
                 new_cls = Gradient
             elif name == 'VelocityRainbow':
@@ -95,6 +97,42 @@ class Rainbow(ColorMode):
         green = get_rainbow_colors(rainbow_value, "green")
         blue = get_rainbow_colors(rainbow_value, "blue")
         return red, green, blue
+
+
+class SpeedColor(ColorMode):
+    def LoadSettings(self, ledsettings):
+        self.notes_in_last_period = []
+        self.speed_slowest = ledsettings.speed_slowest
+        self.speed_fastest = ledsettings.speed_fastest
+        self.speed_period_in_seconds = ledsettings.speed_period_in_seconds
+        self.speed_max_notes = ledsettings.speed_max_notes
+
+    def NoteOn(self, midi_event: mido.Message, midi_state, note_position):
+        current_time = time.time()
+        self.notes_in_last_period.append(current_time)
+        return Color(*self.speed_get_colors())
+
+    def speed_get_colors(self):
+        for note_time in self.notes_in_last_period[:]:
+            if (time.time() - self.speed_period_in_seconds) > note_time:
+                self.notes_in_last_period.remove(note_time)
+
+        notes_count = len(self.notes_in_last_period)
+        max_notes = self.speed_max_notes
+        speed_percent = notes_count / float(max_notes)
+
+        if notes_count > max_notes:
+            red = self.speed_fastest["red"]
+            green = self.speed_fastest["green"]
+            blue = self.speed_fastest["blue"]
+        else:
+            red = ((self.speed_fastest["red"] - self.speed_slowest["red"]) *
+                   float(speed_percent)) + self.speed_slowest["red"]
+            green = ((self.speed_fastest["green"] - self.speed_slowest["green"]) *
+                     float(speed_percent)) + self.speed_slowest["green"]
+            blue = ((self.speed_fastest["blue"] - self.speed_slowest["blue"]) *
+                    float(speed_percent)) + self.speed_slowest["blue"]
+        return (round(red), round(green), round(blue))
 
 
 class Gradient(ColorMode):

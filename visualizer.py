@@ -375,11 +375,6 @@ while True:
             if color is not None:
                 red, green, blue = ColorInt2RGB(color)
 
-            ledsettings.speed_add_note()
-
-            if ledsettings.color_mode == "Speed":
-                red, green, blue = calculate_speed_colors(ledsettings)
-
             if ledsettings.color_mode == "Scale":
                 scale_colors = get_scale_color(ledsettings.scale_key, note, ledsettings)
                 red = scale_colors[0]

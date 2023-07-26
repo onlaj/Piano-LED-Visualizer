@@ -56,7 +56,6 @@ class LedSettings:
 
         self.note_offsets = ast.literal_eval(usersettings.get_setting_value("note_offsets"))
 
-        self.notes_in_last_period = []
         self.speed_period_in_seconds = 0.8
 
         self.speed_slowest = {"red": int(usersettings.get_setting_value("speed_slowest_red")),
@@ -594,29 +593,4 @@ class LedSettings:
         self.usersettings.change_setting_value("adjacent_blue", self.adjacent_blue)
         fastColorWipe(self.ledstrip.strip, True, self)
 
-    def speed_add_note(self):
-        current_time = time.time()
-        self.notes_in_last_period.append(current_time)
-
-    def speed_get_colors(self):
-        for note_time in self.notes_in_last_period[:]:
-            if (time.time() - self.speed_period_in_seconds) > note_time:
-                self.notes_in_last_period.remove(note_time)
-
-        notes_count = len(self.notes_in_last_period)
-        max_notes = self.speed_max_notes
-        speed_percent = notes_count / float(max_notes)
-
-        if notes_count > max_notes:
-            red = self.speed_fastest["red"]
-            green = self.speed_fastest["green"]
-            blue = self.speed_fastest["blue"]
-        else:
-            red = ((self.speed_fastest["red"] - self.speed_slowest["red"]) *
-                   float(speed_percent)) + self.speed_slowest["red"]
-            green = ((self.speed_fastest["green"] - self.speed_slowest["green"]) *
-                     float(speed_percent)) + self.speed_slowest["green"]
-            blue = ((self.speed_fastest["blue"] - self.speed_slowest["blue"]) *
-                    float(speed_percent)) + self.speed_slowest["blue"]
-        return [round(red), round(green), round(blue)]
 
