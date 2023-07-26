@@ -126,7 +126,8 @@ def change_setting():
         menu = webinterface.ledsettings.menu
         ledstrip = webinterface.ledsettings.ledstrip
         webinterface.ledsettings.__init__(webinterface.usersettings)
-        webinterface.ledsettings.add_instance(menu, ledstrip)
+        webinterface.ledsettings.menu = menu
+        webinterface.ledsettings.ledstrip = ledstrip
         webinterface.ledsettings.sequence_active = False
 
     if setting_name == "clean_ledstrip":
@@ -447,7 +448,8 @@ def change_setting():
             menu = webinterface.ledsettings.menu
             ledstrip = webinterface.ledsettings.ledstrip
             webinterface.ledsettings.__init__(webinterface.usersettings)
-            webinterface.ledsettings.add_instance(menu, ledstrip)
+            webinterface.ledsettings.menu = menu
+            webinterface.ledsettings.ledstrip = ledstrip
             webinterface.ledsettings.sequence_active = False
         else:
             webinterface.ledsettings.set_sequence(int(value) - 1, 0)
