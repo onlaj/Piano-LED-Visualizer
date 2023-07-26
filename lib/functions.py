@@ -7,6 +7,7 @@ import time
 import socket
 import RPi.GPIO as GPIO
 import math
+import subprocess
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
@@ -22,6 +23,53 @@ def get_ip_address():
     local_ip = s.getsockname()[0]
     s.close()
     return local_ip
+
+
+def get_wifi_networks():
+    try:
+        output = subprocess.check_output(['sudo', 'iwlist', 'wlan0', 'scan'], stderr=subprocess.STDOUT)
+        networks = output.decode().split('Cell ')
+
+        def calculate_signal_strength(level):
+            # Map the signal level to a percentage (0% to 100%) linearly.
+            # -50 dBm or higher -> 100%
+            # -90 dBm or lower -> 0%
+            if level >= -50:
+                return 100
+            elif level <= -90:
+                return 0
+            else:
+                return 100 - (100 / 40) * (level + 90)
+
+        wifi_list = []
+        for network in networks[1:]:
+            wifi_data = {}
+
+            ssid_line = [line for line in network.split('\n') if 'ESSID:' in line]
+            if ssid_line:
+                wifi_data['ESSID'] = ssid_line[0].split('ESSID:')[1].strip('"')
+
+            freq_line = [line for line in network.split('\n') if 'Frequency:' in line]
+            if freq_line:
+                wifi_data['Frequency'] = freq_line[0].split('Frequency:')[1].split(' (')[0]
+
+            signal_line = [line for line in network.split('\n') if 'Signal level=' in line]
+            if signal_line:
+                signal_level = int(signal_line[0].split('Signal level=')[1].split(' dBm')[0])
+                wifi_data['Signal Strength'] = calculate_signal_strength(signal_level)
+
+            signal_dbm = [line for line in network.split('\n') if 'Signal level=' in line]
+            if signal_dbm:
+                signal_dbm = signal_dbm[0].split('Signal level=')[1].split(' dBm')[0]
+                wifi_data['Signal dBm'] = int(signal_dbm)
+
+            wifi_list.append(wifi_data)
+
+        return wifi_list
+
+    except subprocess.CalledProcessError as e:
+        print("Error while scanning Wi-Fi networks:", e.output)
+        return []
 
 
 def find_between(s, start, end):
