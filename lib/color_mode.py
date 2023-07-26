@@ -22,6 +22,8 @@ class ColorMode(object):
                 new_cls = SpeedColor
             elif name == 'Gradient':
                 new_cls = Gradient
+            elif name == 'Scale':
+                new_cls = ScaleColoring
             elif name == 'VelocityRainbow':
                 new_cls = VelocityRainbow
             else:
@@ -158,6 +160,17 @@ class Gradient(ColorMode):
                 (self.gradient_end["blue"] - self.gradient_start["blue"])) + self.gradient_start["blue"]
 
         return (round(red), round(green), round(blue))
+
+
+class ScaleColoring(ColorMode):
+    def LoadSettings(self, ledsettings):
+        self.scale_key = int(ledsettings.scale_key)
+        self.key_in_scale = ledsettings.key_in_scale
+        self.key_not_in_scale = ledsettings.key_not_in_scale
+
+    def NoteOn(self, midi_event: mido.Message, midi_state, note_position):
+        scale_colors = get_scale_color(self.scale_key, midi_event.note, self.key_in_scale, self.key_not_in_scale)
+        return Color(*scale_colors)
 
 
 class VelocityRainbow(ColorMode):

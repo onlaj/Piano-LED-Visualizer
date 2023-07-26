@@ -375,12 +375,6 @@ while True:
             if color is not None:
                 red, green, blue = ColorInt2RGB(color)
 
-            if ledsettings.color_mode == "Scale":
-                scale_colors = get_scale_color(ledsettings.scale_key, note, ledsettings)
-                red = scale_colors[0]
-                green = scale_colors[1]
-                blue = scale_colors[2]
-
             if ledsettings.color_mode == "Multicolor":
                 chosen_color = ledsettings.get_random_multicolor_in_range(note)
                 red = chosen_color[0]
