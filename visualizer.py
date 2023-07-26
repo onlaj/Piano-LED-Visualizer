@@ -375,12 +375,6 @@ while True:
             if color is not None:
                 red, green, blue = ColorInt2RGB(color)
 
-            if ledsettings.color_mode == "Multicolor":
-                chosen_color = ledsettings.get_random_multicolor_in_range(note)
-                red = chosen_color[0]
-                green = chosen_color[1]
-                blue = chosen_color[2]
-
 
             # Save ledstrip led colors
             ledstrip.keylist_color[note_position] = [red, green, blue]

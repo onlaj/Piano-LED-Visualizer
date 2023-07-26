@@ -1,5 +1,4 @@
 import ast
-import random
 import time
 from xml.dom import minidom
 
@@ -176,51 +175,6 @@ class LedSettings:
         number = int(number) - 1
         return str(self.multicolor[int(number)][0]) + ", " + str(self.multicolor[int(number)][1]) + ", " + str(
             self.multicolor[int(number)][2])
-
-    def get_random_multicolor_in_range(self, note):
-        temporary_multicolor = []
-        color_on_the_right = {}
-        color_on_the_left = {}
-
-        for i, range in enumerate(self.multicolor_range):
-            if range[0] <= note <= range[1]:
-                temporary_multicolor.append(self.multicolor[i])
-
-            # get colors on the left and right
-            if range[0] > note:
-                color_on_the_right[range[0]] = self.multicolor[i]
-            if range[1] < note:
-                color_on_the_left[range[1]] = self.multicolor[i]
-
-        if self.multicolor_iteration == 1:
-            if self.multicolor_index >= len(self.multicolor):
-                self.multicolor_index = 0
-            chosen_color = self.multicolor[self.multicolor_index]
-            self.multicolor_index += 1
-        elif temporary_multicolor:
-            chosen_color = random.choice(temporary_multicolor)
-        else:
-            # mix colors from left and right
-
-            if color_on_the_right and color_on_the_left:
-                right = min(color_on_the_right)
-                left = max(color_on_the_left)
-
-                left_to_right_distance = right - left
-                percent_value = (note - left) / left_to_right_distance
-
-                red = (percent_value * (color_on_the_right[right][0] -
-                                        color_on_the_left[left][0])) + color_on_the_left[left][0]
-                green = (percent_value * (color_on_the_right[right][1] -
-                                          color_on_the_left[left][1])) + color_on_the_left[left][1]
-                blue = (percent_value * (color_on_the_right[right][2] -
-                                         color_on_the_left[left][2])) + color_on_the_left[left][2]
-
-                chosen_color = [int(red), int(green), int(blue)]
-            else:
-                chosen_color = [0, 0, 0]
-
-        return chosen_color
 
     def light_keys_in_range(self, location):
         fastColorWipe(self.ledstrip.strip, True, self)
