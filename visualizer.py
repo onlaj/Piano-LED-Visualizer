@@ -257,9 +257,9 @@ while True:
             red, green, blue = (0, 0, 0)
 
         led_changed = False
-        new_color = color_mode.ColorUpdate(None, n, Color(red,green,blue))
+        new_color = color_mode.ColorUpdate(None, n, (red,green,blue))
         if new_color is not None:
-            red, green, blue = ColorInt2RGB(new_color)
+            red, green, blue = new_color
             led_changed = True
 
         fading = 1
@@ -379,7 +379,7 @@ while True:
         elif int(velocity) > 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is pressed
             color = color_mode.NoteOn(msg, None, note_position)
             if color is not None:
-                red, green, blue = ColorInt2RGB(color)
+                red, green, blue = color
 
 
             # Save ledstrip led colors
