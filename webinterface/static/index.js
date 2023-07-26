@@ -106,6 +106,9 @@ function loadAjax(subpage) {
                 if (subpage == "settings") {
                     clearInterval(homepage_interval);
                 }
+                if (subpage == "network") {
+                    clearInterval(homepage_interval);
+                }
             }
         };
         xhttp.ontimeout = function (e) {
@@ -128,6 +131,7 @@ function remove_page_indicators() {
     document.getElementById("sequences").classList.remove("dark:bg-gray-700", "bg-gray-100");
     document.getElementById("ports").classList.remove("dark:bg-gray-700", "bg-gray-100");
     document.getElementById("ledanimations").classList.remove("dark:bg-gray-700", "bg-gray-100");
+    document.getElementById("network").classList.remove("dark:bg-gray-700", "bg-gray-100");
 }
 
 function get_homepage_data_loop() {
