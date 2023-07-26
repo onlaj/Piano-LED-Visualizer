@@ -244,53 +244,55 @@ while True:
 
     # Fade processing
     for n, strength in enumerate(ledstrip.keylist):
-        # Restore led colors
-        try:
-            if type(ledstrip.keylist_color[n]) is list:
-                red = ledstrip.keylist_color[n][0]
-                green = ledstrip.keylist_color[n][1]
-                blue = ledstrip.keylist_color[n][2]
-            else:
-                red, green, blue = (0, 0, 0)
-        except Exception as e:
-            print(f"Unexpected exception occurred: {e}")
+        # Only apply fade processing to activated leds
+        if strength <= 0:
+            continue
 
-        new_color = color_mode.ColorUpdate(time.time() - ledshow_timestamp, n, Color(red,green,blue))
+        # Restore saved led colors
+        if type(ledstrip.keylist_color[n]) is list:
+            red = ledstrip.keylist_color[n][0]
+            green = ledstrip.keylist_color[n][1]
+            blue = ledstrip.keylist_color[n][2]
+        else:
+            red, green, blue = (0, 0, 0)
+
+        led_changed = False
+        new_color = color_mode.ColorUpdate(None, n, Color(red,green,blue))
         if new_color is not None:
             red, green, blue = ColorInt2RGB(new_color)
-
+            led_changed = True
 
         fading = 1
-        if ledsettings.mode == "Normal":
-            pass
-        elif ledsettings.mode == "Fading" or ledsettings.mode == "Velocity":
-            if ledsettings.mode == "Velocity":
-                # If sustain pedal is off and note is off, turn of fade processing
-                if int(last_control_change) < pedal_deadzone and ledstrip.keylist_status[n] == 0:
-                    ledstrip.keylist[n] = 0
-                    red, green, blue = (0, 0, 0)
+        # Calculate fading for Fading and Velocity modes
+        # "Velocity" starts fading right away, "Fading" starts fading on NoteOff
+        if ledsettings.mode == "Velocity" or (ledsettings.mode == "Fading" and ledstrip.keylist_status[n] == 0):
+            fading = (strength / float(100)) / 10
+            red = int(red * fading)
+            green = int(green * fading)
+            blue = int(blue * fading)
+            ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
+            led_changed = True
 
-            if ledstrip.keylist_status[n] == 0 or ledsettings.mode == "Velocity":
-                if int(strength) > 0:
-                    fading = (strength / float(100)) / 10
-                    red = int(red * fading)
-                    green = int(green * fading)
-                    blue = int(blue * fading)
-                    ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
-                else:
-                    ledstrip.keylist[n] = 0
-                    red, green, blue = (0, 0, 0)
+        if ledsettings.mode == "Velocity":
+            # If sustain pedal is off and note is off, turn off fade processing
+            if int(last_control_change) < pedal_deadzone and ledstrip.keylist_status[n] == 0:
+                ledstrip.keylist[n] = 0
+                red, green, blue = (0, 0, 0)
+                led_changed = True
 
-        # If fade mode complete, apply backlight
-        if (ledstrip.keylist_status[n] == 0 or ledsettings.mode == "Velocity") and ledstrip.keylist[n] <= 0 and menu.screensaver_is_running is not True:
+        # If fade mode newly completed, apply backlight
+        # Newly completed fade mode: keylist[n] was > 0 at start, now <=0
+        if ledstrip.keylist[n] <= 0 and menu.screensaver_is_running is not True:
             backlight_level = float(ledsettings.backlight_brightness_percent) / 100
             red = int(ledsettings.get_backlight_color("Red")) * backlight_level
             green = int(ledsettings.get_backlight_color("Green")) * backlight_level
             blue = int(ledsettings.get_backlight_color("Blue")) * backlight_level
+            led_changed = True
 
         # Apply fade mode colors to ledstrip
-        ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
-        ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False, fading)
+        if led_changed == True:
+            ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
+            ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False, fading)
 
 
 
@@ -354,7 +356,10 @@ while True:
             ledstrip.keylist_status[note_position] = 0
             if ledsettings.mode == "Fading":
                 ledstrip.keylist[note_position] = 1000
-            else:
+            elif ledsettings.mode == "Normal":
+                ledstrip.keylist[note_position] = 0
+
+            if ledstrip.keylist[note_position] <= 0:
                 if ledsettings.backlight_brightness > 0 and menu.screensaver_is_running is not True:
                     red_backlight = int(
                         ledsettings.get_backlight_color("Red")) * ledsettings.backlight_brightness_percent / 100
@@ -365,9 +370,10 @@ while True:
                     color_backlight = Color(int(green_backlight), int(red_backlight), int(blue_backlight))
                     ledstrip.strip.setPixelColor(note_position, color_backlight)
                     ledstrip.set_adjacent_colors(note_position, color_backlight, True)
-                elif ledsettings.mode == "Normal":
+                else:
                     ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
                     ledstrip.set_adjacent_colors(note_position, Color(0, 0, 0), False)
+
             if saving.is_recording:
                 saving.add_track("note_off", original_note, velocity, midiports.last_activity)
         elif int(velocity) > 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is pressed
@@ -390,6 +396,8 @@ while True:
                 ledstrip.keylist[note_position] = 1001
             if ledsettings.mode == "Velocity":
                 ledstrip.keylist[note_position] = 999 / float(brightness)
+            if ledsettings.mode == "Normal":
+                ledstrip.keylist[note_position] = 1000
 
 
             # Apply learning colors
