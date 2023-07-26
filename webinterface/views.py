@@ -43,6 +43,10 @@ def sequences():
 def ports():
     return render_template('ports.html')
 
+@webinterface.route('/network')
+def network():
+    return render_template('network.html')
+
 
 @webinterface.route('/upload', methods=['POST'])
 def upload_file():
