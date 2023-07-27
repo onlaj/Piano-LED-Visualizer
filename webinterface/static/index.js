@@ -70,43 +70,43 @@ function loadAjax(subpage) {
         var xhttp = new XMLHttpRequest();
         xhttp.timeout = 5000;
         xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
+            if (this.readyState === 4 && this.status === 200) {
                 document.getElementById("main").innerHTML = this.responseText;
                 setTimeout(function () {
                     document.getElementById("main").classList.add("show");
                 }, 100);
                 remove_page_indicators()
                 document.getElementById(subpage).classList.add("dark:bg-gray-700", "bg-gray-100");
-                if (subpage == "home") {
+                if (subpage === "home") {
                     initialize_homepage();
                     get_homepage_data_loop();
                     get_settings(false);
                 }
-                if (subpage == "ledsettings") {
+                if (subpage === "ledsettings") {
                     initialize_led_settings();
                     get_current_sequence_setting();
                     clearInterval(homepage_interval);
                 }
-                if (subpage == "ledanimations") {
+                if (subpage === "ledanimations") {
                     clearInterval(homepage_interval);
                 }
-                if (subpage == "songs") {
+                if (subpage === "songs") {
                     initialize_songs();
                     clearInterval(homepage_interval);
                 }
-                if (subpage == "sequences") {
+                if (subpage === "sequences") {
                     initialize_sequences();
                     initialize_led_settings();
                     clearInterval(homepage_interval);
                 }
-                if (subpage == "ports") {
+                if (subpage === "ports") {
                     clearInterval(homepage_interval);
                     initialize_ports_settings();
                 }
-                if (subpage == "settings") {
+                if (subpage === "settings") {
                     clearInterval(homepage_interval);
                 }
-                if (subpage == "network") {
+                if (subpage === "network") {
                     clearInterval(homepage_interval);
                 }
             }
@@ -137,16 +137,16 @@ function remove_page_indicators() {
 function get_homepage_data_loop() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             var refresh_rate = getCookie("refresh_rate")
-            if (refresh_rate == 0) {
+            if (refresh_rate === 0) {
                 refresh_rate = 1
             }
             var response_pc_stats = JSON.parse(this.responseText);
 
             var download = (response_pc_stats.download - download_start) / refresh_rate;
             var upload = (response_pc_stats.upload - upload_start) / refresh_rate;
-            if (download_start == 0) {
+            if (download_start === 0) {
                 download = 0;
                 upload = 0;
             }
@@ -191,27 +191,27 @@ function change_setting(setting_name, value, second_value = false, disable_seque
     } catch {
     }
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             response = JSON.parse(this.responseText);
-            if (response.reload == true) {
+            if (response.reload === true) {
                 get_settings();
                 get_current_sequence_setting();
             }
-            if (response.reload_ports == true) {
+            if (response.reload_ports === true) {
                 get_ports();
             }
-            if (response.reload_songs == true) {
+            if (response.reload_songs === true) {
                 get_recording_status();
                 get_songs();
             }
-            if (response.reload_sequence == true) {
+            if (response.reload_sequence === true) {
                 get_current_sequence_setting();
                 get_sequences();
             }
-            if (response.reload_steps_list == true) {
+            if (response.reload_steps_list === true) {
                 get_steps_list();
             }
-            if (response.reload_learning_settings == true) {
+            if (response.reload_learning_settings === true) {
                 get_learning_status();
             }
         }
@@ -224,7 +224,7 @@ function change_setting(setting_name, value, second_value = false, disable_seque
 function switch_ports() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             get_ports()
             if (document.getElementById('switch_ports') != null) {
                 document.getElementById('switch_ports').disabled = false;
@@ -240,7 +240,7 @@ function get_wifi_list() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         let response;
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             response = JSON.parse(this.responseText);
             update_wifi_list(response["wifi_list"]);
         }
@@ -290,7 +290,7 @@ function get_settings(home = true) {
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             response = JSON.parse(this.responseText);
             if (home) {
 
@@ -317,11 +317,11 @@ function get_settings(home = true) {
                 }
 
                 document.getElementById("light_mode").value = response.light_mode;
-                if (response.light_mode == "Fading") {
+                if (response.light_mode === "Fading") {
                     document.getElementById('fading').hidden = false;
                     document.getElementById('fading_speed').value = response.fading_speed;
                 }
-                if (response.light_mode == "Velocity") {
+                if (response.light_mode === "Velocity") {
                     document.getElementById('velocity').hidden = false;
                     document.getElementById('fading_speed').value = response.fading_speed;
                 }
@@ -429,7 +429,7 @@ function hsvToRgb(h, s, v) {
 }
 
 function powercurve(x, p) {
-    if (p == 0) return x;
+    if (p === 0) return x;
     return (Math.exp(-p * x) - 1) / (Math.exp(-p) - 1);
 }
 
@@ -437,7 +437,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             response = JSON.parse(this.responseText);
 
             if (document.getElementById('sequence_edit')) {
@@ -451,15 +451,15 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 document.getElementById("current_light_mode").innerHTML = response.light_mode
             }
 
-            if (is_editing_sequence == "true") {
+            if (is_editing_sequence === "true") {
                 document.getElementById('fading').hidden = true;
                 document.getElementById('velocity').hidden = true;
                 document.getElementById("light_mode").value = response.light_mode;
-                if (response.light_mode == "Fading") {
+                if (response.light_mode === "Fading") {
                     document.getElementById('fading').hidden = false;
                     document.getElementById('fading_speed').value = response.fading_speed;
                 }
-                if (response.light_mode == "Velocity") {
+                if (response.light_mode === "Velocity") {
                     document.getElementById('velocity').hidden = false;
                     document.getElementById('fading_speed').value = response.fading_speed;
                 }
@@ -468,7 +468,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 change_setting("light_mode", response.light_mode, false, true);
             }
 
-            if (response.color_mode == "Single") {
+            if (response.color_mode === "Single") {
                 document.getElementById("current_led_color").innerHTML = '<svg width="100%" height="45px">' +
                     '<defs>\n' +
                     '   <linearGradient id="gradient_single" x1=".5" y1="1" x2=".5">\n' +
@@ -481,7 +481,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
 
-                if (is_editing_sequence == "true") {
+                if (is_editing_sequence === "true") {
                     remove_color_modes();
                     document.getElementById("led_color").value = response.led_color;
                     document.getElementById('Single').hidden = false;
@@ -491,7 +491,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 }
 
             }
-            if (response.color_mode == "Multicolor") {
+            if (response.color_mode === "Multicolor") {
 
                 document.getElementById("current_led_color").innerHTML = '';
                 var new_multicolor = {};
@@ -508,7 +508,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         'style="filter: drop-shadow(0px 5px 15px ' + multicolor_hex + ');margin-left:' + left_spacing + '%" width="100%" height="10px">' +
                         '<rect width="' + length + '%" height="20" fill="' + multicolor_hex + '" /></svg>';
 
-                    if (is_editing_sequence == "true" && is_loading_step == true) {
+                    if (is_editing_sequence === "true" && is_loading_step === true) {
                         new_multicolor[index] = {};
                         new_multicolor[index]["color"] = multicolor_hex;
                         new_multicolor[index]["range"] = response.multicolor_range[index];
@@ -518,7 +518,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-100" ' +
                     'style="height: 40px;width:100%;" src="../static/piano.svg">';
 
-                if (is_editing_sequence == "true" && is_loading_step == true) {
+                if (is_editing_sequence === "true" && is_loading_step === true) {
                     remove_color_modes();
                     document.getElementById('Multicolor').hidden = false;
                     show_multicolors(response.multicolor, response.multicolor_range, response.multicolor_iteration);
@@ -527,7 +527,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
 
 
             }
-            if (response.color_mode == "Gradient") {
+            if (response.color_mode === "Gradient") {
                 document.getElementById("current_led_color").innerHTML = '<svg ' +
                     'width="100%" height="45px">\n' +
                     '      <defs>\n' +
@@ -547,7 +547,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
 
-                if (is_editing_sequence == "true") {
+                if (is_editing_sequence === "true") {
                     remove_color_modes();
                     document.getElementById('Gradient').hidden = false;
                     document.getElementById("gradient_start_color").value = response.gradient_start_color;
@@ -561,7 +561,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 }
             }
 
-            if (response.color_mode == "Speed") {
+            if (response.color_mode === "Speed") {
                 document.getElementById("current_led_color").innerHTML = '<svg ' +
                     'width="100%" height="45px">\n' +
                     '      <defs>\n' +
@@ -583,7 +583,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">slowest</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">fastest</p></div>';
 
-                if (is_editing_sequence == "true") {
+                if (is_editing_sequence === "true") {
                     remove_color_modes();
                     document.getElementById('Speed').hidden = false;
                     document.getElementById("speed_slow_color").value = response.speed_slowest_color;
@@ -598,7 +598,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 }
             }
 
-            if (response.color_mode == "Rainbow") {
+            if (response.color_mode === "Rainbow") {
                 offset = response.rainbow_offset % 175;
                 offset_percent = (offset / 175) * 100;
                 offset_percent = -200 - offset_percent;
@@ -649,7 +649,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                  */
                 document.getElementById("current_led_color").innerHTML = rainbow_example;
 
-                if (is_editing_sequence == "true") {
+                if (is_editing_sequence === "true") {
                     document.getElementById("rainbow_offset").value = response.rainbow_offset;
                     document.getElementById("rainbow_scale").value = response.rainbow_scale;
                     document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
@@ -663,7 +663,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 }
             }
 
-            if (response.color_mode == "VelocityRainbow") {
+            if (response.color_mode === "VelocityRainbow") {
                 const offset = ((~~document.getElementById("velocityrainbow_offset").value % 256) + 256) % 256;
                 const scale = ~~document.getElementById("velocityrainbow_scale").value;
                 const curve = ~~document.getElementById("velocityrainbow_curve").value;
@@ -695,7 +695,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 ctx.fillRect(0, 0, width, 40);
 
 
-                if (is_editing_sequence == "true") {
+                if (is_editing_sequence === "true") {
                     document.getElementById("velocityrainbow_offset").value = response.velocityrainbow_offset;
                     document.getElementById("velocityrainbow_scale").value = response.velocityrainbow_scale;
                     document.getElementById("velocityrainbow_curve").value = response.velocityrainbow_curve;
@@ -709,7 +709,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 }
             }
 
-            if (response.color_mode == "Scale") {
+            if (response.color_mode === "Scale") {
                 //document.getElementById("led_color").innerHTML = response.scale_key
                 let scale_key_array = [response.key_in_scale_color, response.key_not_in_scale_color];
                 document.getElementById("current_led_color").innerHTML = '<div id="led_color_scale" class="flex"></div>';
@@ -729,7 +729,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">in a scale</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">not in a scale</p></div>';
-                if (is_editing_sequence == "true") {
+                if (is_editing_sequence === "true") {
                     remove_color_modes();
                     document.getElementById('Scale').hidden = false;
                     document.getElementById("key_in_scale_color").value = response.key_in_scale_color;
@@ -759,16 +759,16 @@ function initialize_homepage() {
         setCookie("refresh_rate", 3, 365);
     }
     document.getElementById("refresh_rate").value = refresh_rate;
-    if (getCookie("refresh_rate") != 0 && refresh_rate != null) {
+    if (getCookie("refresh_rate") !== 0 && refresh_rate != null) {
         homepage_interval = setInterval(get_homepage_data_loop, refresh_rate * 1000)
     }
-    if (getCookie("refresh_rate") == 0) {
+    if (getCookie("refresh_rate") === 0) {
         setTimeout(get_homepage_data_loop, 1000)
     }
     document.getElementById('refresh_rate').onchange = function () {
         setCookie('refresh_rate', this.value, 365);
         clearInterval(homepage_interval)
-        if (this.value != 0) {
+        if (this.value !== 0) {
             homepage_interval = setInterval(get_homepage_data_loop, this.value * 1000)
         }
     }
@@ -828,7 +828,7 @@ function initialize_led_settings() {
 
         document.getElementById('sides_color_mode').onchange = function () {
             change_setting("sides_color_mode", this.value)
-            if (this.value == "RGB") {
+            if (this.value === "RGB") {
                 document.getElementById('sides_color_choose').hidden = false;
             } else {
                 document.getElementById('sides_color_choose').hidden = true;
@@ -845,13 +845,13 @@ function initialize_led_settings() {
     }
 
     document.getElementById('light_mode').onchange = function () {
-        if (this.value == "Fading") {
+        if (this.value === "Fading") {
             document.getElementById('fading').hidden = false;
             document.getElementById('fading_speed').onchange();
         } else {
             document.getElementById('fading').hidden = true;
         }
-        if (this.value == "Velocity") {
+        if (this.value === "Velocity") {
             document.getElementById('velocity').hidden = false;
             document.getElementById('velocity_speed').onchange();
         } else {
@@ -993,7 +993,7 @@ function initialize_sequences() {
     });
 
     window.addEventListener('keydown', function (e) {
-        if (e.keyCode == 32 && e.target == document.body) {
+        if (e.keyCode === 32 && e.target === document.body) {
             change_setting('next_step', '0');
             press_button(document.getElementById('next_step_button'));
             e.preventDefault();
@@ -1036,7 +1036,7 @@ function rgbToHex(r, g, b) {
 }
 
 function enforceMinMax(el) {
-    if (el.value != "") {
+    if (el.value !== "") {
         if (parseInt(el.value) < parseInt(el.min)) {
             el.value = el.min;
         }
@@ -1054,11 +1054,11 @@ function get_sequences() {
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             sequence_editing_number = document.getElementById('sequences_list_2').value;
 
             var loop_length = 1;
-            if (document.getElementById('sequence_edit').getAttribute("active") == 'true') {
+            if (document.getElementById('sequence_edit').getAttribute("active") === 'true') {
                 loop_length = 2;
             }
             for (s = 1; s <= loop_length; s++) {
@@ -1074,7 +1074,7 @@ function get_sequences() {
                     sequences_list.appendChild(opt);
                     i += 1
                 })
-                if (s == 1) {
+                if (s === 1) {
                     sequences_list.value = response.sequence_number;
                 } else {
                     sequences_list.value = sequence_editing_number;
@@ -1089,7 +1089,7 @@ function get_sequences() {
 }
 
 function toggle_edit_sequence() {
-    if (document.getElementById('sequence_edit').getAttribute("active") == 'true') {
+    if (document.getElementById('sequence_edit').getAttribute("active") === 'true') {
         document.getElementById('sequence_edit').setAttribute("active", false);
         document.getElementById('sequence_edit_block').classList.add("opacity-50");
         document.getElementById('sequence_edit_block').classList.add("pointer-events-none");
@@ -1114,13 +1114,13 @@ function get_steps_list() {
     current_step = document.getElementById('sequence_step').value;
 
     document.getElementById('sequence_name').value = sequence_element.options[sequence_element.selectedIndex].text;
-    if (sequence == 0) {
+    if (sequence === 0) {
         return false;
     }
 
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             removeOptions(document.getElementById('sequence_step'));
             var sequences_list = document.getElementById('sequence_step');
             response = JSON.parse(this.responseText);
@@ -1148,7 +1148,7 @@ function set_step_properties(sequence, step) {
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             get_current_sequence_setting(true, true);
         }
     };
@@ -1160,7 +1160,7 @@ function get_ports() {
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200 && document.getElementById('active_input') != null) {
+        if (this.readyState === 4 && this.status === 200 && document.getElementById('active_input') != null) {
             var active_input_select = document.getElementById('active_input');
             var secondary_input_select = document.getElementById('secondary_input');
             var playback_select = document.getElementById('playback_input');
@@ -1193,7 +1193,7 @@ function get_ports() {
             connected_ports = connected_ports.replaceAll("\\t", "        ")
             connected_ports = connected_ports.replaceAll("b\"", "")
             document.getElementById('connect_all_textarea').innerHTML = connected_ports;
-            if (response.midi_logging == "1") {
+            if (response.midi_logging === "1") {
                 document.getElementById("midi_events_checkbox").checked = true;
             }
         }
@@ -1206,7 +1206,7 @@ function get_recording_status() {
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             response = JSON.parse(this.responseText);
             document.getElementById("input_port").innerHTML = response.input_port;
             document.getElementById("play_port").innerHTML = response.play_port;
@@ -1238,7 +1238,7 @@ function get_learning_status(loop_call = false) {
     var delay_between_requests = 500;
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             response = JSON.parse(this.responseText);
 
             clearTimeout(learning_status_timeout);
@@ -1353,7 +1353,7 @@ function get_songs() {
         page = 1;
         max_page = 1;
     }
-    if (max_page == 0) {
+    if (max_page === 0) {
         max_page = 1;
     }
     if (page > max_page) {
@@ -1378,7 +1378,7 @@ function get_songs() {
     var xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             document.getElementById("songs_list_table").innerHTML = this.responseText;
             var dates = document.getElementsByClassName("song_date");
             for (var i = 0; i < dates.length; i++) {
@@ -1392,26 +1392,26 @@ function get_songs() {
 
             document.getElementById("songs_per_page").value = length;
 
-            if (sortby == "nameAsc") {
+            if (sortby === "nameAsc") {
                 document.getElementById("sort_icon_nameAsc").classList.remove("hidden");
                 document.getElementById("sort_icon_nameDesc").classList.add("hidden");
                 document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
                 document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
             }
-            if (sortby == "nameDesc") {
+            if (sortby === "nameDesc") {
                 document.getElementById("sort_icon_nameDesc").classList.remove("hidden");
                 document.getElementById("sort_icon_nameAsc").classList.add("hidden");
                 document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
                 document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
             }
 
-            if (sortby == "dateAsc") {
+            if (sortby === "dateAsc") {
                 document.getElementById("sort_icon_dateAsc").classList.remove("hidden");
                 document.getElementById("sort_icon_dateDesc").classList.add("hidden");
                 document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
                 document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
             }
-            if (sortby == "dateDesc") {
+            if (sortby === "dateDesc") {
                 document.getElementById("sort_icon_dateDesc").classList.remove("hidden");
                 document.getElementById("sort_icon_dateAsc").classList.add("hidden");
                 document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
@@ -1531,7 +1531,7 @@ function show_multicolors(colors, ranges, iteration) {
         multicolor_element.innerHTML += add_button;
     }
 
-    if (iteration == 1) {
+    if (iteration === 1) {
         document.getElementById("multicolor_iteration_checkbox").checked = true;
     }
 }
@@ -1657,7 +1657,7 @@ function formatBytes(bytes, decimals = 2, suffix = true) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    if (suffix == true) {
+    if (suffix === true) {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     } else {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
@@ -1785,12 +1785,12 @@ function uploadFile(file, i) {
     })
 
     xhr.addEventListener('readystatechange', function (e) {
-        if (xhr.readyState == 4 && xhr.status == 200) {
+        if (xhr.readyState === 4 && xhr.status === 200) {
             response = JSON.parse(this.responseText);
 
             updateProgress(i, 100);
 
-            if (response.success == true) {
+            if (response.success === true) {
                 clearTimeout(get_songs_timeout);
                 get_songs_timeout = setTimeout(function () {
                     get_songs();
