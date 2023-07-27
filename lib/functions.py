@@ -275,7 +275,7 @@ def get_note_position(note, ledstrip, ledsettings):
 
 # scale: 1 means in C, scale: 2 means in C#, scale: 3 means in D, etc...
 # and scale: 1 means in C m, scale: 2 means in C# m, scale: 3 means in D m, etc...
-def get_scale_color(scale, note_position, ledsettings):
+def get_scale_color(scale, note_position, key_in_scale, key_not_in_scale):
     scale = int(scale)
     if scale < 12:
         notes_in_scale = [0, 2, 4, 5, 7, 9, 11]
@@ -284,9 +284,9 @@ def get_scale_color(scale, note_position, ledsettings):
     note_position = (note_position - scale) % 12
 
     if note_position in notes_in_scale:
-        return list(ledsettings.key_in_scale.values())
+        return list(key_in_scale.values())
     else:
-        return list(ledsettings.key_not_in_scale.values())
+        return list(key_not_in_scale.values())
 
 
 def get_rainbow_colors(pos, color):
@@ -739,7 +739,7 @@ def chords(scale, ledstrip, ledsettings, menu):
         for i in range(int(strip.numPixels() / density)):
             note = i + 21
             note_position = get_note_position(note, ledstrip, ledsettings)
-            c = get_scale_color(scale, note, ledsettings)
+            c = get_scale_color(scale, note, ledsettings.key_in_scale, ledsettings.key_not_in_scale)
             try:
                 leds_to_update.remove(note_position)
             except ValueError:
@@ -759,20 +759,3 @@ def chords(scale, ledstrip, ledsettings, menu):
     fastColorWipe(strip, True, ledsettings)
 
 
-def calculate_rainbow_colors(ledsettings, note_position, timeshift):
-    rainbow_value = int((int(note_position) + ledsettings.rainbow_offset + int(timeshift)) * (
-            float(ledsettings.rainbow_scale) / 100)) & 255
-    red = get_rainbow_colors(rainbow_value, "red")
-    green = get_rainbow_colors(rainbow_value, "green")
-    blue = get_rainbow_colors(rainbow_value, "blue")
-    return red, green, blue
-
-
-def calculate_speed_colors(ledsettings):
-    speed_colors = ledsettings.speed_get_colors()
-    return speed_colors
-
-
-def calculate_gradient_colors(ledsettings, note_position):
-    gradient_colors = ledsettings.gradient_get_colors(note_position)
-    return gradient_colors
