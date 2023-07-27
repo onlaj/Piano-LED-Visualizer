@@ -256,7 +256,7 @@ function update_wifi_list(wifi_list) {
     // Loop through wifi_list
     wifi_list.forEach(wifi => {
         const listItem = document.createElement("li");
-        listItem.className = "bg-gray-800 p-4 rounded-md flex items-center justify-between";
+        listItem.className = "bg-gray-100 dark:bg-gray-600 mb-4 p-2 rounded-md flex items-center justify-between";
 
         const partial_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" ' +
             'stroke-width="1.5" stroke="currentColor" class="w-6 h-6 absolute">'+getWifiIcon(wifi["Signal Strength"])+'</svg>';
