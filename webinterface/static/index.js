@@ -108,6 +108,7 @@ function loadAjax(subpage) {
                 }
                 if (subpage === "network") {
                     clearInterval(homepage_interval);
+                    get_wifi_list();
                 }
             }
         };
@@ -236,7 +237,30 @@ function switch_ports() {
     xhttp.send();
 }
 
+function disable_wifi_refresh_button(){
+    if (document.getElementById('refresh-wifi-button') != null) {
+        document.getElementById('refresh-wifi-button').disabled = true;
+        document.getElementById('refresh-wifi-button').classList.add("pointer-events-none", "animate-spin");
+    }
+    if (document.getElementById('wifi-list') != null) {
+        document.getElementById('wifi-list').disabled = true;
+        document.getElementById('wifi-list').classList.add("pointer-events-none", "opacity-50", "animate-pulse");
+    }
+}
+
+function enable_wifi_refresh_button(){
+    if (document.getElementById('refresh-wifi-button') != null) {
+        document.getElementById('refresh-wifi-button').disabled = false;
+        document.getElementById('refresh-wifi-button').classList.remove("pointer-events-none", "animate-spin");
+    }
+    if (document.getElementById('wifi-list') != null) {
+        document.getElementById('wifi-list').disabled = false;
+        document.getElementById('wifi-list').classList.remove("pointer-events-none", "opacity-50", "animate-pulse");
+    }
+}
+
 function get_wifi_list() {
+    disable_wifi_refresh_button();
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         let response;
@@ -274,6 +298,7 @@ function update_wifi_list(wifi_list) {
 
         wifiListElement.appendChild(listItem);
     });
+    enable_wifi_refresh_button();
 }
 
 function getWifiIcon(signalStrength) {
