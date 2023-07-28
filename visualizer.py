@@ -20,6 +20,7 @@ from webinterface import webinterface
 import filecmp
 from shutil import copyfile
 from waitress import serve
+import traceback
 
 os.chdir(sys.path[0])
 
@@ -34,6 +35,7 @@ def singleton():
         fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except Exception as error:
         print(f"Unexpected exception occurred: {error}")
+        traceback.print_exc()
         restart_script()
 
 
@@ -156,8 +158,8 @@ while True:
     except Exception as e:
         # Handle any other unexpected exceptions here
         print(f"Unexpected exception occurred: {e}")
+        traceback.print_exc()
         elapsed_time = 0
-
 
     # Show menulcd
     if display_cycle >= 3:
@@ -166,7 +168,6 @@ while True:
         if elapsed_time > screen_hold_time:
             menu.show()
     display_cycle += 1
-
 
     # Create ColorMode if first-run or changed
     if ledsettings.color_mode != color_mode_name:
@@ -184,8 +185,6 @@ while True:
             menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
             menu.show()
             ledsettings = LedSettings(usersettings)
-
-
 
     # Process GPIO keys
     if GPIO.input(KEYUP) == 0:
@@ -238,10 +237,6 @@ while True:
         while GPIO.input(JPRESS) == 0:
             time.sleep(0.01)
 
-
-
-
-
     # Fade processing
     for n, strength in enumerate(ledstrip.keylist):
         # Only apply fade processing to activated leds
@@ -257,7 +252,7 @@ while True:
             red, green, blue = (0, 0, 0)
 
         led_changed = False
-        new_color = color_mode.ColorUpdate(None, n, (red,green,blue))
+        new_color = color_mode.ColorUpdate(None, n, (red, green, blue))
         if new_color is not None:
             red, green, blue = new_color
             led_changed = True
@@ -290,12 +285,9 @@ while True:
             led_changed = True
 
         # Apply fade mode colors to ledstrip
-        if led_changed == True:
+        if led_changed:
             ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
             ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False, fading)
-
-
-
 
     # Prep midi event queue
     try:
@@ -306,6 +298,7 @@ while True:
             midiports.midipending = midiports.pending_queue
     except Exception as e:
         print(f"Unexpected exception occurred: {e}")
+        traceback.print_exc()
 
     # loop through incoming midi messages
     for msg in midiports.midipending:
@@ -342,6 +335,7 @@ while True:
                             ledsettings.set_sequence(0, 1)
                 except Exception as e:
                     print(f"Unexpected exception occurred: {e}")
+                    traceback.print_exc()
 
         # changing offset to adjust the distance between the LEDs to the key spacing
         note_position = get_note_position(note, ledstrip, ledsettings)
@@ -350,8 +344,6 @@ while True:
             continue
 
         elapsed_time = time.time() - saving.start_time
-
-
 
         if int(velocity) == 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is lifted (off)
             ledstrip.keylist_status[note_position] = 0
@@ -384,10 +376,8 @@ while True:
             else:
                 red, green, blue = (0, 0, 0)
 
-
             # Save ledstrip led colors
             ledstrip.keylist_color[note_position] = [red, green, blue]
-
 
             # Set initial fade processing state
             ledstrip.keylist_status[note_position] = 1
@@ -401,7 +391,6 @@ while True:
                 ledstrip.keylist[note_position] = 999 / float(brightness)
             if ledsettings.mode == "Normal":
                 ledstrip.keylist[note_position] = 1000
-
 
             # Apply learning colors
             channel = find_between(str(msg), "channel=", " ")
@@ -423,7 +412,6 @@ while True:
                     ledstrip.strip.setPixelColor(note_position, s_color)
                     ledstrip.set_adjacent_colors(note_position, s_color, False)
 
-
             # Saving
             if saving.is_recording:
                 if ledsettings.color_mode == "Multicolor":
@@ -431,7 +419,6 @@ while True:
                                      wc.rgb_to_hex((red, green, blue)))
                 else:
                     saving.add_track("note_on", original_note, velocity, midiports.last_activity)
-
 
         # Midi control change event
         else:
@@ -446,8 +433,6 @@ while True:
         saving.restart_time()
         if len(saving.is_playing_midi) > 0:
             midiports.pending_queue.remove(msg)
-
-
 
     # Update ledstrip
     ledstrip.strip.show()
