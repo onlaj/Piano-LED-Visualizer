@@ -90,6 +90,8 @@ class LedSettings:
 
         self.sequence_number = 0
 
+        self.fps_limiter = int(usersettings.get_setting_value("fps_limiter"))
+
         # if self.mode == "Disabled" and self.color_mode != "disabled":
         #    usersettings.change_setting_value("color_mode", "disabled")
 

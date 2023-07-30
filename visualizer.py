@@ -145,6 +145,13 @@ if args.webinterface != "false":
     processThread.start()
 
 
+
+# Frame rate counters
+event_loop_stamp = time.time()
+frame_count = 0
+frame_avg_stamp = time.time()
+frame_overshoot = 0
+
 # Main event loop
 while True:
     # screensaver
@@ -451,3 +458,43 @@ while True:
 
     # Update ledstrip
     ledstrip.strip.show()
+
+
+    # Frame time calculations
+
+    # time taken for the last interation of the main event loop
+    event_loop_time = time.time() - event_loop_stamp
+
+    led_fps_limiter = int(ledsettings.fps_limiter)
+
+    # if fps limiter is on, and we have time to spare this loop, go to sleep
+    tosleep = 0
+    if led_fps_limiter > 0:
+        if event_loop_time < 1/led_fps_limiter:
+            tosleep = 1/led_fps_limiter - event_loop_time - frame_overshoot
+            if tosleep > 0:
+                time.sleep(tosleep)
+        else:
+            frame_overshoot = 0
+
+    frame_count += 1
+    frame_seconds = time.time() - frame_avg_stamp
+
+    # calculate fps average over 2 seconds
+    if frame_seconds >= 2:
+        fps = frame_count/frame_seconds
+        ledstrip.current_fps = fps
+
+        # reset counters
+        frame_avg_stamp = time.time()
+        frame_count = 0
+
+        if led_fps_limiter > 0:
+            # calculate overshoot in case we slept too long, or too much jitter
+            # (Python < 3.11 has potentially low-resolution sleep times)
+            if tosleep > 0 and led_fps_limiter - fps > 0:
+                frame_overshoot = 1/fps - 1/led_fps_limiter
+            else:
+                frame_overshoot /= 1.1
+
+    event_loop_stamp = time.time()
