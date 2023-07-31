@@ -40,6 +40,17 @@ def get_current_connections():
         return "Error occurred while getting Wi-Fi information."
 
 
+def disconnect_from_wifi(ssid):
+    try:
+        # Disconnect from the given Wi-Fi network using the 'nmcli' command
+        # TODO test if it's working
+        subprocess.run(['nmcli', 'con', 'down', ssid], check=True)
+
+        return True
+    except subprocess.CalledProcessError as e:
+        return False
+
+
 def get_wifi_networks():
     try:
         output = subprocess.check_output(['sudo', 'iwlist', 'wlan0', 'scan'], stderr=subprocess.STDOUT)
