@@ -1,7 +1,7 @@
 from webinterface import webinterface
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import get_wifi_networks, find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
+from lib.functions import get_wifi_networks, get_current_connections, find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
     rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp
 import psutil
 import threading
@@ -1495,7 +1495,8 @@ def set_step_properties():
 @webinterface.route('/api/get_wifi_list', methods=['GET'])
 def get_wifi_list():
     wifi_list = get_wifi_networks()
-    response = {"wifi_list": wifi_list}
+    response = {"wifi_list": wifi_list,
+                "connected_wifi": get_current_connections()}
     return jsonify(response)
 
 

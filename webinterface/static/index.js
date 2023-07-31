@@ -266,16 +266,22 @@ function get_wifi_list() {
         let response;
         if (this.readyState === 4 && this.status === 200) {
             response = JSON.parse(this.responseText);
-            update_wifi_list(response["wifi_list"]);
+            update_wifi_list(response);
         }
     };
     xhttp.open("GET", "/api/get_wifi_list", true);
     xhttp.send();
 }
 
-function update_wifi_list(wifi_list) {
+function update_wifi_list(response) {
     const wifiListElement = document.getElementById("wifi-list");
     wifiListElement.innerHTML = '';
+
+
+    let wifi_list = response["wifi_list"]
+    let connected_wifi = response["connected_wifi"]
+
+    document.getElementById("connected-wifi").innerHTML = connected_wifi;
 
     // Loop through wifi_list
     wifi_list.forEach(wifi => {

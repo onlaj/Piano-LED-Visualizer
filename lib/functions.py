@@ -25,6 +25,21 @@ def get_ip_address():
     return local_ip
 
 
+def get_current_connections():
+    try:
+        output = subprocess.check_output(['iwconfig'], text=True)
+        for line in output.splitlines():
+            if "ESSID:" in line:
+                ssid = line.split("ESSID:")[-1].strip().strip('"')
+                if ssid != "off/any":
+                    return ssid
+                else:
+                    return "Not connected to any Wi-Fi network."
+        return "No Wi-Fi interface found."
+    except subprocess.CalledProcessError:
+        return "Error occurred while getting Wi-Fi information."
+
+
 def get_wifi_networks():
     try:
         output = subprocess.check_output(['sudo', 'iwlist', 'wlan0', 'scan'], stderr=subprocess.STDOUT)
