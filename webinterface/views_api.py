@@ -1,7 +1,8 @@
 from webinterface import webinterface
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import get_wifi_networks, get_current_connections, find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
+from lib.functions import get_wifi_networks, get_current_connections, find_between, theaterChase, theaterChaseRainbow, \
+    sound_of_da_police, scanner, breathing, \
     rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp
 import psutil
 import threading
@@ -1137,6 +1138,9 @@ def change_setting():
         webinterface.learning.is_loop_active = value
         webinterface.usersettings.change_setting_value("is_loop_active", webinterface.learning.is_loop_active)
 
+        return jsonify(success=True)
+
+    if setting_name == "connect_to_wifi":
         return jsonify(success=True)
 
     return jsonify(success=True)
