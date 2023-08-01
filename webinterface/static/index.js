@@ -285,8 +285,8 @@ function update_wifi_list(response) {
 
     // Loop through wifi_list
     wifi_list.forEach(wifi => {
-        const listItem = document.createElement("li");
-        listItem.className = "bg-gray-100 dark:bg-gray-600 mb-4 p-2 rounded-md flex items-center justify-between";
+        const listItem = document.createElement("div");
+        listItem.className = "bg-gray-100 dark:bg-gray-600 mb-4 p-2 rounded-md";
 
         const partial_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" ' +
             'stroke-width="1.5" stroke="currentColor" class="w-6 h-6 absolute">'+getWifiIcon(wifi["Signal Strength"])+'</svg>';
@@ -298,9 +298,25 @@ function update_wifi_list(response) {
 
         const wifi_icon = "<div class='relative inline-block'>"+partial_icon+full_wifi_icon+"</div>";
 
-        listItem.innerHTML = `${wifi_icon}
-            <div class="ml-4">${wifi["ESSID"]}</div>
-            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Connect</button>`;
+        listItem.innerHTML =
+            `<div class="rounded-md flex items-center justify-between">
+                ${wifi_icon}
+                <div class="ml-4">${wifi["ESSID"]}</div>
+                <button onclick="this.classList.add('hidden');                            
+                            document.getElementById('wifi_${wifi["ESSID"]}').classList.remove('hidden')"
+                    class="w-20 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">
+                    Connect
+                </button>            
+            
+            </div>
+            <div id="wifi_${wifi["ESSID"]}" class="hidden ">
+                <input id="wifi_password_${wifi["ESSID"]}" class="mt-4 h-10 block a w-full dark:text-black bg-gray-200 dark:bg-gray-700 py-2 px-2 
+                rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="password" placeholder="type wi-fi password here">
+                <button onclick="change_setting('connect_to_wifi', '${wifi["ESSID"]}', this.previousElementSibling.value);temporary_disable_button(this, 5000);"
+                    class="m-auto flex mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">
+                <span class="w-20">Connect</span></button>
+            </div>
+            `;
 
         wifiListElement.appendChild(listItem);
     });
