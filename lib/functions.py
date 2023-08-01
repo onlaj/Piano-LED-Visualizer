@@ -32,12 +32,51 @@ def get_current_connections():
             if "ESSID:" in line:
                 ssid = line.split("ESSID:")[-1].strip().strip('"')
                 if ssid != "off/any":
-                    return ssid
+                    return True, ssid
                 else:
-                    return "Not connected to any Wi-Fi network."
-        return "No Wi-Fi interface found."
+                    return False, "Not connected to any Wi-Fi network."
+        return False, "No Wi-Fi interface found."
     except subprocess.CalledProcessError:
-        return "Error occurred while getting Wi-Fi information."
+        return False, "Error occurred while getting Wi-Fi information."
+
+
+def connect_to_wifi(ssid, password):
+    MAX_RETRIES = 10
+    RETRY_DELAY = 5  # seconds
+
+    success, wifi_ssid = get_current_connections()
+
+    if success:
+        if wifi_ssid == ssid:
+            print("Already connected to Wi-Fi:", ssid)
+            return True
+        else:
+            print("Disconnecting from Wi-Fi:", wifi_ssid)
+            disconnect_from_wifi(wifi_ssid)
+
+    for _ in range(MAX_RETRIES):
+        try:
+            # nmcli d wifi connect <WiFiSSID> password <WiFiPassword> iface <WifiInterface>
+            subprocess.check_output(['sudo', 'nmcli', 'd', 'wifi', 'connect', ssid, 'password', password],
+                                    stderr=subprocess.STDOUT)
+            print("Connected to Wi-Fi:", ssid)
+            return True
+        except subprocess.CalledProcessError as e:
+            print("Error connecting to Wi-Fi:", e.output)
+            print("Retrying in {} seconds...".format(RETRY_DELAY))
+            time.sleep(RETRY_DELAY)
+
+    print("Failed to connect to Wi-Fi:", ssid)
+    if success:
+        print("Reconnecting to the previous Wi-Fi:", wifi_ssid)
+        try:
+            subprocess.check_output(['sudo', 'nmcli', 'd', 'wifi', 'connect', wifi_ssid],
+                                    stderr=subprocess.STDOUT)
+            print("Reconnected to Wi-Fi:", wifi_ssid)
+        except subprocess.CalledProcessError as e:
+            print("Error reconnecting to Wi-Fi:", e.output)
+
+    return False
 
 
 def disconnect_from_wifi(ssid):
