@@ -73,7 +73,7 @@ class MenuLCD:
 
         self.led_animation = usersettings.get_setting_value("led_animation")
 
-        self.screen_on = usersettings.get_setting_value("screen_on")
+        self.screen_on = int(usersettings.get_setting_value("screen_on"))
 
         self.screen_status = 1
 

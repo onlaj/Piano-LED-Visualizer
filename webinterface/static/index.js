@@ -153,13 +153,20 @@ function get_homepage_data_loop() {
             document.getElementById("memory_usage").innerHTML =
                 formatBytes(response_pc_stats.memory_usage_used, 2, false) + "/" +
                 formatBytes(response_pc_stats.memory_usage_total);
-            document.getElementById("cpu_temp").innerHTML = response_pc_stats.cpu_temp + "°C";
+            document.getElementById("cpu_temp").innerHTML = response_pc_stats.cpu_temp;
             document.getElementById("card_usage").innerHTML =
                 formatBytes(response_pc_stats.card_space_used, 2, false) + "/" +
                 formatBytes(response_pc_stats.card_space_total);
             document.getElementById("card_usage_percent").innerHTML = response_pc_stats.card_space_percent + "%";
             animateValue(document.getElementById("download_number"), last_download, download, refresh_rate * 500, true);
             animateValue(document.getElementById("upload_number"), last_upload, upload, refresh_rate * 500, true);
+            document.getElementById("led_fps").innerHTML = response_pc_stats.led_fps;
+            document.getElementById("cpu_count").innerHTML = response_pc_stats.cpu_count;
+            document.getElementById("cpu_pid").innerHTML = response_pc_stats.cpu_pid;
+            document.getElementById("cpu_freq").innerHTML = response_pc_stats.cpu_freq;
+            document.getElementById("memory_pid").innerHTML =
+                formatBytes(response_pc_stats.memory_pid, 2, false);
+
             document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
 
             download_start = response_pc_stats.download;

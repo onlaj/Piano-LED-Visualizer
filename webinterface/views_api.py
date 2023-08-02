@@ -22,6 +22,8 @@ SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(SENSECOVER, GPIO.IN, GPIO.PUD_UP)
 
+pid = psutil.Process(os.getpid())
+
 
 @webinterface.route('/api/start_animation', methods=['GET'])
 def start_animation():
@@ -81,6 +83,8 @@ def start_animation():
 
 @webinterface.route('/api/get_homepage_data')
 def get_homepage_data():
+    global pid
+
     try:
         temp = find_between(str(psutil.sensors_temperatures()["cpu_thermal"]), "current=", ",")
     except:
@@ -97,16 +101,21 @@ def get_homepage_data():
 
     homepage_data = {
         'cpu_usage': psutil.cpu_percent(interval=0.1),
+        'cpu_count': psutil.cpu_count(),
+        'cpu_pid': pid.cpu_percent(),
+        'cpu_freq': psutil.cpu_freq().current,
         'memory_usage_percent': psutil.virtual_memory()[2],
         'memory_usage_total': psutil.virtual_memory()[0],
         'memory_usage_used': psutil.virtual_memory()[3],
+        'memory_pid': pid.memory_full_info().rss,
         'cpu_temp': temp,
         'upload': upload,
         'download': download,
         'card_space_used': card_space.used,
         'card_space_total': card_space.total,
         'card_space_percent': card_space.percent,
-        'cover_state': 'Opened' if cover_opened else 'Closed'
+        'cover_state': 'Opened' if cover_opened else 'Closed',
+        'led_fps': round(webinterface.ledstrip.current_fps, 2),
     }
     return jsonify(homepage_data)
 
