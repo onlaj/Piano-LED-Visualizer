@@ -1,7 +1,7 @@
 from webinterface import webinterface
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import get_wifi_networks, get_current_connections, find_between, theaterChase, theaterChaseRainbow, \
+from lib.functions import connect_to_wifi, get_wifi_networks, get_current_connections, find_between, theaterChase, theaterChaseRainbow, \
     sound_of_da_police, scanner, breathing, \
     rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp
 import psutil
@@ -1141,7 +1141,12 @@ def change_setting():
         return jsonify(success=True)
 
     if setting_name == "connect_to_wifi":
-        return jsonify(success=True)
+        try:
+            response = connect_to_wifi(value, second_value)
+        except:
+            response = False
+
+        return jsonify(success=response)
 
     return jsonify(success=True)
 
