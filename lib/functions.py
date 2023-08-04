@@ -83,7 +83,7 @@ def disconnect_from_wifi(ssid):
     try:
         # Disconnect from the given Wi-Fi network using the 'nmcli' command
         # TODO test if it's working
-        subprocess.run(['nmcli', 'con', 'down', ssid], check=True)
+        subprocess.run(['sudo', 'nmcli', 'con', 'down', ssid], check=True)
 
         return True
     except subprocess.CalledProcessError as e:
