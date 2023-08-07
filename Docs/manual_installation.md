@@ -132,6 +132,7 @@ We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://githu
 - GIT clone repository
 
 `sudo git clone https://github.com/onlaj/Piano-LED-Visualizer`
+
 `cd Piano-LED-Visualizer`
 - Install required libraries
 
