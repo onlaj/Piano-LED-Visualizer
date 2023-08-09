@@ -52,10 +52,11 @@ def connect_to_wifi(ssid, password):
             return True
         else:
             print("Disconnecting from Wi-Fi:", wifi_ssid)
-            disconnect_from_wifi(wifi_ssid)
+            #disconnect_from_wifi(wifi_ssid)
 
     for _ in range(MAX_RETRIES):
         try:
+            print("Connecting to Wi-Fi:", ssid)
             # nmcli d wifi connect <WiFiSSID> password <WiFiPassword> iface <WifiInterface>
             subprocess.check_output(['sudo', 'nmcli', 'd', 'wifi', 'connect', ssid, 'password', password],
                                     stderr=subprocess.STDOUT)
@@ -63,11 +64,11 @@ def connect_to_wifi(ssid, password):
 
             time.sleep(5)
 
-            try:
-                subprocess.run(['sudo', 'nmcli', 'c', 'modify', ssid, 'connection.autoconnect', 'yes'],
-                               check=True)
-            except:
-                print("Cannot modify autoconnect attribute")
+            # try:
+            #     subprocess.run(['sudo', 'nmcli', 'c', 'modify', ssid, 'connection.autoconnect', 'yes'],
+            #                    check=True)
+            # except:
+            #     print("Cannot modify autoconnect attribute")
 
             return True
         except subprocess.CalledProcessError as e:
@@ -92,11 +93,11 @@ def disconnect_from_wifi(ssid):
     try:
         # Disconnect from the given Wi-Fi network using the 'nmcli' command
         # TODO test if it's working
-        try:
-            subprocess.run(['sudo', 'nmcli', 'c', 'modify', ssid, 'connection.autoconnect', 'no'],
-                           check=True)
-        except:
-            print ("Cannot modify autoconnect attribute")
+        #try:
+        #     subprocess.run(['sudo', 'nmcli', 'c', 'modify', ssid, 'connection.autoconnect', 'no'],
+        #                    check=True)
+        # except:
+        #     print ("Cannot modify autoconnect attribute")
 
         try:
             subprocess.run(['sudo', 'nmcli', 'con', 'down', ssid], check=True)
@@ -106,10 +107,10 @@ def disconnect_from_wifi(ssid):
         time.sleep(3)
 
         # run `sudo /usr/bin/autohotspot`
-        try:
-            subprocess.run(['sudo', '/usr/bin/autohotspot'], check=True)
-        except:
-            print ("Cannot start autohotspot script")
+        # try:
+        #     subprocess.run(['sudo', '/usr/bin/autohotspot'], check=True)
+        # except:
+        #     print ("Cannot start autohotspot script")
 
         return True
     except subprocess.CalledProcessError as e:
