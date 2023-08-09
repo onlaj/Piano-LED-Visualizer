@@ -118,6 +118,8 @@ pedal_deadzone = 10
 timeshift_start = time.time()
 timeshift = 0
 
+hotspot_script_time = time.time()
+
 fastColorWipe(ledstrip.strip, True, ledsettings)
 
 
@@ -170,6 +172,18 @@ while True:
             menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
             menu.show()
             ledsettings = LedSettings(usersettings)
+
+    # run script every 30 seconds
+    if (time.time() - hotspot_script_time) > 30:
+        # run `sudo /usr/bin/autohotspot`
+        print ("Running autohotspot script")
+        try:
+            subprocess.run(['sudo', '/usr/bin/autohotspot'], check=True)
+        except:
+            print("Cannot start autohotspot script")
+
+        hotspot_script_time = time.time()
+
 
     if GPIO.input(KEYUP) == 0:
         midiports.last_activity = time.time()
