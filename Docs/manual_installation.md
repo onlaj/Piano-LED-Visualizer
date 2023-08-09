@@ -88,7 +88,7 @@ WantedBy=multi-user.target
 ### 4. **Installing packages** //*ready for another cup?* ### 
 
 ```bash
-sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev python-dev libatlas-base-dev libopenjp2-7 libtiff5 libjack0 libjack-dev libasound2-dev fonts-freefont-ttf gcc make build-essential python-dev git scons swig libavahi-client3 abcmidi
+sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev python-dev libatlas-base-dev libopenjp2-7 libtiff5 libjack0 libjack-dev libasound2-dev fonts-freefont-ttf gcc make build-essential python-dev git scons swig libavahi-client3 abcmidi Network-Manager
 ```
 
 
@@ -122,8 +122,40 @@ We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://githu
 
 `sudo dpkg -i rtpmidid_20.07_armhf.deb`
 
+### 7. **Creating Hot-Spot** ###
 
-### 7. **Installing Piano-LED-Visualizer** ###
+- Enable Network Manager
+
+`sudo systemctl enable NetworkManager`
+
+- Download and install Hotspot script
+
+`cd /home`
+
+`sudo curl "https://github.com/RaspberryConnect/AutoHotspot-Installer/raw/master/Autohotspot-Setup.tar.xz" -o AutoHotspot-Setup.tar.gz`
+
+`sudo tar -xzvf AutoHotspot-Setup.tar.gz`
+
+`cd Autohotspot`
+
+`sudo chmod +x autohotspot-setup.sh`
+
+`sudo ./autohotspot-setup.sh`
+
+Type `2` and press ener
+
+- We don't want to run this script on boot so we disable it.
+
+`sudo systemctl disable autohotspot`
+
+- Make it use wi-fi credentials stored on the system.
+
+`sudo nano /etc/dhcpcd.conf`
+
+- Remove line `nohook wpa_supplicant` from `/etc/dhcpcd.conf` and save the changes
+
+
+### 8. **Installing Piano-LED-Visualizer** ###
 - Navigate to /home folder:
 
 ` cd /home/`
