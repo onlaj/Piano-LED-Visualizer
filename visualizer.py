@@ -174,16 +174,22 @@ while True:
             ledsettings = LedSettings(usersettings)
 
     # run script every 30 seconds
-    if (time.time() - hotspot_script_time) > 30:
-        # run `sudo /usr/bin/autohotspot`
-        print ("Running autohotspot script")
-        try:
-            subprocess.run(['sudo', '/usr/bin/autohotspot'], check=True)
-        except:
-            print("Cannot start autohotspot script")
+    if (time.time() - hotspot_script_time) > 60:
+
+        # check if wi-fi is connected
+        wifi_success, wifi_ssid = get_current_connections()
+        if not wifi_success:
+
+            # run `sudo /usr/bin/autohotspot`
+            print("Running autohotspot script")
+            try:
+                subprocess.run(['sudo', '/usr/bin/autohotspot'], check=True)
+            except:
+                print("Cannot start autohotspot script")
+        else:
+            print("NOT running autohotspot, connection already established")
 
         hotspot_script_time = time.time()
-
 
     if GPIO.input(KEYUP) == 0:
         midiports.last_activity = time.time()
