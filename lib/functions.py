@@ -60,6 +60,15 @@ def connect_to_wifi(ssid, password):
             subprocess.check_output(['sudo', 'nmcli', 'd', 'wifi', 'connect', ssid, 'password', password],
                                     stderr=subprocess.STDOUT)
             print("Connected to Wi-Fi:", ssid)
+
+            time.sleep(5)
+
+            try:
+                subprocess.run(['sudo', 'nmcli', 'c', 'modify', ssid, 'connection.autoconnect', 'yes'],
+                               check=True)
+            except:
+                print("Cannot modify autoconnect attribute")
+
             return True
         except subprocess.CalledProcessError as e:
             print("Error connecting to Wi-Fi:", e.output)
@@ -83,10 +92,37 @@ def disconnect_from_wifi(ssid):
     try:
         # Disconnect from the given Wi-Fi network using the 'nmcli' command
         # TODO test if it's working
-        subprocess.run(['sudo', 'nmcli', 'con', 'down', ssid], check=True)
+        try:
+            subprocess.run(['sudo', 'nmcli', 'c', 'modify', ssid, 'connection.autoconnect', 'no'],
+                           check=True)
+        except:
+            print ("Cannot modify autoconnect attribute")
+
+        try:
+            subprocess.run(['sudo', 'nmcli', 'con', 'down', ssid], check=True)
+        except:
+            print ("Cannot disconnect from Wi-Fi")
+
+        time.sleep(3)
+
+        # run `sudo /usr/bin/autohotspot`
+        try:
+            subprocess.run(['sudo', '/usr/bin/autohotspot'], check=True)
+        except:
+            print ("Cannot start autohotspot script")
 
         return True
     except subprocess.CalledProcessError as e:
+        return False
+
+
+def forget_wifi_credentials(ssid):
+    # remove wi-fi credentials
+    try:
+        subprocess.run(['sudo', 'nmcli', 'con', 'delete', ssid], check=True)
+        return True
+    except:
+        print ("Cannot delete Wi-Fi credentials")
         return False
 
 
