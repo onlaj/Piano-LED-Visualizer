@@ -1,8 +1,22 @@
 # /draft/
 
-https://github.com/RaspberryConnect/AutoHotspot-Installer
+https://github.com/schollz/raspberry-pi-turnkey
 
-After completing installation country code must be added with
-`sudo nano /etc/hostapd/hostapd.conf`
+default wpa.conf for hotspot:
 
-TODO: run `sudo /usr/bin/autohotspot` on network change, can be done in Visualizer script
+`country=GB
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1`
+
+for normal connection:
+
+`country=GB
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+network={
+    ssid="wifi name"
+    psk="password"
+}```
+
+
+
