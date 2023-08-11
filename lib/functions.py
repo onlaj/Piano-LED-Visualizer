@@ -41,7 +41,7 @@ def get_current_connections():
 
 
 def connect_to_wifi(ssid, password):
-
+    print ("Method:conneting to wifi")
     success, wifi_ssid = get_current_connections()
 
     if success:
@@ -63,61 +63,23 @@ def connect_to_wifi(ssid, password):
 
     with open('config/wpa_disable_ap.conf', 'w') as f:
         f.write(wpa_conf % (ssid, pwd))
+    print("Running shell script disable_ap")
 
-    subprocess.Popen(["./disable_ap.sh"])
-
-
-def connect_to_wifi_old(ssid, password):
-    MAX_RETRIES = 10
-    RETRY_DELAY = 5  # seconds
-
-    success, wifi_ssid = get_current_connections()
-
-    if success:
-        if wifi_ssid == ssid:
-            print("Already connected to Wi-Fi:", ssid)
-            return True
-        else:
-            print("Disconnecting from Wi-Fi:", wifi_ssid)
-            #disconnect_from_wifi(wifi_ssid)
-
-    for _ in range(MAX_RETRIES):
-        try:
-            print("Connecting to Wi-Fi:", ssid)
-            # nmcli d wifi connect <WiFiSSID> password <WiFiPassword> iface <WifiInterface>
-            subprocess.check_output(['sudo', 'nmcli', 'd', 'wifi', 'connect', ssid, 'password', password],
-                                    stderr=subprocess.STDOUT)
-            print("Connected to Wi-Fi:", ssid)
-
-            time.sleep(5)
-
-            # try:
-            #     subprocess.run(['sudo', 'nmcli', 'c', 'modify', ssid, 'connection.autoconnect', 'yes'],
-            #                    check=True)
-            # except:
-            #     print("Cannot modify autoconnect attribute")
-
-            return True
-        except subprocess.CalledProcessError as e:
-            print("Error connecting to Wi-Fi:", e.output)
-            print("Retrying in {} seconds...".format(RETRY_DELAY))
-            time.sleep(RETRY_DELAY)
-
-    print("Failed to connect to Wi-Fi:", ssid)
-    if success:
-        print("Reconnecting to the previous Wi-Fi:", wifi_ssid)
-        try:
-            subprocess.check_output(['sudo', 'nmcli', 'd', 'wifi', 'connect', wifi_ssid],
-                                    stderr=subprocess.STDOUT)
-            print("Reconnected to Wi-Fi:", wifi_ssid)
-        except subprocess.CalledProcessError as e:
-            print("Error reconnecting to Wi-Fi:", e.output)
-
-    return False
+    #subprocess.Popen(["sudo ./disable_ap.sh"])
+    with subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1,
+                          universal_newlines=True) as process:
+        for line in process.stdout:
+            print(line, end='')
 
 
-def disconnect_from_wifi(ssid):
-    subprocess.Popen(["./enable_ap.sh"])
+def disconnect_from_wifi():
+    print("Running script enable_ap")
+    #subprocess.Popen(["sudo ./enable_ap.sh"])
+
+    with subprocess.Popen(['sudo', './enable_ap.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1,
+                          universal_newlines=True) as process:
+        for line in process.stdout:
+            print(line, end='')
 
 def get_wifi_networks():
     try:
