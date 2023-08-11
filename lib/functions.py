@@ -117,15 +117,6 @@ def disconnect_from_wifi(ssid):
         return False
 
 
-def forget_wifi_credentials(ssid):
-    # remove wi-fi credentials
-    try:
-        subprocess.run(['sudo', 'nmcli', 'con', 'delete', ssid], check=True)
-        return True
-    except:
-        print ("Cannot delete Wi-Fi credentials")
-        return False
-
 
 def get_wifi_networks():
     try:
