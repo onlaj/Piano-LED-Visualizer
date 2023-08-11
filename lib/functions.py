@@ -41,6 +41,33 @@ def get_current_connections():
 
 
 def connect_to_wifi(ssid, password):
+
+    success, wifi_ssid = get_current_connections()
+
+    if success:
+        if wifi_ssid == ssid:
+            print("Already connected to Wi-Fi:", ssid)
+            return True
+
+    wpa_conf = """country=GB
+    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+    update_config=1
+    network={
+        ssid="%s"
+        %s
+    }"""
+
+    pwd = 'psk="' + password + '"'
+    if password == "":
+        pwd = "key_mgmt=NONE"  # If open AP
+
+    with open('config/wpa_disable_ap.conf', 'w') as f:
+        f.write(wpa_conf % (ssid, pwd))
+
+    subprocess.Popen(["./disable_ap.sh"])
+
+
+def connect_to_wifi_old(ssid, password):
     MAX_RETRIES = 10
     RETRY_DELAY = 5  # seconds
 
@@ -115,7 +142,6 @@ def disconnect_from_wifi(ssid):
         return True
     except subprocess.CalledProcessError as e:
         return False
-
 
 
 def get_wifi_networks():
