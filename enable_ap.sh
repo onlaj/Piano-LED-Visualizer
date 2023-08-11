@@ -8,7 +8,7 @@ sudo cp config/dhcpcd.conf /etc/dhcpcd.conf
 sudo cp config/dnsmasq.conf /etc/dnsmasq.conf
 
 # load wan configuration
-sudo cp wpa_enable_ap.conf /etc/wpa_supplicant/wpa_supplicant.conf
+sudo cp config/wpa_enable_ap.conf /etc/wpa_supplicant/wpa_supplicant.conf
 
 sleep 5
 sudo wpa_cli -i wlan0 reconfigure
