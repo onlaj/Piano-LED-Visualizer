@@ -1706,6 +1706,15 @@ function temporary_disable_button(element, timeout) {
     }, timeout);
 }
 
+function handle_confirmation_button(element){
+    element.classList.remove("hidden");
+    element.classList.add("pointer-events-none", "opacity-50")
+
+    setTimeout(() => {
+            element.classList.remove('pointer-events-none', "opacity-50");
+        }, 2000);
+}
+
 function formatBytes(bytes, decimals = 2, suffix = true) {
     if (bytes === 0) return '0 Bytes';
 
