@@ -117,32 +117,7 @@ def connect_to_wifi_old(ssid, password):
 
 
 def disconnect_from_wifi(ssid):
-    try:
-        # Disconnect from the given Wi-Fi network using the 'nmcli' command
-        # TODO test if it's working
-        #try:
-        #     subprocess.run(['sudo', 'nmcli', 'c', 'modify', ssid, 'connection.autoconnect', 'no'],
-        #                    check=True)
-        # except:
-        #     print ("Cannot modify autoconnect attribute")
-
-        try:
-            subprocess.run(['sudo', 'nmcli', 'con', 'down', ssid], check=True)
-        except:
-            print ("Cannot disconnect from Wi-Fi")
-
-        time.sleep(3)
-
-        # run `sudo /usr/bin/autohotspot`
-        # try:
-        #     subprocess.run(['sudo', '/usr/bin/autohotspot'], check=True)
-        # except:
-        #     print ("Cannot start autohotspot script")
-
-        return True
-    except subprocess.CalledProcessError as e:
-        return False
-
+    subprocess.Popen(["./enable_ap.sh"])
 
 def get_wifi_networks():
     try:
