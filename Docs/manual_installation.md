@@ -142,7 +142,7 @@ dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h' | sudo tee --append /etc/
 
 `echo 'interface=wlan0
 driver=nl80211
-ssid=ConnectToConnect
+ssid=PianoLEDVisualizer
 hw_mode=g
 channel=7
 wmm_enabled=0
@@ -150,7 +150,7 @@ macaddr_acl=0
 auth_algs=1
 ignore_broadcast_ssid=0
 wpa=2
-wpa_passphrase=ConnectToConnect
+wpa_passphrase=visualizer
 wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP
 rsn_pairwise=CCMP' | sudo tee --append /etc/hostapd/hostapd.conf`
