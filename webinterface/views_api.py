@@ -1,9 +1,9 @@
 from webinterface import webinterface
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import disconnect_from_wifi, connect_to_wifi, get_wifi_networks, get_current_connections, find_between, theaterChase, theaterChaseRainbow, \
-    sound_of_da_police, scanner, breathing, \
-    rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp
+from lib.functions import (disconnect_from_wifi, connect_to_wifi, get_wifi_networks, get_current_connections,
+                           find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner,
+                           breathing, rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp)
 import psutil
 import threading
 import webcolors as wc
@@ -1143,7 +1143,7 @@ def change_setting():
     if setting_name == "connect_to_wifi":
         print("Controller: connecting to wifi")
         try:
-            response = connect_to_wifi(value, second_value, webinterface.usersettings)
+            response = connect_to_wifi(value, second_value, webinterface.hotspot, webinterface.usersettings)
         except:
             response = False
 
