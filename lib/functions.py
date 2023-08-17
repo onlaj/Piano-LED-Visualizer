@@ -40,8 +40,9 @@ def get_current_connections():
         return False, "Error occurred while getting Wi-Fi information."
 
 
-def connect_to_wifi(ssid, password):
-    print ("Method:conneting to wifi")
+def connect_to_wifi(ssid, password, usersettings):
+    usersettings.hotspot_script_time = time.time()
+    print("Method:connecting to wifi")
     success, wifi_ssid = get_current_connections()
 
     if success:
@@ -72,7 +73,8 @@ def connect_to_wifi(ssid, password):
             print(line, end='')
 
 
-def disconnect_from_wifi():
+def disconnect_from_wifi(usersettings):
+    usersettings.hotspot_script_time = time.time()
     print("Running script enable_ap")
     #subprocess.Popen(["sudo ./enable_ap.sh"])
 
@@ -80,6 +82,7 @@ def disconnect_from_wifi():
                           universal_newlines=True) as process:
         for line in process.stdout:
             print(line, end='')
+
 
 def get_wifi_networks():
     try:

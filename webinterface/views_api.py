@@ -1143,7 +1143,7 @@ def change_setting():
     if setting_name == "connect_to_wifi":
         print("Controller: connecting to wifi")
         try:
-            response = connect_to_wifi(value, second_value)
+            response = connect_to_wifi(value, second_value, webinterface.usersettings)
         except:
             response = False
 
@@ -1151,7 +1151,7 @@ def change_setting():
 
     if setting_name == "disconnect_wifi":
         try:
-            disconnect_from_wifi()
+            disconnect_from_wifi(webinterface.usersettings)
         except:
             return jsonify(success=False)
 

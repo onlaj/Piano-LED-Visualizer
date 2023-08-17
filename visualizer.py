@@ -112,13 +112,12 @@ display_cycle = 0
 screen_hold_time = 16
 
 midiports.last_activity = time.time()
+usersettings.hotspot_script_time = time.time()
 
 last_control_change = 0
 pedal_deadzone = 10
 timeshift_start = time.time()
 timeshift = 0
-
-hotspot_script_time = time.time()
 
 fastColorWipe(ledstrip.strip, True, ledsettings)
 
@@ -173,23 +172,27 @@ while True:
             menu.show()
             ledsettings = LedSettings(usersettings)
 
-    # run script every 30 seconds
-    if (time.time() - hotspot_script_time) > 60:
+    # run script every 60 seconds
+    if (time.time() - usersettings.hotspot_script_time) > 60 and time.time() - midiports.last_activity > 60:
 
         # check if wi-fi is connected
         wifi_success, wifi_ssid = get_current_connections()
+        print("wifi success: "+str(wifi_success))
+        print("wifi_ssid: "+str(wifi_ssid))
         if not wifi_success:
-
-            # run `sudo /usr/bin/autohotspot`
-            print("Running autohotspot script")
+            print("Starting hotspot")
             try:
-                subprocess.run(['sudo', '/usr/bin/autohotspot'], check=True)
+                with subprocess.Popen(['sudo', './enable_ap.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                      bufsize=1,
+                                      universal_newlines=True) as process:
+                    for line in process.stdout:
+                        print(line, end='')
             except:
-                print("Cannot start autohotspot script")
+                print("Cannot start hotspot")
         else:
-            print("NOT running autohotspot, connection already established")
+            print("NOT running hotspot, connection already established")
 
-        hotspot_script_time = time.time()
+        usersettings.hotspot_script_time = time.time()
 
     if GPIO.input(KEYUP) == 0:
         midiports.last_activity = time.time()
