@@ -14,25 +14,43 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(SENSECOVER, GPIO.IN, GPIO.PUD_UP)
 
 
-def manage_hotspot(usersettings, midiports):
-    # run script every 60 seconds
-    if (time.time() - usersettings.hotspot_script_time) > 60 and time.time() - midiports.last_activity > 60:
-        usersettings.hotspot_script_time = time.time()
+def manage_hotspot(hotspot, usersettings, midiports, first_run = False):
+
+    # Visualizer is starting, check if hotspot is active and run enable_ap.sh
+    if first_run:
         if is_hotspot_active(usersettings):
-            test = usersettings.get_setting_value("is_hotspot_active")
-            print("Hotspot is active. value: " + str(test))
+            disconnect_from_wifi(hotspot, usersettings)
             return
-        else:
-            test = usersettings.get_setting_value("is_hotspot_active")
-            print("Hotspot is not active." + str(test))
+
+    # Calculate time passed without Wi-fi
+    current_time = time.time()
+    if not hotspot.last_wifi_check_time:
+        hotspot.last_wifi_check_time = current_time
+
+    time_without_wifi = current_time - hotspot.last_wifi_check_time
+
+    # run script every 60 seconds
+    if (time.time() - hotspot.hotspot_script_time) > 60 and time.time() - midiports.last_activity > 60:
+        hotspot.hotspot_script_time = current_time
+        if is_hotspot_active(usersettings):
+            return
 
         # check if wi-fi is connected
         wifi_success, wifi_ssid = get_current_connections()
         print("wifi success: "+str(wifi_success))
         print("wifi_ssid: "+str(wifi_ssid))
+
         if not wifi_success:
-            disconnect_from_wifi(usersettings)
+            # Update the time without WiFi
+            hotspot.time_without_wifi += time_without_wifi
+
+            # If hotspot.time_without_wifi is greater than 120 seconds, start hotspot
+            print("Time without wi-fi: "+str(hotspot.time_without_wifi))
+            if hotspot.time_without_wifi > 360:
+                disconnect_from_wifi(hotspot, usersettings)
         else:
+            # Reset the time without WiFi since there is a connection now
+            hotspot.time_without_wifi = 0
             print("NOT running hotspot, connection already established")
 
 
@@ -68,8 +86,8 @@ def get_current_connections():
         return False, "Error occurred while getting Wi-Fi information."
 
 
-def connect_to_wifi(ssid, password, usersettings):
-    usersettings.hotspot_script_time = time.time()
+def connect_to_wifi(ssid, password, hotspot, usersettings):
+    hotspot.hotspot_script_time = time.time()
     print("Method:connecting to wifi")
     success, wifi_ssid = get_current_connections()
 
@@ -98,12 +116,12 @@ def connect_to_wifi(ssid, password, usersettings):
                          stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
     except Exception as error:
         # handle the exception
-        print("An exception occurred while shuting down a hotspot:", error)
+        print("An exception occurred while shutting down a hotspot:", error)
     usersettings.change_setting_value("is_hotspot_active", 0)
 
 
-def disconnect_from_wifi(usersettings):
-    usersettings.hotspot_script_time = time.time()
+def disconnect_from_wifi(hotspot, usersettings):
+    hotspot.hotspot_script_time = time.time()
     print("Running script enable_ap")
     try:
         subprocess.Popen(['sudo', './enable_ap.sh'], stdout=subprocess.DEVNULL,
