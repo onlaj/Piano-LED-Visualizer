@@ -17,6 +17,14 @@ GPIO.setup(SENSECOVER, GPIO.IN, GPIO.PUD_UP)
 def manage_hotspot(usersettings, midiports):
     # run script every 60 seconds
     if (time.time() - usersettings.hotspot_script_time) > 60 and time.time() - midiports.last_activity > 60:
+        usersettings.hotspot_script_time = time.time()
+        if is_hotspot_active(usersettings):
+            test = usersettings.get_setting_value("is_hotspot_active")
+            print("Hotspot is active. value: " + str(test))
+            return
+        else:
+            test = usersettings.get_setting_value("is_hotspot_active")
+            print("Hotspot is not active." + str(test))
 
         # check if wi-fi is connected
         wifi_success, wifi_ssid = get_current_connections()
@@ -26,8 +34,6 @@ def manage_hotspot(usersettings, midiports):
             disconnect_from_wifi(usersettings)
         else:
             print("NOT running hotspot, connection already established")
-
-        usersettings.hotspot_script_time = time.time()
 
 
 def get_ip_address():
@@ -39,6 +45,12 @@ def get_ip_address():
     local_ip = s.getsockname()[0]
     s.close()
     return local_ip
+
+
+def is_hotspot_active(usersettings):
+    if int(usersettings.get_setting_value("is_hotspot_active")) == 1:
+        return True
+    return False
 
 
 def get_current_connections():
@@ -81,9 +93,13 @@ def connect_to_wifi(ssid, password, usersettings):
     with open('config/wpa_disable_ap.conf', 'w') as f:
         f.write(wpa_conf % (ssid, pwd))
     print("Running shell script disable_ap")
-
-    subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.DEVNULL,
-                     stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+    try:
+        subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+    except Exception as error:
+        # handle the exception
+        print("An exception occurred while shuting down a hotspot:", error)
+    usersettings.change_setting_value("is_hotspot_active", 0)
 
 
 def disconnect_from_wifi(usersettings):
@@ -95,6 +111,7 @@ def disconnect_from_wifi(usersettings):
     except Exception as error:
         # handle the exception
         print("An exception occurred while creating a hotspot:", error)
+    usersettings.change_setting_value("is_hotspot_active", 1)
 
 
 def get_wifi_networks():
