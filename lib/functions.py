@@ -37,21 +37,17 @@ def manage_hotspot(hotspot, usersettings, midiports, first_run = False):
 
         # check if wi-fi is connected
         wifi_success, wifi_ssid = get_current_connections()
-        print("wifi success: "+str(wifi_success))
-        print("wifi_ssid: "+str(wifi_ssid))
 
         if not wifi_success:
             # Update the time without WiFi
             hotspot.time_without_wifi += time_without_wifi
 
-            # If hotspot.time_without_wifi is greater than 120 seconds, start hotspot
-            print("Time without wi-fi: "+str(hotspot.time_without_wifi))
-            if hotspot.time_without_wifi > 360:
+            # If hotspot.time_without_wifi is greater than 240 seconds, start hotspot
+            if hotspot.time_without_wifi > 240:
                 disconnect_from_wifi(hotspot, usersettings)
         else:
             # Reset the time without WiFi since there is a connection now
             hotspot.time_without_wifi = 0
-            print("NOT running hotspot, connection already established")
 
 
 def get_ip_address():
