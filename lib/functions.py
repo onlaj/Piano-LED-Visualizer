@@ -14,6 +14,22 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(SENSECOVER, GPIO.IN, GPIO.PUD_UP)
 
 
+def manage_hotspot(usersettings, midiports):
+    # run script every 60 seconds
+    if (time.time() - usersettings.hotspot_script_time) > 60 and time.time() - midiports.last_activity > 60:
+
+        # check if wi-fi is connected
+        wifi_success, wifi_ssid = get_current_connections()
+        print("wifi success: "+str(wifi_success))
+        print("wifi_ssid: "+str(wifi_ssid))
+        if not wifi_success:
+            disconnect_from_wifi(usersettings)
+        else:
+            print("NOT running hotspot, connection already established")
+
+        usersettings.hotspot_script_time = time.time()
+
+
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -66,22 +82,16 @@ def connect_to_wifi(ssid, password, usersettings):
         f.write(wpa_conf % (ssid, pwd))
     print("Running shell script disable_ap")
 
-    #subprocess.Popen(["sudo ./disable_ap.sh"])
-    with subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1,
-                          universal_newlines=True) as process:
-        for line in process.stdout:
-            print(line, end='')
+    subprocess.Popen(["sudo ./disable_ap.sh"])
 
 
 def disconnect_from_wifi(usersettings):
     usersettings.hotspot_script_time = time.time()
     print("Running script enable_ap")
-    #subprocess.Popen(["sudo ./enable_ap.sh"])
-
-    with subprocess.Popen(['sudo', './enable_ap.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1,
-                          universal_newlines=True) as process:
-        for line in process.stdout:
-            print(line, end='')
+    try:
+        subprocess.Popen(["sudo ./enable_ap.sh"])
+    except:
+        print("Cannot start hotspot")
 
 
 def get_wifi_networks():
