@@ -82,16 +82,19 @@ def connect_to_wifi(ssid, password, usersettings):
         f.write(wpa_conf % (ssid, pwd))
     print("Running shell script disable_ap")
 
-    subprocess.Popen(["sudo ./disable_ap.sh"])
+    subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.DEVNULL,
+                     stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
 
 
 def disconnect_from_wifi(usersettings):
     usersettings.hotspot_script_time = time.time()
     print("Running script enable_ap")
     try:
-        subprocess.Popen(["sudo ./enable_ap.sh"])
-    except:
-        print("Cannot start hotspot")
+        subprocess.Popen(['sudo', './enable_ap.sh'], stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+    except Exception as error:
+        # handle the exception
+        print("An exception occurred while creating a hotspot:", error)
 
 
 def get_wifi_networks():
