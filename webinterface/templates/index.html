@@ -46,6 +46,10 @@
                 setTimeout(establish_socket_connection, 5000, try_count + 1);
             }
         });
+
+        socket.addEventListener('error', function (event) {
+            console.log('WebSocket error:', event);
+        });
     }
 
     establish_socket_connection(0);
