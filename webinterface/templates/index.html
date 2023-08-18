@@ -22,6 +22,7 @@
 
 <script>
     function establish_socket_connection(try_count) {
+        console.log("Connecting to websocket")
         const socket = new WebSocket('ws://' + window.location.host + ':8765');
         socket.addEventListener('open', function (event) {
             console.log('Connected to server');
