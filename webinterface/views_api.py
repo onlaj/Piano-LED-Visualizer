@@ -1,4 +1,5 @@
 from webinterface import webinterface
+from webinterface import start_server, stop_server
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
 from lib.functions import (find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner,
@@ -1151,7 +1152,7 @@ def change_setting():
 
     if setting_name == "disconnect_wifi":
         try:
-            disconnect_from_wifi(webinterface.usersettings)
+            disconnect_from_wifi(webinterface.hotspot, webinterface.usersettings)
         except:
             return jsonify(success=False)
 

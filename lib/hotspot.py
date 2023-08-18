@@ -1,6 +1,5 @@
 import time
 import subprocess
-from webinterface import start_server, stop_server
 
 
 def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
