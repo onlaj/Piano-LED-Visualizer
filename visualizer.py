@@ -11,7 +11,7 @@ from lib.menulcd import MenuLCD
 from lib.midiports import MidiPorts
 from lib.savemidi import SaveMIDI
 from lib.usersettings import UserSettings
-from lib.hotspot import Hotspot
+from lib.hotspot import *
 from lib.functions import *
 from lib.neopixel import *
 import argparse
@@ -149,7 +149,6 @@ if args.webinterface != "false":
 
 
 manage_hotspot(hotspot, usersettings, midiports, True)
-
 
 while True:
     # screensaver

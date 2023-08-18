@@ -1,9 +1,9 @@
 from webinterface import webinterface
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import (disconnect_from_wifi, connect_to_wifi, get_wifi_networks, get_current_connections,
-                           find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner,
+from lib.functions import (find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner,
                            breathing, rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp)
+from lib.hotspot import (disconnect_from_wifi, connect_to_wifi, get_wifi_networks, get_current_connections)
 import psutil
 import threading
 import webcolors as wc
