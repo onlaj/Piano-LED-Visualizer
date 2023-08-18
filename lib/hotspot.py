@@ -1,5 +1,6 @@
 import time
 import subprocess
+import os
 
 
 def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
@@ -40,7 +41,8 @@ def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
 
 def get_current_connections():
     try:
-        output = subprocess.check_output(['iwconfig'], text=True)
+        with open(os.devnull, 'w') as null_file:
+            output = subprocess.check_output(['iwconfig'], text=True, stderr=null_file)
         for line in output.splitlines():
             if "ESSID:" in line:
                 ssid = line.split("ESSID:")[-1].strip().strip('"')
