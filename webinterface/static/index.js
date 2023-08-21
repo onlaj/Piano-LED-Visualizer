@@ -237,7 +237,7 @@ function switch_ports() {
     xhttp.send();
 }
 
-function disable_wifi_refresh_button(){
+function disable_wifi_refresh_button() {
     if (document.getElementById('refresh-wifi-button') != null) {
         document.getElementById('refresh-wifi-button').disabled = true;
         document.getElementById('refresh-wifi-button').classList.add("pointer-events-none", "animate-spin");
@@ -248,7 +248,7 @@ function disable_wifi_refresh_button(){
     }
 }
 
-function enable_wifi_refresh_button(){
+function enable_wifi_refresh_button() {
     if (document.getElementById('refresh-wifi-button') != null) {
         document.getElementById('refresh-wifi-button').disabled = false;
         document.getElementById('refresh-wifi-button').classList.remove("pointer-events-none", "animate-spin");
@@ -289,29 +289,37 @@ function update_wifi_list(response) {
         listItem.className = "bg-gray-100 dark:bg-gray-600 mb-4 p-2 rounded-md";
 
         const partial_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" ' +
-            'stroke-width="1.5" stroke="currentColor" class="w-6 h-6 absolute">'+getWifiIcon(wifi["Signal Strength"])+'</svg>';
+            'stroke-width="1.5" stroke="currentColor" class="w-6 h-6 absolute">' + getWifiIcon(wifi["Signal Strength"]) + '</svg>';
 
         const full_wifi_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" ' +
             'stroke-width="1.5" stroke="currentColor" class="w-6 h-6 opacity-50">' +
             '<path d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 ' +
             '8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" /></svg>'
 
-        const wifi_icon = "<div class='relative inline-block'>"+partial_icon+full_wifi_icon+"</div>";
+        const wifi_icon = "<div class='relative inline-block'>" + partial_icon + full_wifi_icon + "</div>";
 
         listItem.innerHTML =
             `<div class="rounded-md flex items-center justify-between">
                 ${wifi_icon}
                 <div class="ml-4">${wifi["ESSID"]}</div>
                 <button onclick="this.classList.add('hidden');                            
-                            document.getElementById('wifi_${wifi["ESSID"]}').classList.remove('hidden')"
+                            document.getElementById('wifi_${wifi["ESSID"]}').classList.remove('hidden');
+                            document.getElementById('wifi_password_${wifi["ESSID"]}').focus()"
                     class="w-20 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">
                     Connect
                 </button>            
             
             </div>
             <div id="wifi_${wifi["ESSID"]}" class="hidden ">
-                <input id="wifi_password_${wifi["ESSID"]}" class="mt-4 h-10 block a w-full dark:text-black bg-gray-200 dark:bg-gray-700 py-2 px-2 
-                rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="password" placeholder="type wi-fi password here">
+                <div class="relative">
+                    <input id="wifi_password_${wifi["ESSID"]}" class="mt-4 h-10 block a w-full dark:text-black bg-gray-200 dark:bg-gray-700 py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="password" placeholder="Type Wi-Fi password here">
+                    <button class="absolute top-1/4 right-2" onclick="togglePasswordVisibility(this, 'wifi_password_${wifi["ESSID"]}');">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" id="toggle-eye-${wifi["ESSID"]}">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        </svg>
+                    </button>
+                </div>
+
                 <button onclick="change_setting('connect_to_wifi', '${wifi["ESSID"]}', this.previousElementSibling.value);temporary_disable_button(this, 5000);"
                     class="m-auto flex mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">
                 <span class="w-20">Connect</span></button>
@@ -321,6 +329,24 @@ function update_wifi_list(response) {
         wifiListElement.appendChild(listItem);
     });
     enable_wifi_refresh_button();
+}
+
+function togglePasswordVisibility(button, inputId) {
+    const input = document.getElementById(inputId);
+    const eyeIcon = button.querySelector('svg');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        eyeIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        `;
+    } else {
+        input.type = 'password';
+        eyeIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+        `;
+    }
 }
 
 function getWifiIcon(signalStrength) {
@@ -1706,13 +1732,13 @@ function temporary_disable_button(element, timeout) {
     }, timeout);
 }
 
-function handle_confirmation_button(element, delay = 1000){
+function handle_confirmation_button(element, delay = 1000) {
     element.classList.remove("hidden");
     element.classList.add("pointer-events-none", "animate-pulse")
 
     setTimeout(() => {
-            element.classList.remove('pointer-events-none', "animate-pulse");
-        }, delay);
+        element.classList.remove('pointer-events-none', "animate-pulse");
+    }, delay);
 }
 
 

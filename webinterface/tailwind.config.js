@@ -4,7 +4,11 @@ module.exports = {
   purge: {
     content: ['./templates/*.html', './static/*.{html,js}'],
       safelist: [
-        'animate-spin'
+        'animate-spin',
+        'top-1/2',
+        'top-1/4',
+        'right-2',
+        '-translate-y-1/2'
       ]
   },
   darkMode: 'class', // or 'media' or 'class'
