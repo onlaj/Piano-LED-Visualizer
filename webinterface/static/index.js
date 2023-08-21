@@ -1712,8 +1712,9 @@ function handle_confirmation_button(element){
 
     setTimeout(() => {
             element.classList.remove('pointer-events-none', "opacity-50");
-        }, 2000);
+        }, 1000);
 }
+
 
 function formatBytes(bytes, decimals = 2, suffix = true) {
     if (bytes === 0) return '0 Bytes';

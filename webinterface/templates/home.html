@@ -312,10 +312,10 @@
                 </div>
 
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-auto block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Reset settings to default
                     </label>
-                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
@@ -325,15 +325,15 @@
                     </button>
                     <button onclick="change_setting('reset_to_default', '0');temporary_disable_button(this, 2000);"
                             class="w-full h-12 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs">Click to confirm reset to default settings</span>
+                        <span class="w-full uppercase text-xs">Confirm</span>
                     </button>
                 </div>
 
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-auto block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Restart RPi
                     </label>
-                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                              viewBox="0 0 24 24"
@@ -344,14 +344,14 @@
                     </button>
                     <button onclick="change_setting('restart_rpi', '0');temporary_disable_button(this, 25000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-red-400">Click to confirm restart</span></button>
+                        <span class="w-full uppercase text-xs text-red-400">Confirm</span></button>
                 </div>
 
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-auto block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Power Off
                     </label>
-                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
@@ -361,14 +361,14 @@
                     </button>
                     <button onclick="change_setting('turnoff_rpi', '0');temporary_disable_button(this, 25000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-red-400">Click to confirm power off</span></button>
+                        <span class="w-full uppercase text-xs text-red-400">Confirm</span></button>
                 </div>
 
                 <div class="p-5">
                     <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Update Visualizer
                     </label>
-                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
@@ -378,14 +378,14 @@
                     </button>
                     <button onclick="change_setting('update_rpi', '0');temporary_disable_button(this, 25000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs">Click to confirm update</span></button>
+                        <span class="w-full uppercase text-xs">Confirm</span></button>
                 </div>
 
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-auto block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Connect ports
                     </label>
-                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
@@ -395,7 +395,7 @@
                     </button>
                     <button onclick="change_setting('connect_ports', '0');temporary_disable_button(this, 5000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs">Click to confirm connect</span></button>
+                        <span class="w-full uppercase text-xs">Confirm</span></button>
                 </div>
 
                 <div class="p-5">
