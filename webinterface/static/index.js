@@ -1706,13 +1706,13 @@ function temporary_disable_button(element, timeout) {
     }, timeout);
 }
 
-function handle_confirmation_button(element){
+function handle_confirmation_button(element, delay = 1000){
     element.classList.remove("hidden");
-    element.classList.add("pointer-events-none", "opacity-50")
+    element.classList.add("pointer-events-none", "animate-pulse")
 
     setTimeout(() => {
-            element.classList.remove('pointer-events-none', "opacity-50");
-        }, 1000);
+            element.classList.remove('pointer-events-none', "animate-pulse");
+        }, delay);
 }
 
 
