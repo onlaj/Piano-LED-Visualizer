@@ -320,7 +320,8 @@ function update_wifi_list(response) {
                     </button>
                 </div>
 
-                <button onclick="change_setting('connect_to_wifi', '${wifi["ESSID"]}', this.previousElementSibling.value);temporary_disable_button(this, 5000);"
+                <button onclick="change_setting('connect_to_wifi', '${wifi["ESSID"]}', document.getElementById('wifi_password_${wifi["ESSID"]}').value);
+                    temporary_disable_button(this, 5000);"
                     class="m-auto flex mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">
                 <span class="w-20">Connect</span></button>
             </div>
