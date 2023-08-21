@@ -3,7 +3,25 @@ import subprocess
 import os
 
 
+def is_package_installed(package_name):
+    try:
+        # Run the 'dpkg' command to check if 'hostapd' package is installed
+        subprocess.run(['dpkg', '-s', package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        print (str(package_name) + " package is installed")
+        return True
+    except subprocess.CalledProcessError:
+        print(str(package_name) + " package_name service is not installed")
+        return False
+
+
 def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
+
+    if hotspot.is_hostapd_installed is None or hotspot.is_hostapd_installed is False:
+        if not is_package_installed("hostapd"):
+            hotspot.is_hostapd_installed = False
+            return
+
+    hotspot.is_hostapd_installed = True
 
     # Visualizer is starting, check if hotspot is active and run enable_ap.sh
     if first_run:
@@ -159,3 +177,4 @@ class Hotspot:
         self.hotspot_script_time = 0
         self.time_without_wifi = 0
         self.last_wifi_check_time = 0
+        self.is_hostapd_installed = None
