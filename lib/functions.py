@@ -119,7 +119,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
     try:
         midiports.inport.poll()
     except Exception as e:
-        menu.render_message("Error while getting ports " + str(e), 2000)
+        menu.render_message("Error while getting ports", "", 2000)
         print("Error while getting ports " + str(e))
     while True:
         if (time.time() - saving.start_time) > 3600 and delay < 0.5 and menu.screensaver_is_running is False:
