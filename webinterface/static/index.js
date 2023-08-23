@@ -169,6 +169,11 @@ function get_homepage_data_loop() {
 
             document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
 
+            // change value of select based on response_pc_stats.screen_on
+            document.getElementById("screen_on").value = response_pc_stats.screen_on;
+
+            document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
+
             download_start = response_pc_stats.download;
             upload_start = response_pc_stats.upload;
 
