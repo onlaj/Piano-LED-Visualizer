@@ -941,7 +941,7 @@ function initialize_sequences() {
             e.preventDefault();
         }
     });
-    //get_sequences();
+    get_sequences();
     get_current_sequence_setting();
 }
 
