@@ -195,7 +195,7 @@ class SpeedColor(ColorMode):
 
 class Gradient(ColorMode):
     def LoadSettings(self, ledsettings):
-        self.led_number = ledsettings.ledstrip.led_number
+        self.led_number = int(ledsettings.usersettings.get_setting_value("led_count"))
         self.gradient_start = {"red": int(ledsettings.usersettings.get_setting_value("gradient_start_red")),
                                "green": int(ledsettings.usersettings.get_setting_value("gradient_start_green")),
                                "blue": int(ledsettings.usersettings.get_setting_value("gradient_start_blue"))}
