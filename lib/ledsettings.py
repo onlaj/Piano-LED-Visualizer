@@ -8,7 +8,6 @@ from lib.neopixel import Color
 
 class LedSettings:
     def __init__(self, usersettings):
-
         self.step_number = None
         self.sequence_active_name = None
         self.count_steps = None
@@ -89,6 +88,8 @@ class LedSettings:
         self.scale_key = int(usersettings.get_setting_value("scale_key"))
 
         self.sequence_number = 0
+
+        self.incoming_setting_change = False
 
         # if self.mode == "Disabled" and self.color_mode != "disabled":
         #    usersettings.change_setting_value("color_mode", "disabled")
@@ -497,6 +498,7 @@ class LedSettings:
                         multicolor_range_number += 1
                     except:
                         break
+            self.incoming_setting_change = True
         except:
             return False
 

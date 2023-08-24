@@ -176,7 +176,8 @@ while True:
     display_cycle += 1
 
     # Create ColorMode if first-run or changed
-    if ledsettings.color_mode != color_mode_name:
+    if ledsettings.color_mode != color_mode_name or ledsettings.incoming_setting_change:
+        ledsettings.incoming_setting_change = False
         color_mode = ColorMode(ledsettings.color_mode, ledsettings)
         color_mode_name = ledsettings.color_mode
 
