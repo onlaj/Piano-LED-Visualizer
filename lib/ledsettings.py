@@ -134,6 +134,7 @@ class LedSettings:
 
         self.menu.update_multicolor(self.multicolor)
         self.menu.show()
+        self.incoming_setting_change = True
 
     def deletecolor(self, key):
         del self.multicolor[int(key) - 1]
@@ -145,6 +146,7 @@ class LedSettings:
         self.menu.update_multicolor(self.multicolor)
         self.menu.go_back()
         self.menu.show()
+        self.incoming_setting_change = True
 
     def change_multicolor(self, choice, location, value):
         self.sequence_active = False
@@ -160,6 +162,7 @@ class LedSettings:
         self.multicolor[int(location)][choice] = clamp(self.multicolor[int(location)][choice], 0, 255)
 
         self.usersettings.change_setting_value("multicolor", self.multicolor)
+        self.incoming_setting_change = True
 
     def change_multicolor_range(self, choice, location, value):
         location = location.replace('Key_range', '')
@@ -171,6 +174,7 @@ class LedSettings:
 
         self.multicolor_range[int(location)][choice] += int(value)
         self.usersettings.change_setting_value("multicolor_range", self.multicolor_range)
+        self.incoming_setting_change = True
 
     def get_multicolors(self, number):
         number = int(number) - 1
@@ -231,6 +235,7 @@ class LedSettings:
                 self.blue += int(value)
                 self.blue = clamp(self.blue, 0, 255)
                 self.usersettings.change_setting_value("blue", self.blue)
+        self.incoming_setting_change = True
 
     def change_color_name(self, color):
         self.sequence_active = False
@@ -320,9 +325,10 @@ class LedSettings:
                     "step_" + str(self.step_number))[0].getElementsByTagName("light_mode")[0].firstChild.nodeValue
 
             if self.mode == "Velocity" or self.mode == "Fading":
-                self.fadingspeed = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
-                    0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName("speed")[
-                    0].firstChild.nodeValue
+                self.fadingspeed = int(self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                                           0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                    "fadingspeed")[
+                                           0].firstChild.nodeValue)
                 if self.mode == "Fading":
                     if self.fadingspeed == "Very fast":
                         self.fadingspeed = 50
@@ -425,15 +431,15 @@ class LedSettings:
                 self.gradient_end["red"] = int(
                     self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
-                        "gradien_end_red")[0].firstChild.nodeValue)
+                        "gradient_end_red")[0].firstChild.nodeValue)
                 self.gradient_end["green"] = int(
                     self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
-                        "gradien_end_green")[0].firstChild.nodeValue)
+                        "gradient_end_green")[0].firstChild.nodeValue)
                 self.gradient_end["blue"] = int(
                     self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
-                        "gradien_end_blue")[0].firstChild.nodeValue)
+                        "gradient_end_blue")[0].firstChild.nodeValue)
 
             if self.color_mode == "Scale":
                 self.key_in_scale["red"] = int(
@@ -548,5 +554,3 @@ class LedSettings:
         self.usersettings.change_setting_value("adjacent_green", self.adjacent_green)
         self.usersettings.change_setting_value("adjacent_blue", self.adjacent_blue)
         fastColorWipe(self.ledstrip.strip, True, self)
-
-

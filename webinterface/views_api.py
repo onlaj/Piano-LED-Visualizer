@@ -156,7 +156,7 @@ def change_setting():
         webinterface.usersettings.change_setting_value("red", rgb[0])
         webinterface.usersettings.change_setting_value("green", rgb[1])
         webinterface.usersettings.change_setting_value("blue", rgb[2])
-
+        webinterface.ledsettings.incoming_setting_change = True
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "light_mode":
@@ -463,6 +463,7 @@ def change_setting():
             webinterface.ledsettings.sequence_active = False
         else:
             webinterface.ledsettings.set_sequence(int(value) - 1, 0)
+        webinterface.ledsettings.incoming_setting_change = True
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "change_sequence_name":
@@ -553,7 +554,7 @@ def change_setting():
         sequences_tree.getElementsByTagName("list")[0].appendChild(element)
 
         pretty_save("config/sequences.xml", sequences_tree)
-
+        webinterface.ledsettings.incoming_setting_change = True
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "remove_sequence":
@@ -573,7 +574,7 @@ def change_setting():
                 i += 1
 
         pretty_save("config/sequences.xml", sequences_tree)
-
+        webinterface.ledsettings.incoming_setting_change = True
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "add_step":
@@ -612,7 +613,7 @@ def change_setting():
         sequences_tree.getElementsByTagName("sequence_" + str(value))[0].appendChild(step)
 
         pretty_save("config/sequences.xml", sequences_tree)
-
+        webinterface.ledsettings.incoming_setting_change = True
         return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True)
 
     # remove node list with a tag name "step_" + str(value), and change tag names to maintain order
@@ -639,7 +640,7 @@ def change_setting():
                 i += 1
 
         pretty_save("config/sequences.xml", sequences_tree)
-
+        webinterface.ledsettings.incoming_setting_change = True
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     # saving current led settings as sequence step
@@ -877,6 +878,8 @@ def change_setting():
             sequences_tree.getElementsByTagName("sequence_" + str(value))[0].appendChild(step)
 
         pretty_save("config/sequences.xml", sequences_tree)
+
+        webinterface.ledsettings.incoming_setting_change = True
 
         return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True)
 
@@ -1506,7 +1509,7 @@ def set_step_properties():
     sequence = request.args.get('sequence')
     step = request.args.get('step')
     webinterface.ledsettings.set_sequence(sequence, step, True)
-
+    webinterface.ledsettings.incoming_setting_change = True
     return jsonify(success=True)
 
 
