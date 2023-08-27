@@ -1,5 +1,4 @@
 import webcolors as wc
-import colorsys
 import sys
 import os
 import fcntl
@@ -11,8 +10,6 @@ from lib.menulcd import MenuLCD
 from lib.midiports import MidiPorts
 from lib.savemidi import SaveMIDI
 from lib.usersettings import UserSettings
-from lib.functions import *
-from lib.neopixel import *
 from lib.color_mode import *
 import argparse
 import threading
@@ -341,8 +338,10 @@ while True:
                     else:
                         if int(value) < int(ledsettings.next_step) and control == ledsettings.control_number:
                             ledsettings.set_sequence(0, 1)
+                except TypeError as e:
+                    pass
                 except Exception as e:
-                    print(f"Unexpected exception occurred: {e}")
+                    print(f"An unexpected exception occurred: {e}")
                     traceback.print_exc()
 
         # changing offset to adjust the distance between the LEDs to the key spacing
