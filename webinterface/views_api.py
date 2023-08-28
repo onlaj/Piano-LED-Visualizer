@@ -643,7 +643,7 @@ def change_setting():
 
         pretty_save("config/sequences.xml", sequences_tree)
         webinterface.ledsettings.incoming_setting_change = True
-        return jsonify(success=True, reload_sequence=reload_sequence)
+        return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True)
 
     # saving current led settings as sequence step
     if setting_name == "save_led_settings_to_step" and second_value != "":
