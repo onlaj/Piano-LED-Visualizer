@@ -206,22 +206,34 @@ function change_setting(setting_name, value, second_value = false, disable_seque
                 get_settings();
                 get_current_sequence_setting();
             }
-            if (response.reload_ports == true) {
+            if (response["reload_ports"] == true) {
                 get_ports();
             }
-            if (response.reload_songs == true) {
+            if (response["reload_songs"] == true) {
                 get_recording_status();
                 get_songs();
             }
-            if (response.reload_sequence == true) {
+            if (response["reload_sequence"] == true) {
                 get_current_sequence_setting();
                 get_sequences();
             }
-            if (response.reload_steps_list == true) {
+            if (response["reload_steps_list"] == true) {
                 get_steps_list();
+                 setTimeout(function() {
+                    document.getElementById("sequence_step").dispatchEvent(new Event('change'));
+                }, 2000);
             }
-            if (response.reload_learning_settings == true) {
+            if (response["reload_learning_settings"] == true) {
                 get_learning_status();
+            }
+            // called when adding step
+            if (response["set_sequence_step_number"]) {
+                let step = response["set_sequence_step_number"] - 1;
+                setTimeout(function() {
+                    let sequenceStepElement = document.getElementById("sequence_step");
+                    sequenceStepElement.value = step;
+                    sequenceStepElement.dispatchEvent(new Event('change'));
+                }, 2000);
             }
         }
     }
