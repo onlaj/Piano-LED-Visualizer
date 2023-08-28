@@ -1086,6 +1086,11 @@ function get_steps_list() {
             document.getElementById('sequence_step').value = current_step;
             set_step_properties(sequence_element.value,
                 document.getElementById('sequence_step').value);
+
+            if(i > 0){
+                // set "sequence_step" select input to first element in list
+                document.getElementById('sequence_step').value = 0;
+            }
         }
     };
     xhttp.open("GET", "/api/get_steps_list?sequence=" + sequence, true);
