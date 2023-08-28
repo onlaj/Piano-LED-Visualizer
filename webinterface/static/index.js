@@ -282,7 +282,7 @@ function get_settings(home = true) {
                 }
                 if (response.light_mode == "Velocity") {
                     document.getElementById('velocity').hidden = false;
-                    document.getElementById('fading_speed').value = response.fading_speed;
+                    document.getElementById('velocity_speed').value = response.fading_speed;
                 }
 
                 document.getElementById("led_color").value = response.led_color;
