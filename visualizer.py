@@ -185,11 +185,11 @@ while True:
             usersettings.save_changes()
         if usersettings.pending_reset:
             usersettings.pending_reset = False
-            #ledsettings = LedSettings(usersettings)
-            #ledstrip = LedStrip(usersettings, ledsettings)
-            #menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
-            #menu.show()
-            #ledsettings.add_instance(menu, ledstrip)
+            ledsettings = LedSettings(usersettings)
+            ledstrip = LedStrip(usersettings, ledsettings)
+            menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
+            menu.show()
+            ledsettings.add_instance(menu, ledstrip)
 
     # Process GPIO keys
     if GPIO.input(KEYUP) == 0:
