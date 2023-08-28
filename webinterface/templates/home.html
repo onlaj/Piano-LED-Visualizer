@@ -1,6 +1,11 @@
 <div class="slide-in-content col-span-12 mt-1 w-full lg:w-4/5 xl:w-4/5 2xl:w-4/5 m-auto">
     <div class="flex items-center h-1 intro-y">
-        <div class="relative">
+        <div>
+            <label for="modeSwitch" onchange="toggleMode()">
+              <input type="checkbox" id="modeSwitch">Advanced mode
+            </label>
+            </div>
+        <div class="relative advanced-content">
             <div class="absolute inset-y-0 left-0 flex items-center px-2 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                      stroke="currentColor">
@@ -154,7 +159,7 @@
                 </div>
             </div>
         </a>
-        <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
+        <a class="advanced-content transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
         sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#/">
             <div class="p-5">
                 <div class="flex justify-between">

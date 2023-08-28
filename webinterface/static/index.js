@@ -180,6 +180,8 @@ function get_homepage_data_loop() {
             last_cpu_usage = response_pc_stats.cpu_usage;
             last_download = download;
             last_upload = upload;
+
+            checkSavedMode();
         }
     };
     xhttp.open("GET", "/api/get_homepage_data", true);
@@ -1800,4 +1802,32 @@ function remove_color_modes() {
 function pageScroll() {
     document.getElementsByClassName("waterfall-notes-container")[0].scrollBy(0, -1);
     scrolldelay = setTimeout(pageScroll, 33);
+}
+
+function toggleMode() {
+    const modeSwitch = document.getElementById('modeSwitch');
+    const advancedContentElements = document.querySelectorAll('.advanced-content');
+
+    const newDisplayStyle = modeSwitch.checked ? 'block' : 'none';
+
+    advancedContentElements.forEach(element => {
+        element.style.display = newDisplayStyle;
+    });
+
+    // Save the user's choice in a cookie
+    const modeValue = modeSwitch.checked ? 'advanced' : 'normal';
+    setCookie('mode', modeValue, 365)
+}
+
+// Function to check the user's saved choice from cookies
+function checkSavedMode() {
+    const mode = getCookie('mode')
+    if (mode) {
+        const modeSwitch = document.getElementById('modeSwitch');
+
+        if (mode === 'advanced') {
+            modeSwitch.checked = true;
+            toggleMode();
+        }
+    }
 }
