@@ -1087,8 +1087,7 @@ function get_steps_list() {
             set_step_properties(sequence_element.value,
                 document.getElementById('sequence_step').value);
 
-            if(i > 0){
-                // set "sequence_step" select input to first element in list
+            if(i > 0 && document.getElementById('sequence_step').value == ''){
                 document.getElementById('sequence_step').value = 0;
             }
         }
