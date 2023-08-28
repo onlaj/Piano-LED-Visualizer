@@ -218,9 +218,11 @@ function change_setting(setting_name, value, second_value = false, disable_seque
                 get_sequences();
             }
             if (response["reload_steps_list"] == true) {
+                document.getElementById("sequence_edit_block").classList.add("animate-pulse", "pointer-events-none")
                 get_steps_list();
                  setTimeout(function() {
                     document.getElementById("sequence_step").dispatchEvent(new Event('change'));
+                    document.getElementById("sequence_edit_block").classList.remove("animate-pulse", "pointer-events-none")
                 }, 2000);
             }
             if (response["reload_learning_settings"] == true) {
@@ -228,11 +230,13 @@ function change_setting(setting_name, value, second_value = false, disable_seque
             }
             // called when adding step
             if (response["set_sequence_step_number"]) {
+                document.getElementById("sequence_edit_block").classList.add("animate-pulse", "pointer-events-none")
                 let step = response["set_sequence_step_number"] - 1;
                 setTimeout(function() {
                     let sequenceStepElement = document.getElementById("sequence_step");
                     sequenceStepElement.value = step;
                     sequenceStepElement.dispatchEvent(new Event('change'));
+                    document.getElementById("sequence_edit_block").classList.remove("animate-pulse", "pointer-events-none")
                 }, 2000);
             }
         }
