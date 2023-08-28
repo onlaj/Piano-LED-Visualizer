@@ -1495,7 +1495,10 @@ function show_note_offsets(note_offsets) {
     } catch (e) {
     }
 
-    offset_element = document.getElementById("NoteOffsetEntry");
+    let offset_element = document.getElementById("NoteOffsetEntry");
+    if(!offset_element){
+        return;
+    }
     var i = 0
     offset_element.innerHTML = "";
     var add_button = "<button onclick=\"this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')\" " +
