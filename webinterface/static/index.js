@@ -784,11 +784,13 @@ function initialize_led_settings() {
     }
 
     document.getElementById('fading_speed').onchange = function () {
-        change_setting("fading_speed", this.value, false, true)
+        let value = this.value || "10";
+        change_setting("fading_speed", value, false, true)
     }
 
     document.getElementById('velocity_speed').onchange = function () {
-        change_setting("velocity_speed", this.value, false, true)
+        let value = this.value || "8";
+        change_setting("velocity_speed", value, false, true)
     }
 
     document.getElementById('light_mode').onchange = function () {
