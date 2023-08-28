@@ -1043,14 +1043,14 @@ function toggle_edit_sequence() {
         document.getElementById('sequence_edit_block').classList.add("opacity-50");
         document.getElementById('sequence_edit_block').classList.add("pointer-events-none");
         document.getElementById('sequence_edit').classList.add("animate-pulse");
-        document.getElementById('sequence_block').classList.remove("pointer-events-none");
+        document.getElementById('sequence_block').classList.remove("pointer-events-none", "opacity-50");
         document.getElementById('sequences_list_2').value = 0;
     } else {
         document.getElementById('sequence_edit').setAttribute("active", true);
         document.getElementById('sequence_edit_block').classList.remove("opacity-50");
         document.getElementById('sequence_edit_block').classList.remove("pointer-events-none");
         document.getElementById('sequence_edit').classList.remove("animate-pulse");
-        document.getElementById('sequence_block').classList.add("pointer-events-none");
+        document.getElementById('sequence_block').classList.add("pointer-events-none", "opacity-50");
         get_sequences();
     }
 }
