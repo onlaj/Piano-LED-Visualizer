@@ -324,7 +324,7 @@ function update_wifi_list(response) {
                         </svg>
                     </button>
                 </div>
-
+                <div class="text-xs text-red-400">If an incorrect password is entered, it might take a few minutes for the hotspot to be reestablished.</div>
                 <button onclick="change_setting('connect_to_wifi', '${wifi["ESSID"]}', document.getElementById('wifi_password_${wifi["ESSID"]}').value);
                     temporary_disable_button(this, 5000);"
                     class="m-auto flex mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">
