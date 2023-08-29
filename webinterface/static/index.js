@@ -310,7 +310,7 @@ function update_wifi_list(response) {
                 <button onclick="this.classList.add('hidden');                            
                             document.getElementById('wifi_${wifi["ESSID"]}').classList.remove('hidden');
                             document.getElementById('wifi_password_${wifi["ESSID"]}').focus()"
-                    class="w-20 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">
+                    class="w-20 outline-none bg-blue-500 dark:bg-blue-500 py-2 font-bold rounded-2xl">
                     Connect
                 </button>            
             
