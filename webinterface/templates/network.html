@@ -1,41 +1,43 @@
 <div class="transition duration-300 slide-in-content grid grid-cols-1 gap-6 w-full lg:w-1/2 xl:w-4/5 2xl:w-3/5 m-auto">
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         Connected Wi-Fi
-        <div id="connected-wifi" class="text-xl font-bold mb-2">
+        <div class="flex">
+            <div id="connected-wifi" class="text-xl font-bold mb-2">
 
-        </div>
-        <div id="disconnect-button">
-            <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling, 3000);"
-                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
-
-                        <div class="has-tooltip h-6 w-full justify-items-center">
-                        <span class="text-sm inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8">
-                            Disconnect Wi-Fi and create Hotspot
-                        </span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+            </div>
+            <div class="hidden" id="disconnect-button">
+                <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling, 3000);"
+                        class="w-full outline-none font-bold ml-2 rounded-2xl inline-flex items-center">
+                    <div class="has-tooltip h-6 w-full justify-items-center">
+                            <span class="text-sm inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8">
+                                Disconnect Wi-Fi and create Hotspot
+                            </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center stroke-red-600" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" ></path>
+                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        </div>
-                    </button>
-                    <div class="hidden">
-                        <div class="text-sm">
-                            Disconnecting from Wi-Fi
-                            will start the process of creating a Hotspot. This might take a moment.
-                            <br>
-                            You'll need to connect to the newly created
-                            Hotspot to access the web interface again.
-                        </div>
-                        <button onclick="change_setting('disconnect_wifi', '0');temporary_disable_button(this, 25000);"
-                                class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
-                            <span class="w-full uppercase text-xs text-red-400">Click to confirm</span></button>
                     </div>
+                </button>
+                <div class="hidden">
+                    <div class="text-sm">
+                        Disconnecting from Wi-Fi
+                        will start the process of creating a Hotspot. This might take a moment.
+                        <br>
+                        You'll need to connect to the newly created
+                        Hotspot to access the web interface again.
+                    </div>
+                    <button onclick="change_setting('disconnect_wifi', '0');temporary_disable_button(this, 25000);"
+                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
+                        <span class="w-full uppercase text-xs text-red-400">Click to confirm</span></button>
+                </div>
+            </div>
         </div>
     </div>
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div class="text-lg font-semibold mb-2">Wi-Fi List</div>
-        <svg id="refresh-wifi-button" onclick="get_wifi_list()" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        <svg id="refresh-wifi-button" onclick="get_wifi_list()" xmlns="http://www.w3.org/2000/svg" fill="none"
+             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
              class="w-6 h-6 mb-4 cursor-pointer">
             <path stroke-linecap="round" stroke-linejoin="round"
                   d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>

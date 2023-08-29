@@ -328,6 +328,7 @@ function update_wifi_list(response) {
             `;
 
         wifiListElement.appendChild(listItem);
+        document.getElementById("disconnect-button").classList.remove("hidden");
     });
     enable_wifi_refresh_button();
 }
