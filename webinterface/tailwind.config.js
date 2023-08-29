@@ -8,6 +8,8 @@ module.exports = {
         'top-1/2',
         'top-1/4',
         'right-2',
+        'opacity-20',
+        'opacity-30',
         '-translate-y-1/2'
       ]
   },
