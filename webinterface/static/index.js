@@ -333,7 +333,11 @@ function update_wifi_list(response) {
             `;
 
         wifiListElement.appendChild(listItem);
-        document.getElementById("disconnect-button").classList.remove("hidden");
+        if(connected_wifi != "No Wi-Fi interface found."){
+            document.getElementById("disconnect-button").classList.remove("hidden");
+            document.getElementById("connected_wifi_address").classList.remove("hidden");
+        }
+
     });
     enable_wifi_refresh_button();
 }
