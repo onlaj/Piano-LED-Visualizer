@@ -280,8 +280,10 @@ function update_wifi_list(response) {
 
     let wifi_list = response["wifi_list"]
     let connected_wifi = response["connected_wifi"]
+    let connected_wifi_address = response["connected_wifi_address"]
 
     document.getElementById("connected-wifi").innerHTML = connected_wifi;
+    document.getElementById("connected_wifi_address").innerHTML = "BSSID: "+connected_wifi_address;
 
     // Loop through wifi_list
     wifi_list.forEach(wifi => {

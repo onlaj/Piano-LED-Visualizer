@@ -1511,10 +1511,11 @@ def set_step_properties():
 @webinterface.route('/api/get_wifi_list', methods=['GET'])
 def get_wifi_list():
     wifi_list = get_wifi_networks()
-    success, wifi_ssid = get_current_connections()
+    success, wifi_ssid, address = get_current_connections()
 
     response = {"wifi_list": wifi_list,
-                "connected_wifi": wifi_ssid}
+                "connected_wifi": wifi_ssid,
+                "connected_wifi_address": address}
     return jsonify(response)
 
 

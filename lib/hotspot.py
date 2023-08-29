@@ -43,7 +43,7 @@ def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
             return
 
         # check if wi-fi is connected
-        wifi_success, wifi_ssid = get_current_connections()
+        wifi_success, wifi_ssid, address = get_current_connections()
 
         if not wifi_success:
             # Update the time without Wi-Fi
@@ -61,16 +61,23 @@ def get_current_connections():
     try:
         with open(os.devnull, 'w') as null_file:
             output = subprocess.check_output(['iwconfig'], text=True, stderr=null_file)
-        for line in output.splitlines():
+
+        for line in output.split('\n'):
             if "ESSID:" in line:
                 ssid = line.split("ESSID:")[-1].strip().strip('"')
                 if ssid != "off/any":
-                    return True, ssid
+                    access_point_line = [line for line in output.split('\n') if "Access Point:" in line]
+                    if access_point_line:
+                        access_point = access_point_line[0].split("Access Point:")[1].strip()
+                        return True, ssid, access_point
+                    else:
+                        return False, "Not connected to any Wi-Fi network.", ""
                 else:
-                    return False, "Not connected to any Wi-Fi network."
-        return False, "No Wi-Fi interface found."
+                    return False, "Not connected to any Wi-Fi network.", ""
+
+        return False, "No Wi-Fi interface found.", ""
     except subprocess.CalledProcessError:
-        return False, "Error occurred while getting Wi-Fi information."
+        return False, "Error occurred while getting Wi-Fi information.", ""
 
 
 def is_hotspot_active(usersettings):
@@ -82,7 +89,7 @@ def is_hotspot_active(usersettings):
 def connect_to_wifi(ssid, password, hotspot, usersettings):
     hotspot.hotspot_script_time = time.time()
     print("Method:connecting to wifi")
-    success, wifi_ssid = get_current_connections()
+    success, wifi_ssid, address = get_current_connections()
 
     if success:
         if wifi_ssid == ssid:
@@ -144,6 +151,10 @@ def get_wifi_networks():
         wifi_list = []
         for network in networks[1:]:
             wifi_data = {}
+
+            address_line = [line for line in network.split('\n') if 'Address:' in line]
+            if address_line:
+                wifi_data['Address'] = address_line[0].split('Address:')[1].strip()
 
             ssid_line = [line for line in network.split('\n') if 'ESSID:' in line]
             if ssid_line:
