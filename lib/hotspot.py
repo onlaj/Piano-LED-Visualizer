@@ -5,12 +5,20 @@ import os
 
 def is_package_installed(package_name):
     try:
-        # Run the 'dpkg' command to check if 'hostapd' package is installed
-        subprocess.run(['dpkg', '-s', package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        print (str(package_name) + " package is installed")
-        return True
+        # Run the 'dpkg' command to check if the package is installed
+        result = subprocess.run(['dpkg', '-s', package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                check=True, text=True)
+        output = result.stdout
+        status_line = [line for line in output.split('\n') if line.startswith('Status:')][0]
+
+        if "install ok installed" in status_line:
+            print(f"{package_name} package is installed")
+            return True
+        else:
+            print(f"{package_name} package is not installed")
+            return False
     except subprocess.CalledProcessError:
-        print(str(package_name) + " package_name service is not installed")
+        print(f"Error checking {package_name} package status")
         return False
 
 
