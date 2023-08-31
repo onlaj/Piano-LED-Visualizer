@@ -23,7 +23,7 @@ def is_package_installed(package_name):
 
 
 def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
-
+    create_hotspot_config()
     if hotspot.is_hostapd_installed is None or hotspot.is_hostapd_installed is False:
         if not is_package_installed("hostapd"):
             hotspot.is_hostapd_installed = False
@@ -63,6 +63,36 @@ def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
         else:
             # Reset the time without Wi-Fi since there is a connection now
             hotspot.time_without_wifi = 0
+
+
+def create_hotspot_config():
+    hotspot_config_content = """
+interface=wlan0
+driver=nl80211
+ssid=PianoLEDVisualizer
+hw_mode=g
+channel=7
+wmm_enabled=0
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=visualizer
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+"""
+
+    filepath = '/etc/hostapd/hostapd.conf'
+
+    try:
+        # Check if the file doesn't exist or is empty
+        if not (os.path.exists(filepath) and os.path.getsize(filepath) > 0):
+            with open(filepath, 'w') as file:
+                file.write(hotspot_config_content)
+            print("Hotspot configuration added successfully.")
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 def get_current_connections():
