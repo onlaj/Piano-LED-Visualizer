@@ -123,7 +123,7 @@ rsn_pairwise=CCMP
 EOT
   echo 'DAEMON_CONF="/etc/hostapd/hostapd.conf"' | sudo tee --append /etc/default/hostapd > /dev/null
   execute_command "sudo systemctl unmask hostapd"
-  execute_command "sudo systemctl start hostapd && sudo systemctl start dnsmasq"
+  execute_command "sudo systemctl enable hostapd && sudo systemctl enable dnsmasq"
 }
 
 # Function to install Piano-LED-Visualizer
@@ -154,6 +154,10 @@ EOF
 
   execute_command "sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/Songs/"
 
+  execute_command "sudo chmod +x /home/Piano-LED-Visualizer/disable_ap.sh"
+  execute_command "sudo chmod +x /home/Piano-LED-Visualizer/enable_ap.sh"
+
+  execute_command "sudo /home/Piano-LED-Visualizer/enable_ap.sh"
   # Reboot Raspberry Pi
   execute_command "sudo reboot"
 }
