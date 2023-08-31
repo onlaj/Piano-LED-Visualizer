@@ -38,6 +38,8 @@ The Piano LED Visualizer is a project that enables you to connect an LED strip t
 **Not required but worth having, to make everything look neat:**
 
   - Custom 3d printed case (*I attached [STL file](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/RPICaseModel.stl) with modified 3d model, there is additional space and holes for power socket and wires, [here](https://www.thingiverse.com/thing:3393553) is original model*). Optionally you can use models without a holes for screen, hdmi and sd port, provided by [fermaton](https://github.com/fermaton)
+  - Nylon standoffs M2.5 10mm [Amazon US](https://amzn.to/3Ku1Lma) | [Aliexpress](https://s.click.aliexpress.com/e/_DkrBqaX)
+  - Screws M2.5 10mm [Amazon US](https://amzn.to/47iQv5P) | [Aliexpress](https://s.click.aliexpress.com/e/_DmAzsqB)
   - Waveshare LCD TFT 1,44'' 128x128px [Amazon US](https://amzn.to/2YkW5nC) | [Aliexpress](http://s.click.aliexpress.com/e/cpk00blQ)
   - Braid for cables [Amazon US](https://amzn.to/3rmCrYF) | [Aliexpress](http://s.click.aliexpress.com/e/cG7ur6Di)
   - Heat shrink bands [Amazon US](https://amzn.to/3NPO3uy) | [Aliexpress](http://s.click.aliexpress.com/e/UwKVLo8)
@@ -46,6 +48,8 @@ The Piano LED Visualizer is a project that enables you to connect an LED strip t
   - Double side tape to stick everything on the piano
   - Windows 10 laptop/tablet with bluetooth to run Synthesia
   - magnetic or mechanical switch to detect if the keyboard cover is opened or closed, if your piano has one (see [Instructions](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/cover_detection.md))
+
+  *For items like screws, standoffs, and wires, look at local hardware stores to avoid buying in bulk.*
 
 **Total cost (excluding piano and tablet) should be 75-100 USD**
 *Disclosure: All of the links above are affiliate links, which means that without additional costs for you, I will earn a commission if you make a purchase by clicking through it.*

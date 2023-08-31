@@ -56,6 +56,7 @@ Press CTRL + O to save file, confirm with enter and CTRL + X to exit editor.
 - Reload services:
 
    ` sudo udevadm control --reload`
+
     `sudo service udev restart`
 - Open file
 
@@ -94,7 +95,7 @@ sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf liba
 
 ### 5. **Disabling audio output** ### 
 
-    `sudo nano /etc/modprobe.d/snd-blacklist.conf`
+    sudo nano /etc/modprobe.d/snd-blacklist.conf
 - paste and save:
 
     `blacklist snd_bcm2835`
@@ -168,6 +169,7 @@ rsn_pairwise=CCMP' | sudo tee --append /etc/hostapd/hostapd.conf`
 - GIT clone repository
 
 `sudo git clone https://github.com/onlaj/Piano-LED-Visualizer`
+
 `cd Piano-LED-Visualizer`
 - Install required libraries
 

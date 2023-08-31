@@ -155,16 +155,34 @@ function get_homepage_data_loop() {
                 response_pc_stats["cpu_usage"], refresh_rate * 500, false);
             document.getElementById("memory_usage_percent").innerHTML = response_pc_stats["memory_usage_percent"] + "%";
             document.getElementById("memory_usage").innerHTML =
+
                 formatBytes(response_pc_stats["memory_usage_used"], 2, false) + "/" +
                 formatBytes(response_pc_stats["memory_usage_total"]);
             document.getElementById("cpu_temp").innerHTML = response_pc_stats["cpu_temp"] + "°C";
+
             document.getElementById("card_usage").innerHTML =
                 formatBytes(response_pc_stats["card_space_used"], 2, false) + "/" +
                 formatBytes(response_pc_stats["card_space_total"]);
             document.getElementById("card_usage_percent").innerHTML = response_pc_stats["card_space_percent"] + "%";
             animateValue(document.getElementById("download_number"), last_download, download, refresh_rate * 500, true);
             animateValue(document.getElementById("upload_number"), last_upload, upload, refresh_rate * 500, true);
+
             document.getElementById("cover_state").innerHTML = response_pc_stats["cover_state"];
+
+            document.getElementById("led_fps").innerHTML = response_pc_stats.led_fps;
+            document.getElementById("cpu_count").innerHTML = response_pc_stats.cpu_count;
+            document.getElementById("cpu_pid").innerHTML = response_pc_stats.cpu_pid;
+            document.getElementById("cpu_freq").innerHTML = response_pc_stats.cpu_freq;
+            document.getElementById("memory_pid").innerHTML =
+                formatBytes(response_pc_stats.memory_pid, 2, false);
+
+            document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
+
+            // change value of select based on response_pc_stats.screen_on
+            document.getElementById("screen_on").value = response_pc_stats.screen_on;
+
+            document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
+
 
             download_start = response_pc_stats.download;
             upload_start = response_pc_stats.upload;
@@ -172,6 +190,8 @@ function get_homepage_data_loop() {
             last_cpu_usage = response_pc_stats["cpu_usage"];
             last_download = download;
             last_upload = upload;
+
+            checkSavedMode();
         }
     };
     xhttp.open("GET", "/api/get_homepage_data", true);
@@ -193,27 +213,44 @@ function change_setting(setting_name, value, second_value = false, disable_seque
     }
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            let response = JSON.parse(this.responseText);
-            if (response.reload === true) {
+            response = JSON.parse(this.responseText);
+            if (response.reload == true) {
                 get_settings();
                 get_current_sequence_setting();
             }
-            if (response["reload_ports"] === true) {
+            if (response["reload_ports"] == true) {
                 get_ports();
             }
-            if (response["reload_songs"] === true) {
+            if (response["reload_songs"] == true) {
                 get_recording_status();
                 get_songs();
             }
-            if (response["reload_sequence"] === true) {
+            if (response["reload_sequence"] == true) {
                 get_current_sequence_setting();
                 get_sequences();
             }
-            if (response["reload_steps_list"] === true) {
+            if (response["reload_steps_list"] == true) {
+                document.getElementById("sequence_edit_block").classList.add("animate-pulse", "pointer-events-none")
                 get_steps_list();
+                 setTimeout(function() {
+                    document.getElementById("sequence_step").dispatchEvent(new Event('change'));
+                    document.getElementById("sequence_edit_block").classList.remove("animate-pulse", "pointer-events-none")
+                }, 2000);
             }
-            if (response["reload_learning_settings"] === true) {
+            if (response["reload_learning_settings"] == true) {
                 get_learning_status();
+            }
+          
+            // called when adding step
+            if (response["set_sequence_step_number"]) {
+                document.getElementById("sequence_edit_block").classList.add("animate-pulse", "pointer-events-none")
+                let step = response["set_sequence_step_number"] - 1;
+                setTimeout(function() {
+                    let sequenceStepElement = document.getElementById("sequence_step");
+                    sequenceStepElement.value = step;
+                    sequenceStepElement.dispatchEvent(new Event('change'));
+                    document.getElementById("sequence_edit_block").classList.remove("animate-pulse", "pointer-events-none")
+                }, 2000);
             }
         }
     }
@@ -414,9 +451,9 @@ function get_settings(home = true) {
                     document.getElementById('fading').hidden = false;
                     document.getElementById('fading_speed').value = response["fading_speed"];
                 }
-                if (response["light_mode"] === "Velocity") {
+                if (response.light_mode == "Velocity") {
                     document.getElementById('velocity').hidden = false;
-                    document.getElementById('fading_speed').value = response["fading_speed"];
+                    document.getElementById('velocity_speed').value = response.fading_speed;
                 }
 
                 document.getElementById("led_color").value = response["led_color"];
@@ -931,11 +968,13 @@ function initialize_led_settings() {
     }
 
     document.getElementById('fading_speed').onchange = function () {
-        change_setting("fading_speed", this.value, false, true)
+        let value = this.value || "10";
+        change_setting("fading_speed", value, false, true)
     }
 
     document.getElementById('velocity_speed').onchange = function () {
-        change_setting("velocity_speed", this.value, false, true)
+        let value = this.value || "8";
+        change_setting("velocity_speed", value, false, true)
     }
 
     document.getElementById('light_mode').onchange = function () {
@@ -1093,7 +1132,7 @@ function initialize_sequences() {
             e.preventDefault();
         }
     });
-    //get_sequences();
+    get_sequences();
     get_current_sequence_setting();
 }
 
@@ -1188,14 +1227,14 @@ function toggle_edit_sequence() {
         document.getElementById('sequence_edit_block').classList.add("opacity-50");
         document.getElementById('sequence_edit_block').classList.add("pointer-events-none");
         document.getElementById('sequence_edit').classList.add("animate-pulse");
-        document.getElementById('sequence_block').classList.remove("pointer-events-none");
+        document.getElementById('sequence_block').classList.remove("pointer-events-none", "opacity-50");
         document.getElementById('sequences_list_2').value = 0;
     } else {
         document.getElementById('sequence_edit').setAttribute("active", true);
         document.getElementById('sequence_edit_block').classList.remove("opacity-50");
         document.getElementById('sequence_edit_block').classList.remove("pointer-events-none");
         document.getElementById('sequence_edit').classList.remove("animate-pulse");
-        document.getElementById('sequence_block').classList.add("pointer-events-none");
+        document.getElementById('sequence_block').classList.add("pointer-events-none", "opacity-50");
         get_sequences();
     }
 }
@@ -1231,6 +1270,10 @@ function get_steps_list() {
             document.getElementById('sequence_step').value = current_step;
             set_step_properties(sequence_element.value,
                 document.getElementById('sequence_step').value);
+
+            if(i > 0 && document.getElementById('sequence_step').value == ''){
+                document.getElementById('sequence_step').value = 0;
+            }
         }
     };
     xhttp.open("GET", "/api/get_steps_list?sequence=" + sequence, true);
@@ -1640,7 +1683,10 @@ function show_note_offsets(note_offsets) {
     }
 
     let offset_element = document.getElementById("NoteOffsetEntry");
-    let i = 0;
+    if(!offset_element){
+        return;
+    }
+    var i = 0
     offset_element.innerHTML = "";
     const add_button = "<button onclick=\"this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')\" " +
         "id=\"note_offsets_add\" class=\"w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 " +
@@ -1936,4 +1982,32 @@ function remove_color_modes() {
 function pageScroll() {
     document.getElementsByClassName("waterfall-notes-container")[0].scrollBy(0, -1);
     scrolldelay = setTimeout(pageScroll, 33);
+}
+
+function toggleMode() {
+    const modeSwitch = document.getElementById('modeSwitch');
+    const advancedContentElements = document.querySelectorAll('.advanced-content');
+
+    const newDisplayStyle = modeSwitch.checked ? 'block' : 'none';
+
+    advancedContentElements.forEach(element => {
+        element.style.display = newDisplayStyle;
+    });
+
+    // Save the user's choice in a cookie
+    const modeValue = modeSwitch.checked ? 'advanced' : 'normal';
+    setCookie('mode', modeValue, 365)
+}
+
+// Function to check the user's saved choice from cookies
+function checkSavedMode() {
+    const mode = getCookie('mode')
+    if (mode) {
+        const modeSwitch = document.getElementById('modeSwitch');
+
+        if (mode === 'advanced') {
+            modeSwitch.checked = true;
+            toggleMode();
+        }
+    }
 }

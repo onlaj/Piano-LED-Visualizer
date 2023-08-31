@@ -1,6 +1,11 @@
 <div class="slide-in-content col-span-12 mt-1 w-full lg:w-4/5 xl:w-4/5 2xl:w-4/5 m-auto">
     <div class="flex items-center h-1 intro-y">
-        <div class="relative">
+        <div>
+            <label for="modeSwitch" onchange="toggleMode()">
+              <input type="checkbox" id="modeSwitch">Advanced mode
+            </label>
+            </div>
+        <div class="relative advanced-content">
             <div class="absolute inset-y-0 left-0 flex items-center px-2 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                      stroke="currentColor">
@@ -36,8 +41,13 @@
                               d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0
                             002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
                     </svg>
-                    <div class="bg-red-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
-                        <span id="cpu_temp" class="flex items-center">°C</span>
+                    <div class="h-6 flex justify-items-center text-white font-semibold text-sm">
+                        <div class="bg-blue-500 rounded-full px-2 flex">
+                            <span class="flex items-center"><span id="cpu_freq"></span> Mhz</span>
+                        </div>
+                        <div class="bg-red-500 rounded-full px-2 flex">
+                            <span class="flex items-center"><span id="cpu_temp">--</span>°C</span>
+                        </div>
                     </div>
                 </div>
                 <div class="ml-2 w-full flex-1">
@@ -45,7 +55,8 @@
                         <div id="cpu_usage" class="mt-3 text-3xl font-bold leading-8"><span id='cpu_number'></span>%
                         </div>
 
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">CPU Usage</div>
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">System CPU Usage (<span id="cpu_count"></span> CPU)
+                        </div>
                     </div>
                 </div>
             </div>
@@ -116,7 +127,7 @@
                 </div>
                 <div class="ml-2 w-full flex-1">
                     <div>
-                        <div id="download" class="flex mt-3 text-3xl font-bold leading-8"><span
+                        <div id="download" class="flex mt-3 text-3xl font-bold leading-8 whitespace-nowrap"><span
                                 id="download_number">---</span>/s
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-6" fill="none" viewBox="0 0 24 24"
                                  stroke="currentColor">
@@ -126,6 +137,50 @@
                         </div>
 
                         <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Bandwidth Usage</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
+        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#/">
+            <div class="p-5">
+                <div class="flex justify-between">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                    </svg>
+                </div>
+                <div class="ml-2 w-full flex-1">
+                    <div>
+                        <div id="led_fps_div" class="mt-3 text-3xl font-bold leading-8"><span id='led_fps'>--.--</span>
+                        </div>
+
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">LED FPS</div>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a class="advanced-content transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12
+        sm:col-span-6 xl:col-span-3 intro-y bg-gray-200 dark:bg-gray-700" href="#/">
+            <div class="p-5">
+                <div class="flex justify-between">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0
+                            002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                    </svg>
+                    <div class="h-6 flex justify-items-center text-white font-semibold text-sm">
+                        <div class="bg-blue-500 rounded-full px-2 flex">
+                            <span class="flex items-center"><span id="memory_pid"></span> MB</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ml-2 w-full flex-1">
+                    <div>
+                        <div id="cpu_pid_div" class="mt-3 text-3xl font-bold leading-8"><span id='cpu_pid'>--</span>%
+                        </div>
+
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Process CPU Usage</div>
                     </div>
                 </div>
             </div>
@@ -270,13 +325,13 @@
                 </div>
                 <div class="p-5">
                     <div class="text-base text-gray-600 dark:text-gray-400">Input Port</div>
-                    <div class="flex items-center pt-1">
+                    <div class="flex items-center pt-1 overflow-auto">
                         <div id="input_port" class="text-2xl font-bold "></div>
                     </div>
                 </div>
                 <div class="p-5">
                     <div class="text-base text-gray-600 dark:text-gray-400">Playback Port</div>
-                    <div class="flex items-center pt-1">
+                    <div class="flex items-center pt-1 overflow-auto">
                         <div id="playback_port" class="text-2xl font-bold "></div>
                     </div>
                 </div>

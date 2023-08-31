@@ -23,6 +23,8 @@ SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(SENSECOVER, GPIO.IN, GPIO.PUD_UP)
 
+pid = psutil.Process(os.getpid())
+
 
 @webinterface.route('/api/start_animation', methods=['GET'])
 def start_animation():
@@ -82,6 +84,8 @@ def start_animation():
 
 @webinterface.route('/api/get_homepage_data')
 def get_homepage_data():
+    global pid
+
     try:
         temp = find_between(str(psutil.sensors_temperatures()["cpu_thermal"]), "current=", ",")
     except:
@@ -98,16 +102,22 @@ def get_homepage_data():
 
     homepage_data = {
         'cpu_usage': psutil.cpu_percent(interval=0.1),
+        'cpu_count': psutil.cpu_count(),
+        'cpu_pid': pid.cpu_percent(),
+        'cpu_freq': psutil.cpu_freq().current,
         'memory_usage_percent': psutil.virtual_memory()[2],
         'memory_usage_total': psutil.virtual_memory()[0],
         'memory_usage_used': psutil.virtual_memory()[3],
+        'memory_pid': pid.memory_full_info().rss,
         'cpu_temp': temp,
         'upload': upload,
         'download': download,
         'card_space_used': card_space.used,
         'card_space_total': card_space.total,
         'card_space_percent': card_space.percent,
-        'cover_state': 'Opened' if cover_opened else 'Closed'
+        'cover_state': 'Opened' if cover_opened else 'Closed',
+        'led_fps': round(webinterface.ledstrip.current_fps, 2),
+        'screen_on': webinterface.menu.screen_on,
     }
     return jsonify(homepage_data)
 
@@ -124,7 +134,11 @@ def change_setting():
         reload_sequence = False
 
     if disable_sequence == "true":
+        menu = webinterface.ledsettings.menu
+        ledstrip = webinterface.ledsettings.ledstrip
         webinterface.ledsettings.__init__(webinterface.usersettings)
+        webinterface.ledsettings.menu = menu
+        webinterface.ledsettings.ledstrip = ledstrip
         webinterface.ledsettings.sequence_active = False
 
     if setting_name == "clean_ledstrip":
@@ -143,7 +157,7 @@ def change_setting():
         webinterface.usersettings.change_setting_value("red", rgb[0])
         webinterface.usersettings.change_setting_value("green", rgb[1])
         webinterface.usersettings.change_setting_value("blue", rgb[2])
-
+        webinterface.ledsettings.incoming_setting_change = True
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "light_mode":
@@ -151,6 +165,8 @@ def change_setting():
         webinterface.usersettings.change_setting_value("mode", value)
 
     if setting_name == "fading_speed" or setting_name == "velocity_speed":
+        if not int(value):
+            value = 10
         webinterface.ledsettings.fadingspeed = int(value)
         webinterface.usersettings.change_setting_value("fadingspeed", webinterface.ledsettings.fadingspeed)
 
@@ -442,10 +458,15 @@ def change_setting():
 
     if setting_name == "set_sequence":
         if int(value) == 0:
+            menu = webinterface.ledsettings.menu
+            ledstrip = webinterface.ledsettings.ledstrip
             webinterface.ledsettings.__init__(webinterface.usersettings)
+            webinterface.ledsettings.menu = menu
+            webinterface.ledsettings.ledstrip = ledstrip
             webinterface.ledsettings.sequence_active = False
         else:
             webinterface.ledsettings.set_sequence(int(value) - 1, 0)
+        webinterface.ledsettings.incoming_setting_change = True
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "change_sequence_name":
@@ -536,7 +557,7 @@ def change_setting():
         sequences_tree.getElementsByTagName("list")[0].appendChild(element)
 
         pretty_save("config/sequences.xml", sequences_tree)
-
+        webinterface.ledsettings.incoming_setting_change = True
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "remove_sequence":
@@ -556,7 +577,7 @@ def change_setting():
                 i += 1
 
         pretty_save("config/sequences.xml", sequences_tree)
-
+        webinterface.ledsettings.incoming_setting_change = True
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "add_step":
@@ -595,8 +616,8 @@ def change_setting():
         sequences_tree.getElementsByTagName("sequence_" + str(value))[0].appendChild(step)
 
         pretty_save("config/sequences.xml", sequences_tree)
-
-        return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True)
+        webinterface.ledsettings.incoming_setting_change = True
+        return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True, set_sequence_step_number=step_amount)
 
     # remove node list with a tag name "step_" + str(value), and change tag names to maintain order
     if setting_name == "remove_step":
@@ -622,8 +643,8 @@ def change_setting():
                 i += 1
 
         pretty_save("config/sequences.xml", sequences_tree)
-
-        return jsonify(success=True, reload_sequence=reload_sequence)
+        webinterface.ledsettings.incoming_setting_change = True
+        return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True)
 
     # saving current led settings as sequence step
     if setting_name == "save_led_settings_to_step" and second_value != "":
@@ -860,6 +881,8 @@ def change_setting():
             sequences_tree.getElementsByTagName("sequence_" + str(value))[0].appendChild(step)
 
         pretty_save("config/sequences.xml", sequences_tree)
+
+        webinterface.ledsettings.incoming_setting_change = True
 
         return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True)
 
@@ -1504,7 +1527,7 @@ def set_step_properties():
     sequence = request.args.get('sequence')
     step = request.args.get('step')
     webinterface.ledsettings.set_sequence(sequence, step, True)
-
+    webinterface.ledsettings.incoming_setting_change = True
     return jsonify(success=True)
 
 

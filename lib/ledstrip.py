@@ -18,6 +18,8 @@ class LedStrip:
         self.keylist_status = [0] * self.led_number
         self.keylist_color = [0] * self.led_number
 
+        self.current_fps = 0
+
         # LED strip configuration:
         self.LED_COUNT = int(self.led_number)  # Number of LED pixels.
         self.LED_PIN = 18  # GPIO pin connected to the pixels (18 uses PWM!).
