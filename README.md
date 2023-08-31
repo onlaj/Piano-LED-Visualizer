@@ -64,10 +64,13 @@ There are two ways, you can use preconfigured system image or install everything
 
 If you don't need to connect your RPi to Wi-Fi you can eject SD card from your PC and put it in Raspberry Pi. After 3-8 minutes *(depending on how fast your SD card is)* you should see Visualizer menu on RPi screen.  
 
-### 2. **Wi-Fi setup** (Optional)
-[Wi-Fi setup](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md) is optional, but will be needed if you wish to use the [web interface](https://github.com/onlaj/Piano-LED-Visualizer#web-interface)
+The Raspberry Pi sets up a Wi-Fi hotspot named 'PianoLEDVisualizer' with the password 'visualizer'. 
+Once connected, open your browser and go to "pianoledvisualizer.local" to access the web interface. 
+Use the "Network" tab there to link the Raspberry Pi to your regular network.
 
-### 3. **Manual installation**
+You can also connect Raspberry Pi to your network [manually](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
+
+### 2. **Manual installation**
 [Instructions](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
 
 ## Connecting LED Strip to Raspberry Pi and enabling SPI

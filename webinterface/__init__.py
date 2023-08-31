@@ -32,7 +32,7 @@ def start_server():
             pass
 
     async def main():
-        async with websockets.serve(echo, get_ip_address(), 8765):
+        async with websockets.serve(echo, "0.0.0.0", 8765):
             await asyncio.Future()
 
     loop = asyncio.new_event_loop()

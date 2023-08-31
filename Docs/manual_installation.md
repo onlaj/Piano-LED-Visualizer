@@ -89,7 +89,7 @@ WantedBy=multi-user.target
 ### 4. **Installing packages** //*ready for another cup?* ### 
 
 ```bash
-sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev python-dev libatlas-base-dev libopenjp2-7 libtiff5 libjack0 libjack-dev libasound2-dev fonts-freefont-ttf gcc make build-essential python-dev git scons swig libavahi-client3 abcmidi
+sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev python-dev libatlas-base-dev libopenjp2-7 libtiff5 libjack0 libjack-dev libasound2-dev fonts-freefont-ttf gcc make build-essential python-dev git scons swig libavahi-client3 abcmidi dnsmasq hostapd
 ```
 
 
@@ -123,8 +123,45 @@ We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://githu
 
 `sudo dpkg -i rtpmidid_20.07_armhf.deb`
 
+### 7. **Creating Hot-Spot** ###
 
-### 7. **Installing Piano-LED-Visualizer** ###
+*based on https://github.com/schollz/raspberry-pi-turnkey*
+
+`sudo systemctl stop dnsmasq && sudo systemctl stop hostapd`
+
+`echo 'interface wlan0
+static ip_address=192.168.4.1/24' | sudo tee --append /etc/dhcpcd.conf`
+
+`sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig`
+
+`sudo systemctl daemon-reload`
+
+`sudo systemctl restart dhcpcd`
+
+`echo 'interface=wlan0
+dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h' | sudo tee --append /etc/dnsmasq.conf`
+
+`echo 'interface=wlan0
+driver=nl80211
+ssid=PianoLEDVisualizer
+hw_mode=g
+channel=7
+wmm_enabled=0
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=visualizer
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP' | sudo tee --append /etc/hostapd/hostapd.conf`
+
+`echo 'DAEMON_CONF="/etc/hostapd/hostapd.conf"' | sudo tee --append /etc/default/hostapd`
+
+`sudo systemctl start hostapd && sudo systemctl start dnsmasq`
+
+
+### 8. **Installing Piano-LED-Visualizer** ###
 - Navigate to /home folder:
 
 ` cd /home/`

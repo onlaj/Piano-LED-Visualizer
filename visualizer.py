@@ -10,7 +10,11 @@ from lib.menulcd import MenuLCD
 from lib.midiports import MidiPorts
 from lib.savemidi import SaveMIDI
 from lib.usersettings import UserSettings
+from lib.hotspot import *
+from lib.functions import *
+from lib.neopixel import *
 from lib.color_mode import *
+
 import argparse
 import threading
 from webinterface import webinterface
@@ -98,6 +102,7 @@ midiports = MidiPorts(usersettings)
 ledsettings = LedSettings(usersettings)
 ledstrip = LedStrip(usersettings, ledsettings)
 learning = LearnMIDI(usersettings, ledsettings, midiports, ledstrip)
+hotspot = Hotspot()
 saving = SaveMIDI()
 menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
 
@@ -112,6 +117,7 @@ display_cycle = 0
 screen_hold_time = 16
 
 midiports.last_activity = time.time()
+hotspot.hotspot_script_time = time.time()
 
 last_control_change = 0
 pedal_deadzone = 10
@@ -132,6 +138,7 @@ def start_webserver():
     webinterface.saving = saving
     webinterface.midiports = midiports
     webinterface.menu = menu
+    webinterface.hotspot = hotspot
     webinterface.jinja_env.auto_reload = True
     webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
     # webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
@@ -145,12 +152,17 @@ if args.webinterface != "false":
 
 
 
+manage_hotspot(hotspot, usersettings, midiports, True)
+
+
+
 # Frame rate counters
 event_loop_stamp = time.time()
 frame_count = 0
 frame_avg_stamp = time.time()
 
 # Main event loop
+
 while True:
     # screensaver
     if int(menu.screensaver_delay) > 0:
@@ -191,7 +203,12 @@ while True:
             menu.show()
             ledsettings.add_instance(menu, ledstrip)
 
+
+    manage_hotspot(hotspot, usersettings, midiports)
+
+
     # Process GPIO keys
+
     if GPIO.input(KEYUP) == 0:
         midiports.last_activity = time.time()
         menu.change_pointer(0)

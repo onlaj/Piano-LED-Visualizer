@@ -705,7 +705,7 @@ class MenuLCD:
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
         self.draw.text((self.scale(3), self.scale(55)), title, fill=self.text_color, font=self.font)
-        self.draw.text((self.scale(3), self.scale(65)), message, fill=self.text_color, font=self.font)
+        self.draw.text((self.scale(3), self.scale(65)), str(message), fill=self.text_color, font=self.font)
         self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
         LCD_Config.Driver_Delay_ms(delay)
 

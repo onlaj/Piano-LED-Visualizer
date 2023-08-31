@@ -27,7 +27,7 @@
                     document.getElementById('cancel_recording_button').classList.remove('pointer-events-none', 'opacity-50');
                     document.getElementById('recording_status').innerHTML = '<p class=\'text-red-400\'>starting</p>'"
                             class="w-full h-10 outline-none mb-2
-                            bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                            bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
                         <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"
                              class="h-6 w-6 inline m-auto fill-current text-red-500">
                             <path d="M20 0a20 20 0 100 40 20 20 0 000-40zm0 28a8 8 0 110-16 8 8 0 010 16z"/>
@@ -44,7 +44,7 @@
                     <button id="save_recording_button"
                             onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
-                            h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                            py-2 px-2 rounded-2xl inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline m-auto" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -57,7 +57,7 @@
                     document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');
                     document.getElementById('recording_status').innerHTML = '<p>saving</p>'"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
-                            h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                            py-2 px-2 rounded-2xl inline-flex items-center hidden">
                         <span class="w-full uppercase text-xs text-green-400">Click to confirm</span></button>
                 </div>
             </div>
@@ -69,7 +69,7 @@
                     <button id="cancel_recording_button"
                             onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
-                                h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                                py-2 px-2 rounded-2xl inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline m-auto" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -82,7 +82,7 @@
                     document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');
                     document.getElementById('recording_status').innerHTML = '<p>canceling</p>'"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
-                            h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                            py-2 px-2 rounded-2xl inline-flex items-center hidden">
                         <span class="w-full uppercase text-xs text-red-400">Click to confirm</span>
                     </button>
                 </div>
@@ -147,7 +147,7 @@
                         change_setting('start_midi_play', song_name);
                         this.classList.add('hidden');
                         this.nextElementSibling.classList.remove('hidden');"
-                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
                         <span class="flex uppercase text-xs m-auto ">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 " fill="none" viewBox="0 0 24 24"
                                  stroke="currentColor">
@@ -161,7 +161,7 @@
                     <button id="stop_midi_play" onclick="change_setting('stop_midi_play', '');
                     this.classList.add('hidden');
                     this.previousElementSibling.classList.remove('hidden');"
-                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
                         <span class="flex uppercase text-xs m-auto">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                  stroke="currentColor">
@@ -204,7 +204,7 @@
                     <button id="start_learning" onclick="change_setting('start_learning_song', '');
                         this.classList.add('hidden');
                         this.nextElementSibling.classList.remove('hidden');"
-                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
                             rounded-2xl inline-flex items-center pointer-events-none opacity-50">
                         <span class="flex uppercase text-xs m-auto ">
                             <div id="learning_status" class="align-middle">...</div>
@@ -214,7 +214,7 @@
                     <button id="stop_learning" onclick="change_setting('stop_learning_song', '');
                     this.classList.add('hidden');
                     this.previousElementSibling.classList.remove('hidden');"
-                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
+                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
                             rounded-2xl inline-flex items-center hidden">
                         <span class="flex uppercase text-xs m-auto">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"

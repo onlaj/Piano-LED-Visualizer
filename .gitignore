@@ -2,4 +2,5 @@
 *.pyo
 .idea/
 config/settings.xml
+webinterface/node_modules
 

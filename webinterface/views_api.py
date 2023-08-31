@@ -1,8 +1,9 @@
 from webinterface import webinterface
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner, breathing, \
-    rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp
+from lib.functions import (find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner,
+                           breathing, rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp)
+from lib.hotspot import (disconnect_from_wifi, connect_to_wifi, get_wifi_networks, get_current_connections)
 import psutil
 import threading
 import webcolors as wc
@@ -1162,6 +1163,21 @@ def change_setting():
 
         return jsonify(success=True)
 
+    if setting_name == "connect_to_wifi":
+        print("Controller: connecting to wifi")
+        try:
+            response = connect_to_wifi(value, second_value, webinterface.hotspot, webinterface.usersettings)
+        except:
+            response = False
+
+        return jsonify(success=response)
+
+    if setting_name == "disconnect_wifi":
+        try:
+            disconnect_from_wifi(webinterface.hotspot, webinterface.usersettings)
+        except:
+            return jsonify(success=False)
+
     return jsonify(success=True)
 
 
@@ -1513,6 +1529,17 @@ def set_step_properties():
     webinterface.ledsettings.set_sequence(sequence, step, True)
     webinterface.ledsettings.incoming_setting_change = True
     return jsonify(success=True)
+
+
+@webinterface.route('/api/get_wifi_list', methods=['GET'])
+def get_wifi_list():
+    wifi_list = get_wifi_networks()
+    success, wifi_ssid, address = get_current_connections()
+
+    response = {"wifi_list": wifi_list,
+                "connected_wifi": wifi_ssid,
+                "connected_wifi_address": address}
+    return jsonify(response)
 
 
 def pretty_print(dom):
