@@ -12,7 +12,7 @@ execute_command() {
   eval "$1"
   local exit_code=$?
   if [ $exit_code -ne 0 ]; then
-    display_error "Command failed with exit code $exit_code."
+    echo "Command failed with exit code $exit_code."
   fi
 }
 
