@@ -18,4 +18,11 @@ sudo ifconfig wlan0 down
 sleep 5
 sudo ifconfig wlan0 up
 sleep 8
+
+# Check if hostapd is masked, and unmask it if needed
+if [[ $(sudo systemctl is-enabled hostapd) == "masked" ]]; then
+  echo "Unmasking hostapd"
+  sudo systemctl unmask hostapd
+fi
+
 sudo systemctl restart hostapd

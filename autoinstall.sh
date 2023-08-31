@@ -137,7 +137,7 @@ create_hotspot() {
   sudo systemctl daemon-reload
   sudo systemctl restart dhcpcd
   echo 'interface=wlan0 dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h' | sudo tee --append /etc/dnsmasq.conf > /dev/null
-  sudo tee --append /etc/hostapd/hostapd.conf > /dev/null <<EOT
+  cat <<EOF | sudo tee /etc/hostapd/hostapd.conf > /dev/null
 interface=wlan0
 driver=nl80211
 ssid=PianoLEDVisualizer
@@ -152,7 +152,7 @@ wpa_passphrase=visualizer
 wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP
 rsn_pairwise=CCMP
-EOT
+EOF
   echo 'DAEMON_CONF="/etc/hostapd/hostapd.conf"' | sudo tee --append /etc/default/hostapd > /dev/null
   execute_command "sudo systemctl unmask hostapd"
   execute_command "sudo systemctl enable hostapd && sudo systemctl enable dnsmasq"
