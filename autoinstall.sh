@@ -100,7 +100,6 @@ install_rtpmidi_server() {
 
 # Function to create Hot-Spot
 create_hotspot() {
-  execute_command "sudo systemctl stop dnsmasq && sudo systemctl stop hostapd"
   echo 'interface wlan0 static ip_address=192.168.4.1/24' | sudo tee --append /etc/dhcpcd.conf > /dev/null
   sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
   sudo systemctl daemon-reload
@@ -140,6 +139,24 @@ EOF
   # Reboot Raspberry Pi
   execute_command "sudo reboot"
 }
+
+echo "
+#    _____  _                        _       ______  _____
+#   |  __ \\(_)                      | |     |  ____||  __ \\
+#   | |__) |_   __ _  _ __    ___   | |     | |__   | |  | |
+#   |  ___/| | / _\` || '_ \\  / _ \\  | |     |  __|  | |  | |
+#   | |    | || (_| || | | || (_) | | |____ | |____ | |__| |
+#   |_|    |_| \\__,_||_| |_| \\___/  |______||______||_____/
+#   __      __ _                     _  _
+#   \\ \\    / /(_)                   | |(_)
+#    \\ \\  / /  _  ___  _   _   __ _ | | _  ____ ___  _ __
+#     \\ \\/ /  | |/ __|| | | | / _\` || || ||_  // _ \\| '__|
+#      \\  /   | |\\__ \\| |_| || (_| || || | / /|  __/| |
+#       \\/    |_||___/ \\__,_| \\__,_||_||_|/___|\\___||_|
+#
+# Autoinstall script
+# - by Onlaj
+"
 
 # Main script execution
 update_os
