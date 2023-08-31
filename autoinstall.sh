@@ -105,7 +105,22 @@ create_hotspot() {
   sudo systemctl daemon-reload
   sudo systemctl restart dhcpcd
   echo 'interface=wlan0 dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h' | sudo tee --append /etc/dnsmasq.conf > /dev/null
-  echo 'interface=wlan0 driver=nl80211 ssid=PianoLEDVisualizer hw_mode=g channel=7 wmm_enabled=0 macaddr_acl=0 auth_algs=1 ignore_broadcast_ssid=0 wpa=2 wpa_passphrase=visualizer wpa_key_mgmt=WPA-PSK wpa_pairwise=TKIP rsn_pairwise=CCMP' | sudo tee --append /etc/hostapd/hostapd.conf > /dev/null
+  sudo <<EOF | sudo tee /etc/hostapd/hostapd.conf > /dev/null <<EOT
+interface=wlan0
+driver=nl80211
+ssid=PianoLEDVisualizer
+hw_mode=g
+channel=7
+wmm_enabled=0
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=visualizer
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+EOF
   echo 'DAEMON_CONF="/etc/hostapd/hostapd.conf"' | sudo tee --append /etc/default/hostapd > /dev/null
   execute_command "sudo systemctl unmask hostapd"
   execute_command "sudo systemctl start hostapd && sudo systemctl start dnsmasq"
@@ -130,8 +145,8 @@ WantedBy=multi-user.target
 [Service]
 ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py
 Type=simple
-User=pi
-Group=pi
+User=plv
+Group=plv
 EOF
   execute_command "sudo systemctl daemon-reload"
   execute_command "sudo systemctl enable visualizer.service"
