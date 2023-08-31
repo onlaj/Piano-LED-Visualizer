@@ -89,7 +89,8 @@ def get_current_connections():
 
 
 def is_hotspot_active(usersettings):
-    if int(usersettings.get_setting_value("is_hotspot_active")) == 1:
+    value = usersettings.get_setting_value("is_hotspot_active")
+    if int(value) is not None and int(value) == 1:
         return True
     return False
 
