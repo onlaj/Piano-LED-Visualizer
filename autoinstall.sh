@@ -158,6 +158,8 @@ EOF
   execute_command "sudo chmod +x /home/Piano-LED-Visualizer/enable_ap.sh"
 
   execute_command "sudo /home/Piano-LED-Visualizer/enable_ap.sh"
+  echo "Finishing installation, restart in 60 seconds"
+  sleep 60
   # Reboot Raspberry Pi
   execute_command "sudo reboot"
 }
@@ -187,5 +189,5 @@ enable_spi_interface
 install_packages
 disable_audio_output
 install_rtpmidi_server
-create_hotspot
 install_piano_led_visualizer
+create_hotspot
