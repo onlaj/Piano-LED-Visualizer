@@ -1,3 +1,9 @@
+Run installation script:
+
+`bash -c "$(curl -fsSL https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/autoinstall.sh)"`
+
+**OR**
+
 
 Install [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/) on your SD card.
 
