@@ -25,7 +25,6 @@ update_os() {
 # Function to create and configure the autoconnect script
 configure_autoconnect_script() {
   # Create connectall.py file
-  execute_command "sudo nano /usr/local/bin/connectall.py"
   cat <<EOF | sudo tee /usr/local/bin/connectall.py > /dev/null
 #!/usr/bin/python3
 import subprocess
@@ -48,12 +47,9 @@ for source in port_list:
         if source != target:
             subprocess.call("aconnect %s %s" % (source, target), shell=True)
 EOF
-
-  # Change permissions
   execute_command "sudo chmod +x /usr/local/bin/connectall.py"
 
   # Create udev rules file
-  execute_command "sudo nano /etc/udev/rules.d/33-midiusb.rules"
   echo 'ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/local/bin/connectall.py"' | sudo tee -a /etc/udev/rules.d/33-midiusb.rules > /dev/null
 
   # Reload services
@@ -61,7 +57,6 @@ EOF
   execute_command "sudo service udev restart"
 
   # Create midi.service file
-  execute_command "sudo nano /lib/systemd/system/midi.service"
   cat <<EOF | sudo tee /lib/systemd/system/midi.service > /dev/null
 [Unit]
 Description=Initial USB MIDI connect
@@ -92,11 +87,8 @@ install_packages() {
 
 # Function to disable audio output
 disable_audio_output() {
-  # Edit snd-blacklist.conf file
-  execute_command "sudo sed -i '$ a\blacklist snd_bcm2835' /etc/modprobe.d/snd-blacklist.conf"
-
-  # Edit config.txt file
-  execute_command "sudo sed -i 's/dtparam=audio=on/#dtparam=audio=on/' /boot/config.txt"
+  echo 'blacklist snd_bcm2835' | sudo tee -a /etc/modprobe.d/snd-blacklist.conf > /dev/null
+  sudo sed -i 's/dtparam=audio=on/#dtparam=audio=on/' /boot/config.txt
 }
 
 # Function to install RTP-midi server
@@ -109,13 +101,13 @@ install_rtpmidi_server() {
 # Function to create Hot-Spot
 create_hotspot() {
   execute_command "sudo systemctl stop dnsmasq && sudo systemctl stop hostapd"
-  echo 'interface wlan0 static ip_address=192.168.4.1/24' | sudo tee --append /etc/dhcpcd.conf
+  echo 'interface wlan0 static ip_address=192.168.4.1/24' | sudo tee --append /etc/dhcpcd.conf > /dev/null
   sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
   sudo systemctl daemon-reload
   sudo systemctl restart dhcpcd
-  echo 'interface=wlan0 dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h' | sudo tee --append /etc/dnsmasq.conf
-  echo 'interface=wlan0 driver=nl80211 ssid=PianoLEDVisualizer hw_mode=g channel=7 wmm_enabled=0 macaddr_acl=0 auth_algs=1 ignore_broadcast_ssid=0 wpa=2 wpa_passphrase=visualizer wpa_key_mgmt=WPA-PSK wpa_pairwise=TKIP rsn_pairwise=CCMP' | sudo tee --append /etc/hostapd/hostapd.conf
-  echo 'DAEMON_CONF="/etc/hostapd/hostapd.conf"' | sudo tee --append /etc/default/hostapd
+  echo 'interface=wlan0 dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h' | sudo tee --append /etc/dnsmasq.conf > /dev/null
+  echo 'interface=wlan0 driver=nl80211 ssid=PianoLEDVisualizer hw_mode=g channel=7 wmm_enabled=0 macaddr_acl=0 auth_algs=1 ignore_broadcast_ssid=0 wpa=2 wpa_passphrase=visualizer wpa_key_mgmt=WPA-PSK wpa_pairwise=TKIP rsn_pairwise=CCMP' | sudo tee --append /etc/hostapd/hostapd.conf > /dev/null
+  echo 'DAEMON_CONF="/etc/hostapd/hostapd.conf"' | sudo tee --append /etc/default/hostapd > /dev/null
   execute_command "sudo systemctl start hostapd && sudo systemctl start dnsmasq"
 }
 
@@ -126,7 +118,6 @@ install_piano_led_visualizer() {
   execute_command "cd Piano-LED-Visualizer"
   execute_command "sudo pip3 install -r requirements.txt"
   execute_command "sudo raspi-config nonint do_boot_behaviour B2"
-  execute_command "sudo nano /lib/systemd/system/visualizer.service"
   cat <<EOF | sudo tee /lib/systemd/system/visualizer.service > /dev/null
 [Unit]
 Description=Piano LED Visualizer
