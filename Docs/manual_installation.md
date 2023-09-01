@@ -225,5 +225,8 @@ Group=pi
    `sudo systemctl start visualizer.service`
 
 
+- Change permissions:
+
+  `sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/`
 
 Now you can type `sudo reboot` to test if everything works. After 1-3 minutes you should see Visualizer menu on RPi screen.
