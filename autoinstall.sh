@@ -164,6 +164,19 @@ EOT
   execute_command "sudo systemctl enable hostapd && sudo systemctl enable dnsmasq"
 }
 
+configure_network_interfaces() {
+  # Edit /etc/network/interfaces file
+  local interfaces_file="/etc/network/interfaces"
+  local interfaces_config="
+auto wlan0
+iface wlan0 inet manual
+wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+"
+
+  echo "$interfaces_config" | sudo tee -a "$interfaces_file" > /dev/null
+  echo "Network interfaces configuration added to $interfaces_file."
+}
+
 # Function to install Piano-LED-Visualizer
 install_piano_led_visualizer() {
   execute_command "cd /home/"
@@ -228,4 +241,5 @@ install_packages
 disable_audio_output
 install_rtpmidi_server
 install_piano_led_visualizer
+configure_network_interfaces
 create_hotspot

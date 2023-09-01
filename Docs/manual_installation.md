@@ -133,6 +133,8 @@ We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://githu
 
 *based on https://github.com/schollz/raspberry-pi-turnkey*
 
+`echo -e "auto wlan0\niface wlan0 inet manual\nwpa-conf /etc/wpa_supplicant/wpa_supplicant.conf" | sudo tee -a /etc/network/interfaces > /dev/null`
+
 `sudo systemctl stop dnsmasq && sudo systemctl stop hostapd`
 
 `echo 'interface wlan0
