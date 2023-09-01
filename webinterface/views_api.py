@@ -898,6 +898,9 @@ def change_setting():
     if setting_name == "restart_rpi":
         call("sudo /sbin/reboot now", shell=True)
 
+    if setting_name == "restart_visualizer":
+        call("sudo systemctl restart visualizer", shell=True)
+
     if setting_name == "turnoff_rpi":
         call("sudo /sbin/shutdown -h now", shell=True)
 

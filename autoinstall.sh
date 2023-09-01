@@ -203,7 +203,7 @@ EOF
   execute_command "sudo systemctl enable visualizer.service"
   execute_command "sudo systemctl start visualizer.service"
 
-  execute_command "sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/Songs/"
+  execute_command "sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/"
 
   execute_command "sudo chmod +x /home/Piano-LED-Visualizer/disable_ap.sh"
   execute_command "sudo chmod +x /home/Piano-LED-Visualizer/enable_ap.sh"
