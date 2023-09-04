@@ -57,6 +57,9 @@ let ticker = new AdjustingInterval(play_tick_sound, 60000 / beats_per_minute);
 
 
 function loadAjax(subpage) {
+    if(!subpage){
+        subpage = "home"
+    }
     document.getElementById("main").classList.remove("show");
     setTimeout(function () {
         document.getElementById("main").innerHTML = "";
@@ -123,7 +126,7 @@ function loadAjax(subpage) {
     }, 100);
 }
 
-loadAjax("home")
+loadAjax(window.location.hash.substring(1));
 
 function remove_page_indicators() {
     document.getElementById("home").classList.remove("dark:bg-gray-700", "bg-gray-100");
