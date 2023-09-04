@@ -6,18 +6,6 @@ label {
     display: block;
 }
 
-input {
-    vertical-align: middle;
-}
-
-input[type=checkbox] {
-    margin-top: 7px;
-}
-
-input[type=number] {
-    width: 3.5em;
-}
-
 audio {
     display: none;
     margin-right: 5px;

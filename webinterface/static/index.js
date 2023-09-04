@@ -1340,6 +1340,9 @@ function get_ports() {
 }
 
 function get_logs() {
+    const refresh_logs_button = document.getElementById("refresh-logs");
+    refresh_logs_button.classList.add("animate-spin", "pointer-events-none");
+
     const xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
@@ -1348,9 +1351,17 @@ function get_logs() {
             let textarea = document.getElementById('logs')
             textarea.innerHTML = response;
             textarea.scrollTop = textarea.scrollHeight;
+            refresh_logs_button.classList.remove("animate-spin", "pointer-events-none");
         }
     };
-    xhttp.open("GET", "/api/get_logs", true);
+    xhttp.onerror= function () {
+        refresh_logs_button.classList.remove("animate-spin", "pointer-events-none");
+    }
+    xhttp.ontimeout= function () {
+        refresh_logs_button.classList.remove("animate-spin", "pointer-events-none");
+    }
+    let last_logs = document.getElementById("last_logs").value;
+    xhttp.open("GET", "/api/get_logs?last_logs="+last_logs, true);
     xhttp.send();
 }
 

@@ -1547,7 +1547,8 @@ def get_wifi_list():
 
 @webinterface.route('/api/get_logs', methods=['GET'])
 def get_logs():
-    return get_last_logs()
+    last_logs = request.args.get('last_logs')
+    return get_last_logs(last_logs)
 
 
 def pretty_print(dom):

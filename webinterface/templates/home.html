@@ -493,7 +493,16 @@
 
         <div class="transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y bg-gray-200 dark:bg-gray-700 advanced-content">
             <div class="p-4">
-                <div class="text-base text-gray-600 dark:text-gray-400">Logs</div>
+                <div class="flex">
+                    <div class="text-base text-gray-600 dark:text-gray-400">Logs</div>
+                        <svg id="refresh-logs" onclick="get_logs()" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-2 w-6 h-6 mb-4 cursor-pointer">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
+                        </svg>
+                </div>
+                <div>
+                    Show last <input id="last_logs" class="h-4 appearance-none bg-gray-100 dark:bg-gray-600
+                     rounded-2xl px-4 py-4 w-20 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" value="100" type="number" min="1" step="1"> lines
+                </div>
                 <textarea id="logs" readonly class="w-full p-4 mt-2 text-base text-gray-600 dark:text-gray-400 resize-none
                 bg-gray-100 dark:bg-gray-600 rounded-lg focus:outline-none focus:outline-none
                 bg-transparent" rows="20" placeholder=""></textarea>
