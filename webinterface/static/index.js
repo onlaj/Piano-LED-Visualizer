@@ -1294,6 +1294,9 @@ function set_step_properties(sequence, step) {
 }
 
 function get_ports() {
+    const refresh_ports_button = document.getElementById("refresh-ports");
+    refresh_ports_button.classList.add("animate-spin", "pointer-events-none");
+
     const xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
@@ -1333,8 +1336,15 @@ function get_ports() {
             if (response["midi_logging"] === "1") {
                 document.getElementById("midi_events_checkbox").checked = true;
             }
+            refresh_ports_button.classList.remove("animate-spin", "pointer-events-none");
         }
     };
+    xhttp.onerror= function () {
+        refresh_ports_button.classList.remove("animate-spin", "pointer-events-none");
+    }
+    xhttp.ontimeout= function () {
+        refresh_ports_button.classList.remove("animate-spin", "pointer-events-none");
+    }
     xhttp.open("GET", "/api/get_ports", true);
     xhttp.send();
 }
