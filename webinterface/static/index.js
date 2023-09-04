@@ -915,7 +915,7 @@ function initialize_homepage() {
     document.getElementById("bpm_slider").value = beats_per_minute;
 
     document.getElementById("beats_per_measure").value = beats_per_measure;
-
+    get_logs();
 }
 
 function initialize_led_settings() {
@@ -1336,6 +1336,21 @@ function get_ports() {
         }
     };
     xhttp.open("GET", "/api/get_ports", true);
+    xhttp.send();
+}
+
+function get_logs() {
+    const xhttp = new XMLHttpRequest();
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this["readyState"] === 4 && this["status"] === 200) {
+            let response = this["response"];
+            let textarea = document.getElementById('logs')
+            textarea.innerHTML = response;
+            textarea.scrollTop = textarea.scrollHeight;
+        }
+    };
+    xhttp.open("GET", "/api/get_logs", true);
     xhttp.send();
 }
 
