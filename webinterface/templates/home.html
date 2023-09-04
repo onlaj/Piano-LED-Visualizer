@@ -1,11 +1,6 @@
 <div class="slide-in-content col-span-12 mt-1 w-full lg:w-4/5 xl:w-4/5 2xl:w-4/5 m-auto">
     <div class="flex items-center h-1 intro-y">
-        <div>
-            <label for="modeSwitch" onchange="toggleMode()">
-              <input type="checkbox" id="modeSwitch">Advanced mode
-            </label>
-            </div>
-        <div class="relative advanced-content">
+        <div class="relative advanced-content mr-4">
             <div class="absolute inset-y-0 left-0 flex items-center px-2 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                      stroke="currentColor">
@@ -28,6 +23,11 @@
                             d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
                 </svg>
             </div>
+        </div>
+        <div>
+            <label for="modeSwitch" onchange="toggleMode()">
+              <input style="margin-top: 0px;margin-right:4px" type="checkbox" id="modeSwitch">Advanced mode
+            </label>
         </div>
     </div>
     <div class="grid grid-cols-12 gap-6 mt-5">
