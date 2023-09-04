@@ -7,6 +7,7 @@ import time
 import socket
 import RPi.GPIO as GPIO
 import math
+import subprocess
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
@@ -22,6 +23,15 @@ def get_ip_address():
     local_ip = s.getsockname()[0]
     s.close()
     return local_ip
+
+
+def get_last_logs(lines=100):
+    try:
+        command = ["journalctl", "-u", "visualizer.service", "--no-pager", f"--lines={lines}"]
+        logs = subprocess.check_output(command, text=True)
+        return logs
+    except subprocess.CalledProcessError as e:
+        return f"Error retrieving logs: {e}"
 
 
 def find_between(s, start, end):

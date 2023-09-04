@@ -1,7 +1,7 @@
 from webinterface import webinterface
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import (find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner,
+from lib.functions import (get_last_logs, find_between, theaterChase, theaterChaseRainbow, sound_of_da_police, scanner,
                            breathing, rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp)
 from lib.hotspot import (disconnect_from_wifi, connect_to_wifi, get_wifi_networks, get_current_connections)
 import psutil
@@ -756,7 +756,7 @@ def change_setting():
 
         # if color_mode is equal to "Speed" load colors from webinterface.ledsettings and put it into step node
         if webinterface.ledsettings.color_mode == "Speed":
-            # load values speed_slowest["red"] etc from webinterface.ledsettings and put them under speed_slowest_red etc
+            # load values speed_slowest["red"] etc. from webinterface.ledsettings and put them under speed_slowest_red etc
             speed_slowest_red = sequences_tree.createElement("speed_slowest_red")
             speed_slowest_red.appendChild(
                 sequences_tree.createTextNode(str(webinterface.ledsettings.speed_slowest["red"])))
@@ -1543,6 +1543,11 @@ def get_wifi_list():
                 "connected_wifi": wifi_ssid,
                 "connected_wifi_address": address}
     return jsonify(response)
+
+
+@webinterface.route('/api/get_logs', methods=['GET'])
+def get_logs():
+    return get_last_logs()
 
 
 def pretty_print(dom):
