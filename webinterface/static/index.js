@@ -11,6 +11,8 @@ let is_playing = 0;
 let learning_status_timeout = '';
 let hand_colorList = '';
 
+let uploadProgress = [];
+
 
 const tick1 = new Audio('/static/tick2.mp3');
 tick1.volume = 0.2;
@@ -1907,8 +1909,6 @@ function initialize_upload() {
         document.getElementById("drop-area").addEventListener(eventName, preventDefaults, false)
         document.body.addEventListener(eventName, preventDefaults, false)
     })
-
-    let uploadProgress = []
     document.getElementById("drop-area").addEventListener('drop', handleDrop, false)
 }
 
@@ -1919,7 +1919,7 @@ function preventDefaults(e) {
 
 function initializeProgress(numFiles) {
     document.getElementById("progress-bar").style.width = "0%";
-    let uploadProgress = []
+    uploadProgress = []
     for (let i = numFiles; i > 0; i--) {
         uploadProgress.push(0)
     }
