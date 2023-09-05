@@ -266,7 +266,9 @@
                         </svg>
                     </div>
 
-                    <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Volume</div>
+                    <div class="mt-1 text-base text-gray-600 dark:text-gray-400" data-translate="volume">
+                        Volume
+                    </div>
                     <div class="justify-center flex">
                         <svg onclick="input = document.getElementById('metronome_volume');
                             input.value = parseInt(input.value) - 10;
@@ -308,45 +310,63 @@
         bg-gray-200 dark:bg-gray-700" href="#/">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                 <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400">Color Mode</div>
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="color_mode">
+                        Color Mode
+                    </div>
                     <div class="flex items-center pt-1">
-                        <div id="color_mode" class="text-2xl font-bold ">Single</div>
+                        <div id="color_mode" class="text-2xl font-bold" data-translate="single">
+                            Single
+                        </div>
                     </div>
                 </div>
                 <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400">Light Mode</div>
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="light_mode">
+                        Light Mode
+                    </div>
                     <div class="flex items-center pt-1">
-                        <div id="light_mode" class="text-2xl font-bold ">Normal</div>
+                        <div id="light_mode" class="text-2xl font-bold" data-translate="normal">
+                            Normal
+                        </div>
                     </div>
                 </div>
                 <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400">Brightness</div>
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="brightness">
+                        Brightness
+                    </div>
                     <div class="flex items-center pt-1">
                         <div id="brightness_percent" class="text-2xl font-bold ">100%</div>
                     </div>
                 </div>
                 <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400">Backlight Brightness</div>
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="backlight_brightness">
+                        Backlight Brightness
+                    </div>
                     <div class="flex items-center pt-1">
                         <div id="backlight_brightness_percent" class="text-2xl font-bold ">0%</div>
                     </div>
                 </div>
                 <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400">Input Port</div>
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="input_port">
+                        Input Port
+                    </div>
                     <div class="flex items-center pt-1 overflow-auto">
                         <div id="input_port" class="text-2xl font-bold "></div>
                     </div>
                 </div>
                 <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400">Playback Port</div>
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="playback_port">
+                        Playback Port
+                    </div>
                     <div class="flex items-center pt-1 overflow-auto">
                         <div id="playback_port" class="text-2xl font-bold "></div>
                     </div>
                 </div>
                 <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400">Cover State</div>
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="cover_state">
+                        Cover State
+                    </div>
                     <div class="flex items-center pt-1">
-                        <div id="cover_state" class="text-2xl font-bold "></div>
+                        <div id="cover_state" class="text-2xl font-bold"></div>
                     </div>
                 </div>
             </div>
@@ -356,7 +376,7 @@
         bg-gray-200 dark:bg-gray-700" href="#/">
             <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-7">
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label data-translate="screen" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Screen
                     </label>
                     <div class="relative">
@@ -375,7 +395,7 @@
                 </div>
 
                 <div class="p-5">
-                    <label class="h-8 overflow-auto block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label data-translate="reset_settings_to_default" class="h-8 overflow-auto block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Reset settings to default
                     </label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
@@ -388,12 +408,14 @@
                     </button>
                     <button onclick="change_setting('reset_to_default', '0');temporary_disable_button(this, 2000);"
                             class="w-full h-12 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs">Confirm</span>
+                        <span class="w-full uppercase text-xs" data-translate="confirm">
+                            Confirm
+                        </span>
                     </button>
                 </div>
 
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label data-translate="restart_rpi" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Restart RPi
                     </label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
@@ -407,11 +429,13 @@
                     </button>
                     <button onclick="change_setting('restart_rpi', '0');temporary_disable_button(this, 25000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-red-400">Confirm</span></button>
+                        <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">
+                            Confirm
+                        </span></button>
                 </div>
 
                 <div class="p-5 advanced-content">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label data-translate="restart_visualizer" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Restart Visualizer
                     </label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
@@ -425,11 +449,13 @@
                     </button>
                     <button onclick="change_setting('restart_visualizer', '0');temporary_disable_button(this, 25000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-red-400">Confirm</span></button>
+                        <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">
+                            Confirm
+                        </span></button>
                 </div>
 
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label data-translate="power_off" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Power Off
                     </label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
@@ -442,11 +468,13 @@
                     </button>
                     <button onclick="change_setting('turnoff_rpi', '0');temporary_disable_button(this, 25000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-red-400">Confirm</span></button>
+                        <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">
+                            Confirm
+                        </span></button>
                 </div>
 
                 <div class="p-5 advanced-content">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label data-translate="update_visualizer" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Update Visualizer
                     </label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
@@ -459,11 +487,13 @@
                     </button>
                     <button onclick="change_setting('update_rpi', '0');temporary_disable_button(this, 25000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs">Confirm</span></button>
+                        <span class="w-full uppercase text-xs" data-translate="confirm">
+                            Confirm
+                        </span></button>
                 </div>
 
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label data-translate="connect_ports" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Connect ports
                     </label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
@@ -476,11 +506,13 @@
                     </button>
                     <button onclick="change_setting('connect_ports', '0');temporary_disable_button(this, 5000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs">Confirm</span></button>
+                        <span class="w-full uppercase text-xs" data-translate="confirm">
+                            Confirm
+                        </span></button>
                 </div>
 
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label data-translate="clean_led_strip" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                         Clean led strip
                     </label>
                     <button onclick="change_setting('clean_ledstrip', '0');
@@ -502,14 +534,20 @@
         <div class="transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y bg-gray-200 dark:bg-gray-700 advanced-content">
             <div class="p-4">
                 <div class="flex">
-                    <div class="text-base text-gray-600 dark:text-gray-400">Logs</div>
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="logs">
+                        Logs
+                    </div>
                         <svg id="refresh-logs" onclick="get_logs()" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-2 w-6 h-6 mb-4 cursor-pointer">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
                         </svg>
                 </div>
                 <div>
-                    Show last <input id="last_logs" class="h-4 appearance-none bg-gray-100 dark:bg-gray-600
-                     rounded-2xl px-4 py-4 w-20 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" value="100" type="number" min="1" step="1"> lines
+                    <div data-translate="show_last">
+                        Show last
+                    </div>
+                    <input id="last_logs" class="h-4 appearance-none bg-gray-100 dark:bg-gray-600
+                     rounded-2xl px-4 py-4 w-20 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                           value="100" type="number" min="1" step="1"> <div data-translate="lines">lines</div>
                 </div>
                 <textarea id="logs" readonly class="w-full p-4 mt-2 text-base text-gray-600 dark:text-gray-400 resize-none
                 bg-gray-100 dark:bg-gray-600 rounded-lg focus:outline-none focus:outline-none
