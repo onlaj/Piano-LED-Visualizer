@@ -1,3 +1,4 @@
+const userLanguage = 'en';
 let scrolldelay;
 
 let search_song;
@@ -116,6 +117,7 @@ function loadAjax(subpage) {
                     get_wifi_list();
                 }
             }
+            translateStaticContent(userLanguage);
         };
         xhttp.ontimeout = function () {
             document.getElementById("main").innerHTML = "REQUEST TIMEOUT";
@@ -2049,4 +2051,22 @@ function checkSavedMode() {
             toggleMode();
         }
     }
+}
+
+function translate(key, lang) {
+    if (translations[lang] && translations[lang][key]) {
+        return translations[lang][key];
+    }
+    // Return the original text if no translation found
+    return key;
+}
+
+function translateStaticContent(lang) {
+    const elements = document.querySelectorAll('[data-translate]');
+    elements.forEach((element) => {
+        const key = element.getAttribute('data-translate');
+        if (translations[lang] && translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
+    });
 }

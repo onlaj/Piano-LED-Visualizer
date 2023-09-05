@@ -26,7 +26,8 @@
         </div>
         <div>
             <label for="modeSwitch" onchange="toggleMode()">
-              <input style="margin-top: 0px;margin-right:4px" type="checkbox" id="modeSwitch">Advanced mode
+                <input style="margin-top: 0px;margin-right:4px" type="checkbox" id="modeSwitch">
+                <div class="contents" data-translate="advanced_mode">Advanced mode</div>
             </label>
         </div>
     </div>
@@ -55,7 +56,7 @@
                         <div id="cpu_usage" class="mt-3 text-3xl font-bold leading-8"><span id='cpu_number'></span>%
                         </div>
 
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">System CPU Usage (<span id="cpu_count"></span> CPU)
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400"><div data-translate="system_cpu_usage">System CPU Usage</div> (<span id="cpu_count"></span> CPU)
                         </div>
                     </div>
                 </div>
@@ -78,8 +79,9 @@
                 <div class="ml-2 w-full flex-1">
                     <div>
                         <div id="memory_usage" class="mt-3 text-3xl font-bold leading-8">---/---MB</div>
-
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">RAM Usage</div>
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">
+                            <div data-translate="ram_usage">RAM Usage</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -101,7 +103,9 @@
                     <div>
                         <div id="card_usage" class="mt-3 text-3xl font-bold leading-8">---/---GB</div>
 
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Disk Usage</div>
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">
+                            <div data-translate="disk_usage">Disk Usage</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -136,7 +140,9 @@
                             </svg>
                         </div>
 
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Bandwidth Usage</div>
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">
+                            <div data-translate="bandwidth_usage">Bandwidth Usage</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -180,7 +186,9 @@
                         <div id="cpu_pid_div" class="mt-3 text-3xl font-bold leading-8"><span id='cpu_pid'>--</span>%
                         </div>
 
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Process CPU Usage</div>
+                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">
+                            <div data-translate="process_cpu_usage">Process CPU usage</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -188,7 +196,7 @@
 
         <a class="transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
         bg-gray-200 dark:bg-gray-700" href="#/">
-            <div class="m-4 text-base text-gray-600 dark:text-gray-400 absolute">
+            <div data-translate="metronome" class="m-4 text-base text-gray-600 dark:text-gray-400 absolute">
                 Metronome
             </div>
             <div class="grid grid-cols-1 justify-items-center">
@@ -227,7 +235,7 @@
                     </svg>
                 </button>
                 <div class="grid grid-cols-2 sm:grid-cols-1 justify-items-center">
-                    <div class="mt-1 text-base text-gray-600 dark:text-gray-400">Beats per measure</div>
+                    <div data-translate="beats_per_measure" class="mt-1 text-base text-gray-600 dark:text-gray-400">Beats per measure</div>
                     <div class="justify-center flex">
                         <svg onclick="input = document.getElementById('beats_per_measure');
                             input.value = parseInt(input.value) - 1;
