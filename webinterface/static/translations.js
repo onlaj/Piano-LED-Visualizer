@@ -1,5 +1,18 @@
 const translations = {
     en: {
+        //index
+        loading: "Loading...",
+        home: "Home",
+        led_settings: "LED Settings",
+        songs: "Songs",
+        sequences: "Sequences",
+        ports_settings: "Ports Settings",
+        led_animations: "LED Animations",
+        wifi: "Wi-Fi",
+        switch_ports: "Switch Ports",
+        view_on_github: "View on GitHub",
+
+        //homepage
         advanced_mode: "Advanced mode",
         system_cpu_usage: "System CPU usage",
         ram_usage: "Ram usage",
@@ -30,8 +43,24 @@ const translations = {
         logs: "Logs",
         show_last: "Show last",
         lines: "lines",
+
+
     },
     pl: {
+        //index
+        loading: "Ładowanie...",
+        home: "Strona główna",
+        led_settings: "Ustawienia LED",
+        songs: "Nuty",
+        sequences: "Sekwencje",
+        ports_settings: "Ustawienia Portów",
+        led_animations: "Animacje LED",
+        wifi: "Wi-Fi",
+        switch_ports: "Zamień Porty",
+        view_on_github: "Sprawdź GitHub",
+
+
+        //homepage
         advanced_mode: "Tryb zaawansowany",
         system_cpu_usage: "Użycie procesora przez system",
         ram_usage: "Użycie RAM",
@@ -62,5 +91,7 @@ const translations = {
         logs: "Logi",
         show_last: "Pokaż ostatnie",
         lines: "linii",
+
+
     }
 };

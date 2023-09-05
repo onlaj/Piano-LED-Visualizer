@@ -72,6 +72,7 @@
                 x-ref="loading"
                 class="fixed inset-0 z-50 flex items-center justify-center text-white bg-black bg-opacity-50"
                 style="backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)"
+                data-translate="loading..."
         >
             Loading.....
         </div>
@@ -135,7 +136,9 @@
                   1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Home</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="home">
+                                Home
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -158,7 +161,9 @@
                             0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                     </svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">LED Settings</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="led_settings">
+                                LED Settings
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -178,7 +183,9 @@
                             d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
                     </svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Songs</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="songs">
+                                Songs
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -198,7 +205,9 @@
                               d="M8 8h16v16H8zM40 40h16v16H40zM56 28l-8 8-8-8M8 36l8-8 8 8"/>
                         <path fill="none" stroke-miterlimit="10" stroke-width="4" d="M40 48H16V28M24 16h24v20"/></svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Sequences</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="sequences">
+                                Sequences
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -224,7 +233,9 @@
                          1.4 1.4 1.4 0 01-1.4 1.4 1.4 1.4 0 01-1.4-1.4 1.4 1.4 0 011.4-1.4z"/><path
                             fill="rgba(0, 0, 0, 0)" d="M0 0h24v24H0z"/></svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Ports Settings</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="ports_settings">
+                                Ports Settings
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -246,7 +257,9 @@
                       17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
                     </svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">LED Animations</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="led_animations">
+                                LED Animations
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -266,7 +279,9 @@
                       13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />
                     </svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Wi-Fi</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="wifi">
+                                Wi-Fi
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -294,7 +309,9 @@
                             d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                     </svg>
                 </span>
-                    <span :class="{'lg:hidden': !isSidebarOpen}"> Switch Ports </span>
+                    <span :class="{'lg:hidden': !isSidebarOpen}" data-translate="switch_ports">
+                        Switch Ports
+                    </span>
                 </button>
             </div>
         </aside>
@@ -391,7 +408,7 @@
                             8.013 0 0016 8c0-4.42-3.58-8-8-8z"
                     ></path>
                 </svg>
-                <span class="float-right hidden text-sm md:block">View on Github</span>
+                <span class="float-right hidden text-sm md:block" data-translate="view_on_github">View on Github</span>
             </a>
         </div>
     </footer>
