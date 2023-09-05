@@ -12,6 +12,31 @@ const translations = {
         switch_ports: "Switch Ports",
         view_on_github: "View on GitHub",
 
+        //ledcolor
+        led_color: "LED Color",
+        multicolor: "Multicolor",
+        rainbow_colors: "Rainbow Colors",
+        speed: "Speed",
+        gradient: "Gradient",
+        scale_coloring: "Scale Coloring",
+        velocity_rainbow: "Velocity Rainbow",
+
+        offset:  "Offset",
+        scale: "Scale",
+        timeshift: "Timeshift",
+        scale_percent: "Scale %",
+        curve_percent: "Curve %",
+        slow_color: "Slow Color",
+        fast_color: "Fast Color",
+        max_notes: "Max Notes",
+        period_in_seconds: "Period in seconds",
+        start: "Start",
+        end: "End",
+        color_for_in_scale: "Color for in scale",
+        color_for_not_in_scale: "Color for not in scale",
+        scale_key: "Scale key",
+
+
         //homepage
         advanced_mode: "Advanced mode",
         system_cpu_usage: "System CPU usage",
@@ -59,6 +84,30 @@ const translations = {
         switch_ports: "Zamień Porty",
         view_on_github: "Sprawdź GitHub",
 
+        offset: "Przesunięcie",
+        scale: "Skala",
+        timeshift: "Przesunięcie czasu",
+        scale_percent: "Skala %",
+        curve_percent: "Krzywa %",
+        slow_color: "Wolno - kolor",
+        fast_color: "Szybko - kolor",
+        max_notes: "Maksymalna liczba nut",
+        period_in_seconds: "Okres w sekundach",
+        start: "Początek",
+        end: "Koniec",
+        color_for_in_scale: "Kolor dla nut w skali",
+        color_for_not_in_scale: "Kolor dla nut poza skalą",
+        scale_key: "Klucz skali",
+
+
+        //ledcolor
+        led_color: "Kolor LED",
+        multicolor: "Wiele kolorów",
+        rainbow_colors: "Tęcza",
+        speed: "Prędkość",
+        gradient: "Gradient",
+        scale_coloring: "Skala kolorðu",
+        velocity_rainbow: "Tęcza-Prędkość",
 
         //homepage
         advanced_mode: "Tryb zaawansowany",
