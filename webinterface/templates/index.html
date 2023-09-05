@@ -144,7 +144,7 @@
                 <ul @click="closeSidebarMenu()" onclick="loadAjax('ledsettings')" class="p-2 overflow-hidden">
                     <li>
                         <a
-                                href="#ledsettings"
+                                onclick="history.pushState({}, '', '#ledsettings')"
                                 id="ledsettings"
                                 class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
                                 :class="{'justify-center': !isSidebarOpen}"
@@ -166,7 +166,7 @@
                 <ul @click="closeSidebarMenu()" onclick="loadAjax('songs')" class="p-2 overflow-hidden">
                     <li>
                         <a
-                                href="#songs"
+                                onclick="history.pushState({}, '', '#songs')"
                                 id="songs"
                                 class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
                                 :class="{'justify-center': !isSidebarOpen}"
@@ -186,7 +186,7 @@
                 <ul @click="closeSidebarMenu()" onclick="loadAjax('sequences')" class="p-2 overflow-hidden">
                     <li>
                         <a
-                                href="#sequences"
+                                onclick="history.pushState({}, '', '#sequences')"
                                 id="sequences"
                                 class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
                                 :class="{'justify-center': !isSidebarOpen}"
@@ -206,7 +206,7 @@
                 <ul @click="closeSidebarMenu()" onclick="loadAjax('ports')" class="p-2 overflow-hidden">
                     <li>
                         <a
-                                href="#ports"
+                                onclick="history.pushState({}, '', '#ports')"
                                 id="ports"
                                 class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
                                 :class="{'justify-center': !isSidebarOpen}"
@@ -233,7 +233,7 @@
                 <ul @click="closeSidebarMenu()" onclick="loadAjax('ledanimations')" class="p-2 overflow-hidden">
                     <li>
                         <a
-                                href="#ledanimations"
+                                onclick="history.pushState({}, '', '#ledanimations')"
                                 id="ledanimations"
                                 class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100
                                 dark:hover:bg-gray-700"
@@ -254,7 +254,7 @@
                 <ul @click="closeSidebarMenu()" onclick="loadAjax('network')" class="p-2 overflow-hidden">
                     <li>
                         <a
-                                href="#network"
+                                onclick="history.pushState({}, '', '#network')"
                                 id="network"
                                 class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100
                                 dark:hover:bg-gray-700"
