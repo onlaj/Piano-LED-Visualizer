@@ -1603,6 +1603,7 @@ function get_songs() {
             }
 
         }
+        translateStaticContent();
     };
     xhttp.open("GET", "/api/get_songs?page=" + page + "&length=" + length + "&sortby=" + sortby + "&search=" + search, true);
     xhttp.send();
