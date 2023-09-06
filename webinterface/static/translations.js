@@ -162,6 +162,7 @@ const translations = {
         wifi_list: "Wi-Fi List",
 
         //ledanimations
+        stop_animation: "Stop animation",
 
 
         //homepage
@@ -364,6 +365,9 @@ const translations = {
         disconnecting_warning_line_2: "By uzyskać dostęp do interfejsu, należy najpierw połaczyć się z Hotspotem",
         wifi_list: "Lista dostępnych Wi-Fi",
 
+
+        //ledanimations
+        stop_animation: "Zatrzymaj animacje",
 
         //homepage
         advanced_mode: "Tryb zaawansowany",
