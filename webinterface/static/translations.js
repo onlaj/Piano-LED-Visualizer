@@ -118,6 +118,30 @@ const translations = {
         songs_per_page: "Songs per page",
         total_songs: "Total songs",
 
+        //sequences
+        sequence: "Sequence",
+        active_sequence: "Active Sequence",
+        color: "Color",
+        next_step: "Next Step",
+        press_spacebar:  "Press spacebar",
+        add: "Add",
+        remove: "Remove",
+        step: "Step",
+        activation_method:  "Activation Method",
+        button_press: "Button Press",
+        sustain_pedal: "Sustain Pedal",
+        portamento_pedal:  "Portamento Pedal",
+        sostuneto_pedal: "Sostuneto Pedal",
+        soft_pedal: "Soft Pedal",
+        next_step_value:  "Next Step Value",
+        next_step_tip_line_1: "This value decides if next step is activated when you press or release the pedal.",
+        next_step_tip_line_2: "For example if you want to change settings after fully pressing Sostenuto pedal you should set it to 126",
+        next_step_tip_line_3: "(127 is the maximum value when pedal is fully pressed).",
+        next_step_tip_lime_4: "When you want to change settings when fully releasing pedal set it to -1.",
+        sequence_name: "Sequence name",
+        save_current_settings_to_step: "Save current settings to step",
+
+
 
         //homepage
         advanced_mode: "Advanced mode",
@@ -276,6 +300,29 @@ const translations = {
         songs_per_page: "Nut na stronę",
         total_songs: "Łącznie nut: ",
 
+                //sequences
+        sequence: "Sekwencja",
+        active_sequence: "Aktywna sekwencja",
+        color: "Kolor",
+        next_step: "Następny krok",
+        press_spacebar:  "Wciśnij spację",
+        add: "Dodaj",
+        remove: "Usuń",
+        step: "Krok",
+        activation_method:  "Metoda aktywacji",
+        button_press: "Wciśnięcie przycisku",
+        sustain_pedal: "Pedał Sustain",
+        portamento_pedal:  "Pedał Portamento",
+        sostuneto_pedal: "Pedał Sostuneto",
+        soft_pedal: "Pedał Soft",
+        next_step_value:  "Wartość następnego kroku",
+        next_step_tip_line_1: "Wartość następnego kroku odpowiada za to czy następny krok aktywuje się przy wciśnięciu lub puszczeniu pedała.",
+        next_step_tip_line_2: "Dla przykładu: jeśli chcesz zmienić ustawienia po pełnym wciśnięciu prawego pedała ustaw wartość następnego kroku na 126",
+        next_step_tip_line_3: "(127 to maksymalna wartość przy wciśniętym pedale)",
+        next_step_tip_lime_4: "Jeśli chcesz zmienić ustawienia po puszczeniu prawego pedała ustaw wartość następnego kroku na -1",
+        sequence_name: "Nazwa sekwencji",
+        save_current_settings_to_step: "Zapisz ustawienia aktualnego kroku",
+
 
         //homepage
         advanced_mode: "Tryb zaawansowany",
@@ -308,7 +355,6 @@ const translations = {
         logs: "Logi",
         show_last: "Pokaż ostatnie",
         lines: "linii",
-
 
     }
 };

@@ -1,15 +1,17 @@
 <div class="transition duration-300 slide-in-content w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto
 grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2 gap-6">
     <div id="sequence_block" class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
-        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Sequence</div>
-        <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="sequence">
+            Sequence
+        </div>
+        <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="active_sequence">
             Active sequence
         </label>
         <div class="relative">
             <select id="sequences_list_1" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
         py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     onchange="change_setting('set_sequence', this.value);">
-                <option value="0">None</option>
+                <option value="0" data-translate="none">None</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -20,15 +22,15 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
 
         <div id="sequence_settings">
-            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="color_mode">
                 Color mode
             </label>
             <div id="current_color_mode"></div>
-            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="light_mode">
                 Light mode
             </label>
             <div id="current_light_mode"></div>
-            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400 mb-2">
+            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400 mb-2" data-translate="color">
                 Color
             </label>
             <div class="w-full" id="current_led_color"></div>
@@ -46,8 +48,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                           d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
                 </svg>
             </div>
-            Next Step
-            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+            <div data-translate="next_step">Next Step</div>
+            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="press_spacebar">
                 press spacebar
             </label>
         </button>
@@ -67,7 +69,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
         <div id="sequence_edit_block" class="opacity-50 pointer-events-none">
             <div class="flex flex-wrap mb-2">
                 <div class="w-full md:w-1/2 md:mb-0">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="sequence">
                         Sequence
                     </label>
                     <div class="relative pr-2">
@@ -86,7 +88,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                             <div class="pr-2">
                                 <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
                                 dark:text-gray-400">
-                                    Add
+                                    <div data-translate="add">Add</div>
                                 </label>
                                 <button onclick="this.classList.add('hidden');
                                 this.nextElementSibling.classList.remove('hidden')"
@@ -103,14 +105,14 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                 <button onclick="change_setting('add_sequence', '0');temporary_disable_button(this, 1000);"
                                         class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
                                         rounded-2xl inline-flex items-center hidden">
-                                    <span class="w-full uppercase text-xs">Confirm</span></button>
+                                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
                             </div>
                         </div>
                         <div class="w-full md:w-1/2 md:mb-0">
                             <div class="pr-2">
                                 <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
                                 dark:text-gray-400">
-                                    Remove
+                                    <div data-translate="remove">Remove</div>
                                 </label>
                                 <button onclick="if(document.getElementById('sequences_list_2').value != 0){
                                     this.classList.add('hidden');
@@ -132,7 +134,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                 temporary_disable_button(this, 1000);"
                                         class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
                                         rounded-2xl inline-flex items-center hidden">
-                                    <span class="w-full uppercase text-xs">Confirm</span></button>
+                                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
                             </div>
                         </div>
                     </div>
@@ -140,7 +142,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
                 <div class="w-full md:w-1/2 md:mb-0">
                     <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        Step
+                        <div data-translate="step">Step</div>
                     </label>
                     <div class="relative pl-2">
                         <select id="sequence_step" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
@@ -158,7 +160,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                             <div class="pl-2">
                                 <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
                                 dark:text-gray-400">
-                                    Add
+                                    <div data-translate="add">Add</div>
                                 </label>
                                 <button onclick="this.classList.add('hidden');
                                 this.nextElementSibling.classList.remove('hidden')"
@@ -177,14 +179,14 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                 document.getElementById('sequences_list_2').value);temporary_disable_button(this, 1000);}"
                                         class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
                                         rounded-2xl inline-flex items-center hidden">
-                                    <span class="w-full uppercase text-xs">Confirm</span></button>
+                                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
                             </div>
                         </div>
                         <div class="w-full md:w-1/2 md:mb-0">
                             <div class="pl-2">
                                 <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
                                 dark:text-gray-400">
-                                    Remove
+                                    <div data-translate="remove">Remove</div>
                                 </label>
                                 <button onclick="if(document.getElementById('sequences_list_2').value != 0){
                                     this.classList.add('hidden');
@@ -206,7 +208,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                 temporary_disable_button(this, 1000);"
                                         class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
                                         rounded-2xl inline-flex items-center hidden">
-                                    <span class="w-full uppercase text-xs">Confirm</span></button>
+                                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
                             </div>
                         </div>
                     </div>
@@ -215,7 +217,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
             <div class="flex flex-wrap mb-4">
                 <div class="w-full md:w-1/2 md:mb-0">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="activation_method">
                         Activation method
                     </label>
                     <div class="relative pr-2">
@@ -226,11 +228,11 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                         }"
                                 id="control_number" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
                 py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                            <option value="0">Button press</option>
-                            <option value="64">Sustain Pedal</option>
-                            <option value="65">Portamento Pedal</option>
-                            <option value="66">Sostenuto Pedal</option>
-                            <option value="67">Soft Pedal</option>
+                            <option value="0" data-translate="button_press">Button press</option>
+                            <option value="64" data-translate="sustain_pedal">Sustain Pedal</option>
+                            <option value="65" data-translate="portamento_pedal">Portamento Pedal</option>
+                            <option value="66" data-translate="sostuneto_pedal">Sostenuto Pedal</option>
+                            <option value="67" data-translate="soft_pedal">Soft Pedal</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -244,13 +246,15 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                     <label class="block tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
 
                         <div class="flex">
-                        <div class="uppercase">Next step value</div>
+                        <div class="uppercase" data-translate="next_step_value">
+                            Next step value
+                        </div>
                         <div class='has-tooltip'>
-                        <span class='inline-bloc tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
-                            This value decides if next step is activated when you press or release the pedal.
-                            <br>For example if you want to change settings after fully pressing Sostenuto pedal you should set it to 126
-                            <br>(127 is the maximum value when pedal is fully pressed).
-                            <br>When you want to change settings when fully releasing pedal set it to -1.
+                        <span class='inline-block w-40 tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
+                            <div data-translate="next_step_tip_line_1">This value decides if next step is activated when you press or release the pedal.</div>
+                            <br><div data-translate="next_step_tip_line_2">For example if you want to change settings after fully pressing Sostenuto pedal you should set it to 126</div>
+                            <br><div data-translate="next_step_tip_line_3">(127 is the maximum value when pedal is fully pressed).</div>
+                            <br><div data-translate="next_step_tip_line_4">When you want to change settings when fully releasing pedal set it to -1.</div>
                         </span>
                             <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none"
                                  viewBox="0 0 24 24"
@@ -275,7 +279,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
             </div>
 
             <div class="text-center flex flex-wrap mb-4">
-                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="sequence_name">
                     Sequence name
                 </label>
                 <svg onclick="this.nextElementSibling.classList.remove('pointer-events-none');
@@ -319,7 +323,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
             <div class="m-4">
                 <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
-                                dark:text-gray-400">
+                                dark:text-gray-400" data-translate="save_current_settings_to_step">
                     Save current settings to step
                 </label>
                 <button onclick="this.classList.add('hidden');
@@ -337,7 +341,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                 temporary_disable_button(this, 1000);"
                         class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
                                         rounded-2xl inline-flex items-center hidden">
-                    <span class="w-full uppercase text-xs">Confirm</span></button>
+                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
             </div>
 
             {% include 'ledcolor.html' %}
