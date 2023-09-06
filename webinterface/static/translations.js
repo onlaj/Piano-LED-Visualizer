@@ -46,6 +46,25 @@ const translations = {
         slow: "Slow",
         very_slow: "Very Slow",
 
+        //ledsettings
+        backlight: "Backlight",
+        sides_colors:  "Sides Colors",
+        off: "Off",
+        same_as_led_color: "Same as LED Color",
+        rgb: "RGB",
+        adjustments: "Adjustments",
+        skipped_notes: "Skipped Notes",
+        finger_based_ignore: "Finger Based: ignore notes with information about which hand to play",
+        normal_ignore_all_other: "Normal:ignore all other notes",
+        none: "None",
+        finger_based: "Finger Based",
+        reverse: "Reverse",
+        inverted: "Inverted",
+        shift: "Shift",
+        led_count: "Led Count",
+        leds_per_meter: "Leds per meter",
+        led_note_offsets: "LED Note Offsets",
+
         //homepage
         advanced_mode: "Advanced mode",
         system_cpu_usage: "System CPU usage",
@@ -127,6 +146,27 @@ const translations = {
         medium: "Średnio",
         slow: "Wolno",
         very_slow: "Bardzo wolno",
+
+
+        //ledsettings
+        backlight: "Podświetlenie",
+        sides_colors:  "Sąsiadujące diody",
+        off: "Wyłącz",
+        same_as_led_color: "Takie same jak kolor LED",
+        rgb: "RGB",
+        adjustments: "Poprawki",
+        skipped_notes: "Pominięte nuty",
+        finger_based_ignore: "Finger Based: ignoruj nuty z informacją którą ręką należy grać",
+        normal_ignore_all_other: "Normal: ignoruj wszystkie inne nuty",
+        none: "Brak",
+        finger_based: "Finger Based",
+        reverse: "Kierunek",
+        inverted: "Odwrócone",
+        shift: "Przesunięcie",
+        led_count: "Liczba diód",
+        leds_per_meter: "Ledów na metr",
+        led_note_offsets: "Przesunięcie nut",
+
 
         //homepage
         advanced_mode: "Tryb zaawansowany",
