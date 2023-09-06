@@ -363,7 +363,7 @@
                                    role="menuitem">Polski</a>
                                 <a id="de" href="#"
                                    class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
-                                   role="menuitem">Deutsch</a>
+                                   role="menuitem">Deutsch (AI translation)</a>
                                 <a id="fr" href="#"
                                    class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
                                    role="menuitem">Français (AI translation)</a>
@@ -584,6 +584,7 @@
             let lang = this.id;
             setCookie("lang", lang, 365);
             translateStaticContent();
+            content.classList.toggle("hidden");
         });
     }
 
