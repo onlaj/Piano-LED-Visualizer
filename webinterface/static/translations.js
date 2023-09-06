@@ -154,7 +154,14 @@ const translations = {
         midi_events: "MIDI events",
         show_midi_events: "Show midi events (might degrade performance)",
 
+        //network
+        connected_wifi: "Connected Wi-Fi",
+        disconnect_wifi_and_create_hotspot: "Disconnect Wi-Fi and create Hotspot",
+        disconnecting_warning_line_1: "Disconnecting from Wi-Fi will start the process of creating a Hotspot. This might take a moment.",
+        disconnecting_warning_line_2: "You'll need to connect to the newly created Hotspot to access the web interface again.",
+        wifi_list: "Wi-Fi List",
 
+        //ledanimations
 
 
         //homepage
@@ -349,6 +356,13 @@ const translations = {
         restart_rtp: "Zrestartuj usługę RTP MIDI",
         midi_events: "Wiadomości MIDI",
         show_midi_events: "Pokaż wiadomości MIDI (może obniżyć wydajność)",
+
+        //network
+        connected_wifi: "Połączone Wi-Fi",
+        disconnect_wifi_and_create_hotspot: "Rozłącz Wi-Fi i utwórz Hotspot",
+        disconnecting_warning_line_1: "Rozłączenie z Wi-Fi rozpocznie proces tworzenia Hotspota. Może to zająć kilka minut",
+        disconnecting_warning_line_2: "By uzyskać dostęp do interfejsu, należy najpierw połaczyć się z Hotspotem",
+        wifi_list: "Lista dostępnych Wi-Fi",
 
 
         //homepage
