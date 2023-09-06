@@ -111,6 +111,13 @@ const translations = {
         sheet_tip_line_4: "1. Convert your music notation to a midi file using Musescore or similar program, name it the same as the midi file you want to load. (E.g. my_music.mid and my_music.xml)",
         sheet_tip_line_5: "2. Upload the midi file and the music notation file.",
 
+        //songslist
+        name: "Name",
+        date: "Date",
+        action: "Action",
+        songs_per_page: "Songs per page",
+        total_songs: "Total songs",
+
 
         //homepage
         advanced_mode: "Advanced mode",
@@ -261,6 +268,13 @@ const translations = {
         sheet_tip_line_3: "W celu osiągnięcia najlepszych efektów wykonaj następujące kroki:",
         sheet_tip_line_4: "1. Przekonwertuj zapis nutowy na plik MIDI używając MuseScore lub podobnego programu. Nazwij oba pliki tak samo",
         sheet_tip_line_5: "2. Wczytaj plik MIDI oraz zapis nutowy",
+
+        //songslist
+        name: "Tytuł",
+        date: "Data",
+        action: "Akcja",
+        songs_per_page: "Nut na stronę",
+        total_songs: "Łącznie nut: ",
 
 
         //homepage
