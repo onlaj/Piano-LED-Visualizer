@@ -3,11 +3,11 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">
             <div class="flex">
-                Input Port
+                <div data-translate="input_port">Input Port</div>
                 <div class='has-tooltip'>
                         <span class='text-xs inline-bloc tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
-                            For lighting LEDs with your keyboard, set your piano port as an active input.
-                            <br>Set your Synthesia's port for learning mode.
+                            <div data-translate="confirm">For lighting LEDs with your keyboard, set your piano port as an active input.</div>
+                            <br><div data-translate="set_your_synthesia">Set your Synthesia's port for learning mode.</div>
                         </span>
                     <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4 mt-2" fill="none" viewBox="0 0 24 24"
                          stroke="currentColor">
@@ -21,7 +21,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
         <div class="flex flex-wrap -mx-3">
             <div class="w-full md:w-2/5 px-3 md:mb-0">
-                <label class="block uppercase tracking-wide text-xs font-bold mb-2 text-gray-600 dark:text-gray-400">
+                <label class="block uppercase tracking-wide text-xs font-bold mb-2 text-gray-600 dark:text-gray-400" data-translate="active">
                     Active
                 </label>
                 <div class="relative">
@@ -53,13 +53,13 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
                     </svg>
-                    <span>Switch</span>
+                    <span data-translate="switch">Switch</span>
                 </button>
             </div>
 
 
             <div class="w-full md:w-2/5 px-3">
-                <label class="block uppercase tracking-wide text-xs font-bold mb-2 text-gray-600 dark:text-gray-400">
+                <label class="block uppercase tracking-wide text-xs font-bold mb-2 text-gray-600 dark:text-gray-400" data-translate="secondary">
                     Secondary
                 </label>
                 <div class="relative">
@@ -80,10 +80,12 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">
-            <div class="flex">
+            <div class="flex" data-translate="playback_port">
                 Playback Port
                 <div class='has-tooltip'>
-                        <span class='text-xs inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
+                        <span class='text-xs inline-block tooltip rounded shadow-lg p-1
+                        bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'
+                        data-translate="used_for_sound">
                             Used for sound when playing a midi file.
                         </span>
                     <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4 mt-2" fill="none" viewBox="0 0 24 24"
@@ -95,7 +97,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
             </div>
         </div>
         <div class="w-full px-3 md:mb-0">
-            <label class="block uppercase tracking-wide text-xs font-bold mb-2 text-gray-600 dark:text-gray-400">
+            <label class="block uppercase tracking-wide text-xs font-bold mb-2 text-gray-600 dark:text-gray-400" data-translate="active">
                 Active
             </label>
             <div class="relative">
@@ -113,7 +115,9 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div class="flex">
-            <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">List of ports and connections</div>
+            <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="list_of_ports">
+                List of ports and connections
+            </div>
             <svg id="refresh-ports" onclick="get_ports()" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-2 w-6 h-6 mb-4 cursor-pointer">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
             </svg>
@@ -124,7 +128,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
         <div class="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
             <div class="p-2">
-                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="connect_ports">
                     Connect ports
                 </label>
                 <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
@@ -140,11 +144,11 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                 <button onclick="change_setting('connect_ports', '0');temporary_disable_button(this, 5000);"
                         class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
                         rounded-2xl inline-flex items-center hidden">
-                    <span class="w-full uppercase text-xs">Click to confirm connect</span></button>
+                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
             </div>
 
             <div class="p-2">
-                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="disconnect_ports">
                     Disconnect ports
                 </label>
                 <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
@@ -161,11 +165,11 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                 <button onclick="change_setting('disconnect_ports', '0');temporary_disable_button(this, 1500);"
                         class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
                         rounded-2xl inline-flex items-center hidden">
-                    <span class="w-full uppercase text-xs">Click to confirm disconnect</span></button>
+                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
             </div>
 
             <div class="p-2">
-                <label class="flex uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                <label class="flex uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="restart_rtp">
                     Restart RTP MIDI service
                 </label>
                 <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
@@ -180,7 +184,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                 <button onclick="change_setting('restart_rtp', '0');temporary_disable_button(this, 1500);"
                         class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
                         rounded-2xl inline-flex items-center hidden">
-                    <span class="w-full uppercase text-xs">Click to confirm RTP restart</span></button>
+                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
             </div>
 
         </div>
@@ -188,12 +192,16 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
 
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
-        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">MIDI events</div>
+        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="midi_events">MIDI events</div>
 
         <div class="flex items-center mb-4">
             <input onclick="change_setting('show_midi_events', this.checked)" id="midi_events_checkbox" type="checkbox" value=""
                    class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-            <label for="default-checkbox" class="pl-2 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Show midi events (might degrade performance)</label>
+            <label for="default-checkbox" class="pl-2 block uppercase
+            tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400"
+            data-translate="show_midi_events">
+                Show midi events (might degrade performance)
+            </label>
         </div>
 
         <textarea readonly id="midi_events_textarea"

@@ -141,6 +141,20 @@ const translations = {
         sequence_name: "Sequence name",
         save_current_settings_to_step: "Save current settings to step",
 
+        //ports
+        for_lighting_leds: "For lighting LEDs with your keyboard, set your piano port as an active input.",
+        set_your_synthesia: "Set your Synthesia's port for learning mode.",
+        active: "Active",
+        switch: "Switch",
+        secondary: "Secondary",
+        used_for_sound: "Used for sound when playing a midi file.",
+        list_of_ports: "List of ports and connections",
+        disconnect_ports: "Disconnect ports",
+        restart_rtp: "Restart RTP MIDI service",
+        midi_events: "MIDI events",
+        show_midi_events: "Show midi events (might degrade performance)",
+
+
 
 
         //homepage
@@ -300,7 +314,7 @@ const translations = {
         songs_per_page: "Nut na stronę",
         total_songs: "Łącznie nut: ",
 
-                //sequences
+        //sequences
         sequence: "Sekwencja",
         active_sequence: "Aktywna sekwencja",
         color: "Kolor",
@@ -322,6 +336,19 @@ const translations = {
         next_step_tip_lime_4: "Jeśli chcesz zmienić ustawienia po puszczeniu prawego pedała ustaw wartość następnego kroku na -1",
         sequence_name: "Nazwa sekwencji",
         save_current_settings_to_step: "Zapisz ustawienia aktualnego kroku",
+
+        //ports
+        for_lighting_leds: "By podświetla klawisze grając ustaw swoje pianino jako aktywny port",
+        set_your_synthesia: "Ustaw port Synthesii ucząc się grać",
+        active: "Aktywny",
+        switch: "Zamień",
+        secondary: "Zastępczy port",
+        used_for_sound: "Używany przy odtwarzaniu MIDI",
+        list_of_ports: "Lista portów i połączeń",
+        disconnect_ports: "Rozłącz porty",
+        restart_rtp: "Zrestartuj usługę RTP MIDI",
+        midi_events: "Wiadomości MIDI",
+        show_midi_events: "Pokaż wiadomości MIDI (może obniżyć wydajność)",
 
 
         //homepage
