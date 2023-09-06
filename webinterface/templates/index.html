@@ -366,7 +366,7 @@
                                    role="menuitem">Deutsch</a>
                                 <a id="fr" href="#"
                                    class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
-                                   role="menuitem">Français</a>
+                                   role="menuitem">Français (AI translation)</a>
                             </div>
                         </div>
                     </div>
@@ -582,10 +582,10 @@
         links[i].addEventListener("click", function (event) {
             event.preventDefault();
             let lang = this.id;
-            //window.location.href = "/language?lang=" + lang;
+            setCookie("lang", lang, 365);
+            translateStaticContent();
         });
     }
-
 
 </script>
 </body>
