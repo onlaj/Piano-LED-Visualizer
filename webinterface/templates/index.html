@@ -29,15 +29,15 @@
             socket.send('Connection Established');
         });
         socket.addEventListener('message', function (event) {
-            if(event.data.includes("midi_event")){
-                textarea =  document.getElementById('midi_events_textarea');
-                if (typeof(textarea) != 'undefined' && textarea != null){
+            if (event.data.includes("midi_event")) {
+                textarea = document.getElementById('midi_events_textarea');
+                if (typeof (textarea) != 'undefined' && textarea != null) {
                     const d = new Date();
-                    var t = "\r\n" + d.getHours() +":"+ d.getMinutes() + ":" + d.getSeconds()+ "." + d.getMilliseconds() + " "
-                    textarea.value+= t + event.data.replace("midi_event", "");
+                    var t = "\r\n" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "." + d.getMilliseconds() + " "
+                    textarea.value += t + event.data.replace("midi_event", "");
                     textarea.scrollTop = textarea.scrollHeight;
                 }
-            }else {
+            } else {
                 window.go_to_time(parseFloat(event.data));
             }
         });
@@ -55,8 +55,9 @@
 
     establish_socket_connection(0);
 
-    window.onbeforeunload = function() {
-        socket.onclose = function () {}; // disable onclose handler first
+    window.onbeforeunload = function () {
+        socket.onclose = function () {
+        }; // disable onclose handler first
         socket.close();
     };
 
@@ -72,6 +73,7 @@
                 x-ref="loading"
                 class="fixed inset-0 z-50 flex items-center justify-center text-white bg-black bg-opacity-50"
                 style="backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)"
+                data-translate="loading..."
         >
             Loading.....
         </div>
@@ -135,7 +137,9 @@
                   1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Home</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="home">
+                                Home
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -158,7 +162,9 @@
                             0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                     </svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">LED Settings</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="led_settings">
+                                LED Settings
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -178,7 +184,9 @@
                             d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
                     </svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Songs</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="songs">
+                                Songs
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -198,7 +206,9 @@
                               d="M8 8h16v16H8zM40 40h16v16H40zM56 28l-8 8-8-8M8 36l8-8 8 8"/>
                         <path fill="none" stroke-miterlimit="10" stroke-width="4" d="M40 48H16V28M24 16h24v20"/></svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Sequences</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="sequences">
+                                Sequences
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -224,7 +234,9 @@
                          1.4 1.4 1.4 0 01-1.4 1.4 1.4 1.4 0 01-1.4-1.4 1.4 1.4 0 011.4-1.4z"/><path
                             fill="rgba(0, 0, 0, 0)" d="M0 0h24v24H0z"/></svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Ports Settings</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="ports_settings">
+                                Ports Settings
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -246,7 +258,9 @@
                       17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
                     </svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">LED Animations</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="led_animations">
+                                LED Animations
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -261,12 +275,15 @@
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
                 <span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="w-6 h-6">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808
-                      13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />
+                      13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z"/>
                     </svg>
                 </span>
-                            <span :class="{ 'lg:hidden': !isSidebarOpen }">Wi-Fi</span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="wifi">
+                                Wi-Fi
+                            </span>
                         </a>
                     </li>
                 </ul>
@@ -294,7 +311,9 @@
                             d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                     </svg>
                 </span>
-                    <span :class="{'lg:hidden': !isSidebarOpen}"> Switch Ports </span>
+                    <span :class="{'lg:hidden': !isSidebarOpen}" data-translate="switch_ports">
+                        Switch Ports
+                    </span>
                 </button>
             </div>
         </aside>
@@ -323,27 +342,56 @@
                             </svg>
                         </button>
                     </div>
-                    <label for="toggleDark" class="flex items-center cursor-pointer">
-                        <!-- toggle -->
-                        <div class="relative">
-                            <!-- input -->
-                            <input type="checkbox" id="toggleDark" class="sr-only" onclick="change_dark_mode();">
-                            <!-- line -->
-                            <div class="block bg-gray-200 dark:bg-gray-700 w-14 h-8 rounded-full"></div>
-                            <!-- dot -->
-                            <div id="dot_icon"
-                                 class="dot absolute left-1 top-1 text-gray-400 dark:text-gray-200  w-6 h-6
-                                 rounded-full transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                     stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0
-                                          008.354-5.646z"/>
-                                </svg>
+                    <div class="flex">
+                        <div class="w-12 h-8 absolute inline-block text-left">
+                        <button id="lang-dropdown" type="button"
+                                class="w-12 h-8  mr-4 absolute inline-block text-left right-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                 stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802"></path>
+                            </svg>
+                        </button>
+                        <div style="top: 25px" id="dropdown-content"
+                             class="z-50 origin-top-right absolute right-0 w-28 rounded-md shadow-lg bg-gray-600 dark:bg-gray-600 ring-1 ring-gray-700 ring-opacity-5 text-gray-600 dark:text-gray-200">
+                            <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="lang-dropdown">
+                                <a id="en" href="#"
+                                   class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
+                                   role="menuitem">English</a>
+                                <a id="pl" href="#"
+                                   class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
+                                   role="menuitem">Polski</a>
+                                <a id="de" href="#"
+                                   class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
+                                   role="menuitem">Deutsch (AI translation)</a>
+                                <a id="fr" href="#"
+                                   class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
+                                   role="menuitem">Français (AI translation)</a>
                             </div>
                         </div>
-                        <!-- label -->
-                    </label>
+                    </div>
+                        <label for="toggleDark" class="flex items-center cursor-pointer">
+                            <!-- toggle -->
+                            <div class="relative">
+                                <!-- input -->
+                                <input type="checkbox" id="toggleDark" class="sr-only" onclick="change_dark_mode();">
+                                <!-- line -->
+                                <div class="block bg-gray-200 dark:bg-gray-700 w-14 h-8 rounded-full"></div>
+                                <!-- dot -->
+                                <div id="dot_icon"
+                                     class="dot absolute left-1 top-1 text-gray-400 dark:text-gray-200  w-6 h-6
+                                     rounded-full transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0
+                                              008.354-5.646z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <!-- label -->
+                        </label>
+                    </div>
                 </div>
                 <!-- Main content -->
                 <main id="main" class="slide-in from-left flex-1 max-h-full p-5 overflow-hidden overflow-y-scrollx
@@ -391,7 +439,7 @@
                             8.013 0 0016 8c0-4.42-3.58-8-8-8z"
                     ></path>
                 </svg>
-                <span class="float-right hidden text-sm md:block">View on Github</span>
+                <span class="float-right hidden text-sm md:block" data-translate="view_on_github">View on Github</span>
             </a>
         </div>
     </footer>
@@ -399,6 +447,7 @@
 
 <script src="../static/alpine.min.js" defer></script>
 <script src="../static/index.js" defer></script>
+<script src="../static/translations.js" defer></script>
 <script src="../static/html-midi-player.js" defer></script>
 <script src="../static/jquery-1.11.1.min.js" defer></script>
 <script src="../static/abc2svg-1.js" defer></script>
@@ -516,6 +565,28 @@
         }
     });
 
+    const dropdown = document.getElementById("lang-dropdown");
+    const content = document.getElementById("dropdown-content");
+
+    // Hide the dropdown content by default
+    content.classList.add("hidden");
+
+    // Show the dropdown content when the button is clicked
+    dropdown.addEventListener("click", function () {
+        content.classList.toggle("hidden");
+    });
+
+    // Add event listener to each language link
+    const links = content.getElementsByTagName("a");
+    for (let i = 0; i < links.length; i++) {
+        links[i].addEventListener("click", function (event) {
+            event.preventDefault();
+            let lang = this.id;
+            setCookie("lang", lang, 365);
+            translateStaticContent();
+            content.classList.toggle("hidden");
+        });
+    }
 
 </script>
 </body>

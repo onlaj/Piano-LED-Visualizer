@@ -1,3 +1,4 @@
+const userLanguage = 'en';
 let scrolldelay;
 
 let search_song;
@@ -116,6 +117,8 @@ function loadAjax(subpage) {
                     get_wifi_list();
                 }
             }
+
+            translateStaticContent();
         };
         xhttp.ontimeout = function () {
             document.getElementById("main").innerHTML = "REQUEST TIMEOUT";
@@ -245,7 +248,7 @@ function change_setting(setting_name, value, second_value = false, disable_seque
             if (response["reload_learning_settings"] == true) {
                 get_learning_status();
             }
-          
+
             // called when adding step
             if (response["set_sequence_step_number"]) {
                 document.getElementById("sequence_edit_block").classList.add("animate-pulse", "pointer-events-none")
@@ -2049,4 +2052,37 @@ function checkSavedMode() {
             toggleMode();
         }
     }
+}
+
+function translate(key, lang) {
+    if (translations[lang] && translations[lang][key]) {
+        return translations[lang][key];
+    }
+    // Return the original text if no translation found
+    return key;
+}
+
+function translateStaticContent(lang) {
+    let language = getCookie('lang');
+    if (!language) {
+        const browserLanguage = navigator.language.slice(0,2);
+        console.log(browserLanguage);
+        // Map supported languages to their respective codes
+        const languageMap = {
+            'pl': 'pl',
+            'en': 'en',
+            'de': 'de',
+            'fr': 'fr',
+        };
+        // If the browser language is supported, set it; otherwise, set to 'en'
+        language = languageMap[browserLanguage] || "en";
+
+    }
+    const elements = document.querySelectorAll('[data-translate]');
+    elements.forEach((element) => {
+        const key = element.getAttribute('data-translate');
+        if (translations[language] && translations[language][key]) {
+            element.textContent = translations[language][key];
+        }
+    });
 }

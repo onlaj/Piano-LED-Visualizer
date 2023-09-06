@@ -1,6 +1,8 @@
 <div class="transition duration-300 slide-in-content grid grid-cols-1 gap-6 w-full lg:w-1/2 xl:w-4/5 2xl:w-3/5 m-auto">
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg mb--2">
-        <div class="mb-2">Connected Wi-Fi</div>
+        <div class="mb-2" data-translate="connected_wifi">
+            Connected Wi-Fi
+        </div>
         <div id="connected-wifi-section" class="flex">
             <div id="connected-wifi" class="text-xl font-bold">
 
@@ -11,7 +13,9 @@
                 document.getElementById('connected-wifi-section').classList.remove('flex');"
                         class="w-full outline-none font-bold ml-2 rounded-2xl inline-flex items-center">
                     <div class="has-tooltip h-6 w-full justify-items-center">
-                            <span class="text-sm inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8">
+                            <span class="text-sm inline-block tooltip rounded shadow-lg p-1
+                            bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8"
+                            data-translate="disconnect_wifi_and_create_hotspot">
                                 Disconnect Wi-Fi and create Hotspot
                             </span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center stroke-red-600" fill="none"
@@ -23,15 +27,15 @@
                 </button>
                 <div class="hidden">
                     <div class="text-sm text-center text-red-400">
-                        Disconnecting from Wi-Fi
-                        will start the process of creating a Hotspot. This might take a moment.
+                        <div data-translate="disconnecting_warning_line_1"> Disconnecting from Wi-Fi
+                            will start the process of creating a Hotspot. This might take a moment.</div>
                         <br>
-                        You'll need to connect to the newly created
-                        Hotspot to access the web interface again.
+                        <div data-translate="disconnecting_warning_line_2">You'll need to connect to the newly created
+                        Hotspot to access the web interface again.</div>
                     </div>
                     <button onclick="change_setting('disconnect_wifi', '0');temporary_disable_button(this, 25000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
-                        <span class="w-full uppercase text-xs text-red-400">Click to confirm</span></button>
+                        <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">Confirm</span></button>
                 </div>
             </div>
         </div>
@@ -40,7 +44,9 @@
         </div>
     </div>
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
-        <div class="text-lg font-semibold mb-2">Wi-Fi List</div>
+        <div class="text-lg font-semibold mb-2" data-translate="wifi_list">
+            Wi-Fi List
+        </div>
         <svg id="refresh-wifi-button" onclick="get_wifi_list()" xmlns="http://www.w3.org/2000/svg" fill="none"
              viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
              class="w-6 h-6 mb-4 cursor-pointer">

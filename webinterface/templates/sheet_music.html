@@ -36,18 +36,20 @@
                 <svg class="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                     <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z"/>
                 </svg>
-                <span>Load custom sheet</span>
+                <span data-translate="load_custom_sheet">
+                    Load custom sheet
+                </span>
                 <input type="file" id="fknp" accept=".abc,.xml,.js,.musicxml" tabindex="1" class="hidden"/>
             </label>
         </button>
 
         <div class="has-tooltip inline-flex h-12 items-center">
                         <span class="inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400">
-                            If the automatic conversion does not suit your expectations, you can load your own musical notation.
-                            <br>The highlighted part of the music notation is only an approximate indicator. Use the offset tool to improve synchronization.
-                            <br>For the best result do the following:
-                            <br>1. Convert your music notation to a midi file using Musescore or similar program, name it the same as the midi file you want to load. (E.g. my_music.mid and my_music.xml)
-                            <br>2. Upload the midi file and the music notation file.
+                            <div data-translate="sheet_tip_line_1">If the automatic conversion does not suit your expectations, you can load your own musical notation.</div>
+                            <br><div data-translate="sheet_tip_line_2">The highlighted part of the music notation is only an approximate indicator. Use the offset tool to improve synchronization.</div>
+                            <br><div data-translate="sheet_tip_line_3">For the best result do the following:</div>
+                            <br><div data-translate="sheet_tip_line_4">1. Convert your music notation to a midi file using Musescore or similar program, name it the same as the midi file you want to load. (E.g. my_music.mid and my_music.xml)</div>
+                            <br><div data-translate="sheet_tip_line_5">2. Upload the midi file and the music notation file.</div>
                         </span>
             <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-6 w-6" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor">
@@ -57,7 +59,7 @@
         </div>
 
         <div class="block h-12 w-40 text-right float-right">
-            <label class="block text-center uppercase tracking-wide text-xs font-bold text-gray-600 dark:text-gray-400">
+            <label class="block text-center uppercase tracking-wide text-xs font-bold text-gray-600 dark:text-gray-400" data-translate="offset_ms">
                 Offset (ms)
             </label>
             <div class="justify-center flex">

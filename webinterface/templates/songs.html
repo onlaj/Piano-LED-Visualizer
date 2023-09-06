@@ -1,13 +1,13 @@
 <div class="transition duration-300 slide-in-content grid grid-cols-1 gap-6 w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto">
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
         <div class="flex -mb-4">
-            <div class="inline pr-2 text-gray-600 dark:text-gray-400">
+            <div class="inline pr-2 text-gray-600 dark:text-gray-400" data-translate="input_port">
                 Input port:
             </div>
             <div class="inline" id="input_port">
             </div>
 
-            <div class="flex-1 pr-2 text-gray-600 dark:text-gray-400 text-right">
+            <div class="flex-1 pr-2 text-gray-600 dark:text-gray-400 text-right" data-translate="status">
                 Status:
             </div>
             <div class="flex text-right w-20 uppercase" id="recording_status">
@@ -18,14 +18,14 @@
         <div class="flex">
             <div class="content-center flex-1 text-center">
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="start_recording">
                         Start recording
                     </label>
                     <button id="start_recording_button" onclick="change_setting('start_recording', '0');
                     this.classList.add('animate-pulse', 'pointer-events-none');
                     document.getElementById('save_recording_button').classList.remove('pointer-events-none', 'opacity-50');
                     document.getElementById('cancel_recording_button').classList.remove('pointer-events-none', 'opacity-50');
-                    document.getElementById('recording_status').innerHTML = '<p class=\'text-red-400\'>starting</p>'"
+                    document.getElementById('recording_status').innerHTML = '<p class=\'text-red-400\' data-translate=\'starting\'>starting</p>'"
                             class="w-full h-10 outline-none mb-2
                             bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
                         <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"
@@ -38,7 +38,7 @@
 
             <div class="content-center flex-1 text-center">
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="stop_and_save">
                         Stop and Save
                     </label>
                     <button id="save_recording_button"
@@ -58,12 +58,12 @@
                     document.getElementById('recording_status').innerHTML = '<p>saving</p>'"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
                             py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-green-400">Click to confirm</span></button>
+                        <span class="w-full uppercase text-xs text-green-400" data-translate="confirm">Confirm</span></button>
                 </div>
             </div>
             <div class="content-center flex-1 text-center">
                 <div class="p-5">
-                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="cancel_recording">
                         Cancel recording
                     </label>
                     <button id="cancel_recording_button"
@@ -80,10 +80,10 @@
                     temporary_disable_button(this, 3000);
                     document.getElementById('save_recording_button').classList.add('pointer-events-none', 'opacity-50');
                     document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');
-                    document.getElementById('recording_status').innerHTML = '<p>canceling</p>'"
+                    document.getElementById('recording_status').innerHTML = '<p data-translate=\'canceling\'>canceling</p>'"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
                             py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-red-400">Click to confirm</span>
+                        <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
                     </button>
                 </div>
             </div>
@@ -92,14 +92,16 @@
 
     <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
 
-        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Upload songs</div>
+        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="upload_songs">
+            Upload songs
+        </div>
         <div id="drop-area"
              class="content-center flex-1 border-dashed border-4 border-green-400 border-opacity-50 p-5 mb-4">
             <form class="my-form grid justify-items-center">
                 <input class="hidden" name="song" type="file" id="fileElem" multiple accept=".mid,.musicxml,.xml,.mxl,.abc"
                        onchange="handleFiles(this.files)">
-                <label class="text-xl font-bold">Drag and drop midi file here</label>
-                <label class="block h-10 inline m-auto fill-current underline button cursor-pointer" for="fileElem">
+                <label class="text-xl font-bold" data-translate="drag_and_drop_midi">Drag and drop midi file here</label>
+                <label class="block h-10 inline m-auto fill-current underline button cursor-pointer" for="fileElem" data-translate="or_click_to_choose">
                     or click to choose files to upload
                 </label>
             </form>
@@ -135,7 +137,7 @@
                 </a>
             </div>
             <div class="flex m-auto">
-                <div class="inline pr-2 text-gray-600 dark:text-gray-400">
+                <div class="inline pr-2 text-gray-600 dark:text-gray-400" data-translate="play_port">
                     Play port:
                 </div>
                 <div class="inline" id="play_port"></div>
@@ -154,7 +156,9 @@
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                             </svg>
-                            <div class="align-middle">Play on piano</div>
+                            <div class="align-middle" data-translate="play_on_piano">
+                                Play on piano
+                            </div>
                         </span>
                     </button>
 
@@ -170,7 +174,9 @@
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
                             </svg>
-                            <div class="align-middle">Stop</div>
+                            <div class="align-middle" data-translate="stop">
+                                Stop
+                            </div>
                         </span>
                     </button>
                 </div>
@@ -224,7 +230,9 @@
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
                             </svg>
-                            <div class="align-middle">Stop learning</div>
+                            <div class="align-middle" data-translate="stop_learning">
+                                Stop learning
+                            </div>
                         </span>
                     </button>
                 </div>
@@ -233,7 +241,7 @@
                         <input id="is_loop_active" onchange="change_setting('change_learning_loop', this.checked)"
                                class="w-4 h-4 mr-2 border border-gray-300 rounded"
                                type="checkbox"/>
-                        Loop
+                        <div data-translate="loop">Loop</div>
                     </label>
                 </div>
             </div>
@@ -241,16 +249,16 @@
 
             <div class="flex flex-wrap w-full md:w-1/2 m-auto">
                 <div class="w-full md:w-1/2 px-3 md:mb-0 m-auto">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="practice">
                         Practice
                     </label>
                     <div class="relative">
                         <select onchange="change_setting('change_practice', this.value)" id="practice"
                                 class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
                 py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                            <option value="0">Melody</option>
-                            <option value="1">Rhythm</option>
-                            <option value="2">Listen</option>
+                            <option value="0" data-translate="melody">Melody</option>
+                            <option value="1" data-translate="rhytm">Rhythm</option>
+                            <option value="2" data-translate="listen">Listen</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -261,7 +269,7 @@
                 </div>
                 <div class="w-full md:w-1/2 px-3 m-auto">
                     <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        Tempo (<b id="tempo">100</b>%)
+                        <div data-translate="tempo">Tempo</div> (<b id="tempo">100</b>%)
                     </label>
                     <div class="justify-center flex">
                         <svg onclick="input = document.getElementById('tempo_slider');
@@ -296,15 +304,15 @@
 
             <div class="flex flex-wrap w-full md:w-1/2 m-auto">
                 <div class="w-full md:w-1/2 px-3 md:mb-0 m-auto">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="hands">
                         Hands
                     </label>
                     <div class="relative">
                         <select onchange="change_setting('change_hands', this.value)" id="hands" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
                 py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                            <option value="0">Both</option>
-                            <option value="1">Right</option>
-                            <option value="2">Left</option>
+                            <option value="0" data-translate="both">Both</option>
+                            <option value="1" data-translate="right">Right</option>
+                            <option value="2" data-translate="left">Left</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -314,15 +322,15 @@
                     </div>
                 </div>
                 <div class="w-full md:w-1/2 px-3 md:mb-0 m-auto">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="mute_hands">
                         Mute hands
                     </label>
                     <div class="relative">
                         <select onchange="change_setting('change_mute_hand', this.value)" id="mute_hand" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
                 py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                            <option value="0">Off</option>
-                            <option value="1">Right</option>
-                            <option value="2">Left</option>
+                            <option value="0" data-translate="off">Off</option>
+                            <option value="1" data-translate="right">Right</option>
+                            <option value="2" data-translate="left">Left</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -335,14 +343,14 @@
 
             <div class="flex flex-wrap w-full md:w-1/2 m-auto">
                 <div class="w-full md:w-1/2 px-3 md:mb-0 m-auto">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="wrong_notes">
                         Wrong notes
                     </label>
                     <div class="relative">
                         <select onchange="change_setting('change_wrong_notes', this.value)" id="wrong_notes" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
                 py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                            <option value="0">Disabled</option>
-                            <option value="1">Enabled</option>
+                            <option value="0" data-translate="disabled">Disabled</option>
+                            <option value="1" data-translate="enabled">Enabled</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -352,14 +360,14 @@
                     </div>
                 </div>
                 <div class="w-full md:w-1/2 px-3 md:mb-0 m-auto">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="future_notes">
                         Future notes
                     </label>
                     <div class="relative">
                         <select onchange="change_setting('change_future_notes', this.value)" id="future_notes" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
                 py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                            <option value="0">Disabled</option>
-                            <option value="1">Enabled</option>
+                            <option value="0" data-translate="disabled">Disabled</option>
+                            <option value="1" data-translate="enabled">Enabled</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -396,10 +404,11 @@
                 </div>
                 <div class="flex">
                     <label class="w-1/2 block text-xs text-gray-600 dark:text-gray-400">
-                        Start point (<b id="start_point">0</b>%)</b>
+                        <div data-translate="start_point">Start point</div> (<b id="start_point">0</b>%)</b>
 
                         <div class='has-tooltip float-left'>
-                        <span class='inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
+                        <span class='inline-block tooltip rounded shadow-lg p-1 bg-gray-100
+                        dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8' data-translate="set_the_current_track_time">
                             Set the current track time as the loop start
                         </span>
                             <svg onclick="change_setting('set_current_time_as_start_point', '')"
@@ -413,9 +422,10 @@
 
                     </label>
                     <label class="w-1/2 float-right text-xs text-right block text-gray-600 dark:text-gray-400">
-                        End point (<b id="end_point">0</b>%)</b>
+                        <div data-translate="end_point">End point</div> (<b id="end_point">0</b>%)</b>
                         <div class='has-tooltip float-right'>
-                        <span class='inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
+                        <span class='inline-block tooltip rounded shadow-lg p-1 bg-gray-100
+                        dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8' data-translate="set_the_current_track_time_as_the_loop_end">
                             Set the current track time as the loop end
                         </span>
                             <svg onclick="change_setting('set_current_time_as_end_point', '')"
@@ -433,7 +443,7 @@
 
             <div class="flex flex-wrap w-full md:w-1/2 m-auto">
                 <div class="w-full md:w-1/2 px-3 m-auto">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="left_hand_color">
                         Left hand color
                     </label>
                     <div class="justify-center flex">
@@ -454,7 +464,7 @@
                 </div>
 
                 <div class="w-full md:w-1/2 px-3 m-auto">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="right_hand_color">
                         Right hand color
                     </label>
                     <div class="justify-center flex">
@@ -482,7 +492,9 @@
 
 
         <div class="flex">
-            <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Songs list</div>
+            <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="songs_list">
+                Songs list
+            </div>
             <div class="relative">
               <span class="absolute left-0 flex items-center pl-2">
                   <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -493,8 +505,7 @@
                 <input onkeyup="clearTimeout(search_song);search_song =
                 setTimeout(function(){ document.getElementById('songs_page').value = 1;get_songs(); }, 1200);"
                        id="song_search"
-                       class="h-10 py-2 text-sm mb-2 rounded-2xl bg-gray-100 dark:bg-gray-600 pl-10 focus:outline-none focus:bg-white"
-                       placeholder="Search...">
+                       class="h-10 py-2 text-sm mb-2 rounded-2xl bg-gray-100 dark:bg-gray-600 pl-10 focus:outline-none focus:bg-white">
                 <span onclick="this.previousElementSibling.value = '';
                     get_songs();" id="clear_input"
                       class="h-10 absolute right-0 top-0 flex items-center cursor-pointer">
@@ -507,7 +518,7 @@
         </div>
         <div id="sort_by" value=""></div>
         <div class="overflow-auto lg:overflow-visible " id="songs_list_table">
-            <div class="text-center">
+            <div class="text-center" data-translate="getting_songs_list">
                 Getting songs list
             </div>
         </div>
