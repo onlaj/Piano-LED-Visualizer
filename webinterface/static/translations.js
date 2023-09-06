@@ -36,6 +36,15 @@ const translations = {
         color_for_not_in_scale: "Color for not in scale",
         scale_key: "Scale key",
 
+        //lightmode
+        fading: "Fading",
+        velocity: "Velocity",
+        instant: "Instant",
+        very_fast: "Very Fast",
+        fast: "Fast",
+        medium: "Medium",
+        slow: "Slow",
+        very_slow: "Very Slow",
 
         //homepage
         advanced_mode: "Advanced mode",
@@ -106,8 +115,18 @@ const translations = {
         rainbow_colors: "Tęcza",
         speed: "Prędkość",
         gradient: "Gradient",
-        scale_coloring: "Skala kolorðu",
+        scale_coloring: "Skala kolorów",
         velocity_rainbow: "Tęcza-Prędkość",
+
+        //lightmode
+        fading: "Zanikanie",
+        velocity: "Szybkość nacisku",
+        instant: "Natychmiast",
+        very_fast: "Bardzo szybko",
+        fast: "Szybko",
+        medium: "Średnio",
+        slow: "Wolno",
+        very_slow: "Bardzo wolno",
 
         //homepage
         advanced_mode: "Tryb zaawansowany",
