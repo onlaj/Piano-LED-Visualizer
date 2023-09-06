@@ -102,6 +102,14 @@ const translations = {
         songs_list: "Songs List",
         getting_songs_list: "Getting songs list",
 
+        //sheetmusic
+        load_custom_sheet: "Load custom sheet",
+        offset_ms: "Offset (ms)",
+        sheet_tip_line_1: "If the automatic conversion does not suit your expectations, you can load your own musical notation.",
+        sheet_tip_line_2: "The highlighted part of the music notation is only an approximate indicator. Use the offset tool to improve synchronization.",
+        sheet_tip_line_3: "For the best result do the following:",
+        sheet_tip_line_4: "1. Convert your music notation to a midi file using Musescore or similar program, name it the same as the midi file you want to load. (E.g. my_music.mid and my_music.xml)",
+        sheet_tip_line_5: "2. Upload the midi file and the music notation file.",
 
 
         //homepage
@@ -244,6 +252,15 @@ const translations = {
         right_hand_color: "Kolor prawej ręki",
         songs_list: "Lista Nut",
         getting_songs_list: "Ładowanie listy nut",
+
+        //sheetmusic
+        load_custom_sheet: "Wczytaj własny zapis nutowy",
+        offset_ms: "Przesunięcie (ms)",
+        sheet_tip_line_1: "Jeśli automatyczna konwersja nie spełnia oczekiwań możesz wczytać własny zapis nutowy",
+        sheet_tip_line_2: "Podświetlona część zapisu nutowego jest tylko szacunkową wskazówką. Użyj narzędzia do zmiany przesunięcia by poprawić synchronizację",
+        sheet_tip_line_3: "W celu osiągnięcia najlepszych efektów wykonaj następujące kroki:",
+        sheet_tip_line_4: "1. Przekonwertuj zapis nutowy na plik MIDI używając MuseScore lub podobnego programu. Nazwij oba pliki tak samo",
+        sheet_tip_line_5: "2. Wczytaj plik MIDI oraz zapis nutowy",
 
 
         //homepage
