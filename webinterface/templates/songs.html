@@ -1,12 +1,13 @@
 <div class="transition duration-300 slide-in-content grid grid-cols-1 gap-6 w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto">
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
-        <div class="flex -mb-4">
-            <div class="inline pr-2 text-gray-600 dark:text-gray-400" data-translate="input_port">
-                Input port:
+    <div class="flex-1 bg-gray-200 dark:bg-gray-700">
+        <div class="flex">
+            <div class="flex w-1/2">
+                <div class="inline pr-2 text-gray-600 dark:text-gray-400" data-translate="input_port">
+                    Input port:
+                </div>
+                <div class="inline overflow-auto" id="input_port">
+                </div>
             </div>
-            <div class="inline" id="input_port">
-            </div>
-
             <div class="flex-1 pr-2 text-gray-600 dark:text-gray-400 text-right" data-translate="status">
                 Status:
             </div>
@@ -15,7 +16,7 @@
 
         </div>
 
-        <div class="flex">
+        <div class="flex flex-col sm:flex-row">
             <div class="content-center flex-1 text-center">
                 <div class="p-5">
                     <label class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="start_recording">
@@ -26,8 +27,8 @@
                     document.getElementById('save_recording_button').classList.remove('pointer-events-none', 'opacity-50');
                     document.getElementById('cancel_recording_button').classList.remove('pointer-events-none', 'opacity-50');
                     document.getElementById('recording_status').innerHTML = '<p class=\'text-red-400\' data-translate=\'starting\'>starting</p>'"
-                            class="w-full h-10 outline-none mb-2
-                            bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
+                            class="w-auto px-10 h-10 outline-none mb-2
+                            bg-gray-100 dark:bg-gray-600 font-bold py-2 rounded-2xl inline-flex items-center">
                         <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"
                              class="h-6 w-6 inline m-auto fill-current text-red-500">
                             <path d="M20 0a20 20 0 100 40 20 20 0 000-40zm0 28a8 8 0 110-16 8 8 0 010 16z"/>
@@ -43,8 +44,8 @@
                     </label>
                     <button id="save_recording_button"
                             onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
-                            py-2 px-2 rounded-2xl inline-flex items-center">
+                            class="w-auto px-10 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                            py-2 rounded-2xl inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline m-auto" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -56,8 +57,8 @@
                     document.getElementById('save_recording_button').classList.add('pointer-events-none', 'opacity-50');
                     document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');
                     document.getElementById('recording_status').innerHTML = '<p>saving</p>'"
-                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
-                            py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                            class="w-auto px-10 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                            py-2 rounded-2xl inline-flex items-center hidden">
                         <span class="w-full uppercase text-xs text-green-400" data-translate="confirm">Confirm</span></button>
                 </div>
             </div>
@@ -68,8 +69,8 @@
                     </label>
                     <button id="cancel_recording_button"
                             onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
-                                py-2 px-2 rounded-2xl inline-flex items-center">
+                            class="w-auto px-10 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                py-2 rounded-2xl inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline m-auto" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

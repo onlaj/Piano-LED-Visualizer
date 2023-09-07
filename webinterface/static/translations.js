@@ -116,7 +116,7 @@ const translations = {
         date: "Date",
         action: "Action",
         songs_per_page: "Songs per page",
-        total_songs: "Total songs",
+        total_songs: "Total songs: ",
 
         //sequences
         sequence: "Sequence",
@@ -514,7 +514,7 @@ const translations = {
         date: "Date",
         action: "Action",
         songs_per_page: "Chansons par page",
-        total_songs: "Total des chansons",
+        total_songs: "Total des chansons: ",
 
         //sequences
         sequence: "Séquence",
@@ -713,7 +713,7 @@ const translations = {
         date: "Datum",
         action: "Action",
         songs_per_page: "Songs pro Seite",
-        total_songs: "Total Songs",
+        total_songs: "Total Songs: ",
 
         //sequences
         sequence: "Sequenz",
