@@ -520,6 +520,58 @@ def rainbowCycle(ledstrip, ledsettings, menu, speed="Medium"):
     fastColorWipe(strip, True, ledsettings)
 
 
+def startup_animation(ledstrip, ledsettings, duration_ms=2000, max_leds=30):
+    strip = ledstrip.strip
+    total_pixels = strip.numPixels()
+
+    num_red_leds = max_leds // 3
+    num_blue_leds = max_leds // 3
+    num_green_leds = max_leds - num_red_leds - num_blue_leds
+
+    start_red_led = (total_pixels - max_leds) // 2
+    start_blue_led = start_red_led + num_red_leds
+    start_green_led = start_blue_led + num_blue_leds
+
+    brightness = 0.0
+
+    num_steps = 200
+
+    step_delay = duration_ms / num_steps / 1000.0
+
+    brightness_increment = 1.0 / num_steps
+
+    for step in range(num_steps):
+        if brightness < 0:
+            break
+        red = int(255 * brightness)
+        blue = int(255 * brightness)
+        green = int(255 * brightness)
+
+        for i in range(start_red_led, start_blue_led):
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+                strip.setPixelColor(i, Color(red, 0, 0))
+        for i in range(start_blue_led, start_green_led):
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+                strip.setPixelColor(i, Color(0, 0, blue))
+        for i in range(start_green_led, start_green_led + num_green_leds):
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+                strip.setPixelColor(i, Color(0, green, 0))
+
+        strip.show()
+        brightness += brightness_increment
+
+        if brightness > 0.5:
+            brightness_increment *= -1
+
+        time.sleep(int(step_delay))
+
+    for i in range(total_pixels):
+        strip.setPixelColor(i, 0)
+
+    strip.show()
+
+
+
 def theaterChaseRainbow(ledstrip, ledsettings, menu, speed="Medium"):
     speed_map = {
         "Slow": 10,

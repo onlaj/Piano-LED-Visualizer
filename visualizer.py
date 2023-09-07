@@ -111,6 +111,10 @@ ledsettings.add_instance(menu, ledstrip)
 saving.add_instance(menu)
 learning.add_instance(menu)
 
+
+menu.t = threading.Thread(target=startup_animation, args=(ledstrip, ledsettings))
+menu.t.start()
+
 menu.show()
 z = 0
 display_cycle = 0
