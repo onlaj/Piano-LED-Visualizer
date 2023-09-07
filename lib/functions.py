@@ -549,13 +549,13 @@ def startup_animation(ledstrip, ledsettings, duration_ms=2000, max_leds=30):
 
         for i in range(start_red_led, start_blue_led):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                strip.setPixelColor(i, Color(red, 0, 0))
+                strip.setPixelColor(i, Color(0, red, 0))
         for i in range(start_blue_led, start_green_led):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                 strip.setPixelColor(i, Color(0, 0, blue))
         for i in range(start_green_led, start_green_led + num_green_leds):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                strip.setPixelColor(i, Color(0, green, 0))
+                strip.setPixelColor(i, Color(green, 0, 0))
 
         strip.show()
         brightness += brightness_increment

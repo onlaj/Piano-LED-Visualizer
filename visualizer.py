@@ -101,6 +101,10 @@ usersettings = UserSettings()
 midiports = MidiPorts(usersettings)
 ledsettings = LedSettings(usersettings)
 ledstrip = LedStrip(usersettings, ledsettings)
+
+t = threading.Thread(target=startup_animation, args=(ledstrip, ledsettings))
+t.start()
+
 learning = LearnMIDI(usersettings, ledsettings, midiports, ledstrip)
 hotspot = Hotspot()
 saving = SaveMIDI()
@@ -111,9 +115,6 @@ ledsettings.add_instance(menu, ledstrip)
 saving.add_instance(menu)
 learning.add_instance(menu)
 
-
-menu.t = threading.Thread(target=startup_animation, args=(ledstrip, ledsettings))
-menu.t.start()
 
 menu.show()
 z = 0
