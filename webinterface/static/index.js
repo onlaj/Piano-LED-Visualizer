@@ -1,4 +1,3 @@
-const userLanguage = 'en';
 let scrolldelay;
 
 let search_song;

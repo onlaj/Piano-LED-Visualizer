@@ -1048,6 +1048,13 @@ class MenuLCD:
             else:
                 self.go_back()
 
+        if location == "Restart_Visualizer":
+            if choice == "Confirm":
+                self.render_message("Restarting...", "", 500)
+                call("sudo systemctl restart visualizer", shell=True)
+            else:
+                self.go_back()
+
         if location == "Update_visualizer":
             if choice == "Confirm":
                 self.render_message("Updating...", "reboot is required", 5000)
