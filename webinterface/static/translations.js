@@ -196,6 +196,12 @@ const translations = {
         show_last: "Show last",
         lines: "lines",
 
+        //dynamic content
+        incorrect_password: "If an incorrect password is entered, it might take a few minutes for the hotspot to be reestablished.",
+        if_the_hotspot: "If the Hotspot doesn't appear after 5 minutes, please restart the device",
+        connect: "Connect",
+
+
     },
     pl: {
         //index
@@ -395,6 +401,11 @@ const translations = {
         logs: "Logi",
         show_last: "Pokaż ostatnie",
         lines: "linii",
+
+        //dynamic content
+        incorrect_password: "Jeśli wprowadzone zostało niepoprawne hasło, może minąć kilka minut zanim hotspot zostanie ponownie utworzony." ,
+        if_the_hotspot: "Jeśli Hotspot nie pojawi się po 5 minutach, proszę zrestartować urządzenie",
+        connect: "Połącz",
     },
 
     fr: {
@@ -594,6 +605,12 @@ const translations = {
         logs: "Logs",
         show_last: "Voir dernier",
         lines: "lignes",
+
+
+        //dynamic content
+        incorrect_password: "Si un mot de passe incorrect est entré, il peut falloir quelques minutes pour que le hotspot soit rétabli.",
+        if_the_hotspot: "Si le hotspot n'apparaît pas après 5 minutes, veuillez redémarrer l'appareil",
+        connect: "Connecter",
     },
 
     de: {
@@ -792,5 +809,11 @@ const translations = {
         logs: "Logs",
         show_last: "Letzte anzeigen",
         lines: "Linien",
+
+
+        //dynamic content
+        incorrect_password: "Wenn ein falsches Passwort eingegeben wird, kann es einige Minuten dauern, bis der Hotspot wieder hergestellt ist.",
+        if_the_hotspot: "Wenn der Hotspot nach 5 Minuten nicht erscheint, starten Sie bitte das Gerät neu",
+        connect: "Verbinden",
     },
 };

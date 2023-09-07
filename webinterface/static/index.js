@@ -355,8 +355,8 @@ function update_wifi_list(response) {
                 <button onclick="this.classList.add('hidden');                            
                             document.getElementById('wifi_${wifi["ESSID"]}').classList.remove('hidden');
                             document.getElementById('wifi_password_${wifi["ESSID"]}').focus()"
-                    class="w-20 outline-none bg-blue-500 dark:bg-blue-500 py-2 font-bold rounded-2xl">
-                    Connect
+                    class="w-20 outline-none bg-blue-500 dark:bg-blue-500 py-2 font-bold rounded-2xl" data-translate="connect">
+                    ${translate("connect")}
                 </button>            
             
             </div>
@@ -369,14 +369,15 @@ function update_wifi_list(response) {
                         </svg>
                     </button>
                 </div>
-                <div class="text-xs text-red-400">If an incorrect password is entered, it might take a few minutes for the hotspot to be reestablished.
+                <div class="text-xs text-red-400">
+                <div data-translate="incorrect_password">${translate("incorrect_password")}</div>
                 <br>
-                If the Hotspot doesn't appear after 5 minutes, please restart the device.
+                <div data-translate="if_the_hotspot">${translate("if_the_hotspot")}</div>
                 </div>
                 <button onclick="change_setting('connect_to_wifi', '${wifi["ESSID"]}', document.getElementById('wifi_password_${wifi["ESSID"]}').value);
                     temporary_disable_button(this, 5000);"
                     class="m-auto flex mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">
-                <span class="w-20">Connect</span></button>
+                <span class="w-20" data-translate="connect">${translate("connect")}</span></button>
             </div>
             `;
 
@@ -2055,7 +2056,9 @@ function checkSavedMode() {
     }
 }
 
-function translate(key, lang) {
+function translate(key) {
+    let lang = getLanguage();
+    console.log(lang);
     if (translations[lang] && translations[lang][key]) {
         return translations[lang][key];
     }
@@ -2064,6 +2067,17 @@ function translate(key, lang) {
 }
 
 function translateStaticContent(lang) {
+    let language = getLanguage();
+    const elements = document.querySelectorAll('[data-translate]');
+    elements.forEach((element) => {
+        const key = element.getAttribute('data-translate');
+        if (translations[language] && translations[language][key]) {
+            element.textContent = translations[language][key];
+        }
+    });
+}
+
+function getLanguage() {
     let language = getCookie('lang');
     if (!language) {
         const browserLanguage = navigator.language.slice(0,2);
@@ -2077,13 +2091,6 @@ function translateStaticContent(lang) {
         };
         // If the browser language is supported, set it; otherwise, set to 'en'
         language = languageMap[browserLanguage] || "en";
-
     }
-    const elements = document.querySelectorAll('[data-translate]');
-    elements.forEach((element) => {
-        const key = element.getAttribute('data-translate');
-        if (translations[language] && translations[language][key]) {
-            element.textContent = translations[language][key];
-        }
-    });
+    return language;
 }
