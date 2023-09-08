@@ -11,6 +11,7 @@ const translations = {
         wifi: "Wi-Fi",
         switch_ports: "Switch Ports",
         view_on_github: "View on GitHub",
+        join_discord: "Join Discord server",
 
         //ledcolor
         led_color: "LED Color",
@@ -215,6 +216,7 @@ const translations = {
         wifi: "Wi-Fi",
         switch_ports: "Zamień Porty",
         view_on_github: "Sprawdź GitHub",
+        join_discord: "Dołącz do serwera Discord",
 
         offset: "Przesunięcie",
         scale: "Skala",
@@ -420,6 +422,7 @@ const translations = {
         wifi: "Wi-Fi",
         switch_ports: "Ports de commutation",
         view_on_github: "Voir sur GitHub",
+        join_discord: "Rejoindre le serveur Discord",
 
         //ledcolor
         led_color: "Couleur LED",
@@ -625,6 +628,7 @@ const translations = {
         wifi: "Wi-Fi",
         switch_ports: "Ports wechseln",
         view_on_github: "Auf GitHub ansehen",
+        join_discord: "Discord-Server beitreten",
 
         //ledcolor
         led_color: "LED Farbe",
