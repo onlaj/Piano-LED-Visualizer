@@ -2057,7 +2057,6 @@ function checkSavedMode() {
 
 function translate(key) {
     let lang = getLanguage();
-    console.log(lang);
     if (translations[lang] && translations[lang][key]) {
         return translations[lang][key];
     }
@@ -2080,7 +2079,6 @@ function getLanguage() {
     let language = getCookie('lang');
     if (!language) {
         const browserLanguage = navigator.language.slice(0,2);
-        console.log(browserLanguage);
         // Map supported languages to their respective codes
         const languageMap = {
             'pl': 'pl',
