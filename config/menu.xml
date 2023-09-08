@@ -199,7 +199,10 @@
         <Ports_Settings text="Refresh ports"></Ports_Settings>
         <Ports_Settings text="Connect ports"></Ports_Settings>
         <Ports_Settings text="Disconnect ports"></Ports_Settings>
-        <Ports_Settings text="Reset Bluetooth service"></Ports_Settings>
+        <Ports_Settings text="Restart RTPMidi service">
+            <Reset_Bluetooth_service text="Confirm"></Reset_Bluetooth_service>
+            <Reset_Bluetooth_service text="Cancel"></Reset_Bluetooth_service>
+        </Ports_Settings>
     </menu>
     <menu text="LED animations">
         <LED_animations text="Theater Chase"></LED_animations>

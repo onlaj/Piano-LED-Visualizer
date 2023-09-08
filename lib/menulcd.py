@@ -904,10 +904,6 @@ class MenuLCD:
             if choice == "Refresh ports" or choice == "Input" or choice == "Playback":
                 self.update_ports()
 
-            if choice == "Reset Bluetooth service":
-                self.render_message("Reseting BL service", "", 1000)
-                os.system("sudo systemctl restart btmidi.service")
-
             if choice == "Connect ports":
                 self.render_message("Connecting ports", "", 2000)
                 self.midiports.connectall()
@@ -1052,6 +1048,13 @@ class MenuLCD:
             if choice == "Confirm":
                 self.render_message("Restarting...", "", 500)
                 call("sudo systemctl restart visualizer", shell=True)
+            else:
+                self.go_back()
+
+        if location == "Reset_Bluetooth_service":
+            if choice == "Confirm":
+                self.render_message("Restarting RTPMidi...", "", 2000)
+                call("sudo systemctl restart rtpmidid", shell=True)
             else:
                 self.go_back()
 
