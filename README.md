@@ -1,5 +1,5 @@
 # <a href="url"><img src="https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/Docs/logo.svg" align="left" height="40" width="40" ></a> Piano LED Visualizer
-### <a style="color:inherit;margin-left:10px;" href="https://discord.gg/kQyABw8GCD"><img src="https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/Docs/discord-logo.svg" align="left" height="18" width="18">Join Discord</a>
+### <a style="color:inherit;margin-left:10px;" href="https://discord.gg/kQyABw8GCD"><img src="https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/Docs/discord-logo.svg" align="left" height="25" width="25">Join Discord</a>
 
 ## [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/onlaj)
 
