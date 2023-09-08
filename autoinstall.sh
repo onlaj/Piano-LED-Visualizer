@@ -212,6 +212,7 @@ EOF
   echo "If the Raspberry Pi does not restart on its own, please wait for 2 minutes and then manually reboot."
   echo "After the reboot, please wait for up to 10 minutes. The Visualizer should start, and the Hotspot 'PianoLEDVisualizer' will become available."
 
+  execute_command "sudo shutdown -r +1"
   execute_command "sudo /home/Piano-LED-Visualizer/enable_ap.sh"
   sleep 60
   # Reboot Raspberry Pi
