@@ -126,8 +126,8 @@ disable_audio_output() {
 # Function to install RTP-midi server
 install_rtpmidi_server() {
   execute_command "cd /home/"
-  execute_command "sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v20.07/rtpmidid_20.07_armhf.deb" "check_internet"
-  execute_command "sudo dpkg -i rtpmidid_20.07_armhf.deb"
+  execute_command "sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v21.11/rtpmidid_21.11_armhf.deb" "check_internet"
+  execute_command "sudo dpkg -i rtpmidid_21.11_armhf.deb"
 }
 
 # Function to create Hot-Spot

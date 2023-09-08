@@ -124,10 +124,10 @@ We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://githu
 ` cd /home/`   
 - Download deb package:
 
-`sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v20.07/rtpmidid_20.07_armhf.deb`
+`sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v21.11/rtpmidid_21.11_armhf.deb`
 - Install package
 
-`sudo dpkg -i rtpmidid_20.07_armhf.deb`
+`sudo dpkg -i rtpmidid_21.11_armhf.deb`
 
 ### 7. **Creating Hot-Spot** ###
 
