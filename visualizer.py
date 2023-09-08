@@ -1,6 +1,6 @@
 import webcolors as wc
 import sys
-import os
+
 import fcntl
 
 from lib.learnmidi import LearnMIDI
@@ -11,8 +11,6 @@ from lib.midiports import MidiPorts
 from lib.savemidi import SaveMIDI
 from lib.usersettings import UserSettings
 from lib.hotspot import *
-from lib.functions import *
-from lib.neopixel import *
 from lib.color_mode import *
 
 import argparse
@@ -66,6 +64,31 @@ if not args.skipupdate:
         print("connectall.py script is outdated, updating...")
         copyfile('lib/connectall.py', '/usr/local/bin/connectall.py')
         os.chmod('/usr/local/bin/connectall.py', 493)
+
+
+# A custom class to capture the printed messages
+class Logger:
+    def __init__(self):
+        self.terminal = sys.stdout
+        self.logfile = open("visualizer.log", "a")  # Open a file to store the log messages
+
+    def write(self, message):
+        message = message.strip()
+        if not message:
+            return
+
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        formatted_message = f"[{timestamp}] {message}\n"
+
+        self.terminal.write(message + "\n")  # Write the message to the terminal with a new line
+        self.logfile.write(formatted_message)    # Write the message to the log file
+        self.logfile.flush()
+
+    def close(self):
+        self.logfile.close()
+
+sys.stdout = Logger()
+
 
 if args.rotatescreen != "true":
     KEYRIGHT = 26

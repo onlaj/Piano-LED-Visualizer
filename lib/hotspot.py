@@ -56,6 +56,7 @@ def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
         if not wifi_success:
             # Update the time without Wi-Fi
             hotspot.time_without_wifi += time_without_wifi
+            print("Time without Wi-Fi: ", hotspot.time_without_wifi)
 
             # If hotspot.time_without_wifi is greater than 240 seconds, start hotspot
             if hotspot.time_without_wifi > 240:
