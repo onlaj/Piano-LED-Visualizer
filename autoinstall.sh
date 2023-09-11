@@ -195,6 +195,7 @@ WantedBy=multi-user.target
 
 [Service]
 ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py
+Restart=always
 Type=simple
 User=plv
 Group=plv
