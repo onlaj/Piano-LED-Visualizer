@@ -24,7 +24,7 @@
                 </svg>
             </div>
         </div>
-        <div>
+        <div class="absolute right-0">
             <label for="modeSwitch" onchange="toggleMode()">
                 <input style="margin-top: 0px;margin-right:4px" type="checkbox" id="modeSwitch">
                 <div class="contents" data-translate="advanced_mode">Advanced mode</div>
@@ -194,73 +194,6 @@
             </div>
         </a>
 
-
-        <a class="transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
-        bg-gray-200 dark:bg-gray-700" href="#/">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="color_mode">
-                        Color Mode
-                    </div>
-                    <div class="flex items-center pt-1">
-                        <div id="color_mode" class="text-2xl font-bold" data-translate="single">
-                            Single
-                        </div>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="light_mode">
-                        Light Mode
-                    </div>
-                    <div class="flex items-center pt-1">
-                        <div id="light_mode" class="text-2xl font-bold" data-translate="normal">
-                            Normal
-                        </div>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="brightness">
-                        Brightness
-                    </div>
-                    <div class="flex items-center pt-1">
-                        <div id="brightness_percent" class="text-2xl font-bold ">100%</div>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="backlight_brightness">
-                        Backlight Brightness
-                    </div>
-                    <div class="flex items-center pt-1">
-                        <div id="backlight_brightness_percent" class="text-2xl font-bold ">0%</div>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="input_port">
-                        Input Port
-                    </div>
-                    <div class="flex items-center pt-1 overflow-auto">
-                        <div id="input_port" class="text-2xl font-bold "></div>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="playback_port">
-                        Playback Port
-                    </div>
-                    <div class="flex items-center pt-1 overflow-auto">
-                        <div id="playback_port" class="text-2xl font-bold "></div>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="cover_state">
-                        Cover State
-                    </div>
-                    <div class="flex items-center pt-1">
-                        <div id="cover_state" class="text-2xl font-bold"></div>
-                    </div>
-                </div>
-            </div>
-        </a>
-
         <a class="cursor-default transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
         bg-gray-200 dark:bg-gray-700" href="#/">
             <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-7">
@@ -416,6 +349,72 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"></path>
                         </svg>
                     </button>
+                </div>
+            </div>
+        </a>
+
+        <a class="transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-12 xl:col-span-12 intro-y
+        bg-gray-200 dark:bg-gray-700" href="#/">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="color_mode">
+                        Color Mode
+                    </div>
+                    <div class="flex items-center pt-1">
+                        <div id="color_mode" class="text-2xl font-bold" data-translate="single">
+                            Single
+                        </div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="light_mode">
+                        Light Mode
+                    </div>
+                    <div class="flex items-center pt-1">
+                        <div id="light_mode" class="text-2xl font-bold" data-translate="normal">
+                            Normal
+                        </div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="brightness">
+                        Brightness
+                    </div>
+                    <div class="flex items-center pt-1">
+                        <div id="brightness_percent" class="text-2xl font-bold ">100%</div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="backlight_brightness">
+                        Backlight Brightness
+                    </div>
+                    <div class="flex items-center pt-1">
+                        <div id="backlight_brightness_percent" class="text-2xl font-bold ">0%</div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="input_port">
+                        Input Port
+                    </div>
+                    <div class="flex items-center pt-1 overflow-auto">
+                        <div id="input_port" class="text-2xl font-bold "></div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="playback_port">
+                        Playback Port
+                    </div>
+                    <div class="flex items-center pt-1 overflow-auto">
+                        <div id="playback_port" class="text-2xl font-bold "></div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="cover_state">
+                        Cover State
+                    </div>
+                    <div class="flex items-center pt-1">
+                        <div id="cover_state" class="text-2xl font-bold"></div>
+                    </div>
                 </div>
             </div>
         </a>
