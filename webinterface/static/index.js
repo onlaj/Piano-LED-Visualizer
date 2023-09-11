@@ -911,18 +911,6 @@ function initialize_homepage() {
             homepage_interval = setInterval(get_homepage_data_loop, this.value * 1000)
         }
     }
-
-    if (is_playing) {
-        document.getElementById("metronome_start").classList.add("hidden");
-        document.getElementById("metronome_stop").classList.remove("hidden");
-    } else {
-        document.getElementById("metronome_start").classList.remove("hidden");
-        document.getElementById("metronome_stop").classList.add("hidden");
-    }
-    document.getElementById("beats_per_minute").innerHTML = beats_per_minute;
-    document.getElementById("bpm_slider").value = beats_per_minute;
-
-    document.getElementById("beats_per_measure").value = beats_per_measure;
     get_logs();
 }
 
@@ -1124,6 +1112,18 @@ function initialize_songs() {
         const note_width = document.getElementById('player_and_songs').offsetWidth / 54;
         document.getElementById('myVisualizer').config.whiteNoteWidth = note_width;
     }, true);
+
+    if (is_playing) {
+        document.getElementById("metronome_start").classList.add("hidden");
+        document.getElementById("metronome_stop").classList.remove("hidden");
+    } else {
+        document.getElementById("metronome_start").classList.remove("hidden");
+        document.getElementById("metronome_stop").classList.add("hidden");
+    }
+    document.getElementById("beats_per_minute").innerHTML = beats_per_minute;
+    document.getElementById("bpm_slider").value = beats_per_minute;
+
+    document.getElementById("beats_per_measure").value = beats_per_measure;
 }
 
 
