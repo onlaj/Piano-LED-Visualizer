@@ -5,22 +5,30 @@
 
 [![Everything Is AWESOME](https://i.imgur.com/xpfZ0Z6.png)](https://www.youtube.com/watch?v=IZgYViHcXdM "Piano LED Visualizer")
 
-
 The Piano LED Visualizer is a project that enables you to connect an LED strip to your Raspberry Pi and enhance your piano playing with captivating visual effects. This repository provides detailed instructions on how to set up the LED strip, connect it to a digital piano, and synchronize the lighting with your playing. Additionally, it offers integration with external software such as Synthesia for an enhanced learning experience.
 # Features
 
-- Acts as a sound visualizer, enhancing the appeal of piano playing.
-- Provides visual guidance for learning piano by lighting up the corresponding LED above the next key to play.
-- Receives MIDI messages from the piano or external software like Synthesia for synchronized lighting effects.
-- Offers customizable LED settings such as colors and brightness.
-- Allows recording and playback of songs.
-- Supports loading MIDI files to illuminate the next-to-play keys.
-- Enables the creation of "sequences" for switching between different LED settings during performances.
-- Provides a web interface for easy configuration and control of LED settings.
-- Optional hat extension available, featuring dedicated keys and a screen for enhanced control.
-- Includes pre-designed light animations for ambient visual effects.
+- Visual Effects: Acts as a sound visualizer, making your piano playing look cool with lights that react to your music.
 
-[Detailed feature showcase with images](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/features.md)
+- Learning: Lights above the keys show you which ones to play, helping you learn piano.
+
+- MIDI Integration: Supports external software like Synthesia for lighting next-to-play keys.
+
+- Customizable Lights: You can change the colors and brightness of the lights to fit your style.
+
+- Record and Play: Record your piano songs, download them or play directly from Visualizer.
+
+- MIDI Files: Load MIDI files to see which keys to play, making it easy to learn new songs.
+
+- Light Sequences: Create sequences to switch between different light settings during your performance.
+
+- Web Control: Use a simple web interface to set up and control the lights.
+
+- Optional Hat Extension: There's an extra hat with buttons and a screen for easier control, making it a standalone device.
+
+- Cool Animations: Enjoy light animations to add atmosphere to your music.
+
+## [Detailed feature showcase with images](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/features.md)
 
 # What you need:
 
@@ -63,6 +71,8 @@ There are two ways, you can use preconfigured system image or install everything
 
 If you don't need to connect your RPi to Wi-Fi you can eject SD card from your PC and put it in Raspberry Pi. After 3-8 minutes *(depending on how fast your SD card is)* you should see Visualizer menu on RPi screen.  
 
+For version 1.5 and above:
+
 The Raspberry Pi sets up a Wi-Fi hotspot named 'PianoLEDVisualizer' with the password 'visualizer'. 
 Once connected, open your browser and go to "pianoledvisualizer.local" to access the web interface. 
 Use the "Network" tab there to link the Raspberry Pi to your regular network.
@@ -96,68 +106,6 @@ Although in my tests I did not notice any deterioration in performance, if neces
     sudo python3 /home/Piano-LED-Visualizer/visualizer.py --webinterface false
 
 
-
-## Learning to play with Synthesia
-
-### We need to make a connection between your PC/MAC/Android. There are at least 3 ways of doing that: ###
-
-**1. Sevilla's Soft MIDI USB-USB device**
-This is, in my opinion, the best way to make connection between RPi and PC. It works with any device that support MIDI over USB, offers the lowest latency and no lost packets. The only downside is that it cost €39.00 (~48 USD) + shipping. You connect your Piano and PC to USB HUB connected to RPi and that's it, everything just works.
-[Link to store](http://compasflamenco.com/midi-c-3/midi-usbusb-p-4.html)
-
-**2. RTP MIDI** (MIDI by ethernet)
-For this method you need to use some software on your Synthesia's device and both devices must be connected to the same local network.
-
-- Windows: [rtpMIDI](https://www.tobias-erichsen.de/software/rtpmidi.html) by [Tobias Erichsen](https://www.tobias-erichsen.de/ "Tobias Erichsen") | [tutorial](http://www.tobias-erichsen.de/software/rtpmidi/rtpmidi-tutorial.html)
-
-- MAC: [Tutorial](https://www.wiksnet.com/Home/Help)
-- Android [Midi Connector Free](https://abrahamwisman.com/midiconnector) or [touchdaw](https://xmmc.de/touchdaw/)
-
-Default port is 5004.
-
-**3. Bluetooth**
-This method is not recommended due to problems with establishing the first connection, especially on devices other than those with Windows 10.
-If you still want to try, follow [this link](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/btconnection.md) for instructions.
-
-
-### Configuring Synthesia
-
-You have to enable light support in Synthesia by setting "Key Light" option to "Finger-based channel".
-In Visualizer settings you have to change "input" to either *RPI Bluetooth* (for bluetooth connection), *rtpmidi raspberrypi* (for RTP connections) or *MIDI USB-USB* (for cable connection).
-After that when learning new song next-to-play keys will be illuminated in corresponding colors, blue for left hand and green for right hand.
-
-If you are getting mixed colors, meaning that leds are lighting up with your predefined and next-to-play colors at the same time, you can use "Skipped notes" option in Visualizer to disable one of them.
-
-
-## Learning to play MIDI files
-
-The Visualizer supports learning to play MIDI files without the need of Synthesia or additional external devices.
-
-![learnmidi_pic](./Docs/pics/learnmidi_pic.png)
-
-For practicing, the following 3 modes can be used:
-- **Melody**: The song will wait for you to hit the correct notes. Take your time and try to avoid mistakes. Holding notes to their full duration is also important, otherwise you might develop muscle memory with the mistakes included.
-- **Rhythm**: Adjust the speed using `Set tempo` option until you can play without mistakes. Play as fast as you can comfortably. Work your way up to `100%` speed. Practice the `Melody` first to make this step easier.
-- **Listen**: In this mode the song will play in listen only mode at the `Set tempo` speed.
-
-Different combinations of practicing modes be realized using the `Hands` and `Mute Hand` options. To practice only a section of the song, adjust the `Start point` and the `End point` values.
-
-Recommended way of practicing is by following the song music sheet (see below how to print the music sheet from a midi file), while the Visualizer indicates the notes to press on the piano.
-
-### Handling MIDI files
-
-- **Generating music sheet**: To generate a printable music sheet from a MIDI file use the [Midi Sheet Music](http://midisheetmusic.com/) app. The app already contains a library of MIDI files that can be played.
-- **Editing MIDI files**: To visualize and edit MIDI files use the [MidiEditor](https://www.midieditor.org/). Only type 1 of midi files have been tested. Other types of midi files might need to be adjusted in order to work with the Visualizer.
-- **Uploading MIDI files**: Two ways are proposed here to upload MIDI files to Raspberry Pi Zero 
-  - From PC: [WinSCP](https://winscp.net/eng/index.php)
-  - From Smartphone: [RaspController](https://play.google.com/store/apps/details?id=it.Ettore.raspcontroller&hl=en&gl=US)
-
-In case of upload errors, use [Putty](https://www.putty.org/) to change the access permissions for the `Songs` folder:
-```
-cd /home/Piano-LED-Visualizer/
-sudo chmod a+rwxX -R Songs/
-```
-
 ## FAQ ##
 **Q - Can I use Raspberry Pi 1/2/3/4 instead of Zero?**
 
@@ -165,11 +113,12 @@ sudo chmod a+rwxX -R Songs/
 
 **Q - What about Raspberry Pi Zero without Wi-Fi and bluetooth?**
 
-- If you are going only for the visuals and do not plan to use it with Synthesia you can save some bucks and buy cheaper, non-WH version of Zero.
+- If you are going only for the visuals and do not plan to use it with Synthesia you can save some bucks and buy cheaper, non-WH version of Zero. 
+Notice, that you won't be able to use web interface
 
 **Q - Can I use other screens or no screen at all?**
 
-- Currently, the only other supported screen is Waveshare LCD TFT 1,3". As for no screen, you can instead use webinterface.
+- Currently, the only other supported screen is Waveshare LCD TFT 1,3". As for no screen, you can instead use web interface.
 
 **Q - Does the color of LED strip PCB matter?**
 
@@ -191,13 +140,15 @@ sudo chmod a+rwxX -R Songs/
 
 - If you connected your RPi to Wi-Fi you can use SFTP or web interface to transfer files. 
 
-For web interface: Open internet browser on device connected to the same network and type RPi's local address (for example: 192.168.1.10). Then from the menu on the left choose "songs management" tab.
+For web interface: Open internet browser on device connected to the same network and type RPi's local address `pianoledvisualizer.local` Then from the menu on the left choose "songs management" tab.
 
 For SFTP: in any FTP program (like Filezilla) connect to your RPi local address (for example: sftp://192.168.1.10) and navigate to /home/Piano-LED-Visualizer/Songs.
 
 **Q - How do I update visualizer?**
 
-- **A** - From the Visualiser menu `Other Settings > Update visualizer > Confirm`. After the update, a reboot is required. Warning: The update will revert all customizations to the default values!
+- **A** - From the Visualiser menu `Other Settings > Update visualizer > Confirm`. 
+ 
+After the update, a reboot is required.
 
 - **B** - Connect to your console using SSH and type:
 

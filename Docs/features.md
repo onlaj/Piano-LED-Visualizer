@@ -6,8 +6,10 @@
     3. [Other settings](#other_settings)
 2. [Songs](#songs)
     1. [Recording](#recording)
-    1. [Playing](#playing)
-    1. [Managing songs](#managing_songs)
+    2. [Playing](#playing)
+    3. [Learning](#learning)
+    4. [Learning with Synthesia](#learning_with_synthesia)
+    5. [Managing songs](#managing_songs)
 3. [Sequences](#sequences)
 4. [Led animations](#led_animations)
 
@@ -107,7 +109,7 @@ When playing in the browser, it also displays simple falling note visualisation.
 
 ![learnmidi_pic](https://i.imgur.com/izbDAYb.png)
 
-## Learning <a name="playing"></a>
+## Learning <a name="learning"></a>
 
 Visualizer comes with a built-in learning tool.
 You can load any midi file, and it will light up the next-to-play key.
@@ -125,11 +127,14 @@ For practicing, the following 3 modes can be used:
 Different combinations of practicing modes be realized using the Hands and Mute Hand options. To practice only a section
 of the song, adjust the Start point and the End point values.
 
-The sheet music is thoughtfully synchronized with your playing, providing real-time feedback by highlighting the
-currently played part.
 
-Additionally, you have the freedom to change the tempo of the song, allowing you to practice at a pace that suits your
+The sheet music is thoughtfully synchronized with your playing, providing real-time feedback by highlighting the
+currently played part. Additionally, you have the freedom to change the tempo of the song, allowing you to practice at a pace that suits your
 learning curve.
+
+- **Generating music sheet**: To generate a printable music sheet from a MIDI file use the [Midi Sheet Music](http://midisheetmusic.com/) app. The app already contains a library of MIDI files that can be played.
+- **Editing MIDI files**: To visualize and edit MIDI files use the [MidiEditor](https://www.midieditor.org/). Only type 1 of midi files have been tested. Other types of midi files might need to be adjusted in order to work with the Visualizer.
+
 
 To enhance the learning experience, there are two optional features:
 
@@ -139,6 +144,41 @@ To enhance the learning experience, there are two optional features:
 - Secondly, an option to light up future notes with a subtle faded glow, giving you a glimpse into the upcoming notes.
 
 ![learnmidi_pic](https://i.imgur.com/2BDSkS8.jpg)
+
+![learnmidi_pic](./pics/learnmidi_pic.png)
+
+
+## Learning with Synthesia <a name="learning_with_synthesia"></a>
+
+### We need to make a connection between your PC/MAC/Android. There are at least 3 ways of doing that: ###
+
+**1. Sevilla's Soft MIDI USB-USB device**
+This is, in my opinion, the best way to make connection between RPi and PC. It works with any device that support MIDI over USB, offers the lowest latency and no lost packets. The only downside is that it cost €39.00 (~48 USD) + shipping. You connect your Piano and PC to USB HUB connected to RPi and that's it, everything just works.
+[Link to store](http://compasflamenco.com/midi-c-3/midi-usbusb-p-4.html)
+
+**2. RTP MIDI** (MIDI by ethernet)
+For this method you need to use some software on your Synthesia's device and both devices must be connected to the same local network.
+
+- Windows: [rtpMIDI](https://www.tobias-erichsen.de/software/rtpmidi.html) by [Tobias Erichsen](https://www.tobias-erichsen.de/ "Tobias Erichsen") | [tutorial](http://www.tobias-erichsen.de/software/rtpmidi/rtpmidi-tutorial.html)
+
+- MAC: [Tutorial](https://www.wiksnet.com/Home/Help)
+- Android [Midi Connector Free](https://abrahamwisman.com/midiconnector) or [touchdaw](https://xmmc.de/touchdaw/)
+
+Default port is 5004.
+
+**3. Bluetooth**
+This method is not recommended due to problems with establishing the first connection, especially on devices other than those with Windows 10.
+If you still want to try, follow [this link](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/btconnection.md) for instructions.
+
+
+### Configuring Synthesia
+
+You have to enable light support in Synthesia by setting "Key Light" option to "Finger-based channel".
+In Visualizer settings you have to change "input" to either *RPI Bluetooth* (for bluetooth connection), *rtpmidi raspberrypi* (for RTP connections) or *MIDI USB-USB* (for cable connection).
+After that when learning new song next-to-play keys will be illuminated in corresponding colors, blue for left hand and green for right hand.
+
+If you are getting mixed colors, meaning that leds are lighting up with your predefined and next-to-play colors at the same time, you can use "Skipped notes" option in Visualizer to disable one of them.
+
 
 ## Managing songs <a name="managing_songs"></a>
 
@@ -151,6 +191,13 @@ You can search, sort, edit names, play, start learning, download, and delete son
 You can upload songs through the Web interface
 
 ![learnmidi_pic](https://i.imgur.com/3QxBxgB.png)
+
+In case of upload errors, use [Putty](https://www.putty.org/) or other app to connect to your RPi throught SSH to change the access permissions for the `Songs` folder:
+```
+cd /home/Piano-LED-Visualizer/
+sudo chmod a+rwxX -R Songs/
+```
+
 
 # Sequences <a name="sequences"></a>
 
