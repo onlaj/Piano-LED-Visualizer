@@ -7,13 +7,14 @@ import webcolors as wc
 from PIL import ImageFont, Image, ImageDraw
 
 from lib import LCD_Config, LCD_1in44, LCD_1in3
+from lib.hotspot import (disconnect_from_wifi)
 
 from lib.functions import *
 import RPi.GPIO as GPIO
 
 
 class MenuLCD:
-    def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports):
+    def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot):
         self.list_count = None
         self.parent_menu = None
         self.current_choice = None
@@ -25,6 +26,7 @@ class MenuLCD:
         self.learning = learning
         self.saving = saving
         self.midiports = midiports
+        self.hotspot = hotspot
         self.args = args
         font_dir = "/usr/share/fonts/truetype/freefont"
         if args.fontdir is not None:
@@ -1051,7 +1053,17 @@ class MenuLCD:
             else:
                 self.go_back()
 
-        if location == "Reset_Bluetooth_service":
+        if location == "Start_Hotspot":
+            if choice == "Confirm":
+                self.usersettings.change_setting_value("is_hotspot_active", 1)
+                self.render_message("Starting Hotspot...", "It might take a few minutes...", 2000)
+                print("Starting Hotspot...")
+                time.sleep(2)
+                disconnect_from_wifi(self.hotspot, self.usersettings)
+            else:
+                self.go_back()
+
+        if location == "Restart_RTPMidi_service":
             if choice == "Confirm":
                 self.render_message("Restarting RTPMidi...", "", 2000)
                 call("sudo systemctl restart rtpmidid", shell=True)

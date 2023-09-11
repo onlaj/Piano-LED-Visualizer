@@ -200,8 +200,8 @@
         <Ports_Settings text="Connect ports"></Ports_Settings>
         <Ports_Settings text="Disconnect ports"></Ports_Settings>
         <Ports_Settings text="Restart RTPMidi service">
-            <Reset_Bluetooth_service text="Confirm"></Reset_Bluetooth_service>
-            <Reset_Bluetooth_service text="Cancel"></Reset_Bluetooth_service>
+            <Restart_RTPMidi_service text="Confirm"></Restart_RTPMidi_service>
+            <Restart_RTPMidi_service text="Cancel"></Restart_RTPMidi_service>
         </Ports_Settings>
     </menu>
     <menu text="LED animations">
@@ -309,6 +309,10 @@
                 <Led_animation text="Sound of da police"></Led_animation>
                 <Led_animation text="Scanner"></Led_animation>
             </Screensaver>
+        </Other_Settings>
+        <Other_Settings text="Start Hotspot">
+            <Start_Hotspot text="Confirm"></Start_Hotspot>
+            <Start_Hotspot text="Cancel"></Start_Hotspot>
         </Other_Settings>
         <Other_Settings text="Reset to default settings">
             <Reset_to_default_settings text="Confirm"></Reset_to_default_settings>

@@ -132,7 +132,7 @@ t.start()
 learning = LearnMIDI(usersettings, ledsettings, midiports, ledstrip)
 hotspot = Hotspot()
 saving = SaveMIDI()
-menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
+menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot)
 
 midiports.add_instance(menu)
 ledsettings.add_instance(menu, ledstrip)
