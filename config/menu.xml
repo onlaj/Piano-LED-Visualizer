@@ -310,10 +310,6 @@
                 <Led_animation text="Scanner"></Led_animation>
             </Screensaver>
         </Other_Settings>
-        <Other_Settings text="Restart Visualizer">
-            <Restart_Visualizer text="Confirm"></Restart_Visualizer>
-            <Restart_Visualizer text="Cancel"></Restart_Visualizer>
-        </Other_Settings>
         <Other_Settings text="Reset to default settings">
             <Reset_to_default_settings text="Confirm"></Reset_to_default_settings>
             <Reset_to_default_settings text="Cancel"></Reset_to_default_settings>
@@ -324,6 +320,10 @@
         </Other_Settings>
     </menu>
     <menu text="Shutdown Options">
+        <Shutdown_Options text="Restart Visualizer">
+            <Restart_Visualizer text="Confirm"></Restart_Visualizer>
+            <Restart_Visualizer text="Cancel"></Restart_Visualizer>
+        </Shutdown_Options>
         <Shutdown_Options text="Shutdown">
             <Shutdown text="Confirm"></Shutdown>
             <Shutdown text="Cancel"></Shutdown>

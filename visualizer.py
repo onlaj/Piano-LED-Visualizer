@@ -87,6 +87,7 @@ class Logger:
     def close(self):
         self.logfile.close()
 
+
 sys.stdout = Logger()
 
 
@@ -179,9 +180,7 @@ if args.webinterface != "false":
     processThread.start()
 
 
-
 manage_hotspot(hotspot, usersettings, midiports, True)
-
 
 
 # Frame rate counters
@@ -231,9 +230,7 @@ while True:
             menu.show()
             ledsettings.add_instance(menu, ledstrip)
 
-
     manage_hotspot(hotspot, usersettings, midiports)
-
 
     # Process GPIO keys
 
@@ -488,7 +485,6 @@ while True:
 
     # Update ledstrip
     ledstrip.strip.show()
-
 
     # Frame time calculations
 
