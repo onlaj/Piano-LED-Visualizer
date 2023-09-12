@@ -1751,7 +1751,7 @@ function show_note_offsets(note_offsets) {
     for (const element of note_offsets) {
         offset_element.innerHTML += '<div class="mb-2 bg-gray-100 dark:bg-gray-600" id="noteoffset_' + i + '">' +
             '<label class="ml-2 inline block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">\n' +
-            '                    Note Offset ' + parseInt(i + 1) + '\n' +
+            '                    ' + translate("note_offset") + ' ' + parseInt(i + 1) + '\n' +
             '                </label><div onclick=\'this.classList.add("hidden");' +
             'this.nextElementSibling.classList.remove("hidden")\' class="inline float-right text-red-400">' +
             '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">\n' +
@@ -1765,10 +1765,10 @@ function show_note_offsets(note_offsets) {
             '                <div id="note_offset_' + i + '" class="justify-center flex" ' +
             'onchange=\'change_setting("update_note_offset", "' + i + '", document.getElementById("note_offset_' + i + '_num").value' +
             '                          + "," + document.getElementById("note_offset_' + i + '_off").value);\'>\n' +
-            '                    <span class="w-1/20 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-red-400">Light Number:</span>\n' +
+            '                    <span class="w-1/20 px-2 bg-gray-100 dark:bg-gray-600 text-red-400">' + translate("light_number") + ':</span>\n' +
             '                    <input id="note_offset_' + i + '_num" type="number" value="' + element[0] + '" min="0" max="255"\n' +
             '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
-            '                    <span class="w-1/20 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-green-400">Offset:</span>\n' +
+            '                    <span class="w-1/20 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-green-400">' + translate("offset") + ':</span>\n' +
             '                    <input id="note_offset_' + i + '_off" type="number" value="' + element[1] + '" min="-255" max="255"\n' +
             '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
             '                </div>' +

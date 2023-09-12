@@ -65,6 +65,11 @@ const translations = {
         led_count: "Led Count",
         leds_per_meter: "Leds per meter",
         led_note_offsets: "LED Note Offsets",
+        shift_notes_for_better_alignment: "Shift notes for better alignment",
+        light_number_means: "Light number: 92 and Offset: 2 means that notes after the LED 92 will be shifted by 2 lefts to the left",
+        light_number: "Light Number",
+        offset: "Offset",
+        note_offset: "Note offset",
 
         //songs
         status: "Status",
@@ -270,7 +275,12 @@ const translations = {
         shift: "Przesunięcie",
         led_count: "Liczba diód",
         leds_per_meter: "Ledów na metr",
-        led_note_offsets: "Przesunięcie nut",
+        led_note_offsets: "Przesunięcie nut względem diód",
+        shift_notes_for_better_alignment: "Przesuń by wyrównać diody względem klawiszy",
+        light_number_means: "Numer diody: 92 i Wyrównanie: 2 oznaczają, że diody od 92 wzwyż będą przesunięte o dwie pozycje w lewo",
+        light_number: "Numer diody",
+        offset: "Wyrównanie",
+        note_offset: "Przesunięcie",
 
         //songs
         status: "Status",
@@ -476,6 +486,11 @@ const translations = {
         led_count: "Nombre de LED",
         leds_per_meter: "Leds par mètre",
         led_note_offsets: "Décalages de note LED",
+        shift_notes_for_better_alignment: "Décaler les notes pour un meilleur alignement",
+        light_number_means: "Numéro de lumière : 92 et Décalage : 2 signifient que les notes après la LED 92 seront déplacées de 2 positions vers la gauche",
+        light_number: "Numéro de lumière",
+        offset: "Décalage",
+        note_offset: "Décalage des notes",
 
         //songs
         status: "Statut",
@@ -682,6 +697,11 @@ const translations = {
         led_count: "LED Anzahl",
         leds_per_meter: "LEDs pro Meter",
         led_note_offsets: "LED-Notenversatz",
+        shift_notes_for_better_alignment: "Noten verschieben für bessere Ausrichtung",
+        light_number_means: "Lichtnummer: 92 und Versatz: 2 bedeutet, dass Noten nach LED 92 um 2 Positionen nach links verschoben werden",
+        light_number: "Lichtnummer",
+        offset: "Versatz",
+        note_offset: "Notenversatz",
 
         //songs
         status: "Status",
