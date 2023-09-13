@@ -157,8 +157,8 @@
         </div>
 
         <div class="bg-gray-200 dark:bg-gray-700 rounded-lg p-2">
-                <div class="font-bold">LED animation on IDLE</div>
-                <div class="text-sm">after minutes (0 - never)</div>
+                <div class="font-bold" data-translate="led_animation_on_idle">LED animation on IDLE</div>
+                <div class="text-sm" data-translate="after_minutes">after minutes (0 - never)</div>
                 <div class="flex mb-4">
                     <svg onclick="document.getElementById('animation_delay').stepDown();
                     document.getElementById('animation_delay').dispatchEvent(new Event('change'));
@@ -174,7 +174,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <div class="font-bold">Animation type</div>
+                <div class="font-bold" data-translate="animation_type">Animation type</div>
                 <div class="relative w-full">
                     <select onchange="change_setting('led_animation', document.getElementById('led_animation').value);"
                     id="led_animation" class="block m-auto appearance-none w-full bg-gray-100 dark:bg-gray-600

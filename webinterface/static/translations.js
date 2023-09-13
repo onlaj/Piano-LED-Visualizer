@@ -169,6 +169,9 @@ const translations = {
 
         //ledanimations
         stop_animation: "Stop animation",
+        led_animation_on_idle: "LED animation on IDLE",
+        after_minutes: "after minutes (0 - never)",
+        animation_type: "Animation type",
 
         //homepage
         advanced_mode: "Advanced mode",
@@ -381,6 +384,9 @@ const translations = {
 
         //ledanimations
         stop_animation: "Zatrzymaj animacje",
+        led_animation_on_idle: "Animacja w trakcie bezczynności",
+        after_minutes: "po ilu minutach (0 - nigdy)",
+        animation_type: "Typ animacji",
 
         //homepage
         advanced_mode: "Tryb zaawansowany",
@@ -590,6 +596,9 @@ const translations = {
 
         //ledanimations
         stop_animation: "Arrêter l'animation",
+        led_animation_on_idle: "Animation LED en veille",
+        after_minutes: "après minutes (0 - jamais)",
+        animation_type: "Type d'animation",
 
 
         //homepage
@@ -801,6 +810,9 @@ const translations = {
 
         //ledanimations
         stop_animation: "Animation stoppen",
+        led_animation_on_idle: "LED-Animation im Leerlauf",
+        after_minutes: "nach Minuten (0 - niemals)",
+        animation_type: "Animationsart",
 
         //homepage
         advanced_mode: "Erweiterter Modus",
