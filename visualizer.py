@@ -203,6 +203,9 @@ while True:
         traceback.print_exc()
         elapsed_time = 0
 
+    # IDLE animation
+    manage_idle_animation(ledstrip, ledsettings, menu)
+
     # Show menulcd
     if display_cycle >= 3:
         display_cycle = 0

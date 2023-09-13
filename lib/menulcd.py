@@ -80,6 +80,8 @@ class MenuLCD:
         self.screen_status = 1
 
         self.screensaver_is_running = False
+        self.last_activity = time.time()
+        self.is_idle_animation_running = False
 
     def rotate_image(self, image):
         if self.args.rotatescreen != "true":
