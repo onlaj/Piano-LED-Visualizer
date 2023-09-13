@@ -81,14 +81,26 @@ class Logger:
         formatted_message = f"[{timestamp}] {message}\n"
 
         self.terminal.write(message + "\n")  # Write the message to the terminal with a new line
-        self.logfile.write(formatted_message)    # Write the message to the log file
+        self.logfile.write(formatted_message)  # Write the message to the log file
         self.logfile.flush()
 
     def close(self):
         self.logfile.close()
 
 
+# Custom exception handler to log unhandled exceptions
+def log_unhandled_exception(exc_type, exc_value, exc_traceback):
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    error_message = f"[{timestamp}] Unhandled Exception: {exc_type.__name__} - {exc_value}\n"
+
+    with open("visualizer.log", "a") as log_file:
+        log_file.write(error_message)
+
+
 sys.stdout = Logger()
+
+# Set the custom exception handler
+sys.excepthook = log_unhandled_exception
 
 
 if args.rotatescreen != "true":
