@@ -1280,6 +1280,12 @@ def get_sequence_setting():
     return jsonify(response)
 
 
+@webinterface.route('/api/get_idle_animation_settings', methods=['GET'])
+def get_idle_animation_settings():
+    response = {"led_animation_delay": webinterface.usersettings.get_setting_value("led_animation_delay"),
+                "led_animation": webinterface.usersettings.get_setting_value("led_animation")}
+    return jsonify(response)
+
 @webinterface.route('/api/get_settings', methods=['GET'])
 def get_settings():
     response = {}

@@ -95,6 +95,7 @@ function loadAjax(subpage) {
                     clearInterval(homepage_interval);
                 }
                 if (subpage === "ledanimations") {
+                    get_led_idle_animation_settings();
                     clearInterval(homepage_interval);
                 }
                 if (subpage === "songs") {
@@ -571,6 +572,21 @@ function hsvToRgb(h, s, v) {
 function powercurve(x, p) {
     if (p === 0) return x;
     return (Math.exp(-p * x) - 1) / (Math.exp(-p) - 1);
+}
+
+
+function get_led_idle_animation_settings(){
+    const xhttp = new XMLHttpRequest();
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            let response = JSON.parse(this.responseText);
+            document.getElementById("animation_delay").value = response["led_animation_delay"];
+            document.getElementById("led_animation").value = response["led_animation"];
+        }
+    }
+    xhttp.open("GET", "/api/get_idle_animation_settings", true);
+    xhttp.send();
 }
 
 function get_current_sequence_setting(home = true, is_loading_step = false) {
