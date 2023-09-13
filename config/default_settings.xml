@@ -85,6 +85,7 @@
 	<screen_off_delay>60</screen_off_delay>
 	<led_animation_delay>0</led_animation_delay>
 	<led_animation>Scanner</led_animation>
+    <led_animation_brightness_percent>50</led_animation_brightness_percent>
 
 	<led_count>176</led_count>
 	<leds_per_meter>144</leds_per_meter>

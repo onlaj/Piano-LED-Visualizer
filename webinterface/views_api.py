@@ -174,6 +174,10 @@ def change_setting():
         webinterface.usersettings.change_setting_value("brightness_percent", int(value))
         webinterface.ledstrip.change_brightness(int(value), True)
 
+    if setting_name == "led_animation_brightness_percent":
+        webinterface.usersettings.change_setting_value("led_animation_brightness_percent", int(value))
+        webinterface.ledsettings.led_animation_brightness_percent = int(value)
+
     if setting_name == "backlight_brightness":
         webinterface.ledsettings.backlight_brightness_percent = int(value)
         webinterface.ledsettings.backlight_brightness = 255 * webinterface.ledsettings.backlight_brightness_percent / 100
@@ -1283,7 +1287,8 @@ def get_sequence_setting():
 @webinterface.route('/api/get_idle_animation_settings', methods=['GET'])
 def get_idle_animation_settings():
     response = {"led_animation_delay": webinterface.usersettings.get_setting_value("led_animation_delay"),
-                "led_animation": webinterface.usersettings.get_setting_value("led_animation")}
+                "led_animation": webinterface.usersettings.get_setting_value("led_animation"),
+                "led_animation_brightness_percent": webinterface.ledsettings.led_animation_brightness_percent}
     return jsonify(response)
 
 @webinterface.route('/api/get_settings', methods=['GET'])

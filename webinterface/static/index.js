@@ -583,6 +583,8 @@ function get_led_idle_animation_settings(){
             let response = JSON.parse(this.responseText);
             document.getElementById("animation_delay").value = response["led_animation_delay"];
             document.getElementById("led_animation").value = response["led_animation"];
+            document.getElementById("brightness_percent").value = response["led_animation_brightness_percent"];
+            document.getElementById("brightness").value = response["led_animation_brightness_percent"];
         }
     }
     xhttp.open("GET", "/api/get_idle_animation_settings", true);

@@ -394,13 +394,8 @@ def fastColorWipe(strip, update, ledsettings):
 
 
 def calculate_brightness(ledsettings):
-    if ledsettings.backlight_brightness_percent == 0:
-        brightness = 100
-    else:
-        brightness = ledsettings.backlight_brightness_percent
-
+    brightness = ledsettings.led_animation_brightness_percent
     brightness /= 100
-
     return brightness
 
 

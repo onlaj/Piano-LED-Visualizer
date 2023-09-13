@@ -41,6 +41,8 @@ class LedSettings:
         self.backlight_brightness = int(usersettings.get_setting_value("backlight_brightness"))
         self.backlight_brightness_percent = int(usersettings.get_setting_value("backlight_brightness_percent"))
 
+        self.led_animation_brightness_percent = int(usersettings.get_setting_value("led_animation_brightness_percent"))
+
         self.backlight_red = int(usersettings.get_setting_value("backlight_red"))
         self.backlight_green = int(usersettings.get_setting_value("backlight_green"))
         self.backlight_blue = int(usersettings.get_setting_value("backlight_blue"))
