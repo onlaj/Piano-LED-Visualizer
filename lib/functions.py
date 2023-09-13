@@ -163,6 +163,7 @@ def manage_idle_animation(ledstrip, ledsettings, menu):
                                                             ledsettings,
                                                             menu, 1))
             menu.t.start()
+        time.sleep(1)
 
 
 def screensaver(menu, midiports, saving, ledstrip, ledsettings):
@@ -399,19 +400,24 @@ def calculate_brightness(ledsettings):
     return brightness
 
 
+def stop_animations(menu):
+    temp_is_idle_animation_running = menu.is_idle_animation_running
+    temp_is_animation_running = menu.is_animation_running
+    menu.is_idle_animation_running = False
+    menu.is_animation_running = False
+    time.sleep(0.3)
+    menu.is_idle_animation_running = temp_is_idle_animation_running
+    menu.is_animation_running = temp_is_animation_running
+
 def theaterChase(ledstrip, ledsettings, menu, wait_ms=25):
     """Movie theater light style chaser animation."""
-    menu.is_idle_animation_running = False
-    time.sleep(0.5)
+    stop_animations(menu)
     strip = ledstrip.strip
-    if menu.is_idle_animation_running:
-        return
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
     j = 0
-    menu.is_idle_animation_running = True
 
-    while menu.is_idle_animation_running:
+    while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
         while not cover_opened:
@@ -460,6 +466,8 @@ def wheel(pos, ledsettings):
 
 
 def rainbow(ledstrip, ledsettings, menu, speed="Medium"):
+    stop_animations(menu)
+
     speed_map = {
         "Slow": 50,
         "Fast": 2,
@@ -468,16 +476,13 @@ def rainbow(ledstrip, ledsettings, menu, speed="Medium"):
     wait_ms = speed_map.get(speed, 20)
 
     """Draw rainbow that fades across all pixels at once."""
-    menu.is_idle_animation_running = False
-    time.sleep(0.2)
     strip = ledstrip.strip
-    if menu.is_idle_animation_running:
-        return
+
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
     j = 0
-    menu.is_idle_animation_running = True
-    while menu.is_idle_animation_running:
+
+    while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
         while not cover_opened:
@@ -501,6 +506,7 @@ def rainbow(ledstrip, ledsettings, menu, speed="Medium"):
 
 
 def rainbowCycle(ledstrip, ledsettings, menu, speed="Medium"):
+    stop_animations(menu)
     speed_map = {
         "Slow": 50,
         "Fast": 1,
@@ -509,18 +515,12 @@ def rainbowCycle(ledstrip, ledsettings, menu, speed="Medium"):
     wait_ms = speed_map.get(speed, 20)
 
     """Draw rainbow that uniformly distributes itself across all pixels."""
-    menu.is_idle_animation_running = False
-    time.sleep(0.2)
     strip = ledstrip.strip
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
     j = 0
-    if menu.is_idle_animation_running:
-        return
 
-    menu.is_idle_animation_running = True
-
-    while menu.is_idle_animation_running:
+    while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
         while not cover_opened:
@@ -595,6 +595,7 @@ def startup_animation(ledstrip, ledsettings, duration_ms=2000, max_leds=30):
 
 
 def theaterChaseRainbow(ledstrip, ledsettings, menu, speed="Medium"):
+    stop_animations(menu)
     speed_map = {
         "Slow": 10,
         "Fast": 2,
@@ -603,20 +604,13 @@ def theaterChaseRainbow(ledstrip, ledsettings, menu, speed="Medium"):
     wait_ms = speed_map.get(speed, 5)
 
     """Rainbow movie theater light style chaser animation."""
-    menu.is_idle_animation_running = False
-    time.sleep(0.5)
     strip = ledstrip.strip
 
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
     j = 0
 
-    if menu.is_idle_animation_running:
-        return
-
-    menu.is_idle_animation_running = True
-
-    while menu.is_idle_animation_running:
+    while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
         while not cover_opened:
@@ -645,6 +639,7 @@ def theaterChaseRainbow(ledstrip, ledsettings, menu, speed="Medium"):
 
 
 def breathing(ledstrip, ledsettings, menu, speed="Medium"):
+    stop_animations(menu)
     speed_map = {
         "Slow": 25,
         "Fast": 5,
@@ -652,21 +647,14 @@ def breathing(ledstrip, ledsettings, menu, speed="Medium"):
 
     wait_ms = speed_map.get(speed, 10)
 
-    menu.is_idle_animation_running = False
-    time.sleep(0.1)
     strip = ledstrip.strip
 
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
 
-    if menu.is_idle_animation_running:
-        return
-
-    menu.is_idle_animation_running = True
-
     multiplier = 24
     direction = 2
-    while menu.is_idle_animation_running:
+    while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
         while not cover_opened:
@@ -699,22 +687,16 @@ def breathing(ledstrip, ledsettings, menu, speed="Medium"):
 
 
 def sound_of_da_police(ledstrip, ledsettings, menu, wait_ms=5):
-    menu.is_idle_animation_running = False
-    time.sleep(0.2)
+    stop_animations(menu)
+
     strip = ledstrip.strip
-
-    if menu.is_idle_animation_running:
-        return
-
-    menu.is_idle_animation_running = True
 
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
-    menu.screensaver_is_running = True
     middle = strip.numPixels() / 2
     r_start = 0
     l_start = 196
-    while menu.is_idle_animation_running:
+    while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
         while not cover_opened:
@@ -748,14 +730,13 @@ def sound_of_da_police(ledstrip, ledsettings, menu, wait_ms=5):
 
 
 def scanner(ledstrip, ledsettings, menu, wait_ms=1):
-    menu.is_idle_animation_running = False
-    time.sleep(0.2)
+    print("Starting anim")
+    stop_animations(menu)
+
     strip = ledstrip.strip
-    if menu.is_idle_animation_running:
-        return
+
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
-    menu.is_idle_animation_running = True
 
     position = 0
     direction = 3
@@ -764,7 +745,7 @@ def scanner(ledstrip, ledsettings, menu, wait_ms=1):
     red_fixed = ledsettings.get_backlight_color("Red")
     green_fixed = ledsettings.get_backlight_color("Green")
     blue_fixed = ledsettings.get_backlight_color("Blue")
-    while menu.is_idle_animation_running:
+    while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
         while not cover_opened:
@@ -806,15 +787,15 @@ def scanner(ledstrip, ledsettings, menu, wait_ms=1):
 
 
 def chords(scale, ledstrip, ledsettings, menu):
-    menu.is_idle_animation_running = False
+    stop_animations(menu)
+
     time.sleep(0.2)
     strip = ledstrip.strip
-    if menu.is_idle_animation_running:
-        return
+
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
-    menu.is_idle_animation_running = True
-    while menu.is_idle_animation_running:
+
+    while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
         while not cover_opened:

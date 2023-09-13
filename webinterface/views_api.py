@@ -31,53 +31,62 @@ def start_animation():
     choice = request.args.get('name')
     speed = request.args.get('speed')
     if choice == "theaterchase":
+        webinterface.menu.is_animation_running = True
         webinterface.menu.t = threading.Thread(target=theaterChase, args=(webinterface.ledstrip,
                                                                           webinterface.ledsettings,
                                                                           webinterface.menu))
         webinterface.menu.t.start()
 
     if choice == "theaterchaserainbow":
+        webinterface.menu.is_animation_running = True
         webinterface.t = threading.Thread(target=theaterChaseRainbow, args=(webinterface.ledstrip,
                                                                             webinterface.ledsettings,
                                                                             webinterface.menu, "Medium"))
         webinterface.t.start()
 
     if choice == "soundofdapolice":
+        webinterface.menu.is_animation_running = True
         webinterface.t = threading.Thread(target=sound_of_da_police, args=(webinterface.ledstrip,
                                                                            webinterface.ledsettings,
                                                                            webinterface.menu, 1))
         webinterface.t.start()
 
     if choice == "scanner":
+        webinterface.menu.is_animation_running = True
         webinterface.t = threading.Thread(target=scanner, args=(webinterface.ledstrip,
                                                                 webinterface.ledsettings,
                                                                 webinterface.menu, 1))
         webinterface.t.start()
 
     if choice == "breathing":
+        webinterface.menu.is_animation_running = True
         webinterface.t = threading.Thread(target=breathing, args=(webinterface.ledstrip,
                                                                   webinterface.ledsettings,
                                                                   webinterface.menu, speed.capitalize()))
         webinterface.t.start()
 
     if choice == "rainbow":
+        webinterface.menu.is_animation_running = True
         webinterface.t = threading.Thread(target=rainbow, args=(
             webinterface.ledstrip, webinterface.ledsettings, webinterface.menu, speed.capitalize()))
         webinterface.t.start()
 
     if choice == "rainbowcycle":
+        webinterface.menu.is_animation_running = True
         webinterface.t = threading.Thread(target=rainbowCycle, args=(
             webinterface.ledstrip, webinterface.ledsettings, webinterface.menu, speed.capitalize()))
 
         webinterface.t.start()
 
     if choice == "chords":
+        webinterface.menu.is_animation_running = True
         webinterface.t = threading.Thread(target=chords, args=(
             speed, webinterface.ledstrip, webinterface.ledsettings, webinterface.menu))
         webinterface.t.start()
 
     if choice == "stop":
-        webinterface.menu.screensaver_is_running = False
+        webinterface.menu.is_animation_running = False
+        webinterface.menu.is_idle_animation_running = False
 
     return jsonify(success=True)
 

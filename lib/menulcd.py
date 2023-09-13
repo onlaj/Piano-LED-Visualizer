@@ -82,6 +82,7 @@ class MenuLCD:
         self.screensaver_is_running = False
         self.last_activity = time.time()
         self.is_idle_animation_running = False
+        self.is_animation_running = False
 
     def rotate_image(self, image):
         if self.args.rotatescreen != "true":
@@ -674,6 +675,8 @@ class MenuLCD:
         self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
 
     def change_pointer(self, direction):
+        self.last_activity = time.time()
+        self.is_idle_animation_running = False
         if direction == 0:
             if (self.pointer_position - 1) < 0:
                 self.pointer_position = self.list_count
@@ -689,6 +692,8 @@ class MenuLCD:
         self.show()
 
     def enter_menu(self):
+        self.last_activity = time.time()
+        self.is_idle_animation_running = False
         position = self.current_choice.replace(" ", "_")
 
         if not self.DOMTree.getElementsByTagName(position):
@@ -700,6 +705,8 @@ class MenuLCD:
             self.show(self.current_choice)
 
     def go_back(self):
+        self.last_activity = time.time()
+        self.is_idle_animation_running = False
         if self.parent_menu != "data":
             location_readable = self.current_location.replace("_", " ")
             self.cut_count = -6
@@ -917,6 +924,7 @@ class MenuLCD:
                 call("sudo aconnect -x", shell=True)
 
         if location == "LED_animations":
+            self.is_animation_running = True
             if choice == "Theater Chase":
                 self.t = threading.Thread(target=theaterChase, args=(self.ledstrip, self.ledsettings, self))
                 self.t.start()
@@ -963,7 +971,8 @@ class MenuLCD:
 
         if location == "LED_animations":
             if choice == "Stop animation":
-                self.screensaver_is_running = False
+                self.is_animation_running = False
+                self.is_idle_animation_running = False
 
         if location == "Other_Settings":
             if choice == "System Info":
