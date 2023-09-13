@@ -88,17 +88,19 @@
         <div>
             <button class="w-full h-8 bg-gray-200 dark:bg-gray-700 cursor-default font-bold m-0 rounded-t-lg">
                 <div class="inline-flex">
-                        <div>Chords</div>
-                        <div class="has-tooltip">
+                    <div>Chords</div>
+                    <div class="has-tooltip">
                         <span class="inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8">
                             Colors are taken from Scale color mode
                             <br>Brightness is taken from backlight settings
                         </span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
                     </div>
+                </div>
             </button>
             <div class="h-12 text-xs whitespace-nowrap flex ">
                 <button class="w-1/2 bg-gray-200 dark:bg-gray-700 font-bold border border-gray-100 dark:border-gray-900 m-0 rounded-bl-lg
@@ -148,9 +150,50 @@
 
         <div>
             <button onclick="start_led_animation('stop', 'normal')" class="h-12 transform  hover:scale-105 transition
-      duration-300 shadow-xl w-full h-full bg-gray-200 dark:bg-gray-700 font-bold rounded-lg" data-translate="stop_animation">
+      duration-300 shadow-xl w-full h-full bg-gray-200 dark:bg-gray-700 font-bold rounded-lg"
+                    data-translate="stop_animation">
                 Stop Animation
             </button>
+        </div>
+
+        <div class="bg-gray-200 dark:bg-gray-700 rounded-lg p-2">
+                <div class="font-bold">LED animation on IDLE</div>
+                <div class="text-sm">after minutes (0 - never)</div>
+                <div class="flex mb-4">
+                    <svg onclick="document.getElementById('animation_delay').stepDown();
+                    document.getElementById('animation_delay').dispatchEvent(new Event('change'));
+                    change_setting('animation_delay', document.getElementById('animation_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <input id="animation_delay" name="field_name" type="number" value="0" min="0" max="9999"
+                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl
+                           leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    <svg onclick="document.getElementById('animation_delay').stepUp();
+                        document.getElementById('animation_delay').dispatchEvent(new Event('change'));
+                        change_setting('animation_delay', document.getElementById('animation_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="font-bold">Animation type</div>
+                <div class="relative w-full">
+                    <select onchange="change_setting('animation_type', document.getElementById('animation_type').value);"
+                    id="animation_type" class="block m-auto appearance-none w-full bg-gray-100 dark:bg-gray-600
+                py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <option value="Rainbow Slow">Rainbow Slow</option>
+                        <option value="Theater Chase">Theater Chase</option>
+                        <option value="Breathing Slow">Breathing Slow</option>
+                        <option value="Rainbow Cycle Slow">Rainbow Cycle Slow</option>
+                        <option value="Theater Chase Rainbow">Theater Chase Rainbow</option>
+                        <option value="Sound of da police">Sound of da police</option>
+                        <option value="Scanner">Scanner</option>
+
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                        </svg>
+                    </div>
+                </div>
         </div>
     </div>
 </div>

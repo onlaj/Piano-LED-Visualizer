@@ -617,7 +617,8 @@ def change_setting():
 
         pretty_save("config/sequences.xml", sequences_tree)
         webinterface.ledsettings.incoming_setting_change = True
-        return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True, set_sequence_step_number=step_amount)
+        return jsonify(success=True, reload_sequence=reload_sequence, reload_steps_list=True,
+                       set_sequence_step_number=step_amount)
 
     # remove node list with a tag name "step_" + str(value), and change tag names to maintain order
     if setting_name == "remove_step":
@@ -1180,6 +1181,21 @@ def change_setting():
             disconnect_from_wifi(webinterface.hotspot, webinterface.usersettings)
         except:
             return jsonify(success=False)
+
+    if setting_name == "animation_delay":
+        value = max(int(value), 0)
+        webinterface.menu.led_animation_delay = value
+        if webinterface.menu.led_animation_delay < 0:
+            webinterface.menu.led_animation_delay = 0
+        webinterface.usersettings.change_setting_value("led_animation_delay", webinterface.menu.led_animation_delay)
+
+        return jsonify(success=True)
+
+    if setting_name == "led_animation":
+        webinterface.menu.led_animation = value
+        webinterface.usersettings.change_setting_value("led_animation", value)
+
+        return jsonify(success=True)
 
     return jsonify(success=True)
 
