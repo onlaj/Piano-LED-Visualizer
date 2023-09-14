@@ -2112,6 +2112,7 @@ function getLanguage() {
             'zh': 'zh',
             'hi': 'hi',
             'pt': 'pt',
+            'ja': 'ja',
         };
         // If the browser language is supported, set it; otherwise, set to 'en'
         language = languageMap[browserLanguage] || "en";
