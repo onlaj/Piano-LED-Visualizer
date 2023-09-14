@@ -1,15 +1,12 @@
-Run installation script:
-
-`sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/autoinstall.sh)"`
-
-**OR**
-
-
 Install [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/) on your SD card.
 
 If you are not able to connect your monitor, mouse and keyboard to RPi you can connect to it using SSH over [Wi-Fi](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
 
+Run installation script:
 
+`sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/autoinstall.sh)"`
+
+**or follow those steps:**
  
 ### 1. **Updating OS** 
 After succesfully booting RPi (and connecting to it by SSH if necessary) we need to make sure that everything is up to date.
