@@ -166,6 +166,11 @@ rsn_pairwise=CCMP' | sudo tee --append /etc/hostapd/hostapd.conf`
 
 `echo 'DAEMON_CONF="/etc/hostapd/hostapd.conf"' | sudo tee --append /etc/default/hostapd`
 
+`echo '
+auto wlan0
+iface wlan0 inet manual
+wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf' | sudo tee --append /etc/network/interfaces`
+
 `sudo systemctl start hostapd && sudo systemctl start dnsmasq`
 
 

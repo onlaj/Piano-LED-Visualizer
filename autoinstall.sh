@@ -208,7 +208,11 @@ EOF
 
   execute_command "sudo chmod +x /home/Piano-LED-Visualizer/disable_ap.sh"
   execute_command "sudo chmod +x /home/Piano-LED-Visualizer/enable_ap.sh"
+}
 
+finish_installation() {
+  echo "------------------"
+  echo "------------------"
   echo "Installation complete. Raspberry Pi will automatically restart in 60 seconds."
   echo "If the Raspberry Pi does not restart on its own, please wait for 2 minutes and then manually reboot."
   echo "After the reboot, please wait for up to 10 minutes. The Visualizer should start, and the Hotspot 'PianoLEDVisualizer' will become available."
@@ -248,3 +252,4 @@ install_rtpmidi_server
 install_piano_led_visualizer
 configure_network_interfaces
 create_hotspot
+finish_installation
