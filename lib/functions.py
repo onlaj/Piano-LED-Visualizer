@@ -730,7 +730,6 @@ def sound_of_da_police(ledstrip, ledsettings, menu, wait_ms=5):
 
 
 def scanner(ledstrip, ledsettings, menu, wait_ms=1):
-    print("Starting anim")
     stop_animations(menu)
 
     strip = ledstrip.strip
