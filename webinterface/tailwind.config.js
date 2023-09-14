@@ -31,3 +31,4 @@ module.exports = {
   },
   plugins: [],
 }
+// npx tailwindcss build static/styles.css -o static/tailwind.css --minify
