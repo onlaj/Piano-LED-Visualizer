@@ -54,15 +54,14 @@ class SaveMIDI:
             self.mid = MidiFile(None, None, 0, 20000)  # 20000 is a ticks_per_beat value
             self.track = MidiTrack()
             self.mid.tracks.append(self.track)
-            previous_message_time = 0
+            previous_message_time = None
             for message in multicolor_track:
-                try:
+                if previous_message_time is not None:
                     time_delay = message[1] - previous_message_time
-                except IndexError:
+                else:
                     time_delay = 0
                 previous_message_time = message[1]
-                if time_delay < 0:
-                    time_delay = 0
+
                 if message[0] == "note":
                     self.track.append(Message(message[2], note=int(message[3]), velocity=int(message[4]),
                                               time=int(time_delay * 40000)))
