@@ -23,13 +23,10 @@ def is_package_installed(package_name):
 
 
 def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
-    create_hotspot_config()
-    if hotspot.is_hostapd_installed is None or hotspot.is_hostapd_installed is False:
-        if not is_package_installed("hostapd"):
-            hotspot.is_hostapd_installed = False
-            return
+    if not hotspot.is_hostapd_installed:
+        return
 
-    hotspot.is_hostapd_installed = True
+    create_hotspot_config()
 
     # Visualizer is starting, check if hotspot is active and run enable_ap.sh
     if first_run:
@@ -230,4 +227,4 @@ class Hotspot:
         self.hotspot_script_time = 0
         self.time_without_wifi = 0
         self.last_wifi_check_time = 0
-        self.is_hostapd_installed = None
+        self.is_hostapd_installed = is_package_installed("hostapd")
