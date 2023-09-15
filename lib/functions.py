@@ -101,6 +101,9 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
                     midiports.pending_queue.append(message.copy(time=0))
 
             else:
+                midiports.pending_queue.clear()
+                strip = ledstrip.strip
+                fastColorWipe(strip, True, ledsettings)
                 break
         print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, total_delay))
         # print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, length))
