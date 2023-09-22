@@ -61,7 +61,7 @@ let ticker = new AdjustingInterval(play_tick_sound, 60000 / beats_per_minute);
 
 
 function loadAjax(subpage) {
-    if (!subpage) {
+    if (!subpage || subpage === "/") {
         subpage = "home"
     }
     document.getElementById("main").classList.remove("show");
