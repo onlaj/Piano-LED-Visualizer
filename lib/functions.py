@@ -372,8 +372,10 @@ def gammacurve(x, p):
 
 def check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
     if ledsettings.adjacent_mode == "Off":
-        if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
-            return True
+        if i < len(ledstrip.keylist_status) and i < len(ledstrip.keylist):
+            if ledstrip.keylist_status[i] == 0 and ledstrip.keylist[i] == 0:
+                return True
+        return False
     else:
         if 1 < i < (ledstrip.led_number - 1):
             if ledstrip.keylist[i + 1] == ledstrip.keylist[i - 1] == ledstrip.keylist[i] \
