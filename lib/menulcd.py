@@ -1086,8 +1086,10 @@ class MenuLCD:
                 self.render_message("Updating...", "reboot is required", 5000)
                 call("sudo git reset --hard HEAD", shell=True)
                 call("sudo git checkout .", shell=True)
-                call("sudo git clean -fdx", shell=True)
+                call("sudo git clean -fdx -e Songs/", shell=True)
+                call("sudo git clean -fdx Songs/cache", shell=True)
                 call("sudo git pull origin master", shell=True)
+                call("sudo pip install -r requirements.txt", shell=True)
             self.go_back()
 
         if location == "Shutdown":

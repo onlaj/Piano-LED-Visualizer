@@ -921,8 +921,10 @@ def change_setting():
     if setting_name == "update_rpi":
         call("sudo git reset --hard HEAD", shell=True)
         call("sudo git checkout .", shell=True)
-        call("sudo git clean -fdx", shell=True)
+        call("sudo git clean -fdx -e Songs/", shell=True)
+        call("sudo git clean -fdx Songs/cache", shell=True)
         call("sudo git pull origin master", shell=True)
+        call("sudo pip install -r requirements.txt", shell=True)
 
     if setting_name == "connect_ports":
         webinterface.midiports.connectall()
