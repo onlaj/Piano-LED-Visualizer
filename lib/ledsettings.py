@@ -211,9 +211,9 @@ class LedSettings:
             blue = self.multicolor[int(color_counter)][2]
 
             self.ledstrip.strip.setPixelColor(int(((start - 20) * 2 - note_offset_start)),
-                                              Color(int(green), int(red), int(blue)))
+                                              Color(int(red), int(green), int(blue)))
             self.ledstrip.strip.setPixelColor(int(((end - 20) * 2 - note_offset_end)),
-                                              Color(int(green), int(red), int(blue)))
+                                              Color(int(red), int(green), int(blue)))
 
             color_counter += 1
 

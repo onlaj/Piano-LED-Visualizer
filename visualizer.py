@@ -348,8 +348,8 @@ while True:
 
         # Apply fade mode colors to ledstrip
         if led_changed:
-            ledstrip.strip.setPixelColor(n, Color(int(green), int(red), int(blue)))
-            ledstrip.set_adjacent_colors(n, Color(int(green), int(red), int(blue)), False, fading)
+            ledstrip.strip.setPixelColor(n, Color(int(red), int(green), int(blue)))
+            ledstrip.set_adjacent_colors(n, Color(int(red), int(green), int(blue)), False, fading)
 
     # Prep midi event queue
     try:
@@ -424,7 +424,7 @@ while True:
                         ledsettings.get_backlight_color("Green")) * ledsettings.backlight_brightness_percent / 100
                     blue_backlight = int(
                         ledsettings.get_backlight_color("Blue")) * ledsettings.backlight_brightness_percent / 100
-                    color_backlight = Color(int(green_backlight), int(red_backlight), int(blue_backlight))
+                    color_backlight = Color(int(red_backlight), int(green_backlight), int(blue_backlight))
                     ledstrip.strip.setPixelColor(note_position, color_backlight)
                     ledstrip.set_adjacent_colors(note_position, color_backlight, True)
                 else:
@@ -466,12 +466,12 @@ while True:
                         hand_color = learning.hand_colorL
 
                     red, green, blue = map(int, learning.hand_colorList[hand_color])
-                    s_color = Color(green, red, blue)
+                    s_color = Color(red, green, blue)
                     ledstrip.strip.setPixelColor(note_position, s_color)
                     ledstrip.set_adjacent_colors(note_position, s_color, False)
             else:
                 if ledsettings.skipped_notes != "Normal":
-                    s_color = Color(int(int(green) / float(brightness)), int(int(red) / float(brightness)),
+                    s_color = Color(int(int(red) / float(brightness)), int(int(green) / float(brightness)),
                                     int(int(blue) / float(brightness)))
                     ledstrip.strip.setPixelColor(note_position, s_color)
                     ledstrip.set_adjacent_colors(note_position, s_color, False)

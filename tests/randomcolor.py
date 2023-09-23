@@ -31,7 +31,7 @@ class LedStrip:
         args = parser.parse_args()
 
         # Create NeoPixel object with appropriate configuration.
-        self.strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, ws.WS2811_STRIP_RGB)
+        self.strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, ws.WS2811_STRIP_GRB)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
 

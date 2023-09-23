@@ -265,7 +265,7 @@ class LearnMIDI:
                         # blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
                         red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
 
-                    self.ledstrip.strip.setPixelColor(note_position, Color(green, red, blue))
+                    self.ledstrip.strip.setPixelColor(note_position, Color(red, green, blue))
                     self.ledstrip.strip.show()
 
     def handle_wrong_notes(self, wrong_notes):
@@ -285,7 +285,7 @@ class LearnMIDI:
 
             note_position = get_note_position(note, self.ledstrip, self.ledsettings)
             if velocity > 0:
-                self.ledstrip.strip.setPixelColor(note_position, Color(0, 255, 0))
+                self.ledstrip.strip.setPixelColor(note_position, Color(255, 0, 0))
             else:
                 self.ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
 
@@ -410,7 +410,7 @@ class LearnMIDI:
                                 # green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
                                 # blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
                                 red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
-                            self.ledstrip.strip.setPixelColor(note_position, Color(green, red, blue))
+                            self.ledstrip.strip.setPixelColor(note_position, Color(red, green, blue))
                             self.ledstrip.strip.show()
 
                         # Save notes to press

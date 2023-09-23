@@ -32,7 +32,7 @@ class LedStrip:
 
         # Create NeoPixel object with appropriate configuration.
         self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
-                                       self.LED_BRIGHTNESS, self.LED_CHANNEL, ws.WS2811_STRIP_RGB)
+                                       self.LED_BRIGHTNESS, self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
 
@@ -62,7 +62,7 @@ class LedStrip:
         self.keylist_color = [0] * self.led_number
 
         self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA,
-                                       self.LED_INVERT, int(self.brightness), self.LED_CHANNEL, ws.WS2811_STRIP_RGB)
+                                       self.LED_INVERT, int(self.brightness), self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
 
@@ -83,7 +83,7 @@ class LedStrip:
 
     def set_adjacent_colors(self, note, color, led_turn_off, fading=1):
         if self.ledsettings.adjacent_mode == "RGB" and color != 0 and led_turn_off is not True:
-            color = Color(int(self.ledsettings.adjacent_green * fading), int(self.ledsettings.adjacent_red * fading),
+            color = Color(int(self.ledsettings.adjacent_red * fading), int(self.ledsettings.adjacent_green * fading),
                           int(self.ledsettings.adjacent_blue * fading))
         if self.ledsettings.adjacent_mode != "Off":
 
