@@ -1,5 +1,5 @@
 import threading
-from lib.neopixel import *
+from rpi_ws281x import Color
 import mido
 import datetime
 import psutil

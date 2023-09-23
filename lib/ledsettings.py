@@ -3,7 +3,7 @@ import time
 from xml.dom import minidom
 
 from lib.functions import fastColorWipe, find_between, clamp
-from lib.neopixel import Color
+from rpi_ws281x import Color
 
 
 class LedSettings:

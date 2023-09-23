@@ -1,5 +1,5 @@
 from lib.functions import *
-
+from rpi_ws281x import PixelStrip, Adafruit_NeoPixel, ws
 
 class LedStrip:
     def __init__(self, usersettings, ledsettings):
@@ -32,7 +32,7 @@ class LedStrip:
 
         # Create NeoPixel object with appropriate configuration.
         self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
-                                       self.LED_BRIGHTNESS, self.LED_CHANNEL)
+                                       self.LED_BRIGHTNESS, self.LED_CHANNEL, ws.WS2811_STRIP_RGB)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
 
@@ -62,7 +62,7 @@ class LedStrip:
         self.keylist_color = [0] * self.led_number
 
         self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA,
-                                       self.LED_INVERT, int(self.brightness), self.LED_CHANNEL)
+                                       self.LED_INVERT, int(self.brightness), self.LED_CHANNEL, ws.WS2811_STRIP_RGB)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
 
