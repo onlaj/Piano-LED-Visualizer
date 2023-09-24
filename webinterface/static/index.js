@@ -446,6 +446,7 @@ function get_settings(home = true) {
 
                     document.getElementById("brightness").value = response["brightness"];
                     document.getElementById("brightness_percent").value = response["brightness"] + "%";
+                    document.getElementById("gamma_correction").value = response["led_gamma"];
                     document.getElementById("backlight_brightness").value = response["backlight_brightness"];
                     document.getElementById("backlight_brightness_percent").value = response["backlight_brightness"] + "%";
                     document.getElementById("skipped_notes").value = response["skipped_notes"];

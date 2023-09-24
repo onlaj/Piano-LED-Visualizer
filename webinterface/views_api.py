@@ -1212,6 +1212,12 @@ def change_setting():
 
         return jsonify(success=True)
 
+    if setting_name == "led_gamma":
+        webinterface.usersettings.change_setting_value("led_gamma", value)
+        webinterface.ledstrip.change_gamma(float(value))
+
+        return jsonify(success=True)
+
     return jsonify(success=True)
 
 
@@ -1334,6 +1340,7 @@ def get_settings():
     response["brightness"] = brightness
     response["backlight_brightness"] = backlight_brightness
     response["backlight_color"] = backlight_color
+    response["led_gamma"] = webinterface.usersettings.get_setting_value("led_gamma")
 
     response["sides_color_mode"] = webinterface.usersettings.get_setting_value("adjacent_mode")
     response["sides_color"] = sides_color

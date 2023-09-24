@@ -13,6 +13,7 @@ class LedStrip:
         self.reverse = int(self.usersettings.get_setting_value("reverse"))
 
         self.brightness = 255 * self.brightness_percent / 100
+        self.led_gamma = float(usersettings.get_setting_value("led_gamma"))
 
         self.keylist = [0] * self.led_number
         self.keylist_status = [0] * self.led_number
@@ -35,6 +36,13 @@ class LedStrip:
                                        self.LED_BRIGHTNESS, self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
+        self.change_gamma(self.led_gamma)
+
+    def change_gamma(self, value):
+        self.led_gamma = float(value)
+        if 0.01 <= self.led_gamma <= 10.0:
+            # rpi_ws281x.py interface has no ported method to set gamma by factor, using direct ws
+            ws.ws2811_set_custom_gamma_factor(self.strip._leds, self.led_gamma)
 
     def change_brightness(self, value, ispercent=False):
         if ispercent:
