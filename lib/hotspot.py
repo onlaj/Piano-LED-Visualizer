@@ -33,6 +33,14 @@ def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
         if is_hotspot_active(usersettings):
             disconnect_from_wifi(hotspot, usersettings)
             return
+        else:
+            try:
+                print("Running disable_ap.sh")
+                subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+            except Exception as error:
+                # handle the exception
+                print("An exception occurred while shutting down a hotspot:", error)
 
     # Calculate time passed without Wi-fi
     current_time = time.time()
@@ -139,6 +147,7 @@ def connect_to_wifi(ssid, password, hotspot, usersettings):
     ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
     update_config=1
     network={
+        scan_ssid=1
         ssid="%s"
         %s
     }"""

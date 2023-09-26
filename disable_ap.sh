@@ -13,7 +13,7 @@ sudo cp config/wpa_disable_ap.conf /etc/wpa_supplicant/wpa_supplicant.conf
 sleep 1
 sudo wpa_cli -i wlan0 reconfigure
 sudo wpa_cli -i p2p-dev-wlan0
-sleep 5
+sleep 2
 sudo ifconfig wlan0 down
-sleep 5
+sleep 2
 sudo ifconfig wlan0 up
