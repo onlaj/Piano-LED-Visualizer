@@ -137,7 +137,7 @@ for msg in learning.song_tracks:
                 # red     = int(learning.hand_colorList[learning.hand_colorL][0] * msg.velocity / 127)
                 # green   = int(learning.hand_colorList[learning.hand_colorL][1] * msg.velocity / 127)
                 # blue    = int(learning.hand_colorList[learning.hand_colorL][2] * msg.velocity / 127)
-            # ledstrip.strip.setPixelColor(note_position, Color(green, red, blue))
+            # ledstrip.strip.setPixelColor(note_position, Color(red, green, blue))
             # ledstrip.strip.show()
 
         # Save notes to press

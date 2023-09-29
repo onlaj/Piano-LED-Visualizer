@@ -1,5 +1,5 @@
 from lib.functions import *
-from lib.neopixel import Color
+from rpi_ws281x import Color
 import colorsys
 import mido
 import random

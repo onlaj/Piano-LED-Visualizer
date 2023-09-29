@@ -1,5 +1,5 @@
 import threading
-from lib.neopixel import *
+from rpi_ws281x import Color
 import mido
 import datetime
 import psutil
@@ -392,7 +392,7 @@ def fastColorWipe(strip, update, ledsettings):
     red = int(ledsettings.get_backlight_color("Red") * brightness)
     green = int(ledsettings.get_backlight_color("Green") * brightness)
     blue = int(ledsettings.get_backlight_color("Blue") * brightness)
-    color = Color(green, red, blue)
+    color = Color(red, green, blue)
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
     if update:
@@ -442,7 +442,7 @@ def theaterChase(ledstrip, ledsettings, menu, wait_ms=25):
         for q in range(5):
             for i in range(0, strip.numPixels(), 5):
                 if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                    strip.setPixelColor(i + q, Color(green, red, blue))
+                    strip.setPixelColor(i + q, Color(red, green, blue))
             strip.show()
             time.sleep(wait_ms / 1000.0)
             for i in range(0, strip.numPixels(), 5):
@@ -577,13 +577,13 @@ def startup_animation(ledstrip, ledsettings, duration_ms=2000, max_leds=30):
 
         for i in range(start_red_led, start_blue_led):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                strip.setPixelColor(i, Color(0, red, 0))
+                strip.setPixelColor(i, Color(red, 0, 0))
         for i in range(start_blue_led, start_green_led):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                 strip.setPixelColor(i, Color(0, 0, blue))
         for i in range(start_green_led, start_green_led + num_green_leds):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                strip.setPixelColor(i, Color(green, 0, 0))
+                strip.setPixelColor(i, Color(0, green, 0))
 
         strip.show()
         brightness += brightness_increment
@@ -683,7 +683,7 @@ def breathing(ledstrip, ledsettings, menu, speed="Medium"):
 
         for i in range(strip.numPixels()):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                strip.setPixelColor(i, Color(green, red, blue))
+                strip.setPixelColor(i, Color(red, green, blue))
         strip.show()
         if wait_ms > 0:
             time.sleep(wait_ms / 1000.0)
@@ -720,7 +720,7 @@ def sound_of_da_police(ledstrip, ledsettings, menu, wait_ms=5):
         for i in range(strip.numPixels()):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                 if (i > middle) and r_start < i < (r_start + 40):
-                    strip.setPixelColor(i, Color(0, int(255 * brightness), 0))
+                    strip.setPixelColor(i, Color(int(255 * brightness), 0, 0))
                 elif (i < middle) and l_start > i > (l_start - 40):
                     strip.setPixelColor(i, Color(0, 0, int(255 * brightness)))
                 else:
@@ -777,7 +777,7 @@ def scanner(ledstrip, ledsettings, menu, wait_ms=1):
 
                 if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                     if divide > 0:
-                        strip.setPixelColor(i, Color(green, red, blue))
+                        strip.setPixelColor(i, Color(red, green, blue))
                     else:
                         strip.setPixelColor(i, Color(0, 0, 0))
 
@@ -826,7 +826,7 @@ def chords(scale, ledstrip, ledsettings, menu):
 
             if check_if_led_can_be_overwrite(note_position, ledstrip, ledsettings):
                 strip.setPixelColor(note_position,
-                                    Color(int(c[1] * brightness), int(c[0] * brightness), int(c[2] * brightness)))
+                                    Color(int(c[0] * brightness), int(c[1] * brightness), int(c[2] * brightness)))
 
         for i in leds_to_update:
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):

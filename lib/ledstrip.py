@@ -1,5 +1,5 @@
 from lib.functions import *
-
+from rpi_ws281x import PixelStrip, Adafruit_NeoPixel, ws
 
 class LedStrip:
     def __init__(self, usersettings, ledsettings):
@@ -13,6 +13,7 @@ class LedStrip:
         self.reverse = int(self.usersettings.get_setting_value("reverse"))
 
         self.brightness = 255 * self.brightness_percent / 100
+        self.led_gamma = float(usersettings.get_setting_value("led_gamma"))
 
         self.keylist = [0] * self.led_number
         self.keylist_status = [0] * self.led_number
@@ -32,9 +33,16 @@ class LedStrip:
 
         # Create NeoPixel object with appropriate configuration.
         self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
-                                       self.LED_BRIGHTNESS, self.LED_CHANNEL)
+                                       self.LED_BRIGHTNESS, self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
+        self.change_gamma(self.led_gamma)
+
+    def change_gamma(self, value):
+        self.led_gamma = float(value)
+        if 0.01 <= self.led_gamma <= 10.0:
+            # rpi_ws281x.py interface has no ported method to set gamma by factor, using direct ws
+            ws.ws2811_set_custom_gamma_factor(self.strip._leds, self.led_gamma)
 
     def change_brightness(self, value, ispercent=False):
         if ispercent:
@@ -62,7 +70,7 @@ class LedStrip:
         self.keylist_color = [0] * self.led_number
 
         self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA,
-                                       self.LED_INVERT, int(self.brightness), self.LED_CHANNEL)
+                                       self.LED_INVERT, int(self.brightness), self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
 
@@ -83,7 +91,7 @@ class LedStrip:
 
     def set_adjacent_colors(self, note, color, led_turn_off, fading=1):
         if self.ledsettings.adjacent_mode == "RGB" and color != 0 and led_turn_off is not True:
-            color = Color(int(self.ledsettings.adjacent_green * fading), int(self.ledsettings.adjacent_red * fading),
+            color = Color(int(self.ledsettings.adjacent_red * fading), int(self.ledsettings.adjacent_green * fading),
                           int(self.ledsettings.adjacent_blue * fading))
         if self.ledsettings.adjacent_mode != "Off":
 

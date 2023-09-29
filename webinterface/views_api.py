@@ -921,8 +921,10 @@ def change_setting():
     if setting_name == "update_rpi":
         call("sudo git reset --hard HEAD", shell=True)
         call("sudo git checkout .", shell=True)
-        call("sudo git clean -fdx", shell=True)
+        call("sudo git clean -fdx -e Songs/ -e config/settings.xml", shell=True)
+        call("sudo git clean -fdx Songs/cache", shell=True)
         call("sudo git pull origin master", shell=True)
+        call("sudo pip install -r requirements.txt", shell=True)
 
     if setting_name == "connect_ports":
         webinterface.midiports.connectall()
@@ -1210,6 +1212,12 @@ def change_setting():
 
         return jsonify(success=True)
 
+    if setting_name == "led_gamma":
+        webinterface.usersettings.change_setting_value("led_gamma", value)
+        webinterface.ledstrip.change_gamma(float(value))
+
+        return jsonify(success=True)
+
     return jsonify(success=True)
 
 
@@ -1332,6 +1340,7 @@ def get_settings():
     response["brightness"] = brightness
     response["backlight_brightness"] = backlight_brightness
     response["backlight_color"] = backlight_color
+    response["led_gamma"] = webinterface.usersettings.get_setting_value("led_gamma")
 
     response["sides_color_mode"] = webinterface.usersettings.get_setting_value("adjacent_mode")
     response["sides_color"] = sides_color

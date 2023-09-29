@@ -16,6 +16,14 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
             <input id="brightness" class="w-full" type="range" value="50" min="1" max="100"
                    oninput="this.nextElementSibling.value = this.value+'%' ">
             <output id="brightness_percent" class="flex justify-center">50%</output>
+            <div class="advanced-content">
+                <label for="gamma_correction">Gamma Correction:</label>
+                <input id="gamma_correction" name="led_gamma" type="number" value="1" min="0.01" max="10.0"
+                    class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
+                            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    title="Use 2.8 for linear perception"
+                    onchange="change_setting('led_gamma', this.value);">
+            </div>
         </div>
     </div>
 

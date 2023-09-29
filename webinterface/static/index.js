@@ -15,6 +15,8 @@ let hand_colorList = '';
 
 let uploadProgress = [];
 
+let advancedMode = false;
+
 
 const tick1 = new Audio('/static/tick2.mp3');
 tick1.volume = 0.2;
@@ -93,6 +95,7 @@ function loadAjax(subpage) {
                     initialize_led_settings();
                     get_current_sequence_setting();
                     clearInterval(homepage_interval);
+                    setAdvancedMode(advancedMode);
                 }
                 if (subpage === "ledanimations") {
                     get_led_idle_animation_settings();
@@ -446,6 +449,7 @@ function get_settings(home = true) {
 
                     document.getElementById("brightness").value = response["brightness"];
                     document.getElementById("brightness_percent").value = response["brightness"] + "%";
+                    document.getElementById("gamma_correction").value = response["led_gamma"];
                     document.getElementById("backlight_brightness").value = response["backlight_brightness"];
                     document.getElementById("backlight_brightness_percent").value = response["backlight_brightness"] + "%";
                     document.getElementById("skipped_notes").value = response["skipped_notes"];
@@ -2050,18 +2054,17 @@ function pageScroll() {
     scrolldelay = setTimeout(pageScroll, 33);
 }
 
-function toggleMode() {
-    const modeSwitch = document.getElementById('modeSwitch');
+function setAdvancedMode(mode) {
+    advancedMode = mode;
     const advancedContentElements = document.querySelectorAll('.advanced-content');
-
-    const newDisplayStyle = modeSwitch.checked ? 'block' : 'none';
+    const newDisplayStyle = advancedMode ? 'block' : 'none';
 
     advancedContentElements.forEach(element => {
         element.style.display = newDisplayStyle;
     });
 
     // Save the user's choice in a cookie
-    const modeValue = modeSwitch.checked ? 'advanced' : 'normal';
+    const modeValue = advancedMode ? 'advanced' : 'normal';
     setCookie('mode', modeValue, 365)
 }
 
@@ -2073,7 +2076,7 @@ function checkSavedMode() {
 
         if (mode === 'advanced') {
             modeSwitch.checked = true;
-            toggleMode();
+            setAdvancedMode(true);
         }
     }
 }
