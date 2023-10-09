@@ -326,7 +326,7 @@ class LedSettings:
                     0].getElementsByTagName(
                     "step_" + str(self.step_number))[0].getElementsByTagName("light_mode")[0].firstChild.nodeValue
 
-            if self.mode == "Velocity" or self.mode == "Fading":
+            if self.mode == "Velocity" or self.mode == "Fading" or self.mode == "Pedal":
                 self.fadingspeed = int(self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                                            0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
                     "fadingspeed")[
@@ -345,7 +345,7 @@ class LedSettings:
                     elif self.fadingspeed == "Instant":
                         self.fadingspeed = 1000
 
-                if self.mode == "Velocity":
+                if self.mode == "Velocity" or self.mode == "Pedal":
                     if self.fadingspeed == "Fast":
                         self.fadingspeed = 10
                     elif self.fadingspeed == "Medium":

@@ -626,7 +626,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     document.getElementById('fading').hidden = false;
                     document.getElementById('fading_speed').value = response["fading_speed"];
                 }
-                if (response["light_mode"] === "Velocity") {
+                if (response["light_mode"] === "Velocity" || response["light_mode"] === "Pedal") {
                     document.getElementById('velocity').hidden = false;
                     document.getElementById('fading_speed').value = response["fading_speed"];
                 }
