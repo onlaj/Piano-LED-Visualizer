@@ -171,7 +171,7 @@ function get_homepage_data_loop() {
 
                 formatBytes(response_pc_stats["memory_usage_used"], 2, false) + "/" +
                 formatBytes(response_pc_stats["memory_usage_total"]);
-            document.getElementById("cpu_temp").innerHTML = response_pc_stats["cpu_temp"] + "°C";
+            document.getElementById("cpu_temp").innerHTML = response_pc_stats["cpu_temp"];
 
             document.getElementById("card_usage").innerHTML =
                 formatBytes(response_pc_stats["card_space_used"], 2, false) + "/" +
