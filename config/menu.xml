@@ -124,6 +124,12 @@
                 <Velocity text="Slow"></Velocity>
                 <Velocity text="Very slow"></Velocity>
             </Light_mode>
+            <Light_mode text="Pedal">
+                <Pedal text="Fast"></Pedal>
+                <Pedal text="Medium"></Pedal>
+                <Pedal text="Slow"></Pedal>
+                <Pedal text="Very slow"></Pedal>
+            </Light_mode>
             <Light_mode text="Disabled"></Light_mode>
         </LED_Strip_Settings>
         <LED_Strip_Settings text="Brightness">

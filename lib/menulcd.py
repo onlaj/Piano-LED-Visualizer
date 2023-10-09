@@ -888,6 +888,12 @@ class MenuLCD:
                 "Medium": 8,
                 "Slow": 6,
                 "Very slow": 3
+            },
+            "Pedal": {
+                "Fast": 10,
+                "Medium": 8,
+                "Slow": 6,
+                "Very slow": 3
             }
         }
 
