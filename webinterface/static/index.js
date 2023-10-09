@@ -470,6 +470,10 @@ function get_settings(home = true) {
                     document.getElementById('velocity').hidden = false;
                     document.getElementById('velocity_speed').value = response.fading_speed;
                 }
+                if (response.light_mode == "Pedal") {
+                    document.getElementById('velocity').hidden = false;
+                    document.getElementById('velocity_speed').value = response.fading_speed;
+                }
 
                 document.getElementById("led_color").value = response["led_color"];
 
@@ -1004,7 +1008,7 @@ function initialize_led_settings() {
         } else {
             document.getElementById('fading').hidden = true;
         }
-        if (this.value === "Velocity") {
+        if (this.value === "Velocity" || this.value === "Pedal") {
             document.getElementById('velocity').hidden = false;
             document.getElementById('velocity_speed').onchange();
         } else {

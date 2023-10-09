@@ -321,8 +321,8 @@ while True:
 
         fading = 1
         # Calculate fading for Fading and Velocity modes
-        # "Velocity" starts fading right away, "Fading" starts fading on NoteOff
-        if ledsettings.mode == "Velocity" or (ledsettings.mode == "Fading" and ledstrip.keylist_status[n] == 0):
+        # "Velocity","Pedal" starts fading right away, "Fading" starts fading on NoteOff
+        if ledsettings.mode == "Velocity" or ledsettings.mode == "Pedal" or (ledsettings.mode == "Fading" and ledstrip.keylist_status[n] == 0):
             fading = (strength / float(100)) / 10
             red = int(red * fading)
             green = int(green * fading)
@@ -330,7 +330,7 @@ while True:
             ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
             led_changed = True
 
-        if ledsettings.mode == "Velocity":
+        if ledsettings.mode == "Velocity" or ledsettings.mode == "Pedal":
             # If sustain pedal is off and note is off, turn off fade processing
             if int(last_control_change) < pedal_deadzone and ledstrip.keylist_status[n] == 0:
                 ledstrip.keylist[n] = 0
@@ -451,10 +451,12 @@ while True:
                 brightness = 1
             if ledsettings.mode == "Fading":
                 ledstrip.keylist[note_position] = 1001
-            if ledsettings.mode == "Velocity":
+            elif ledsettings.mode == "Velocity":
                 ledstrip.keylist[note_position] = 999 / float(brightness)
-            if ledsettings.mode == "Normal":
+            elif ledsettings.mode == "Normal":
                 ledstrip.keylist[note_position] = 1000
+            elif ledsettings.mode == "Pedal":
+                ledstrip.keylist[note_position] = 999
 
             # Apply learning colors
             channel = find_between(str(msg), "channel=", " ")
