@@ -333,27 +333,27 @@ class LedSettings:
                                            0].firstChild.nodeValue)
                 if self.mode == "Fading":
                     if self.fadingspeed == "Very fast":
-                        self.fadingspeed = 50
+                        self.fadingspeed = 0.5
                     elif self.fadingspeed == "Fast":
-                        self.fadingspeed = 40
+                        self.fadingspeed = 1
                     elif self.fadingspeed == "Medium":
-                        self.fadingspeed = 20
-                    elif self.fadingspeed == "Slow":
-                        self.fadingspeed = 10
-                    elif self.fadingspeed == "Very slow":
                         self.fadingspeed = 2
+                    elif self.fadingspeed == "Slow":
+                        self.fadingspeed = 3
+                    elif self.fadingspeed == "Very slow":
+                        self.fadingspeed = 6
                     elif self.fadingspeed == "Instant":
-                        self.fadingspeed = 1000
+                        self.fadingspeed = 0.01
 
                 if self.mode == "Velocity" or self.mode == "Pedal":
                     if self.fadingspeed == "Fast":
-                        self.fadingspeed = 10
+                        self.fadingspeed = 1
                     elif self.fadingspeed == "Medium":
-                        self.fadingspeed = 8
-                    elif self.fadingspeed == "Slow":
-                        self.fadingspeed = 6
-                    elif self.fadingspeed == "Very slow":
                         self.fadingspeed = 3
+                    elif self.fadingspeed == "Slow":
+                        self.fadingspeed = 4
+                    elif self.fadingspeed == "Very slow":
+                        self.fadingspeed = 6
             if self.color_mode == "RGB" or self.color_mode == "Single":
                 self.color_mode = "Single"
                 self.red = int(self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[

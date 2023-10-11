@@ -318,19 +318,17 @@ while True:
 
         fading = 1
 
-        #temporary overwrite
-        ledsettings.fadingspeed = 5
-
         # Calculate fading for Fading and Velocity modes
         # "Velocity","Pedal" starts fading right away, "Fading" starts fading on NoteOff
         if ledsettings.mode == "Velocity" or ledsettings.mode == "Pedal" or (
                 ledsettings.mode == "Fading" and ledstrip.keylist_status[n] == 0):
             fading = (strength / float(100)) / 10
-            decrease_amount = (event_loop_time / ledsettings.fadingspeed) * 1000
             red = int(red * fading)
             green = int(green * fading)
             blue = int(blue * fading)
             #ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
+            # ledsettings.fadingspeed is a value in seconds of how long it takes for full fade
+            decrease_amount = (event_loop_time / ledsettings.fadingspeed) * 1000
             ledstrip.keylist[n] = ledstrip.keylist[n] - decrease_amount
 
             led_changed = True
