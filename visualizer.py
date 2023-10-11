@@ -102,7 +102,6 @@ sys.stdout = Logger()
 # Set the custom exception handler
 sys.excepthook = log_unhandled_exception
 
-
 if args.rotatescreen != "true":
     KEYRIGHT = 26
     KEYLEFT = 5
@@ -151,7 +150,6 @@ ledsettings.add_instance(menu, ledstrip)
 saving.add_instance(menu)
 learning.add_instance(menu)
 
-
 menu.show()
 z = 0
 display_cycle = 0
@@ -191,9 +189,7 @@ if args.webinterface != "false":
     processThread = threading.Thread(target=start_webserver, daemon=True)
     processThread.start()
 
-
 manage_hotspot(hotspot, usersettings, midiports, True)
-
 
 # Frame rate counters
 event_loop_stamp = time.time()
@@ -301,6 +297,7 @@ while True:
 
     # Fade processing
     for n, strength in enumerate(ledstrip.keylist):
+
         # Only apply fade processing to activated leds
         if strength <= 0:
             continue
@@ -320,14 +317,22 @@ while True:
             led_changed = True
 
         fading = 1
+
+        #temporary overwrite
+        ledsettings.fadingspeed = 5
+
         # Calculate fading for Fading and Velocity modes
         # "Velocity","Pedal" starts fading right away, "Fading" starts fading on NoteOff
-        if ledsettings.mode == "Velocity" or ledsettings.mode == "Pedal" or (ledsettings.mode == "Fading" and ledstrip.keylist_status[n] == 0):
+        if ledsettings.mode == "Velocity" or ledsettings.mode == "Pedal" or (
+                ledsettings.mode == "Fading" and ledstrip.keylist_status[n] == 0):
             fading = (strength / float(100)) / 10
+            decrease_amount = (event_loop_time / ledsettings.fadingspeed) * 1000
             red = int(red * fading)
             green = int(green * fading)
             blue = int(blue * fading)
-            ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
+            #ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
+            ledstrip.keylist[n] = ledstrip.keylist[n] - decrease_amount
+
             led_changed = True
 
         if ledsettings.mode == "Velocity" or ledsettings.mode == "Pedal":
@@ -513,7 +518,7 @@ while True:
 
     # calculate fps average over 2 seconds
     if frame_seconds >= 2:
-        fps = frame_count/frame_seconds
+        fps = frame_count / frame_seconds
         ledstrip.current_fps = fps
 
         # reset counters
