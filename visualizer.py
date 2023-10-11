@@ -326,9 +326,9 @@ while True:
             red = int(red * fading)
             green = int(green * fading)
             blue = int(blue * fading)
-            #ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
+            # ledstrip.keylist[n] = ledstrip.keylist[n] - ledsettings.fadingspeed
             # ledsettings.fadingspeed is a value in seconds of how long it takes for full fade
-            decrease_amount = (event_loop_time / ledsettings.fadingspeed) * 1000
+            decrease_amount = int((event_loop_time / float(ledsettings.fadingspeed / 1000)) * 1000)
             ledstrip.keylist[n] = ledstrip.keylist[n] - decrease_amount
 
             led_changed = True
