@@ -175,7 +175,7 @@ def change_setting():
 
     if setting_name == "fading_speed" or setting_name == "velocity_speed":
         if not int(value):
-            value = 1
+            value = 1000
         webinterface.ledsettings.fadingspeed = int(value)
         webinterface.usersettings.change_setting_value("fadingspeed", webinterface.ledsettings.fadingspeed)
 
