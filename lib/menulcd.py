@@ -876,24 +876,24 @@ class MenuLCD:
 
         mode_mapping = {
             "Fading": {
-                "Very fast": 50,
-                "Fast": 40,
-                "Medium": 20,
-                "Slow": 10,
-                "Very slow": 2,
-                "Instant": 1000
+                "Very fast": 200,
+                "Fast": 500,
+                "Medium": 1000,
+                "Slow": 2000,
+                "Very slow": 4000,
+                "Instant": 10
             },
             "Velocity": {
-                "Fast": 10,
-                "Medium": 8,
-                "Slow": 6,
-                "Very slow": 3
+                "Fast": 1000,
+                "Medium": 3000,
+                "Slow": 4000,
+                "Very slow": 6000
             },
             "Pedal": {
-                "Fast": 10,
-                "Medium": 8,
-                "Slow": 6,
-                "Very slow": 3
+                "Fast": 1000,
+                "Medium": 3000,
+                "Slow": 4000,
+                "Very slow": 6000
             }
         }
 
