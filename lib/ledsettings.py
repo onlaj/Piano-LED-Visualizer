@@ -333,15 +333,15 @@ class LedSettings:
                                            0].firstChild.nodeValue)
                 if self.mode == "Fading":
                     if self.fadingspeed == "Very fast":
-                        self.fadingspeed = 500
+                        self.fadingspeed = 200
                     elif self.fadingspeed == "Fast":
-                        self.fadingspeed = 1000
+                        self.fadingspeed = 500
                     elif self.fadingspeed == "Medium":
-                        self.fadingspeed = 2000
+                        self.fadingspeed = 1000
                     elif self.fadingspeed == "Slow":
-                        self.fadingspeed = 3000
+                        self.fadingspeed = 2000
                     elif self.fadingspeed == "Very slow":
-                        self.fadingspeed = 6000
+                        self.fadingspeed = 4000
                     elif self.fadingspeed == "Instant":
                         self.fadingspeed = 10
 
