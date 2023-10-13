@@ -59,7 +59,7 @@ def shift(lst, num_shifts):
 
 
 def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
-    midiports.pending_queue.append(mido.Message('note_on'))
+    midiports.midifile_queue.append((mido.Message('note_on'), time.time()))
 
     if song_path in saving.is_playing_midi.keys():
         menu.render_message(song_path, "Already playing", 2000)
@@ -94,14 +94,15 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
                 if delay < 0:
                     delay = 0
 
+                msg_timestamp = time.time() + delay
                 if delay > 0:
                     time.sleep(delay)
                 if not message.is_meta:
                     midiports.playport.send(message)
-                    midiports.pending_queue.append(message.copy(time=0))
+                    midiports.midifile_queue.append((message.copy(time=0), msg_timestamp))
 
             else:
-                midiports.pending_queue.clear()
+                midiports.midifile_queue.clear()
                 strip = ledstrip.strip
                 fastColorWipe(strip, True, ledsettings)
                 break

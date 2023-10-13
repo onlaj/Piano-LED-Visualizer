@@ -355,18 +355,15 @@ while True:
             ledstrip.set_adjacent_colors(n, Color(int(red), int(green), int(blue)), False, fading)
 
     # Prep midi event queue
-    try:
-        if len(saving.is_playing_midi) == 0 and learning.is_started_midi is False:
-            if hasattr(midiports.inport, 'iter_pending') and callable(midiports.inport.iter_pending):
-                midiports.midipending = midiports.inport.iter_pending()
-        else:
-            midiports.midipending = midiports.pending_queue
-    except Exception as e:
-        print(f"Unexpected exception occurred: {e}")
-        traceback.print_exc()
+    if len(saving.is_playing_midi) == 0 and learning.is_started_midi is False:
+        midiports.midipending = midiports.midi_queue
+    else:
+        midiports.midipending = midiports.midifile_queue
 
     # loop through incoming midi messages
-    for msg in midiports.midipending:
+    while midiports.midipending:
+        msg, msg_timestamp = midiports.midipending.popleft()
+
         if int(usersettings.get_setting_value("midi_logging")) == 1:
             if not msg.is_meta:
                 try:
@@ -375,7 +372,6 @@ while True:
                     print(e)
 
         midiports.last_activity = time.time()
-
 
         # when a note is lifted (off)
         # midi note off can be triggered 2 ways: note_off or note_on with velocity 0
@@ -408,7 +404,7 @@ while True:
                     ledstrip.set_adjacent_colors(note_position, Color(0, 0, 0), False)
 
             if saving.is_recording:
-                saving.add_track("note_off", msg.note, velocity, midiports.last_activity)
+                saving.add_track("note_off", msg.note, velocity, msg_timestamp)
 
         # when a note is pressed
         elif msg.type == 'note_on' and msg.velocity > 0 and ledsettings.mode != "Disabled":
@@ -464,10 +460,10 @@ while True:
             # Saving
             if saving.is_recording:
                 if ledsettings.color_mode == "Multicolor":
-                    saving.add_track("note_on", msg.note, velocity, midiports.last_activity,
+                    saving.add_track("note_on", msg.note, velocity, msg_timestamp,
                                      wc.rgb_to_hex((red, green, blue)))
                 else:
-                    saving.add_track("note_on", msg.note, velocity, midiports.last_activity)
+                    saving.add_track("note_on", msg.note, velocity, msg_timestamp)
 
         # Midi control change event
         elif msg.type == "control_change":
@@ -493,14 +489,12 @@ while True:
                     traceback.print_exc()
 
             if saving.is_recording:
-                saving.add_control_change("control_change", 0, control, value, midiports.last_activity)
+                saving.add_control_change("control_change", 0, control, value, msg_timestamp)
 
         color_mode.MidiEvent(msg, None, ledstrip)
 
         # Save event-loop update
         saving.restart_time()
-        if len(saving.is_playing_midi) > 0:
-            midiports.pending_queue.remove(msg)
 
     # Update ledstrip
     ledstrip.strip.show()

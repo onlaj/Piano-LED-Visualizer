@@ -1,21 +1,24 @@
 import mido
 from lib import connectall
 import time
+from collections import deque
 
 class MidiPorts:
     def __init__(self, usersettings):
         self.usersettings = usersettings
-        self.pending_queue = []
+        # midi queues will contain a tuple (midi_msg, timestamp)
+        self.midifile_queue = deque()
+        self.midi_queue = deque()
         self.last_activity = 0
         self.inport = None
         self.playport = None
-        self.midipending = []
+        self.midipending = None
 
         # checking if the input port was previously set by the user
         port = self.usersettings.get_setting_value("input_port")
         if port != "default":
             try:
-                self.inport = mido.open_input(port)
+                self.inport = mido.open_input(port, callback=self.msg_callback)
                 print("Inport loaded and set to " + port)
             except:
                 print("Can't load input port: " + port)
@@ -24,7 +27,7 @@ class MidiPorts:
             try:
                 for port in mido.get_input_names():
                     if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
-                        self.inport = mido.open_input(port)
+                        self.inport = mido.open_input(port, callback=self.msg_callback)
                         self.usersettings.change_setting_value("input_port", port)
                         print("Inport set to " + port)
                         break
@@ -66,7 +69,7 @@ class MidiPorts:
             destroy_old = None
             if port == "inport":
                 destory_old = self.inport
-                self.inport = mido.open_input(portname)
+                self.inport = mido.open_input(portname, callback=self.msg_callback)
                 self.usersettings.change_setting_value("input_port", portname)
             elif port == "playport":
                 destory_old = self.playport
@@ -84,7 +87,7 @@ class MidiPorts:
         try:
             destroy_old = self.inport
             port = self.usersettings.get_setting_value("input_port")
-            self.inport = mido.open_input(port)
+            self.inport = mido.open_input(port, callback=self.msg_callback)
             if destroy_old is not None:
                 time.sleep(0.002)
                 destroy_old.close()
@@ -99,3 +102,6 @@ class MidiPorts:
                 destroy_old.close()
         except:
             print("Can't reconnect play port: " + port)
+
+    def msg_callback(self, msg):
+        self.midi_queue.append((msg, time.time()))
