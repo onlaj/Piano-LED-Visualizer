@@ -158,7 +158,7 @@ screen_hold_time = 16
 midiports.last_activity = time.time()
 hotspot.hotspot_script_time = time.time()
 
-last_control_change = 0
+last_sustain = 0
 pedal_deadzone = 10
 ledshow_timestamp = time.time()
 color_mode_name = ""
@@ -335,7 +335,7 @@ while True:
 
         if ledsettings.mode == "Velocity" or ledsettings.mode == "Pedal":
             # If sustain pedal is off and note is off, turn off fade processing
-            if int(last_control_change) < pedal_deadzone and ledstrip.keylist_status[n] == 0:
+            if int(last_sustain) < pedal_deadzone and ledstrip.keylist_status[n] == 0:
                 ledstrip.keylist[n] = 0
                 red, green, blue = (0, 0, 0)
                 led_changed = True
@@ -375,44 +375,17 @@ while True:
                     print(e)
 
         midiports.last_activity = time.time()
-        note = find_between(str(msg), "note=", " ")
-        original_note = note
-        note = int(note)
-        if "note_off" in str(msg):
+
+
+        # when a note is lifted (off)
+        # midi note off can be triggered 2 ways: note_off or note_on with velocity 0
+        if (msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0)) and ledsettings.mode != "Disabled":
             velocity = 0
-        else:
-            velocity = find_between(str(msg), "velocity=", " ")
+            # changing offset to adjust the distance between the LEDs to the key spacing
+            note_position = get_note_position(msg.note, ledstrip, ledsettings)
+            if note_position >= ledstrip.led_number or note_position < 0:
+                continue
 
-        control_change = find_between(str(msg), "value=", " ")
-        if control_change:
-            last_control_change = control_change
-
-            if ledsettings.sequence_active:
-
-                control = find_between(str(msg), "control=", " ")
-                value = find_between(str(msg), "value=", " ")
-                try:
-                    if "+" in ledsettings.next_step:
-                        if int(value) > int(ledsettings.next_step) and control == ledsettings.control_number:
-                            ledsettings.set_sequence(0, 1)
-                    else:
-                        if int(value) < int(ledsettings.next_step) and control == ledsettings.control_number:
-                            ledsettings.set_sequence(0, 1)
-                except TypeError as e:
-                    pass
-                except Exception as e:
-                    print(f"An unexpected exception occurred: {e}")
-                    traceback.print_exc()
-
-        # changing offset to adjust the distance between the LEDs to the key spacing
-        note_position = get_note_position(note, ledstrip, ledsettings)
-
-        if (note_position >= ledstrip.led_number or note_position < 0) and control_change is False:
-            continue
-
-        elapsed_time = time.time() - saving.start_time
-
-        if int(velocity) == 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is lifted (off)
             ledstrip.keylist_status[note_position] = 0
             if ledsettings.mode == "Fading":
                 ledstrip.keylist[note_position] = 1000
@@ -435,8 +408,15 @@ while True:
                     ledstrip.set_adjacent_colors(note_position, Color(0, 0, 0), False)
 
             if saving.is_recording:
-                saving.add_track("note_off", original_note, velocity, midiports.last_activity)
-        elif int(velocity) > 0 and int(note) > 0 and ledsettings.mode != "Disabled":  # when a note is pressed
+                saving.add_track("note_off", msg.note, velocity, midiports.last_activity)
+
+        # when a note is pressed
+        elif msg.type == 'note_on' and msg.velocity > 0 and ledsettings.mode != "Disabled":
+            velocity = msg.velocity
+            note_position = get_note_position(msg.note, ledstrip, ledsettings)
+            if note_position >= ledstrip.led_number or note_position < 0:
+                continue
+
             color = color_mode.NoteOn(msg, None, note_position)
             if color is not None:
                 red, green, blue = color
@@ -484,15 +464,34 @@ while True:
             # Saving
             if saving.is_recording:
                 if ledsettings.color_mode == "Multicolor":
-                    saving.add_track("note_on", original_note, velocity, midiports.last_activity,
+                    saving.add_track("note_on", msg.note, velocity, midiports.last_activity,
                                      wc.rgb_to_hex((red, green, blue)))
                 else:
-                    saving.add_track("note_on", original_note, velocity, midiports.last_activity)
+                    saving.add_track("note_on", msg.note, velocity, midiports.last_activity)
 
         # Midi control change event
-        else:
-            control = find_between(str(msg), "control=", " ")
-            value = find_between(str(msg), "value=", " ")
+        elif msg.type == "control_change":
+            control = msg.control
+            value = msg.value
+
+            # midi control 64 = sustain pedal
+            if control == 64:
+                last_sustain = value
+
+            if ledsettings.sequence_active and ledsettings.next_step is not None:
+                try:
+                    if "+" in ledsettings.next_step:
+                        if int(value) > int(ledsettings.next_step) and control == ledsettings.control_number:
+                            ledsettings.set_sequence(0, 1)
+                    else:
+                        if int(value) < int(ledsettings.next_step) and control == ledsettings.control_number:
+                            ledsettings.set_sequence(0, 1)
+                except TypeError as e:
+                    pass
+                except Exception as e:
+                    print(f"An unexpected exception occurred: {e}")
+                    traceback.print_exc()
+
             if saving.is_recording:
                 saving.add_control_change("control_change", 0, control, value, midiports.last_activity)
 
