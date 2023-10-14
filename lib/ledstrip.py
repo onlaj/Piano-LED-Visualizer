@@ -36,6 +36,8 @@ class LedStrip:
                                        self.LED_BRIGHTNESS, self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
         # Intialize the library (must be called once before other functions).
         self.strip.begin()
+        if "releaseGIL" in dir(self.strip):
+            self.strip.releaseGIL()
         self.change_gamma(self.led_gamma)
 
     def change_gamma(self, value):
