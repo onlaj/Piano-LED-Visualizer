@@ -413,7 +413,7 @@ while True:
             if note_position >= ledstrip.led_number or note_position < 0:
                 continue
 
-            color = color_mode.NoteOn(msg, None, note_position)
+            color = color_mode.NoteOn(msg, msg_timestamp, None, note_position)
             if color is not None:
                 red, green, blue = color
             else:
