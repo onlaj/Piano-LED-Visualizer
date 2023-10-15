@@ -192,9 +192,9 @@ if args.webinterface != "false":
 manage_hotspot(hotspot, usersettings, midiports, True)
 
 # Frame rate counters
-event_loop_stamp = time.time()
+event_loop_stamp = time.perf_counter()
 frame_count = 0
-frame_avg_stamp = time.time()
+frame_avg_stamp = time.perf_counter()
 
 # Main event loop
 
@@ -204,7 +204,7 @@ while True:
         if (time.time() - midiports.last_activity) > (int(menu.screensaver_delay) * 60):
             screensaver(menu, midiports, saving, ledstrip, ledsettings)
     try:
-        elapsed_time = time.time() - saving.start_time
+        elapsed_time = time.perf_counter() - saving.start_time
     except Exception as e:
         # Handle any other unexpected exceptions here
         print(f"Unexpected exception occurred: {e}")
@@ -501,11 +501,12 @@ while True:
 
     # Frame time calculations
 
-    # time taken for the last interation of the main event loop
-    event_loop_time = time.time() - event_loop_stamp
+    # time taken for the last iteration of the main event loop
+    event_loop_time = time.perf_counter() - event_loop_stamp
+    event_loop_stamp = time.perf_counter()
 
     frame_count += 1
-    frame_seconds = time.time() - frame_avg_stamp
+    frame_seconds = time.perf_counter() - frame_avg_stamp
 
     # calculate fps average over 2 seconds
     if frame_seconds >= 2:
@@ -513,7 +514,5 @@ while True:
         ledstrip.current_fps = fps
 
         # reset counters
-        frame_avg_stamp = time.time()
+        frame_avg_stamp = time.perf_counter()
         frame_count = 0
-
-    event_loop_stamp = time.time()

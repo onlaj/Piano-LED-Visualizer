@@ -13,7 +13,7 @@ class SaveMIDI:
         self.menu = None
         self.is_recording = False
         self.is_playing_midi = {}
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()
 
     def add_instance(self, menu):
         self.menu = menu
@@ -75,4 +75,4 @@ class SaveMIDI:
         self.menu.render_message("File saved", filename + ".mid", 1500)
 
     def restart_time(self):
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()

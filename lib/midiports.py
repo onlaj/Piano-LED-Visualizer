@@ -104,4 +104,4 @@ class MidiPorts:
             print("Can't reconnect play port: " + port)
 
     def msg_callback(self, msg):
-        self.midi_queue.append((msg, time.time()))
+        self.midi_queue.append((msg, time.perf_counter()))
