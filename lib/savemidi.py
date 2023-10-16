@@ -13,7 +13,7 @@ class SaveMIDI:
         self.menu = None
         self.is_recording = False
         self.is_playing_midi = {}
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()
 
     def add_instance(self, menu):
         self.menu = menu
@@ -54,12 +54,9 @@ class SaveMIDI:
             self.mid = MidiFile(None, None, 0, 20000)  # 20000 is a ticks_per_beat value
             self.track = MidiTrack()
             self.mid.tracks.append(self.track)
-            previous_message_time = None
+            previous_message_time = self.first_note_time
             for message in multicolor_track:
-                if previous_message_time is not None:
-                    time_delay = message[1] - previous_message_time
-                else:
-                    time_delay = 0
+                time_delay = message[1] - previous_message_time
                 previous_message_time = message[1]
 
                 if message[0] == "note":
@@ -78,4 +75,4 @@ class SaveMIDI:
         self.menu.render_message("File saved", filename + ".mid", 1500)
 
     def restart_time(self):
-        self.start_time = time.time()
+        self.start_time = time.perf_counter()
