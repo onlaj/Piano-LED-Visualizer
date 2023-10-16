@@ -204,6 +204,8 @@ const translations = {
         logs: "Logs",
         show_last: "Show last",
         lines: "lines",
+        reinitialize_network_on_boot: "Reinitialize network on boot",
+        required_for_some_routers: "Required for some routers. Disabling this option will speed up the start, but it may cause connection issues",
 
         //dynamic content
         incorrect_password: "If an incorrect password is entered, it might take a few minutes for the hotspot to be reestablished.",
@@ -419,6 +421,8 @@ const translations = {
         logs: "Logi",
         show_last: "Pokaż ostatnie",
         lines: "linii",
+        reinitialize_network_on_boot: "Zainicjuj ponownie sieć podczas uruchamiania",
+        required_for_some_routers: "Wymagane dla niektórych routerów. Wyłączenie tej opcji przyspieszy uruchomienie, ale może powodować problemy z połączeniem",
 
         //dynamic content
         incorrect_password: "Jeśli wprowadzone zostało niepoprawne hasło, może minąć kilka minut zanim hotspot zostanie ponownie utworzony." ,
@@ -632,6 +636,8 @@ const translations = {
         logs: "Logs",
         show_last: "Voir dernier",
         lines: "lignes",
+        reinitialize_network_on_boot: "Réinitialiser le réseau au démarrage",
+        required_for_some_routers: "Nécessaire pour certains routeurs. Désactiver cette option accélérera le démarrage, mais cela peut entraîner des problèmes de connexion",
 
 
         //dynamic content
@@ -845,6 +851,8 @@ const translations = {
         logs: "Logs",
         show_last: "Letzte anzeigen",
         lines: "Linien",
+        reinitialize_network_on_boot: "Netzwerk bei Neustart neu initialisieren",
+        required_for_some_routers: "Erforderlich für einige Router. Das Deaktivieren dieser Option beschleunigt den Start, kann jedoch Verbindungsprobleme verursachen",
 
 
         //dynamic content
@@ -1059,6 +1067,8 @@ const translations = {
         logs: "Registros",
         show_last: "Mostrar último",
         lines: "líneas",
+        reinitialize_network_on_boot: "Reiniciar la red al arrancar",
+        required_for_some_routers: "Requerido para algunos routers. Desactivar esta opción acelerará el inicio, pero puede causar problemas de conexión",
 
         //dynamic content
         incorrect_password: "Si se introduce una contraseña incorrecta, puede llevar unos minutos restablecer el punto de acceso.",
@@ -1272,6 +1282,8 @@ const translations = {
         logs: "日志",
         show_last: "显示最后",
         lines: "行",
+        reinitialize_network_on_boot: "启动时重新初始化网络",
+        required_for_some_routers: "对于某些路由器是必需的。禁用此选项将加快启动速度，但可能会导致连接问题",
 
         //dynamic content
         incorrect_password: "如果输入的密码不正确，可能需要几分钟才能重新建立热点。",
@@ -1483,6 +1495,8 @@ const translations = {
         logs: "लॉग्स",
         show_last: "अंतिम दिखाएं",
         lines: "लाइनों",
+        reinitialize_network_on_boot: "प्रारंभ पर नेटवर्क को पुनर्आरंभ करें।",
+        required_for_some_routers: "कुछ राउटर्स के लिए आवश्यक है। इस विकल्प को अक्षम करने से प्रारंभ की गति तेज़ करेगी, लेकिन यह कनेक्शन समस्याएँ पैदा कर सकता है।",
 
         //dynamic content
         incorrect_password: "यदि गलत पासवर्ड दर्ज किया जाता है, तो हास्पॉट को फिर से स्थापित करने में कुछ मिनट लग सकते हैं।",
@@ -1697,6 +1711,8 @@ const translations = {
         logs: "Logs",
         show_last: "Mostrar último",
         lines: "linhas",
+        reinitialize_network_on_boot: "Reinicializar a rede na inicialização",
+        required_for_some_routers: "Necessário para alguns roteadores. Desativar esta opção acelerará o início, mas pode causar problemas de conexão",
 
         //dynamic content
         incorrect_password: "Se uma senha incorreta for inserida, pode levar alguns minutos para que o hotspot seja restabelecido.",
@@ -1909,6 +1925,8 @@ const translations = {
         logs: "ログ",
         show_last: "最後を表示",
         lines: "行数",
+        reinitialize_network_on_boot: "Reinicializar a rede na inicialização",
+        required_for_some_routers: "一部のルーターに必要です。このオプションを無効にすると起動が速くなりますが、接続の問題を引き起こす可能性があります",
 
         //dynamic content
         incorrect_password: "パスワードが間違っている場合、ホットスポットが再設定されるまでに数分かかることがあります。",

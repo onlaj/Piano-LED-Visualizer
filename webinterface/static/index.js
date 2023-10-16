@@ -193,6 +193,7 @@ function get_homepage_data_loop() {
 
             // change value of select based on response_pc_stats.screen_on
             document.getElementById("screen_on").value = response_pc_stats.screen_on;
+            document.getElementById("reinitialize_network_on_boot").value = response_pc_stats.reinitialize_network_on_boot;
 
             document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
 

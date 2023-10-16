@@ -33,7 +33,7 @@ def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
         if is_hotspot_active(usersettings):
             disconnect_from_wifi(hotspot, usersettings)
             return
-        else:
+        elif usersettings.get_setting_value("reinitialize_network_on_boot") == 1:
             try:
                 print("Running disable_ap.sh")
                 subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.DEVNULL,
