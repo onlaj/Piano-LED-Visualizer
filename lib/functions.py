@@ -414,13 +414,18 @@ def stop_animations(menu):
     menu.is_idle_animation_running = temp_is_idle_animation_running
     menu.is_animation_running = temp_is_animation_running
 
-def theaterChase(ledstrip, ledsettings, menu, wait_ms=25):
+def theaterChase(ledstrip, ledsettings, menu, wait_ms=20):
     """Movie theater light style chaser animation."""
     stop_animations(menu)
     strip = ledstrip.strip
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
-    j = 0
+
+    brightness = calculate_brightness(ledsettings)
+
+    red = int(ledsettings.get_backlight_color("Red") * brightness)
+    green = int(ledsettings.get_backlight_color("Green") * brightness)
+    blue = int(ledsettings.get_backlight_color("Blue") * brightness)
 
     while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
@@ -433,12 +438,6 @@ def theaterChase(ledstrip, ledsettings, menu, wait_ms=25):
             last_state = cover_opened
             cover_opened = GPIO.input(SENSECOVER)
 
-        brightness = calculate_brightness(ledsettings)
-
-        red = int(ledsettings.get_backlight_color("Red") * brightness)
-        green = int(ledsettings.get_backlight_color("Green") * brightness)
-        blue = int(ledsettings.get_backlight_color("Blue") * brightness)
-
         for q in range(5):
             for i in range(0, strip.numPixels(), 5):
                 if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
@@ -448,12 +447,9 @@ def theaterChase(ledstrip, ledsettings, menu, wait_ms=25):
             for i in range(0, strip.numPixels(), 5):
                 if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
                     strip.setPixelColor(i + q, 0)
-        j += 1
-        if j > 256:
-            j = 0
+
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
-
 
 def wheel(pos, ledsettings):
     """Generate rainbow colors across 0-255 positions."""
