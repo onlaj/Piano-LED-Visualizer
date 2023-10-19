@@ -1,4 +1,5 @@
 from lib.functions import *
+import lib.colormaps as cmap
 from rpi_ws281x import PixelStrip, Adafruit_NeoPixel, ws
 
 class LedStrip:
@@ -45,6 +46,9 @@ class LedStrip:
         if 0.01 <= self.led_gamma <= 10.0:
             # rpi_ws281x.py interface has no ported method to set gamma by factor, using direct ws
             ws.ws2811_set_custom_gamma_factor(self.strip._leds, self.led_gamma)
+
+            # Rebuild colormaps
+            cmap.generate_colormaps(cmap.gradients, self.led_gamma)
 
     def change_brightness(self, value, ispercent=False):
         if ispercent:

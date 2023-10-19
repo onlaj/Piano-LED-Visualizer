@@ -1,4 +1,4 @@
-<div class="slide-in-content text-gray-700 dark:text-gray-200 text-lg w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto">
+<div class="slide-in-content text-gray-700 dark:text-gray-200 text-lg w-full lg:w-4/5 xl:w-4/5 2xl:w-4/5 m-auto">
 
     <div class="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
         <div>
@@ -153,6 +153,28 @@
             </div>
         </div>
 
+        <div>
+            <button class="w-full h-8 bg-gray-200 dark:bg-gray-700 cursor-default font-bold m-0 rounded-t-lg">
+                Colormap
+            </button>
+
+            <div class="h-12 text-xs whitespace-nowrap flex ">
+                <button class="w-1/2 bg-gray-200 dark:bg-gray-700 font-bold border border-gray-100 dark:border-gray-900 m-0 rounded-bl-lg
+            transform  hover:scale-105 transition duration-300 shadow-xl">
+                    <div class="relative w-full ">
+                        <select id="colormap_anim_id" class="block m-auto appearance-none w-full bg-gray-100 dark:bg-gray-600
+                py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                            <option value="coolcyc">coolcyc</option>
+                        </select>
+                    </div>
+                </button>
+            
+                <button onclick="start_led_animation('colormap_animation', document.getElementById('colormap_anim_id').value)" class="w-1/2 bg-gray-200 dark:bg-gray-700 font-bold border border-gray-100 dark:border-gray-900  m-0 rounded-br-lg
+            transform  hover:scale-105 transition duration-600 shadow-xl">
+                    Start
+                </button>
+            </div>
+        </div>
 
         <div>
             <button onclick="start_led_animation('stop', 'normal')" class="h-12 transform  hover:scale-105 transition

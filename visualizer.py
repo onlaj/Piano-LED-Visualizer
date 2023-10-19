@@ -12,6 +12,7 @@ from lib.savemidi import SaveMIDI
 from lib.usersettings import UserSettings
 from lib.hotspot import *
 from lib.color_mode import *
+import lib.colormaps as cmap
 
 import argparse
 import threading
@@ -136,6 +137,8 @@ usersettings = UserSettings()
 midiports = MidiPorts(usersettings)
 ledsettings = LedSettings(usersettings)
 ledstrip = LedStrip(usersettings, ledsettings)
+cmap.gradients.update(cmap.load_colormaps())
+cmap.generate_colormaps(cmap.gradients, ledstrip.led_gamma)
 
 t = threading.Thread(target=startup_animation, args=(ledstrip, ledsettings))
 t.start()
