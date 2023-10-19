@@ -59,7 +59,7 @@ def shift(lst, num_shifts):
 
 
 def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
-    midiports.pending_queue.append(mido.Message('note_on'))
+    midiports.midifile_queue.append((mido.Message('note_on'), time.perf_counter()))
 
     if song_path in saving.is_playing_midi.keys():
         menu.render_message(song_path, "Already playing", 2000)
@@ -81,10 +81,10 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
         for message in mid:
             if song_path in saving.is_playing_midi.keys():
                 if not t0:
-                    t0 = time.time()
+                    t0 = time.perf_counter()
 
                 total_delay += message.time
-                current_time = (time.time() - t0) + message.time
+                current_time = (time.perf_counter() - t0) + message.time
                 drift = total_delay - current_time
 
                 if drift < 0:
@@ -94,19 +94,20 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
                 if delay < 0:
                     delay = 0
 
+                msg_timestamp = time.perf_counter() + delay
                 if delay > 0:
                     time.sleep(delay)
                 if not message.is_meta:
                     midiports.playport.send(message)
-                    midiports.pending_queue.append(message.copy(time=0))
+                    midiports.midifile_queue.append((message.copy(time=0), msg_timestamp))
 
             else:
-                midiports.pending_queue.clear()
+                midiports.midifile_queue.clear()
                 strip = ledstrip.strip
                 fastColorWipe(strip, True, ledsettings)
                 break
-        print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, total_delay))
-        # print('play time: {:.2f} s (expected {:.2f})'.format(time.time() - t0, length))
+        print('play time: {:.2f} s (expected {:.2f})'.format(time.perf_counter() - t0, total_delay))
+        # print('play time: {:.2f} s (expected {:.2f})'.format(time.perf_counter() - t0, length))
         # saving.is_playing_midi = False
     except FileNotFoundError:
         menu.render_message(song_path, "File not found", 2000)
@@ -201,14 +202,14 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
     while True:
         manage_idle_animation(ledstrip, ledsettings, menu)
 
-        if (time.time() - saving.start_time) > 3600 and delay < 0.5 and menu.screensaver_is_running is False:
+        if (time.perf_counter() - saving.start_time) > 3600 and delay < 0.5 and menu.screensaver_is_running is False:
             delay = 0.9
             interval = 5 / float(delay)
             cpu_history = [None] * int(interval)
             cpu_average = 0
             i = 0
 
-        if int(menu.screen_off_delay) > 0 and ((time.time() - saving.start_time) > (int(menu.screen_off_delay) * 60)):
+        if int(menu.screen_off_delay) > 0 and ((time.perf_counter() - saving.start_time) > (int(menu.screen_off_delay) * 60)):
             menu.screen_status = 0
             GPIO.output(24, 0)
 
@@ -276,7 +277,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
         try:
             if str(midiports.inport.poll()) != "None":
                 menu.screensaver_is_running = False
-                saving.start_time = time.time()
+                saving.start_time = time.perf_counter()
                 menu.screen_status = 1
                 GPIO.output(24, 1)
                 midiports.reconnect_ports()
@@ -287,7 +288,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
             pass
         if GPIO.input(KEY2) == 0:
             menu.screensaver_is_running = False
-            saving.start_time = time.time()
+            saving.start_time = time.perf_counter()
             menu.screen_status = 1
             GPIO.output(24, 1)
             midiports.reconnect_ports()

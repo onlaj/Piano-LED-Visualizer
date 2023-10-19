@@ -350,7 +350,11 @@ class LearnMIDI:
                             wrong_notes = []
                             self.predict_future_notes(absolute_idx, end_idx, notes_to_press)
                             while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
-                                for msg_in in self.midiports.inport.iter_pending():
+                                while self.midiports.midi_queue:
+                                    msg_in, msg_timestamp = self.midiports.midi_queue.popleft()
+                                    if msg_in.type not in ("note_on", "note_off"):
+                                        continue
+
                                     note = int(find_between(str(msg_in), "note=", " "))
 
                                     if "note_off" in str(msg_in):

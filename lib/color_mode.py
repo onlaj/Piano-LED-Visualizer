@@ -40,7 +40,7 @@ class ColorMode(object):
         """Called whenever settings change"""
         pass
 
-    def NoteOn(self, midi_event, midi_state, note_position):
+    def NoteOn(self, midi_event, midi_time, midi_state, note_position):
         """Primary high-level function for ColorMode
 
         Called on midi note-on
@@ -74,7 +74,7 @@ class SingleColor(ColorMode):
         self.green = ledsettings.get_color("Green")
         self.blue = ledsettings.get_color("Blue")
 
-    def NoteOn(self, midi_event: mido.Message, midi_state, note_position):
+    def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
         return (self.red, self.green, self.blue)
 
 
@@ -85,7 +85,7 @@ class Multicolor(ColorMode):
         self.multicolor_index = 0
         self.multicolor_iteration = ledsettings.multicolor_iteration
 
-    def NoteOn(self, midi_event: mido.Message, midi_state, note_position):
+    def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
             chosen_color = self.get_random_multicolor_in_range(midi_event.note)
             return chosen_color
 
@@ -141,7 +141,7 @@ class Rainbow(ColorMode):
         self.timeshift = int(ledsettings.rainbow_timeshift)
         self.timeshift_start = time.time()
 
-    def NoteOn(self, midi_event: mido.Message, midi_state, note_position):
+    def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
         shift = (time.time() - self.timeshift_start) * self.timeshift
         return self.calculate_rainbow_colors(note_position, shift)
 
@@ -165,7 +165,7 @@ class SpeedColor(ColorMode):
         self.speed_period_in_seconds = ledsettings.speed_period_in_seconds
         self.speed_max_notes = ledsettings.speed_max_notes
 
-    def NoteOn(self, midi_event: mido.Message, midi_state, note_position):
+    def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
         current_time = time.time()
         self.notes_in_last_period.append(current_time)
         return self.speed_get_colors()
@@ -204,7 +204,7 @@ class Gradient(ColorMode):
                              "green": int(ledsettings.usersettings.get_setting_value("gradient_end_green")),
                              "blue": int(ledsettings.usersettings.get_setting_value("gradient_end_blue"))}
 
-    def NoteOn(self, midi_event: mido.Message, midi_state, note_position):
+    def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
         return self.gradient_get_colors(note_position)
 
     def gradient_get_colors(self, position):
@@ -224,7 +224,7 @@ class ScaleColoring(ColorMode):
         self.key_in_scale = ledsettings.key_in_scale
         self.key_not_in_scale = ledsettings.key_not_in_scale
 
-    def NoteOn(self, midi_event: mido.Message, midi_state, note_position):
+    def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
         scale_colors = get_scale_color(self.scale_key, midi_event.note, self.key_in_scale, self.key_not_in_scale)
         return scale_colors
 
@@ -235,7 +235,7 @@ class VelocityRainbow(ColorMode):
         self.scale = int(ledsettings.velocityrainbow_scale)
         self.curve = int(ledsettings.velocityrainbow_curve)
 
-    def NoteOn(self, midi_event: mido.Message, midi_state, note_position=None):
+    def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
         x = int(((255 * powercurve(midi_event.velocity / 127, self.curve / 100)
                     * (self.scale / 100) % 256) + self.offset) % 256)
         x2 = colorsys.hsv_to_rgb(x / 255, 1, (midi_event.velocity / 127) * 0.3 + 0.7)
