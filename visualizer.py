@@ -330,7 +330,8 @@ while True:
             # ledsettings.fadingspeed is a value in seconds of how long it takes for full fade
             decrease_amount = int((event_loop_time / float(ledsettings.fadingspeed / 1000)) * 1000)
             ledstrip.keylist[n] = ledstrip.keylist[n] - decrease_amount
-
+            if ledstrip.keylist[n] < 0:
+                ledstrip.keylist[n] = 0
             led_changed = True
 
         if ledsettings.mode == "Velocity" or ledsettings.mode == "Pedal":
