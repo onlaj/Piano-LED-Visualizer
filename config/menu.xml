@@ -228,6 +228,7 @@
             <Rainbow_Cycle text="Slow"></Rainbow_Cycle>
         </LED_animations>
         <LED_animations text="Theater Chase Rainbow"></LED_animations>
+        <LED_animations text="Fireplace"></LED_animations>
         <LED_animations text="Sound of da police"></LED_animations>
         <LED_animations text="Scanner"></LED_animations>
         <LED_animations text="Chords">

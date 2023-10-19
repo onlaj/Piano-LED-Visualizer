@@ -938,6 +938,10 @@ class MenuLCD:
                 self.t = threading.Thread(target=theaterChaseRainbow, args=(self.ledstrip, self.ledsettings,
                                                                             self, "Medium"))
                 self.t.start()
+            if choice == "Fireplace":
+                self.t = threading.Thread(target=fireplace, args=(self.ledstrip, self.ledsettings,
+                                                                            self))
+                self.t.start()
             if choice == "Sound of da police":
                 self.t = threading.Thread(target=sound_of_da_police, args=(self.ledstrip, self.ledsettings,
                                                                            self, 1))

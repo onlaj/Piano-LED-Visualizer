@@ -8,6 +8,7 @@ import socket
 import RPi.GPIO as GPIO
 import math
 import subprocess
+import random
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
@@ -132,6 +133,12 @@ def manage_idle_animation(ledstrip, ledsettings, menu):
         menu.is_idle_animation_running = True
 
         if menu.led_animation == "Theater Chase":
+            menu.t = threading.Thread(target=theaterChase, args=(ledstrip,
+                                                                 Color(127, 127, 127),
+                                                                 ledsettings,
+                                                                 menu))
+            menu.t.start()
+        if menu.led_animation == "Fireplace":
             menu.t = threading.Thread(target=theaterChase, args=(ledstrip,
                                                                  Color(127, 127, 127),
                                                                  ledsettings,
@@ -503,6 +510,43 @@ def rainbow(ledstrip, ledsettings, menu, speed="Medium"):
             j = 0
         strip.show()
         time.sleep(wait_ms / 1000.0)
+    menu.is_idle_animation_running = False
+    fastColorWipe(strip, True, ledsettings)
+
+def fireplace(ledstrip, ledsettings, menu):
+    stop_animations(menu)
+
+
+    wait_ms = 20
+
+    strip = ledstrip.strip
+    fastColorWipe(strip, True, ledsettings)
+    menu.t = threading.currentThread()
+
+    while menu.is_idle_animation_running or menu.is_animation_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+
+        while not cover_opened:
+            if last_state != cover_opened:
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
+        brightness = calculate_brightness(ledsettings)
+
+        # Simulate the flickering flames
+        for i in range(strip.numPixels()):
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+                # Generate a random brightness to imitate flickering
+                fireplace_brightness = int(brightness * random.randint(150, 255))
+                strip.setPixelColor(i, Color(fireplace_brightness, int(brightness * 50), 0))  # Reddish color for fire
+        strip.show()
+
+        # Pause to create the flickering effect
+        time.sleep(random.uniform(wait_ms / 500.0, wait_ms / 1000.0))
+
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
 
