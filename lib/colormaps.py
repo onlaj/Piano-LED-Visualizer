@@ -3,6 +3,7 @@ import os
 import glob
 
 colormaps = {}
+colormaps_preview = {}
 
 # Colormap gradients designed with ws281x gamma = 1
 # These will be converted to colormap lookup tables with 256 entries for use in colormaps dict
@@ -34,16 +35,10 @@ gradients["Warm-Cyclic"] = [ (0.0, (255,0,0)), (0.4, (170,64,0)), (0.6, (128,126
 
 
 
-
-# Linear space of 256 intervals between 0 and 1 for use in gradient_to_cmaplut
-_LIN256_ENDINCL = np.linspace(0, 1, num=256, endpoint=True)
-_LIN256_ENDEXCL = np.linspace(0, 1, num=256, endpoint=False)
-_CYCLIC_UNDUP = False
-
 # Homemade rough equivalent to matplotlib's LinearSegmentedColormap.from_list()
-def gradient_to_cmaplut(gradient, gamma=1, int_table=True):
+def gradient_to_cmaplut(gradient, gamma=1, entries=256, int_table=True):
     """Linear-interpolate gradient to a colormap lookup."""
-    global _LIN256, _LIN256_ENDINCL
+    _CYCLIC_UNDUP = False
 
     # expected gradient format option 1: (position, (red, green, blue))
     if len(gradient[0]) == 2:
@@ -65,18 +60,19 @@ def gradient_to_cmaplut(gradient, gamma=1, int_table=True):
     elif isinstance(r[0], int):
         div255 = True
 
-    x256 = _LIN256_ENDINCL
     # if colormap is cyclic (first color matches last color), then do not include endpoint during calculation 
     # to prevent index 0 and 255 being duplicate color
     if _CYCLIC_UNDUP and (r[0], g[0], b[0]) == (r[-1], g[-1], b[-1]):
-        x256 = _LIN256_ENDEXCL
+        xpoints = np.linspace(0, 1, num=entries, endpoint=False)
+    else:
+        xpoints = np.linspace(0, 1, num=entries, endpoint=True)
 
     # output tables
-    table = np.zeros((3,256), dtype=float)
+    table = np.zeros((3,entries), dtype=float)
 
     for i, c in enumerate((r,g,b)):
         c01 = np.divide(c, 255) if div255 else c
-        table[i] = np.interp(x256, pos, c01) ** (1/gamma)
+        table[i] = np.interp(xpoints, pos, c01) ** (1/gamma)
 
     if int_table:
         return [ (round(x[0] * 255), round(x[1] * 255), round(x[2] * 255)) for x in table.T ]
@@ -84,10 +80,11 @@ def gradient_to_cmaplut(gradient, gamma=1, int_table=True):
         return [ (x[0], x[1], x[2]) for x in table.T ]
 
 def generate_colormaps(gradients, gamma):
-    global colorsmaps
+    global colorsmaps, colorsmaps_preview
     for k, v in gradients.items():
         try:
             colormaps[k] = gradient_to_cmaplut(v, gamma)
+            colormaps_preview[k] = gradient_to_cmaplut(v, 2.2, 64)
         except Exception as e:
             print(f"Loading colormap {k} failed: {e}") # if a gradient fails, skip it
 

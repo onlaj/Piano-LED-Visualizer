@@ -19,6 +19,7 @@
 	<velocityrainbow_offset>210</velocityrainbow_offset>
 	<velocityrainbow_scale>120</velocityrainbow_scale>
 	<velocityrainbow_curve>0</velocityrainbow_curve>
+	<velocityrainbow_colormap>Rainbow-FastLED</velocityrainbow_colormap>
 
 	<multicolor>[[255, 255, 255], [0, 0, 255], [0, 255, 0]]</multicolor>
 	<multicolor_range>[[20, 54], [54, 108], [35, 75]]</multicolor_range>
