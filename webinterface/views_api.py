@@ -2,8 +2,9 @@ from webinterface import webinterface
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
 from lib.functions import (get_last_logs, find_between, theaterChase, theaterChaseRainbow, fireplace, sound_of_da_police, scanner,
-                           breathing, rainbow, rainbowCycle, chords, fastColorWipe, play_midi, clamp)
+                           breathing, rainbow, rainbowCycle, chords, colormap_animation, fastColorWipe, play_midi, clamp)
 from lib.hotspot import (disconnect_from_wifi, connect_to_wifi, get_wifi_networks, get_current_connections)
+import lib.colormaps as cmap
 import psutil
 import threading
 import webcolors as wc
@@ -88,6 +89,12 @@ def start_animation():
     if choice == "chords":
         webinterface.menu.is_animation_running = True
         webinterface.t = threading.Thread(target=chords, args=(
+            speed, webinterface.ledstrip, webinterface.ledsettings, webinterface.menu))
+        webinterface.t.start()
+
+    if choice == "colormap_animation":
+        webinterface.menu.is_animation_running = True
+        webinterface.t = threading.Thread(target=colormap_animation, args=(
             speed, webinterface.ledstrip, webinterface.ledsettings, webinterface.menu))
         webinterface.t.start()
 
@@ -1609,6 +1616,9 @@ def get_logs():
     last_logs = request.args.get('last_logs')
     return get_last_logs(last_logs)
 
+@webinterface.route('/api/get_colormap_gradients', methods=['GET'])
+def get_colormap_gradients():
+    return jsonify(cmap.gradients)
 
 def pretty_print(dom):
     return '\n'.join([line for line in dom.toprettyxml(indent=' ' * 4).split('\n') if line.strip()])

@@ -1,5 +1,6 @@
 import threading
 from rpi_ws281x import Color
+import lib.colormaps as cmap
 import mido
 import datetime
 import psutil
@@ -875,5 +876,43 @@ def chords(scale, ledstrip, ledsettings, menu):
 
         strip.show()
         time.sleep(0.05)
+    menu.is_idle_animation_running = False
+    fastColorWipe(strip, True, ledsettings)
+
+def colormap_animation(colormap, ledstrip, ledsettings, menu):
+    stop_animations(menu)
+
+    time.sleep(0.2)
+    strip = ledstrip.strip
+
+    fastColorWipe(strip, True, ledsettings)
+    menu.t = threading.currentThread()
+
+    while menu.is_idle_animation_running or menu.is_animation_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+        
+        brightness = calculate_brightness(ledsettings)
+
+        led_a0 = get_note_position(21, ledstrip, ledsettings)
+        led_c8 = get_note_position(108, ledstrip, ledsettings)
+        step = 1 if led_c8 >= led_a0 else -1
+        num_leds = abs(led_c8 - led_a0) + 1
+
+        for i, led in enumerate(range(led_a0, led_c8 + step, step)):
+            index = round(i * 255 / num_leds)
+            red, green, blue = cmap.colormaps[colormap][index]
+            strip.setPixelColor(led, Color(round(red * brightness), round(green * brightness), round(blue * brightness)))
+
+        strip.show()
+        time.sleep(0.1)
+
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)

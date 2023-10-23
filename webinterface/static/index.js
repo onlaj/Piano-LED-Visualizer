@@ -100,6 +100,7 @@ function loadAjax(subpage) {
                 if (subpage === "ledanimations") {
                     get_led_idle_animation_settings();
                     clearInterval(homepage_interval);
+                    get_colormap_gradients("colormap_anim_id");
                 }
                 if (subpage === "songs") {
                     initialize_songs();
@@ -212,6 +213,22 @@ function get_homepage_data_loop() {
     xhttp.send();
 }
 
+function get_colormap_gradients(select_id) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            const gradients = JSON.parse(this.responseText);
+
+            var select = document.getElementById(select_id);
+            var options = [];
+            for (const key in gradients)
+                options.push(new Option(key, key));
+            select.replaceChildren(...options);
+        }
+    };
+    xhttp.open("GET", "/api/get_colormap_gradients", true);
+    xhttp.send();
+}
 
 function start_led_animation(name, speed) {
     const xhttp = new XMLHttpRequest();
