@@ -134,6 +134,11 @@ class LearnMIDI:
         self.show_future_notes = clamp(self.show_future_notes, 0, 1)
         self.usersettings.change_setting_value("show_future_notes", self.show_future_notes)
 
+    def change_number_of_mistakes(self, value):
+        self.number_of_mistakes += value
+        self.number_of_mistakes = clamp(self.number_of_mistakes, 0, 255)
+        self.usersettings.change_setting_value("number_of_mistakes", self.number_of_mistakes)
+
     def change_hand_color(self, value, hand):
         if hand == 'RIGHT':
             self.hand_colorR += value
