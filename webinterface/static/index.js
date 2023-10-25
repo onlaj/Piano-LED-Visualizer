@@ -1527,6 +1527,8 @@ function get_learning_status(loop_call = false) {
                 document.getElementById("hand_colorR").style.fill = 'rgb(' + hand_colorR_RGB + ')';
                 document.getElementById("hand_colorL").style.fill = 'rgb(' + hand_colorL_RGB + ')';
 
+                document.getElementById("number_of_mistakes").value = response["number_of_mistakes"];
+
                 if (response["is_loop_active"] === 1) {
                     document.getElementById("is_loop_active").checked = true;
                 }
