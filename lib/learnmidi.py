@@ -76,6 +76,7 @@ class LearnMIDI:
         self.current_idx = 0
 
         self.mistakes_count = 0
+        self.number_of_mistakes = int(usersettings.get_setting_value("number_of_mistakes"))
         self.awaiting_restart_loop = False
 
     def add_instance(self, menu):
@@ -295,7 +296,7 @@ class LearnMIDI:
             else:
                 self.ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
 
-        if self.mistakes_count > 5:
+        if self.mistakes_count > self.number_of_mistakes > 0:
             self.mistakes_count = 0
             self.restart_loop()
 
@@ -385,7 +386,6 @@ class LearnMIDI:
                                         try:
                                             notes_pressed.remove(note)
                                         except ValueError:
-                                            print("Value error")
                                             pass  # do nothing
 
                                 self.handle_wrong_notes(wrong_notes)

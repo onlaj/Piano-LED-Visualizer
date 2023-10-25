@@ -1203,6 +1203,13 @@ def change_setting():
 
         return jsonify(success=True)
 
+    if setting_name == "number_of_mistakes":
+        value = int(value)
+        webinterface.learning.number_of_mistakes = value
+        webinterface.usersettings.change_setting_value("number_of_mistakes", webinterface.learning.number_of_mistakes)
+
+        return jsonify(success=True)
+
     if setting_name == "connect_to_wifi":
         print("Controller: connecting to wifi")
         try:
