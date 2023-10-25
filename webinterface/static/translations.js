@@ -107,6 +107,7 @@ const translations = {
         right_hand_color: "Right hand color",
         songs_list: "Songs List",
         getting_songs_list: "Getting songs list",
+        number_of_mistakes: "Number of mistakes to restart loop (0 - never)",
 
         //sheetmusic
         load_custom_sheet: "Load custom sheet",
@@ -324,6 +325,7 @@ const translations = {
         right_hand_color: "Kolor prawej ręki",
         songs_list: "Lista Nut",
         getting_songs_list: "Ładowanie listy nut",
+        number_of_mistakes: "Liczba błędów do ponownego uruchomienia pętli (0 - nigdy)",
 
         //sheetmusic
         load_custom_sheet: "Wczytaj własny zapis nutowy",
@@ -538,6 +540,7 @@ const translations = {
         right_hand_color: "Couleur main droite",
         songs_list: "Liste des chansons",
         getting_songs_list: "Obtenir la liste des chansons",
+        number_of_mistakes: "Nombre d'erreurs pour redémarrer la boucle (0 - jamais)",
 
         //sheetmusic
         load_custom_sheet: "Charger la feuille personnalisée",
@@ -754,6 +757,7 @@ const translations = {
         right_hand_color: "Farbe rechte Hand",
         songs_list: "Songs Liste",
         getting_songs_list: "Songliste bekommen",
+        number_of_mistakes: "Anzahl der Fehler, um die Schleife neu zu starten (0 - nie)",
 
         //sheetmusic
         load_custom_sheet: "Benutzerdefinierte Partitur laden",
@@ -970,6 +974,7 @@ const translations = {
         right_hand_color: "Color de la mano derecha",
         songs_list: "Lista de canciones",
         getting_songs_list: "Obteniendo lista de canciones",
+        number_of_mistakes: "Número de errores para reiniciar el bucle (0 - nunca)",
 
         //sheetmusic
         load_custom_sheet: "Cargar hoja personalizada",
@@ -1185,6 +1190,7 @@ const translations = {
         right_hand_color: "右手颜色",
         songs_list: "歌曲列表",
         getting_songs_list: "获取歌曲列表",
+        number_of_mistakes: "重新启动循环的错误次数（0 - 永不）",
 
         //sheetmusic
         load_custom_sheet: "加载自定义乐谱",
@@ -1398,6 +1404,7 @@ const translations = {
         right_hand_color: "दाएं हाथ का रंग",
         songs_list: "गानों की सूची",
         getting_songs_list: "गानों की सूची प्राप्त कर रहा है",
+        number_of_mistakes: "पुनरारंभ करने के लिए गलतियों की संख्या (0 - कभी नहीं)",
 
         //sheetmusic
         load_custom_sheet: "कस्टम शीट लोड करें",
@@ -1614,6 +1621,7 @@ const translations = {
         right_hand_color: "Cor da mão direita",
         songs_list: "Lista de canções",
         getting_songs_list: "Obtendo lista de canções",
+        number_of_mistakes: "Número de erros para reiniciar o ciclo (0 - nunca)",
 
         //sheetmusic
         load_custom_sheet: "Carregar folha personalizada",
@@ -1828,6 +1836,7 @@ const translations = {
         right_hand_color: "右手の色",
         songs_list: "曲リスト",
         getting_songs_list: "曲のリストを取得する",
+        number_of_mistakes: "ループを再起動するための誤差の数（0 - 絶対にしない）",
 
         //sheetmusic
         load_custom_sheet: "カスタムシートを読み込む",
