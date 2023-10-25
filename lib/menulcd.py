@@ -671,6 +671,8 @@ class MenuLCD:
             #  Position 12: display future notes setting
             future_notes_status = "Enabled" if self.learning.show_future_notes else "Disabled"
             draw_value(future_notes_status, 90, height + 120)
+            #  Position 13: display number of mistakes setting
+            draw_value(self.learning.number_of_mistakes, 90, height + 130)
 
         self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
 
@@ -1269,6 +1271,9 @@ class MenuLCD:
 
             if self.current_choice == "Future notes":
                 self.learning.change_show_future_notes(value)
+
+            if self.current_choice == "Max mistakes":
+                self.learning.change_number_of_mistakes(value)
 
         self.show()
 

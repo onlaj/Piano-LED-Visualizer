@@ -1203,6 +1203,13 @@ def change_setting():
 
         return jsonify(success=True)
 
+    if setting_name == "number_of_mistakes":
+        value = int(value)
+        webinterface.learning.number_of_mistakes = value
+        webinterface.usersettings.change_setting_value("number_of_mistakes", webinterface.learning.number_of_mistakes)
+
+        return jsonify(success=True)
+
     if setting_name == "connect_to_wifi":
         print("Controller: connecting to wifi")
         try:
@@ -1458,7 +1465,8 @@ def get_learning_status():
                 "show_wrong_notes": webinterface.usersettings.get_setting_value("show_wrong_notes"),
                 "show_future_notes": webinterface.usersettings.get_setting_value("show_future_notes"),
                 "hand_colorList": ast.literal_eval(webinterface.usersettings.get_setting_value("hand_colorList")),
-                "is_loop_active": ast.literal_eval(webinterface.usersettings.get_setting_value("is_loop_active"))}
+                "is_loop_active": ast.literal_eval(webinterface.usersettings.get_setting_value("is_loop_active")),
+                "number_of_mistakes": ast.literal_eval(webinterface.usersettings.get_setting_value("number_of_mistakes"))}
 
     return jsonify(response)
 

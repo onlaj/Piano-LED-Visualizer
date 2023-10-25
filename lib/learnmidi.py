@@ -71,9 +71,13 @@ class LearnMIDI:
         self.ticks_per_beat = 240
         self.is_loaded_midi = {}
         self.is_started_midi = False
-        self.t = 0
+        self.t = None
 
         self.current_idx = 0
+
+        self.mistakes_count = 0
+        self.number_of_mistakes = int(usersettings.get_setting_value("number_of_mistakes"))
+        self.awaiting_restart_loop = False
 
     def add_instance(self, menu):
         self.menu = menu
@@ -99,6 +103,9 @@ class LearnMIDI:
             self.t.join()
             self.t = threading.Thread(target=self.learn_midi)
             self.t.start()
+
+    def restart_loop(self):
+        self.awaiting_restart_loop = True
 
     def change_start_point(self, value):
         self.start_point += 5 * value
@@ -126,6 +133,11 @@ class LearnMIDI:
         self.show_future_notes += value
         self.show_future_notes = clamp(self.show_future_notes, 0, 1)
         self.usersettings.change_setting_value("show_future_notes", self.show_future_notes)
+
+    def change_number_of_mistakes(self, value):
+        self.number_of_mistakes += value
+        self.number_of_mistakes = clamp(self.number_of_mistakes, 0, 255)
+        self.usersettings.change_setting_value("number_of_mistakes", self.number_of_mistakes)
 
     def change_hand_color(self, value, hand):
         if hand == 'RIGHT':
@@ -275,7 +287,6 @@ class LearnMIDI:
 
         # loop through wrong_notes and light them up
         for msg in wrong_notes:
-
             note = int(find_between(str(msg), "note=", " "))
 
             if "note_off" in str(msg):
@@ -286,8 +297,13 @@ class LearnMIDI:
             note_position = get_note_position(note, self.ledstrip, self.ledsettings)
             if velocity > 0:
                 self.ledstrip.strip.setPixelColor(note_position, Color(255, 0, 0))
+                self.mistakes_count += 1
             else:
                 self.ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
+
+        if self.mistakes_count > self.number_of_mistakes > 0:
+            self.mistakes_count = 0
+            self.restart_loop()
 
         self.ledstrip.strip.show()
 
@@ -350,6 +366,8 @@ class LearnMIDI:
                             wrong_notes = []
                             self.predict_future_notes(absolute_idx, end_idx, notes_to_press)
                             while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
+                                if self.awaiting_restart_loop:
+                                    break
                                 while self.midiports.midi_queue:
                                     msg_in, msg_timestamp = self.midiports.midi_queue.popleft()
                                     if msg_in.type not in ("note_on", "note_off"):
@@ -432,7 +450,14 @@ class LearnMIDI:
                                 self.practice == 2):  # send midi sound for Listen only
                             self.midiports.playport.send(msg)
                     absolute_idx += 1
+
+                    if self.awaiting_restart_loop:
+                        self.awaiting_restart_loop = False
+                        break
+
+
             except Exception as e:
+                print(e)
                 self.is_started_midi = False
 
             if not self.is_loop_active or self.is_started_midi is False:
