@@ -390,6 +390,13 @@ def change_setting():
                                                        int(webinterface.ledsettings.velocityrainbow_curve))
         return jsonify(success=True, reload_sequence=reload_sequence)
 
+    if setting_name == "velocityrainbow_colormap":
+        webinterface.ledsettings.velocityrainbow_colormap = value
+        webinterface.usersettings.change_setting_value("velocityrainbow_colormap",
+                                                       webinterface.ledsettings.velocityrainbow_colormap)
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
+
     if setting_name == "speed_slowest_color":
         rgb = wc.hex_to_rgb("#" + value)
         webinterface.ledsettings.speed_slowest["red"] = rgb[0]
@@ -782,6 +789,11 @@ def change_setting():
             velocityrainbow_curve.appendChild(
                 sequences_tree.createTextNode(str(webinterface.ledsettings.velocityrainbow_curve)))
             step.appendChild(velocityrainbow_curve)
+
+            velocityrainbow_colormap = sequences_tree.createElement("Colormap")
+            velocityrainbow_colormap.appendChild(
+                sequences_tree.createTextNode(str(webinterface.ledsettings.velocityrainbow_colormap)))
+            step.appendChild(velocityrainbow_colormap)
 
         # if color_mode is equal to "Speed" load colors from webinterface.ledsettings and put it into step node
         if webinterface.ledsettings.color_mode == "Speed":
@@ -1274,6 +1286,7 @@ def get_sequence_setting():
     velocityrainbow_scale = webinterface.ledsettings.velocityrainbow_scale
     velocityrainbow_offset = webinterface.ledsettings.velocityrainbow_offset
     velocityrainbow_curve = webinterface.ledsettings.velocityrainbow_curve
+    velocityrainbow_colormap = webinterface.ledsettings.velocityrainbow_colormap
 
     speed_slowest_red = webinterface.ledsettings.speed_slowest["red"]
     speed_slowest_green = webinterface.ledsettings.speed_slowest["green"]
@@ -1326,6 +1339,7 @@ def get_sequence_setting():
     response["velocityrainbow_scale"] = velocityrainbow_scale
     response["velocityrainbow_offset"] = velocityrainbow_offset
     response["velocityrainbow_curve"] = velocityrainbow_curve
+    response["velocityrainbow_colormap"] = velocityrainbow_colormap
     return jsonify(response)
 
 
@@ -1396,6 +1410,7 @@ def get_settings():
     response["velocityrainbow_offset"] = webinterface.usersettings.get_setting_value("velocityrainbow_offset")
     response["velocityrainbow_scale"] = webinterface.usersettings.get_setting_value("velocityrainbow_scale")
     response["velocityrainbow_curve"] = webinterface.usersettings.get_setting_value("velocityrainbow_curve")
+    response["velocityrainbow_colormap"] = webinterface.usersettings.get_setting_value("velocityrainbow_colormap")
 
     speed_slowest_red = webinterface.usersettings.get_setting_value("speed_slowest_red")
     speed_slowest_green = webinterface.usersettings.get_setting_value("speed_slowest_green")
@@ -1626,7 +1641,7 @@ def get_logs():
 
 @webinterface.route('/api/get_colormap_gradients', methods=['GET'])
 def get_colormap_gradients():
-    return jsonify(cmap.gradients)
+    return jsonify(cmap.colormaps_preview)
 
 def pretty_print(dom):
     return '\n'.join([line for line in dom.toprettyxml(indent=' ' * 4).split('\n') if line.strip()])

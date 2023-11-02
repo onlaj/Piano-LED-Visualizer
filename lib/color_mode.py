@@ -1,4 +1,5 @@
 from lib.functions import *
+import lib.colormaps as cmap
 from rpi_ws281x import Color
 import colorsys
 import mido
@@ -234,9 +235,10 @@ class VelocityRainbow(ColorMode):
         self.offset = int(ledsettings.velocityrainbow_offset)
         self.scale = int(ledsettings.velocityrainbow_scale)
         self.curve = int(ledsettings.velocityrainbow_curve)
+        self.colormap = ledsettings.velocityrainbow_colormap
 
     def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
         x = int(((255 * powercurve(midi_event.velocity / 127, self.curve / 100)
                     * (self.scale / 100) % 256) + self.offset) % 256)
-        x2 = colorsys.hsv_to_rgb(x / 255, 1, (midi_event.velocity / 127) * 0.3 + 0.7)
-        return map(lambda x: round(x * 255), x2)
+        x2 = cmap.colormaps[self.colormap][x]
+        return x2

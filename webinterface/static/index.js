@@ -17,6 +17,9 @@ let uploadProgress = [];
 
 let advancedMode = false;
 
+let gradients;
+let config_settings;
+let live_settings;
 
 const tick1 = new Audio('/static/tick2.mp3');
 tick1.volume = 0.2;
@@ -92,6 +95,7 @@ function loadAjax(subpage) {
                     get_settings(false);
                 }
                 if (subpage === "ledsettings") {
+                    populate_colormaps(["velocityrainbow_colormap"]);
                     initialize_led_settings();
                     get_current_sequence_setting();
                     clearInterval(homepage_interval);
@@ -100,7 +104,7 @@ function loadAjax(subpage) {
                 if (subpage === "ledanimations") {
                     get_led_idle_animation_settings();
                     clearInterval(homepage_interval);
-                    get_colormap_gradients("colormap_anim_id");
+                    populate_colormaps(["colormap_anim_id"]);
                 }
                 if (subpage === "songs") {
                     initialize_songs();
@@ -137,6 +141,7 @@ function loadAjax(subpage) {
     }, 100);
 }
 
+get_colormap_gradients();
 loadAjax(window.location.hash.substring(1));
 
 function remove_page_indicators() {
@@ -213,21 +218,30 @@ function get_homepage_data_loop() {
     xhttp.send();
 }
 
-function get_colormap_gradients(select_id) {
+function get_colormap_gradients() {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            const gradients = JSON.parse(this.responseText);
-
-            var select = document.getElementById(select_id);
-            var options = [];
-            for (const key in gradients)
-                options.push(new Option(key, key));
-            select.replaceChildren(...options);
+            gradients = JSON.parse(this.responseText);
         }
     };
     xhttp.open("GET", "/api/get_colormap_gradients", true);
     xhttp.send();
+}
+
+function populate_colormaps(select_ids) {
+    if (!gradients)
+        return;
+
+    for (const id of select_ids) {
+        const select = document.getElementById(id);
+        var options = [];
+        for (const key in gradients)
+            options.push(new Option(key, key));
+        const value = select.value;
+        select.replaceChildren(...options);
+        select.value = value;
+    }
 }
 
 function start_led_animation(name, speed) {
@@ -454,6 +468,8 @@ function get_settings(home = true) {
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             let response = JSON.parse(this.responseText);
+            config_settings = response;
+
             if (home) {
 
                 if (document.getElementById("backlight_color")) {
@@ -508,6 +524,7 @@ function get_settings(home = true) {
                 document.getElementById("velocityrainbow_offset").value = response["velocityrainbow_offset"];
                 document.getElementById("velocityrainbow_scale").value = response["velocityrainbow_scale"];
                 document.getElementById("velocityrainbow_curve").value = response["velocityrainbow_curve"];
+                document.getElementById("velocityrainbow_colormap").value = response["velocityrainbow_colormap"];
 
                 document.getElementById("speed_slow_color").value = response["speed_slowest_color"];
                 document.getElementById("speed_fast_color").value = response["speed_fastest_color"];
@@ -624,6 +641,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             let response = JSON.parse(this.responseText);
+            live_settings = response;
 
             if (document.getElementById('sequence_edit')) {
                 is_editing_sequence = document.getElementById('sequence_edit').getAttribute("active");
@@ -852,6 +870,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 const offset = ((~~document.getElementById("velocityrainbow_offset").value % 256) + 256) % 256;
                 const scale = ~~document.getElementById("velocityrainbow_scale").value;
                 const curve = ~~document.getElementById("velocityrainbow_curve").value;
+                const colormap = document.getElementById("velocityrainbow_colormap").value;
 
                 const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
                     const hex = x.toString(16)
@@ -868,13 +887,15 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 var width = canvas.clientWidth;
                 const ctx = canvas.getContext("2d");
                 const grd = ctx.createLinearGradient(0, 0, width, 0);
-                for (let i = 0; i <= 127; i += 5) {
-                    const vel = ~~(i * 255 / 127);
-                    const vel2 = 255 * powercurve(i / 127, curve / 100);
+                const cmap = gradients[colormap] ?? [];
+                const stops = cmap.length - 1;
+                for (let i = 0; i <= stops; i++) {
+                    const vel = ~~(i * 255 / stops);
+                    const vel2 = 255 * powercurve(i / stops, curve / 100);
                     const vel3 = ~~(vel2 * scale / 100) % 256;
                     const vel4 = ~~(vel3 + offset) % 256;
 
-                    grd.addColorStop(i / 127, rgbToHexA(hsvToRgb(vel4 / 255, 1, (i / 127) * 0.3 + 0.7)));
+                    grd.addColorStop(i / stops, rgbToHexA(cmap[~~(vel4 * stops / 255)]));
                 }
                 ctx.fillStyle = grd;
                 ctx.fillRect(0, 0, width, 40);
@@ -884,6 +905,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     document.getElementById("velocityrainbow_offset").value = response["velocityrainbow_offset"];
                     document.getElementById("velocityrainbow_scale").value = response["velocityrainbow_scale"];
                     document.getElementById("velocityrainbow_curve").value = response["velocityrainbow_curve"];
+                    document.getElementById("velocityrainbow_colormap").value = response["velocityrainbow_colormap"];
 
                     remove_color_modes();
                     document.getElementById('VelocityRainbow').hidden = false;
@@ -891,6 +913,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     change_setting("velocityrainbow_offset", response["velocityrainbow_offset"], "no_reload", true);
                     change_setting("velocityrainbow_scale", response["velocityrainbow_scale"], "no_reload", true);
                     change_setting("velocityrainbow_curve", response["velocityrainbow_curve"], "no_reload", true);
+                    change_setting("velocityrainbow_colormap", response["velocityrainbow_colormap"], "no_reload", true);
                 }
             }
 
@@ -1085,6 +1108,10 @@ function initialize_led_settings() {
 
     document.getElementById('velocityrainbow_curve').onchange = function () {
         change_setting("velocityrainbow_curve", this.value, false, true)
+    }
+
+    document.getElementById('velocityrainbow_colormap').onchange = function () {
+        change_setting("velocityrainbow_colormap", this.value, false, true)
     }
 
     document.getElementById('color_mode').onchange = function () {
