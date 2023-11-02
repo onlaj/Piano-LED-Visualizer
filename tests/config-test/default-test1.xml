@@ -1,0 +1,26 @@
+<settings>
+    <screen_on>1</screen_on>
+    <brightness_percent>50</brightness_percent>
+    <background_color>BLACK</background_color>
+    <text_color>WHITE</text_color>
+
+    <mode>Normal</mode>
+    <red>255</red>
+    <green>255</green>
+    <blue>255</blue>
+
+    <fadingspeed>1000</fadingspeed>
+    <color_mode>VelocityRainbow</color_mode>
+
+    <color_mode_settings>
+        <VelocityRainbow>
+            <offset>210</offset>
+            <scale>120</scale>
+            <curve>0</curve>
+        </VelocityRainbow>
+    </color_mode_settings>
+
+    <note_offsets>[[92, 2], [55, 1]]</note_offsets>
+    
+
+</settings>
