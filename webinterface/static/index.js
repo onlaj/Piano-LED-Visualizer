@@ -892,8 +892,8 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 for (let i = 0; i <= stops; i++) {
                     const vel = ~~(i * 255 / stops);
                     const vel2 = 255 * powercurve(i / stops, curve / 100);
-                    const vel3 = ~~(vel2 * scale / 100) % 256;
-                    const vel4 = ~~(vel3 + offset) % 256;
+                    const vel3 = (~~(vel2 * scale / 100) % 256 + 256) % 256;
+                    const vel4 = (~~(vel3 + offset) % 256 + 256) % 256;
 
                     grd.addColorStop(i / stops, rgbToHexA(cmap[~~(vel4 * stops / 255)]));
                 }
