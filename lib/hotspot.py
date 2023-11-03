@@ -26,10 +26,9 @@ def manage_hotspot(hotspot, usersettings, midiports, first_run=False):
     if not hotspot.is_hostapd_installed:
         return
 
-    create_hotspot_config()
-
     # Visualizer is starting, check if hotspot is active and run enable_ap.sh
     if first_run:
+        create_hotspot_config()
         if is_hotspot_active(usersettings):
             disconnect_from_wifi(hotspot, usersettings)
             return
