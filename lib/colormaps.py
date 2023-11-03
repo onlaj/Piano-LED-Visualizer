@@ -29,7 +29,7 @@ gradients["Warm-Cyclic"] = [ (0.0, (255,0,0)), (0.4, (170,64,0)), (0.6, (128,126
 #
 # matplotlib: https://matplotlib.org/stable/gallery/color/colormap_reference.html
 # cmasher: https://cmasher.readthedocs.io/user/introduction.html
-# colorcet: https://github.com/holoviz/colorcet
+# colorcet: https://colorcet.com
 # cmocean: https://matplotlib.org/cmocean/
 # hsluv and hpluv: https://www.hsluv.org/
 #
