@@ -27,11 +27,27 @@ gradients["Warm-Cyclic"] = [ (0.0, (255,0,0)), (0.4, (170,64,0)), (0.6, (128,126
 
 # Gradients from files:
 #
-# cmocean and colorcet data from https://nicoguaro.github.io/posts/cyclic_colormaps/
-#   cmocean - phase: https://matplotlib.org/cmocean/
-#   colorcet - cyclic_mrybm, cyclic_mygbm - https://github.com/holoviz/colorcet
-#
+# matplotlib: https://matplotlib.org/stable/gallery/color/colormap_reference.html
+# cmasher: https://cmasher.readthedocs.io/user/introduction.html
+# colorcet: https://github.com/holoviz/colorcet
+# cmocean: https://matplotlib.org/cmocean/
 # hsluv and hpluv: https://www.hsluv.org/
+#
+# agama: https://github.com/GalacticDynamics-Oxford/Agama/
+#     Agama/doc/Colormaps.pdf
+#     Agama/py/agamacolormaps.py
+# "circle" is a constant-brightness, perceptually uniform cyclic rainbow map
+# going from magenta through blue, green and red back to magenta.
+#
+# "mist" is another replacement for "jet" or "rainbow" maps, which differs from "breeze" by
+# having smaller dynamical range in brightness. The red and blue endpoints are darker than
+# the green center, but not as dark as in "breeze", while the center is not as bright.
+#
+# "earth" is a rainbow-like colormap with increasing luminosity, going from black through
+# dark blue, medium green in the middle and light red/orange to white.
+# It is nearly perceptually uniform, monotonic in luminosity, and is suitable for
+# plotting nearly anything, especially velocity maps (blue/redshifted).
+# It resembles "gist_earth" (but with more vivid colors) or MATLAB's "parula".
 
 
 
