@@ -50,6 +50,11 @@ def restart_script():
 
 singleton()
 
+appmode_default = 'platform'
+if isinstance(RPiException, RuntimeError):
+    # If Raspberry GPIO fails (no Raspberry Pi detected) then set default to app mode
+    appmode_default = 'app'
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
 parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
@@ -58,7 +63,7 @@ parser.add_argument('-p', '--port', type=int, help="set port for webinterface (8
 parser.add_argument('-s', '--skipupdate', action='store_true', help="Do not try to update /usr/local/bin/connectall.py")
 parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
 parser.add_argument('-r', '--rotatescreen', default="false", help="rotate screen: 'false' (default) | 'true'")
-parser.add_argument('-a', '--appmode', default="platform", help="appmode: 'platform' (default) | 'app'")
+parser.add_argument('-a', '--appmode', default=appmode_default, help="appmode: 'platform' (default) | 'app'")
 args = parser.parse_args()
 
 print(args)
