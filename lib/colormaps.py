@@ -95,14 +95,20 @@ def gradient_to_cmaplut(gradient, gamma=1, entries=256, int_table=True):
     else:
         return [ (x[0], x[1], x[2]) for x in table.T ]
 
+def update_colormap(name, gamma):
+    global colormaps, colormaps_preview, gradients
+
+    try:
+        colormaps[name] = gradient_to_cmaplut(gradients[name], gamma)
+        colormaps_preview[name] = gradient_to_cmaplut(gradients[name], 2.2, 64)
+    except Exception as e:
+        print(f"Loading colormap {k} failed: {e}") # if a gradient fails, skip it
+
 def generate_colormaps(gradients, gamma):
     global colorsmaps, colorsmaps_preview
+
     for k, v in gradients.items():
-        try:
-            colormaps[k] = gradient_to_cmaplut(v, gamma)
-            colormaps_preview[k] = gradient_to_cmaplut(v, 2.2, 64)
-        except Exception as e:
-            print(f"Loading colormap {k} failed: {e}") # if a gradient fails, skip it
+        update_colormap(k, gamma)
 
 def load_colormaps():
     gradients = {}
@@ -129,3 +135,33 @@ def load_colormaps():
             print(f"Loading colormap datafile {f} failed: {e}") # if a gradient fails, skip it
     
     return dict(sorted(gradients.items()))
+
+def multicolor_to_gradient(multicolor_range, multicolor):
+    m = zip(multicolor_range, multicolor)
+    pos_next = None
+    output = []
+    for x in m:
+        # range is 20 - 108
+        pos1 = (x[0][0] - 20) / 88
+        pos2 = (x[0][1] - 20) / 88
+        color = x[1]
+
+        output.append((pos1, color))
+        output.append((pos2, color))
+
+    # Warning: Overlaps can produce unintended results!  (Depending how you interpret it)
+    # Lets return a valid gradient anyway
+    output = sorted(output)
+    return output
+
+def update_multicolor(multicolor_range, multicolor):
+    global gradients
+
+    g = multicolor_to_gradient(multicolor_range, multicolor)
+    if g is not None and len(g) >= 2:
+        gradients["^Multicolor"] = g
+    else:
+        # default to some error color
+        gradients["^Multicolor"] = [(15,5,5)]
+
+    update_colormap("^Multicolor", 1)

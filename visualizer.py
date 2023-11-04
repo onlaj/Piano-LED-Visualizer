@@ -137,8 +137,10 @@ usersettings = UserSettings()
 midiports = MidiPorts(usersettings)
 ledsettings = LedSettings(usersettings)
 ledstrip = LedStrip(usersettings, ledsettings)
+
 cmap.gradients.update(cmap.load_colormaps())
 cmap.generate_colormaps(cmap.gradients, ledstrip.led_gamma)
+cmap.update_multicolor(ledsettings.multicolor_range, ledsettings.multicolor)
 
 t = threading.Thread(target=startup_animation, args=(ledstrip, ledsettings))
 t.start()

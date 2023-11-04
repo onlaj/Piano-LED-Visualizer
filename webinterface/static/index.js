@@ -297,6 +297,11 @@ function change_setting(setting_name, value, second_value = false, disable_seque
                     document.getElementById("sequence_edit_block").classList.remove("animate-pulse", "pointer-events-none")
                 }, 2000);
             }
+
+            multicolor_settings = ["multicolor", "multicolor_range_left", "multicolor_range_right", "remove_multicolor"];
+            if (multicolor_settings.includes(setting_name)) {
+                get_colormap_gradients();
+            }
         }
     }
     xhttp.open("GET", "/api/change_setting?setting_name=" + setting_name + "&value=" + value

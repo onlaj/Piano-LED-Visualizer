@@ -238,7 +238,9 @@ class VelocityRainbow(ColorMode):
         self.colormap = ledsettings.velocityrainbow_colormap
 
     def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
+        if self.colormap not in cmap.colormaps:
+            return None
+
         x = int(((255 * powercurve(midi_event.velocity / 127, self.curve / 100)
                     * (self.scale / 100) % 256) + self.offset) % 256)
-        x2 = cmap.colormaps[self.colormap][x]
-        return x2
+        return cmap.colormaps[self.colormap][x]
