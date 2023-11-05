@@ -25,7 +25,8 @@
  #
  
 import spidev
-import RPi.GPIO as GPIO
+from lib.null_drivers import SPInull
+from lib.GPIOdriver import GPIO
 import time
 
 # Pin definition
@@ -34,8 +35,12 @@ LCD_DC_PIN          = 25
 LCD_CS_PIN          = 8
 LCD_BL_PIN          = 24
 
-# SPI device, bus = 0, device = 0
-SPI = spidev.SpiDev(0, 0)
+try:
+    # SPI device, bus = 0, device = 0
+    SPI = spidev.SpiDev(0, 0)
+except:
+    print("Failed loading SPI device.  Using null driver.")
+    SPI = SPInull()
 
 def epd_digital_write(pin, value):
     GPIO.output(pin, value)

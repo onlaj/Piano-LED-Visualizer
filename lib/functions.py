@@ -6,7 +6,7 @@ import datetime
 import psutil
 import time
 import socket
-import RPi.GPIO as GPIO
+from lib.GPIOdriver import GPIO
 import math
 import subprocess
 import random

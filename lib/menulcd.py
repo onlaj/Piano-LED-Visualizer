@@ -9,7 +9,7 @@ from PIL import ImageFont, Image, ImageDraw
 from lib import LCD_Config, LCD_1in44, LCD_1in3
 
 from lib.functions import *
-import RPi.GPIO as GPIO
+from lib.GPIOdriver import GPIO
 
 
 class MenuLCD:
@@ -561,10 +561,10 @@ class MenuLCD:
         # displaying brightness value
         if self.current_location == "Brightness":
             draw_value(str(self.ledstrip.brightness_percent) + "%")
-            miliamps = int(self.ledstrip.LED_COUNT) * (60 / (100 / float(self.ledstrip.brightness_percent)))
+            miliamps = int(self.ledstrip.led_number) * (60 / (100 / float(self.ledstrip.brightness_percent)))
             amps = round(float(miliamps) / float(1000), 2)
             draw_value("Amps needed to " + "\n" + "power " + str(
-                self.ledstrip.LED_COUNT) + " LEDS with " + "\n" + "white color: " + str(amps), 10, 50)
+                self.ledstrip.led_number) + " LEDS with " + "\n" + "white color: " + str(amps), 10, 50)
 
         if self.current_location == "Backlight_Brightness":
             draw_value(self.ledsettings.backlight_brightness_percent)

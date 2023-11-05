@@ -1,6 +1,7 @@
 from lib.functions import *
 import lib.colormaps as cmap
 from rpi_ws281x import PixelStrip, Adafruit_NeoPixel, ws
+from lib.null_drivers import PixelStrip_null
 
 class LedStrip:
     def __init__(self, usersettings, ledsettings):
@@ -16,30 +17,52 @@ class LedStrip:
         self.brightness = 255 * self.brightness_percent / 100
         self.led_gamma = float(usersettings.get_setting_value("led_gamma"))
 
-        self.keylist = [0] * self.led_number
-        self.keylist_status = [0] * self.led_number
-        self.keylist_color = [0] * self.led_number
+        # Hold individual led state information, initialized in init_strip()
+        self.keylist = None
+        self.keylist_status = None
+        self.keylist_color = None
 
         self.current_fps = 0
 
         # LED strip configuration:
-        self.LED_COUNT = int(self.led_number)  # Number of LED pixels.
+        #self.LED_COUNT = int(self.led_number)  # Number of LED pixels.
         self.LED_PIN = 18  # GPIO pin connected to the pixels (18 uses PWM!).
         # LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
         self.LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
         self.LED_DMA = 10  # DMA channel to use for generating signal (try 10)
-        self.LED_BRIGHTNESS = int(self.brightness)  # Set to 0 for darkest and 255 for brightest
+        #self.LED_BRIGHTNESS = int(self.brightness)  # Set to 0 for darkest and 255 for brightest
         self.LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
         self.LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
-        # Create NeoPixel object with appropriate configuration.
-        self.strip = Adafruit_NeoPixel(self.LED_COUNT, self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
-                                       self.LED_BRIGHTNESS, self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
-        # Intialize the library (must be called once before other functions).
-        self.strip.begin()
-        if "releaseGIL" in dir(self.strip):
-            self.strip.releaseGIL()
-        self.change_gamma(self.led_gamma)
+        self.init_strip()
+
+    def init_strip(self):
+        self.keylist = [0] * self.led_number
+        self.keylist_status = [0] * self.led_number
+        self.keylist_color = [0] * self.led_number
+
+        try:
+            # Create NeoPixel object with appropriate configuration.
+            self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
+                                        int(self.brightness), self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
+            # Intialize the library (must be called once before other functions).
+            self.strip.begin()
+            if "releaseGIL" in dir(self.strip):
+                self.strip.releaseGIL()
+            self.change_gamma(self.led_gamma)
+        except Exception as e:
+            print(e)
+            if isinstance(e, RuntimeError):
+                # rpi_ws281x registers _cleanup() atexit, but if it's not initialized ws2811_fini will segfault.
+                # Manually clean up memory, then bypass _cleanup() using knowledge that _cleanup() checks _leds first
+                print("Cleaning up ws281x instance.")
+                ws.delete_ws2811_t(self.strip._leds)
+                self.strip._leds = None
+
+            print("Failed to load LED strip.  Using null driver.")
+            self.strip = PixelStrip_null(int(self.led_number))
+
+
 
     def change_gamma(self, value):
         self.led_gamma = float(value)
@@ -71,14 +94,7 @@ class LedStrip:
 
         self.usersettings.change_setting_value("led_count", self.led_number)
 
-        self.keylist = [0] * self.led_number
-        self.keylist_status = [0] * self.led_number
-        self.keylist_color = [0] * self.led_number
-
-        self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA,
-                                       self.LED_INVERT, int(self.brightness), self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
-        # Intialize the library (must be called once before other functions).
-        self.strip.begin()
+        self.init_strip()
 
     def change_shift(self, value, fixed_number=False):
         if fixed_number:

@@ -17,7 +17,7 @@ import math
 from zipfile import ZipFile
 import json
 import ast
-import RPi.GPIO as GPIO
+from lib.GPIOdriver import GPIO
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
