@@ -247,7 +247,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
             try:
                 temp = find_between(str(psutil.sensors_temperatures()["cpu_thermal"]), "current=", ",")
             except:
-                temp = find_between(str(psutil.sensors_temperatures()["cpu-thermal"]), "current=", ",")
+                temp = 0
             temp = round(float(temp), 1)
         else:
             temp = 0

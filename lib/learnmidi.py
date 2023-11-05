@@ -20,11 +20,6 @@ def find_nearest(array, target):
     return idx
 
 
-def install_midi2abc():
-    print("Installing abcmidi")
-    subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
-
-
 # Get midi song tempo
 def get_tempo(mid):
     for msg in mid:  # Search for tempo
@@ -472,8 +467,6 @@ class LearnMIDI:
             except Exception as e:
                 # check if e contains the string 'No such file or directory'
                 if 'No such file or directory' in str(e):
-                    print("Midiabc not found, installing...")
-                    install_midi2abc()
-                    self.convert_midi_to_abc(midi_file)
+                    print("midi2abc not found.")
         else:
             print("file already converted")

@@ -1,5 +1,8 @@
+#!/usr/bin/env python3
+
 import webcolors as wc
 import sys
+import os
 
 import fcntl
 
@@ -10,9 +13,9 @@ from lib.menulcd import MenuLCD
 from lib.midiports import MidiPorts
 from lib.savemidi import SaveMIDI
 from lib.usersettings import UserSettings
-from lib.hotspot import *
 from lib.color_mode import *
 import lib.colormaps as cmap
+from lib.platform import Hotspot, PlatformRasp, Platform_null
 
 import argparse
 import threading
@@ -54,18 +57,20 @@ parser.add_argument('-p', '--port', type=int, help="set port for webinterface (8
 parser.add_argument('-s', '--skipupdate', action='store_true', help="Do not try to update /usr/local/bin/connectall.py")
 parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
 parser.add_argument('-r', '--rotatescreen', default="false", help="rotate screen: 'false' (default) | 'true'")
+parser.add_argument('-a', '--appmode', default="platform", help="appmode: 'platform' (default) | 'app'")
 args = parser.parse_args()
 
 print(args)
 
-if not args.skipupdate:
-    # make sure connectall.py file exists and is updated
-    if not os.path.exists('/usr/local/bin/connectall.py') or \
-            filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
-        print("connectall.py script is outdated, updating...")
-        copyfile('lib/connectall.py', '/usr/local/bin/connectall.py')
-        os.chmod('/usr/local/bin/connectall.py', 493)
+if args.appmode == "platform":
+    platform = PlatformRasp()
+else:
+    platform = Platform_null()
 
+if not args.skipupdate:
+    platform.copy_connectall_script()
+
+platform.install_midi2abc()
 
 # A custom class to capture the printed messages
 class Logger:
@@ -146,9 +151,9 @@ t = threading.Thread(target=startup_animation, args=(ledstrip, ledsettings))
 t.start()
 
 learning = LearnMIDI(usersettings, ledsettings, midiports, ledstrip)
-hotspot = Hotspot()
+hotspot = Hotspot(platform)
 saving = SaveMIDI()
-menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot)
+menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot, platform)
 
 midiports.add_instance(menu)
 ledsettings.add_instance(menu, ledstrip)
@@ -183,6 +188,7 @@ def start_webserver():
     webinterface.midiports = midiports
     webinterface.menu = menu
     webinterface.hotspot = hotspot
+    webinterface.platform = platform
     webinterface.jinja_env.auto_reload = True
     webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
     # webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
@@ -194,7 +200,7 @@ if args.webinterface != "false":
     processThread = threading.Thread(target=start_webserver, daemon=True)
     processThread.start()
 
-manage_hotspot(hotspot, usersettings, midiports, True)
+platform.manage_hotspot(hotspot, usersettings, midiports, True)
 
 # Frame rate counters
 event_loop_stamp = time.perf_counter()
@@ -246,7 +252,7 @@ while True:
             menu.show()
             ledsettings.add_instance(menu, ledstrip)
 
-    manage_hotspot(hotspot, usersettings, midiports)
+    platform.manage_hotspot(hotspot, usersettings, midiports)
 
     # Process GPIO keys
 

@@ -3,7 +3,6 @@ from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
 from lib.functions import (get_last_logs, find_between, theaterChase, theaterChaseRainbow, fireplace, sound_of_da_police, scanner,
                            breathing, rainbow, rainbowCycle, chords, colormap_animation, fastColorWipe, play_midi, clamp)
-from lib.hotspot import (disconnect_from_wifi, connect_to_wifi, get_wifi_networks, get_current_connections)
 import lib.colormaps as cmap
 import psutil
 import threading
@@ -112,7 +111,7 @@ def get_homepage_data():
     try:
         temp = find_between(str(psutil.sensors_temperatures()["cpu_thermal"]), "current=", ",")
     except:
-        temp = find_between(str(psutil.sensors_temperatures()["cpu-thermal"]), "current=", ",")
+        temp = 0
 
     temp = round(float(temp), 1)
 
@@ -953,21 +952,16 @@ def change_setting():
         webinterface.usersettings.reset_to_default()
 
     if setting_name == "restart_rpi":
-        call("sudo /sbin/reboot now", shell=True)
+        webinterface.platform.reboot()
 
     if setting_name == "restart_visualizer":
-        call("sudo systemctl restart visualizer", shell=True)
+        webinterface.platform.restart_visualizer()
 
     if setting_name == "turnoff_rpi":
-        call("sudo /sbin/shutdown -h now", shell=True)
+        webinterface.platform.shutdown()
 
     if setting_name == "update_rpi":
-        call("sudo git reset --hard HEAD", shell=True)
-        call("sudo git checkout .", shell=True)
-        call("sudo git clean -fdx -e Songs/ -e config/settings.xml", shell=True)
-        call("sudo git clean -fdx Songs/cache", shell=True)
-        call("sudo git pull origin master", shell=True)
-        call("sudo pip install -r requirements.txt", shell=True)
+        webinterface.platform.update_visualizer()
 
     if setting_name == "connect_ports":
         webinterface.midiports.connectall()
@@ -978,7 +972,7 @@ def change_setting():
         return jsonify(success=True, reload_ports=True)
 
     if setting_name == "restart_rtp":
-        call("sudo systemctl restart rtpmidid", shell=True)
+        webinterface.platform.restart_rtpmidid()
 
     if setting_name == "show_midi_events":
         value = int(value == 'true')
@@ -1235,7 +1229,7 @@ def change_setting():
     if setting_name == "connect_to_wifi":
         print("Controller: connecting to wifi")
         try:
-            response = connect_to_wifi(value, second_value, webinterface.hotspot, webinterface.usersettings)
+            response = webinterface.platform.connect_to_wifi(value, second_value, webinterface.hotspot, webinterface.usersettings)
         except:
             response = False
 
@@ -1243,7 +1237,7 @@ def change_setting():
 
     if setting_name == "disconnect_wifi":
         try:
-            disconnect_from_wifi(webinterface.hotspot, webinterface.usersettings)
+            webinterface.platform.disconnect_from_wifi(webinterface.hotspot, webinterface.usersettings)
         except:
             return jsonify(success=False)
 
@@ -1635,8 +1629,8 @@ def set_step_properties():
 
 @webinterface.route('/api/get_wifi_list', methods=['GET'])
 def get_wifi_list():
-    wifi_list = get_wifi_networks()
-    success, wifi_ssid, address = get_current_connections()
+    wifi_list = webinterface.platform.get_wifi_networks()
+    success, wifi_ssid, address = webinterface.platform.get_current_connections()
 
     response = {"wifi_list": wifi_list,
                 "connected_wifi": wifi_ssid,
