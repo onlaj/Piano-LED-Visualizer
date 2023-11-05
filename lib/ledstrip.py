@@ -1,12 +1,13 @@
 from lib.functions import *
 import lib.colormaps as cmap
 from rpi_ws281x import PixelStrip, Adafruit_NeoPixel, ws
-from lib.null_drivers import PixelStrip_null
+from lib.LED_drivers import PixelStrip_null, PixelStrip_Emu
 
 class LedStrip:
-    def __init__(self, usersettings, ledsettings):
+    def __init__(self, usersettings, ledsettings, driver="rpi_ws281x"):
         self.usersettings = usersettings
         self.ledsettings = ledsettings
+        self.driver = driver
 
         self.brightness_percent = int(self.usersettings.get_setting_value("brightness_percent"))
         self.led_number = int(self.usersettings.get_setting_value("led_count"))
@@ -41,34 +42,41 @@ class LedStrip:
         self.keylist_status = [0] * self.led_number
         self.keylist_color = [0] * self.led_number
 
-        try:
-            # Create NeoPixel object with appropriate configuration.
-            self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
-                                        int(self.brightness), self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
-            # Intialize the library (must be called once before other functions).
-            self.strip.begin()
-            if "releaseGIL" in dir(self.strip):
-                self.strip.releaseGIL()
-            self.change_gamma(self.led_gamma)
-        except Exception as e:
-            print(e)
-            if isinstance(e, RuntimeError):
-                # rpi_ws281x registers _cleanup() atexit, but if it's not initialized ws2811_fini will segfault.
-                # Manually clean up memory, then bypass _cleanup() using knowledge that _cleanup() checks _leds first
-                print("Cleaning up ws281x instance.")
-                ws.delete_ws2811_t(self.strip._leds)
-                self.strip._leds = None
+        if self.driver == "rpi_ws281x":
+            try:
+                # Create NeoPixel object with appropriate configuration.
+                self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
+                                            int(self.brightness), self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
+                # Intialize the library (must be called once before other functions).
+                self.strip.begin()
+                if "releaseGIL" in dir(self.strip):
+                    self.strip.releaseGIL()
+                self.change_gamma(self.led_gamma)
+            except Exception as e:
+                print(e)
+                if isinstance(e, RuntimeError):
+                    # rpi_ws281x registers _cleanup() atexit, but if it's not initialized ws2811_fini will segfault.
+                    # Manually clean up memory, then bypass _cleanup() using knowledge that _cleanup() checks _leds first
+                    print("Cleaning up ws281x instance.")
+                    ws.delete_ws2811_t(self.strip._leds)
+                    self.strip._leds = None
 
-            print("Failed to load LED strip.  Using null driver.")
+                print("Failed to load LED strip.  Using null driver.")
+                self.strip = PixelStrip_null(int(self.led_number))
+                self.driver = "null"
+        elif self.driver == "null":
             self.strip = PixelStrip_null(int(self.led_number))
-
+            self.driver = "null"
+        elif self.driver == "emu":
+            self.strip = PixelStrip_Emu(int(self.led_number))
 
 
     def change_gamma(self, value):
         self.led_gamma = float(value)
         if 0.01 <= self.led_gamma <= 10.0:
-            # rpi_ws281x.py interface has no ported method to set gamma by factor, using direct ws
-            ws.ws2811_set_custom_gamma_factor(self.strip._leds, self.led_gamma)
+            if self.driver == "rpi_ws281x":
+                # rpi_ws281x.py interface has no ported method to set gamma by factor, using direct ws
+                ws.ws2811_set_custom_gamma_factor(self.strip._leds, self.led_gamma)
 
             # Rebuild colormaps
             cmap.generate_colormaps(cmap.gradients, self.led_gamma)

@@ -21,6 +21,9 @@ from lib.GPIOdriver import GPIO, RPiException
 import argparse
 import threading
 from webinterface import webinterface
+import webinterface as web_mod
+import asyncio
+import atexit
 import filecmp
 from shutil import copyfile
 from waitress import serve
@@ -64,6 +67,7 @@ parser.add_argument('-s', '--skipupdate', action='store_true', help="Do not try 
 parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
 parser.add_argument('-r', '--rotatescreen', default="false", help="rotate screen: 'false' (default) | 'true'")
 parser.add_argument('-a', '--appmode', default=appmode_default, help="appmode: 'platform' (default) | 'app'")
+parser.add_argument('-l', '--leddriver', default="rpi_ws281x", help="leddriver: 'rpi_ws281x' (default) | 'emu' | 'null'")
 args = parser.parse_args()
 
 print(args)
@@ -147,7 +151,7 @@ GPIO.setup(JPRESS, GPIO.IN, GPIO.PUD_UP)
 usersettings = UserSettings()
 midiports = MidiPorts(usersettings)
 ledsettings = LedSettings(usersettings)
-ledstrip = LedStrip(usersettings, ledsettings)
+ledstrip = LedStrip(usersettings, ledsettings, args.leddriver)
 
 cmap.gradients.update(cmap.load_colormaps())
 cmap.generate_colormaps(cmap.gradients, ledstrip.led_gamma)
@@ -200,11 +204,20 @@ def start_webserver():
     # webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
     serve(webinterface, host='0.0.0.0', port=args.port, threads=20)
 
-
+websocket_loop = asyncio.new_event_loop()
 if args.webinterface != "false":
     print("Starting webinterface")
     processThread = threading.Thread(target=start_webserver, daemon=True)
     processThread.start()
+
+    # Start websocket server
+    processThread = threading.Thread(target=web_mod.start_server, args=(websocket_loop,), daemon=True)
+    processThread.start()
+
+    # Register the shutdown handler
+    atexit.register(web_mod.stop_server, websocket_loop)
+
+
 
 platform.manage_hotspot(hotspot, usersettings, midiports, True)
 
