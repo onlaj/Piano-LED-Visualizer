@@ -1375,6 +1375,7 @@ function set_step_properties(sequence, step) {
             get_current_sequence_setting(true, true);
         }
     };
+    step = step || 0;
     xhttp.open("GET", "/api/set_step_properties?sequence=" + sequence + "&step=" + step, true);
     xhttp.send();
 }
