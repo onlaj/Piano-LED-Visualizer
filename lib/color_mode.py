@@ -147,7 +147,7 @@ class Rainbow(ColorMode):
         return self.calculate_rainbow_colors(note_position, shift)
 
     def ColorUpdate(self, time_delta, led_pos, old_color):
-        return self.NoteOn(None, None, led_pos)
+        return self.NoteOn(None, None, None, led_pos)
 
     def calculate_rainbow_colors(self, note_position, shift):
         rainbow_value = int((int(note_position) + self.offset + shift) * (
