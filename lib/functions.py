@@ -889,6 +889,9 @@ def colormap_animation(colormap, ledstrip, ledsettings, menu):
     menu.t = threading.currentThread()
 
     while menu.is_idle_animation_running or menu.is_animation_running:
+        if colormap not in cmap.colormaps:
+            break
+
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
         while not cover_opened:

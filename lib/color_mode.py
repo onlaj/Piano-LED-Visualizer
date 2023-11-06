@@ -147,7 +147,7 @@ class Rainbow(ColorMode):
         return self.calculate_rainbow_colors(note_position, shift)
 
     def ColorUpdate(self, time_delta, led_pos, old_color):
-        return self.NoteOn(None, None, led_pos)
+        return self.NoteOn(None, None, None, led_pos)
 
     def calculate_rainbow_colors(self, note_position, shift):
         rainbow_value = int((int(note_position) + self.offset + shift) * (
@@ -238,7 +238,9 @@ class VelocityRainbow(ColorMode):
         self.colormap = ledsettings.velocityrainbow_colormap
 
     def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
+        if self.colormap not in cmap.colormaps:
+            return None
+
         x = int(((255 * powercurve(midi_event.velocity / 127, self.curve / 100)
                     * (self.scale / 100) % 256) + self.offset) % 256)
-        x2 = cmap.colormaps[self.colormap][x]
-        return x2
+        return cmap.colormaps[self.colormap][x]

@@ -318,10 +318,13 @@ def change_setting():
         webinterface.usersettings.change_setting_value("multicolor_range",
                                                        webinterface.ledsettings.multicolor_range)
 
+        cmap.update_multicolor(webinterface.ledsettings.multicolor_range, webinterface.ledsettings.multicolor)
+
         return jsonify(success=True)
 
     if setting_name == "remove_multicolor":
         webinterface.ledsettings.deletecolor(int(value) + 1)
+        cmap.update_multicolor(webinterface.ledsettings.multicolor_range, webinterface.ledsettings.multicolor)
         return jsonify(success=True, reload=True)
 
     if setting_name == "multicolor":
@@ -332,17 +335,23 @@ def change_setting():
 
         webinterface.usersettings.change_setting_value("multicolor", webinterface.ledsettings.multicolor)
 
+        cmap.update_multicolor(webinterface.ledsettings.multicolor_range, webinterface.ledsettings.multicolor)
+
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "multicolor_range_left":
         webinterface.ledsettings.multicolor_range[int(second_value)][0] = int(value)
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
 
+        cmap.update_multicolor(webinterface.ledsettings.multicolor_range, webinterface.ledsettings.multicolor)
+
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "multicolor_range_right":
         webinterface.ledsettings.multicolor_range[int(second_value)][1] = int(value)
         webinterface.usersettings.change_setting_value("multicolor_range", webinterface.ledsettings.multicolor_range)
+
+        cmap.update_multicolor(webinterface.ledsettings.multicolor_range, webinterface.ledsettings.multicolor)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 

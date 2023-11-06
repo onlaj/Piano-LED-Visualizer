@@ -27,11 +27,27 @@ gradients["Warm-Cyclic"] = [ (0.0, (255,0,0)), (0.4, (170,64,0)), (0.6, (128,126
 
 # Gradients from files:
 #
-# cmocean and colorcet data from https://nicoguaro.github.io/posts/cyclic_colormaps/
-#   cmocean - phase: https://matplotlib.org/cmocean/
-#   colorcet - cyclic_mrybm, cyclic_mygbm - https://github.com/holoviz/colorcet
-#
+# matplotlib: https://matplotlib.org/stable/gallery/color/colormap_reference.html
+# cmasher: https://cmasher.readthedocs.io/user/introduction.html
+# colorcet: https://colorcet.com
+# cmocean: https://matplotlib.org/cmocean/
 # hsluv and hpluv: https://www.hsluv.org/
+#
+# agama: https://github.com/GalacticDynamics-Oxford/Agama/
+#     Agama/doc/Colormaps.pdf
+#     Agama/py/agamacolormaps.py
+# "circle" is a constant-brightness, perceptually uniform cyclic rainbow map
+# going from magenta through blue, green and red back to magenta.
+#
+# "mist" is another replacement for "jet" or "rainbow" maps, which differs from "breeze" by
+# having smaller dynamical range in brightness. The red and blue endpoints are darker than
+# the green center, but not as dark as in "breeze", while the center is not as bright.
+#
+# "earth" is a rainbow-like colormap with increasing luminosity, going from black through
+# dark blue, medium green in the middle and light red/orange to white.
+# It is nearly perceptually uniform, monotonic in luminosity, and is suitable for
+# plotting nearly anything, especially velocity maps (blue/redshifted).
+# It resembles "gist_earth" (but with more vivid colors) or MATLAB's "parula".
 
 
 
@@ -79,14 +95,20 @@ def gradient_to_cmaplut(gradient, gamma=1, entries=256, int_table=True):
     else:
         return [ (x[0], x[1], x[2]) for x in table.T ]
 
+def update_colormap(name, gamma):
+    global colormaps, colormaps_preview, gradients
+
+    try:
+        colormaps[name] = gradient_to_cmaplut(gradients[name], gamma)
+        colormaps_preview[name] = gradient_to_cmaplut(gradients[name], 2.2, 64)
+    except Exception as e:
+        print(f"Loading colormap {k} failed: {e}") # if a gradient fails, skip it
+
 def generate_colormaps(gradients, gamma):
     global colorsmaps, colorsmaps_preview
+
     for k, v in gradients.items():
-        try:
-            colormaps[k] = gradient_to_cmaplut(v, gamma)
-            colormaps_preview[k] = gradient_to_cmaplut(v, 2.2, 64)
-        except Exception as e:
-            print(f"Loading colormap {k} failed: {e}") # if a gradient fails, skip it
+        update_colormap(k, gamma)
 
 def load_colormaps():
     gradients = {}
@@ -113,3 +135,33 @@ def load_colormaps():
             print(f"Loading colormap datafile {f} failed: {e}") # if a gradient fails, skip it
     
     return dict(sorted(gradients.items()))
+
+def multicolor_to_gradient(multicolor_range, multicolor):
+    m = zip(multicolor_range, multicolor)
+    pos_next = None
+    output = []
+    for x in m:
+        # range is 20 - 108
+        pos1 = (x[0][0] - 20) / 88
+        pos2 = (x[0][1] - 20) / 88
+        color = x[1]
+
+        output.append((pos1, color))
+        output.append((pos2, color))
+
+    # Warning: Overlaps can produce unintended results!  (Depending how you interpret it)
+    # Lets return a valid gradient anyway
+    output = sorted(output)
+    return output
+
+def update_multicolor(multicolor_range, multicolor):
+    global gradients
+
+    g = multicolor_to_gradient(multicolor_range, multicolor)
+    if g is not None and len(g) >= 2:
+        gradients["^Multicolor"] = g
+    else:
+        # default to some error color
+        gradients["^Multicolor"] = [(15,5,5)]
+
+    update_colormap("^Multicolor", 1)
