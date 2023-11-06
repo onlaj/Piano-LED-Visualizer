@@ -113,6 +113,7 @@ function loadAjax(subpage) {
                 if (subpage === "sequences") {
                     initialize_sequences();
                     initialize_led_settings();
+                    populate_colormaps(["velocityrainbow_colormap"]);
                     clearInterval(homepage_interval);
                 }
                 if (subpage === "ports") {
