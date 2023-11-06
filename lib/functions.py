@@ -283,7 +283,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
         time.sleep(delay)
         i += 1
         try:
-            if str(midiports.inport.poll()) != "None":
+            if len(midiports.midi_queue) != 0:
                 menu.screensaver_is_running = False
                 saving.start_time = time.perf_counter()
                 menu.screen_status = 1
