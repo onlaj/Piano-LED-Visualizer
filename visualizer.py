@@ -65,7 +65,7 @@ parser.add_argument('-s', '--skipupdate', action='store_true', help="Do not try 
 parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
 parser.add_argument('-r', '--rotatescreen', default="false", help="rotate screen: 'false' (default) | 'true'")
 parser.add_argument('-a', '--appmode', default=appmode_default, help="appmode: 'platform' (default) | 'app'")
-parser.add_argument('-l', '--leddriver', default="rpi_ws281x", help="leddriver: 'rpi_ws281x' (default) | 'emu' | 'null'")
+parser.add_argument('-l', '--leddriver', default="rpi_ws281x", help="leddriver: 'rpi_ws281x' (default) | 'emu' ")
 args = parser.parse_args()
 
 print(args)

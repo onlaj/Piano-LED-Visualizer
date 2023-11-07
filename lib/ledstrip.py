@@ -1,7 +1,7 @@
 from lib.functions import *
 import lib.colormaps as cmap
 from lib.rpi_drivers import PixelStrip, ws
-from lib.LED_drivers import PixelStrip_null, PixelStrip_Emu
+from lib.LED_drivers import PixelStrip_Emu
 
 class LedStrip:
     def __init__(self, usersettings, ledsettings, driver="rpi_ws281x"):
@@ -61,12 +61,9 @@ class LedStrip:
                     ws.delete_ws2811_t(self.strip._leds)
                     self.strip._leds = None
 
-                print("Failed to load LED strip.  Using null driver.")
-                self.strip = PixelStrip_null(int(self.led_number))
-                self.driver = "null"
-        elif self.driver == "null":
-            self.strip = PixelStrip_null(int(self.led_number))
-            self.driver = "null"
+                print("Failed to load LED strip.  Using emu driver.")
+                self.strip = PixelStrip_Emu(int(self.led_number))
+                self.driver = "emu"
         elif self.driver == "emu":
             self.strip = PixelStrip_Emu(int(self.led_number))
 
