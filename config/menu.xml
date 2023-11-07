@@ -107,6 +107,8 @@
                 </Scale_Coloring>
                 <Scale_Coloring text="Confirm"></Scale_Coloring>
             </LED_Color>
+            <LED_Color text="Velocity Rainbow">
+            </LED_Color>
         </LED_Strip_Settings>
         <LED_Strip_Settings text="Light mode">
             <Light_mode text="Normal"></Light_mode>
