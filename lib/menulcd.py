@@ -12,6 +12,8 @@ from lib.hotspot import (disconnect_from_wifi)
 from lib.functions import *
 import RPi.GPIO as GPIO
 
+import lib.colormaps as cmap
+
 
 class MenuLCD:
     def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot):
@@ -125,6 +127,22 @@ class MenuLCD:
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", song)
             load_song_mc.appendChild(element)
+
+    def update_colormap(self):
+        # Assume the first node is "Colormap"
+        replace_node = self.DOMTree.getElementsByTagName("Velocity_Rainbow")[0]
+        colormap_mc = self.DOMTree.createElement("Velocity_Rainbow")
+        colormap_mc.appendChild(self.DOMTree.createTextNode(""))
+        colormap_mc.setAttribute("text", "Colormap")
+        replace_node.parentNode.replaceChild(colormap_mc, replace_node)
+        # loop through cmap.colormaps_preview with a key
+        for key, value in cmap.colormaps_preview.items():
+            # List of colormaps
+            element = self.DOMTree.createElement("Colormap")
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text", key)
+            colormap_mc.appendChild(element)
+
 
     def update_sequence_list(self):
         seq_mc = self.DOMTree.createElement("LED_Strip_Settings")
@@ -632,6 +650,10 @@ class MenuLCD:
         # displaying scale key
         if self.current_location == "Scale_Coloring":
             draw_value("scale: " + str(self.ledsettings.scales[self.ledsettings.scale_key]), 10, 70)
+
+        if self.current_location == "Velocity_Rainbow":
+            self.update_colormap()
+
 
         # Learn MIDI
         if self.current_location == "Learn_MIDI":

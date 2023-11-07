@@ -32,6 +32,7 @@
                 <Rainbow_Colors text="Timeshift"></Rainbow_Colors>
             </LED_Color>
             <LED_Color text="Velocity Rainbow">
+                <Velocity_Rainbow text="Colormap"></Velocity_Rainbow>
                 <Velocity_Rainbow text="Offset"></Velocity_Rainbow>
                 <Velocity_Rainbow text="Scale"></Velocity_Rainbow>
                 <Velocity_Rainbow text="Curve"></Velocity_Rainbow>
@@ -106,8 +107,6 @@
                     <Scale_key text="B m"></Scale_key>
                 </Scale_Coloring>
                 <Scale_Coloring text="Confirm"></Scale_Coloring>
-            </LED_Color>
-            <LED_Color text="Velocity Rainbow">
             </LED_Color>
         </LED_Strip_Settings>
         <LED_Strip_Settings text="Light mode">
