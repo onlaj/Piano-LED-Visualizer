@@ -2,6 +2,8 @@ import time
 import subprocess
 from subprocess import call
 import os
+import filecmp
+from shutil import copyfile
 
 class Hotspot:
     def __init__(self, platform):

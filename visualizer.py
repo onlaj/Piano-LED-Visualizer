@@ -24,8 +24,6 @@ from webinterface import webinterface
 import webinterface as web_mod
 import asyncio
 import atexit
-import filecmp
-from shutil import copyfile
 from waitress import serve
 import traceback
 
