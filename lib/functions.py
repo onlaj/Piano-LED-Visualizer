@@ -1,12 +1,12 @@
 import threading
-from rpi_ws281x import Color
+from lib.rpi_drivers import Color
 import lib.colormaps as cmap
 import mido
 import datetime
 import psutil
 import time
 import socket
-from lib.GPIOdriver import GPIO
+from lib.rpi_drivers import GPIO
 import math
 import subprocess
 import random

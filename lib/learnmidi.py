@@ -8,7 +8,7 @@ import subprocess
 import os
 
 from lib.functions import clamp, fastColorWipe, find_between, get_note_position
-from rpi_ws281x import Color
+from lib.rpi_drivers import Color
 
 import numpy as np
 import pickle

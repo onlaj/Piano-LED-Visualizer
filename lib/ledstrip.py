@@ -1,6 +1,6 @@
 from lib.functions import *
 import lib.colormaps as cmap
-from rpi_ws281x import PixelStrip, Adafruit_NeoPixel, ws
+from lib.rpi_drivers import PixelStrip, ws
 from lib.LED_drivers import PixelStrip_null, PixelStrip_Emu
 
 class LedStrip:
@@ -45,7 +45,7 @@ class LedStrip:
         if self.driver == "rpi_ws281x":
             try:
                 # Create NeoPixel object with appropriate configuration.
-                self.strip = Adafruit_NeoPixel(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
+                self.strip = PixelStrip(int(self.led_number), self.LED_PIN, self.LED_FREQ_HZ, self.LED_DMA, self.LED_INVERT,
                                             int(self.brightness), self.LED_CHANNEL, ws.WS2811_STRIP_GRB)
                 # Intialize the library (must be called once before other functions).
                 self.strip.begin()

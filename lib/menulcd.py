@@ -9,7 +9,7 @@ from PIL import ImageFont, Image, ImageDraw
 from lib import LCD_Config, LCD_1in44, LCD_1in3
 
 from lib.functions import *
-from lib.GPIOdriver import GPIO
+from lib.rpi_drivers import GPIO
 
 
 class MenuLCD:

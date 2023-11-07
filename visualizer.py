@@ -16,7 +16,7 @@ from lib.usersettings import UserSettings
 from lib.color_mode import *
 import lib.colormaps as cmap
 from lib.platform import Hotspot, PlatformRasp, Platform_null
-from lib.GPIOdriver import GPIO, RPiException
+from lib.rpi_drivers import GPIO, RPiException
 
 import argparse
 import threading

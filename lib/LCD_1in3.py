@@ -1,4 +1,4 @@
-from lib.GPIOdriver import GPIO
+from lib.rpi_drivers import GPIO
 import time
 import numpy as np
 from lib import LCD_Config

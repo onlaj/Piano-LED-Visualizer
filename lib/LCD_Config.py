@@ -24,9 +24,8 @@
  # THE SOFTWARE.
  #
  
-import spidev
 from lib.null_drivers import SPInull
-from lib.GPIOdriver import GPIO
+from lib.rpi_drivers import GPIO, spidev
 import time
 
 # Pin definition
