@@ -1012,14 +1012,6 @@ class MenuLCD:
             if choice == "System Info":
                 screensaver(self, self.midiports, self.saving, self.ledstrip, self.ledsettings)
 
-        if location == "Rainbow_Colors":
-            self.ledsettings.color_mode = "Rainbow"
-            self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
-
-        if location == "Velocity_Rainbow":
-            self.ledsettings.color_mode = "VelocityRainbow"
-            self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
-
         if location == "Cycle_colors":
             choice = 1 if choice == "Enable" else 0
             self.usersettings.change_setting_value("multicolor_iteration", choice)
@@ -1061,6 +1053,14 @@ class MenuLCD:
 
         if location == "Scale_Coloring" and choice == "Confirm":
             self.ledsettings.color_mode = "Scale"
+            self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
+
+        if location == "Velocity_Rainbow" and choice == "Confirm":
+            self.ledsettings.color_mode = "VelocityRainbow"
+            self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
+
+        if location == "Rainbow_Colors" and choice == "Confirm":
+            self.ledsettings.color_mode = "Rainbow"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
 
         if location == "Scale_key":

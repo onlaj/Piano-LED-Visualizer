@@ -30,12 +30,14 @@
                 <Rainbow_Colors text="Offset"></Rainbow_Colors>
                 <Rainbow_Colors text="Scale"></Rainbow_Colors>
                 <Rainbow_Colors text="Timeshift"></Rainbow_Colors>
+                <Rainbow_Colors text="Confirm"></Rainbow_Colors>
             </LED_Color>
             <LED_Color text="Velocity Rainbow">
                 <Velocity_Rainbow text="Colormap"></Velocity_Rainbow>
                 <Velocity_Rainbow text="Offset"></Velocity_Rainbow>
                 <Velocity_Rainbow text="Scale"></Velocity_Rainbow>
                 <Velocity_Rainbow text="Curve"></Velocity_Rainbow>
+                <Velocity_Rainbow text="Confirm"></Velocity_Rainbow>
             </LED_Color>
             <LED_Color text="Speed">
                 <Speed text="Color for slow speed">
