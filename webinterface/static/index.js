@@ -95,7 +95,7 @@ function loadAjax(subpage) {
                     get_settings(false);
                 }
                 if (subpage === "ledsettings") {
-                    populate_colormaps(["velocityrainbow_colormap"]);
+                    populate_colormaps(["velocityrainbow_colormap","rainbow_colormap"]);
                     initialize_led_settings();
                     get_current_sequence_setting();
                     clearInterval(homepage_interval);
@@ -526,6 +526,7 @@ function get_settings(home = true) {
                 document.getElementById("rainbow_offset").value = response["rainbow_offset"];
                 document.getElementById("rainbow_scale").value = response["rainbow_scale"];
                 document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
+                document.getElementById("rainbow_colormap").value = response.rainbow_colormap;
 
                 document.getElementById("velocityrainbow_offset").value = response["velocityrainbow_offset"];
                 document.getElementById("velocityrainbow_scale").value = response["velocityrainbow_scale"];
@@ -862,6 +863,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     document.getElementById("rainbow_offset").value = response["rainbow_offset"];
                     document.getElementById("rainbow_scale").value = response["rainbow_scale"];
                     document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
+                    document.getElementById("rainbow_colormap").value = response.rainbow_colormap;
 
                     remove_color_modes();
                     document.getElementById('Rainbow').hidden = false;
@@ -869,6 +871,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     change_setting("rainbow_offset", response["rainbow_offset"], "no_reload", true);
                     change_setting("rainbow_scale", response["rainbow_scale"], "no_reload", true);
                     change_setting("rainbow_timeshift", response.rainbow_timeshift, "no_reload", true);
+                    change_setting("rainbow_colormap", response.rainbow_colormap, "no_reload", true);
                 }
             }
 
@@ -1102,6 +1105,10 @@ function initialize_led_settings() {
 
     document.getElementById('rainbow_timeshift').onchange = function () {
         change_setting("rainbow_timeshift", this.value, false, true)
+    }
+
+    document.getElementById('rainbow_colormap').onchange = function () {
+        change_setting("rainbow_colormap", this.value, false, true)
     }
 
     document.getElementById('velocityrainbow_offset').onchange = function () {

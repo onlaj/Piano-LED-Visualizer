@@ -15,6 +15,7 @@
 	<rainbow_offset>0</rainbow_offset>
 	<rainbow_scale>100</rainbow_scale>
 	<rainbow_timeshift>0</rainbow_timeshift>
+	<rainbow_colormap>Rainbow</rainbow_colormap>
 
 	<velocityrainbow_offset>210</velocityrainbow_offset>
 	<velocityrainbow_scale>120</velocityrainbow_scale>
