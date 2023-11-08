@@ -2,6 +2,7 @@ import mido
 from lib import connectall
 import time
 from collections import deque
+import traceback
 
 class MidiPorts:
     def __init__(self, usersettings):
@@ -13,6 +14,18 @@ class MidiPorts:
         self.inport = None
         self.playport = None
         self.midipending = None
+
+        # mido backend python-rtmidi has a bug on some (debian-based) systems
+        # involving the library location of alsa plugins
+        # https://github.com/SpotlightKid/python-rtmidi/issues/138
+        # The bug will cause the first attempt at accessing a port to fail (due to the failed plugin lookup?)
+        # but succeed on the second
+        # Access once to trigger bug if exists, so open port later will succeed on attempt:
+        try:
+            mido.get_input_names()
+        except Exception as e:
+            print("First access to mido failed.  Possibly from known issue: https://github.com/SpotlightKid/python-rtmidi/issues/138")
+            #traceback.print_exc()
 
         # checking if the input port was previously set by the user
         port = self.usersettings.get_setting_value("input_port")

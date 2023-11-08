@@ -7,16 +7,15 @@ import webcolors as wc
 from PIL import ImageFont, Image, ImageDraw
 
 from lib import LCD_Config, LCD_1in44, LCD_1in3
-from lib.hotspot import (disconnect_from_wifi)
 
 from lib.functions import *
-import RPi.GPIO as GPIO
+from lib.rpi_drivers import GPIO
 
 import lib.colormaps as cmap
 
 
 class MenuLCD:
-    def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot):
+    def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot, platform):
         self.list_count = None
         self.parent_menu = None
         self.current_choice = None
@@ -29,6 +28,7 @@ class MenuLCD:
         self.saving = saving
         self.midiports = midiports
         self.hotspot = hotspot
+        self.platform = platform
         self.args = args
         font_dir = "/usr/share/fonts/truetype/freefont"
         if args.fontdir is not None:
@@ -579,10 +579,10 @@ class MenuLCD:
         # displaying brightness value
         if self.current_location == "Brightness":
             draw_value(str(self.ledstrip.brightness_percent) + "%")
-            miliamps = int(self.ledstrip.LED_COUNT) * (60 / (100 / float(self.ledstrip.brightness_percent)))
+            miliamps = int(self.ledstrip.led_number) * (60 / (100 / float(self.ledstrip.brightness_percent)))
             amps = round(float(miliamps) / float(1000), 2)
             draw_value("Amps needed to " + "\n" + "power " + str(
-                self.ledstrip.LED_COUNT) + " LEDS with " + "\n" + "white color: " + str(amps), 10, 50)
+                self.ledstrip.led_number) + " LEDS with " + "\n" + "white color: " + str(amps), 10, 50)
 
         if self.current_location == "Backlight_Brightness":
             draw_value(self.ledsettings.backlight_brightness_percent)
@@ -1098,7 +1098,7 @@ class MenuLCD:
         if location == "Restart_Visualizer":
             if choice == "Confirm":
                 self.render_message("Restarting...", "", 500)
-                call("sudo systemctl restart visualizer", shell=True)
+                self.platform.restart_visualizer()
             else:
                 self.go_back()
 
@@ -1108,39 +1108,34 @@ class MenuLCD:
                 self.render_message("Starting Hotspot...", "It might take a few minutes...", 2000)
                 print("Starting Hotspot...")
                 time.sleep(2)
-                disconnect_from_wifi(self.hotspot, self.usersettings)
+                self.platform.disconnect_from_wifi(self.hotspot, self.usersettings)
             else:
                 self.go_back()
 
         if location == "Restart_RTPMidi_service":
             if choice == "Confirm":
                 self.render_message("Restarting RTPMidi...", "", 2000)
-                call("sudo systemctl restart rtpmidid", shell=True)
+                self.platform.restart_rtpmidid()
             else:
                 self.go_back()
 
         if location == "Update_visualizer":
             if choice == "Confirm":
                 self.render_message("Updating...", "reboot is required", 5000)
-                call("sudo git reset --hard HEAD", shell=True)
-                call("sudo git checkout .", shell=True)
-                call("sudo git clean -fdx -e Songs/ -e config/settings.xml", shell=True)
-                call("sudo git clean -fdx Songs/cache", shell=True)
-                call("sudo git pull origin master", shell=True)
-                call("sudo pip install -r requirements.txt", shell=True)
+                self.platform.update_visualizer()
             self.go_back()
 
         if location == "Shutdown":
             if choice == "Confirm":
                 self.render_message("", "Shutting down...", 5000)
-                call("sudo /sbin/shutdown -h now", shell=True)
+                self.platform.shutdown()
             else:
                 self.go_back()
 
         if location == "Reboot":
             if choice == "Confirm":
                 self.render_message("", "Rebooting...", 5000)
-                call("sudo /sbin/reboot now", shell=True)
+                self.platform.reboot()
             else:
                 self.go_back()
 

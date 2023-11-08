@@ -1,0 +1,92 @@
+<!doctype html>
+<html class="dark" xmlns:x-transition="" lang="eng">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../static/favicon-16x16.png">
+    <link rel="mask-icon" href="../static/safari-pinned-tab.svg" color="#0ed3cf">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#0ed3cf">
+
+    <title>Piano LED Emulator</title>
+</head>
+
+<body class="bg-gray-800">
+
+<canvas id="ledemu" style="width: 100%;">
+</canvas>
+
+<script>
+    let socket;
+    const ledemu = document.getElementById("ledemu");
+    var ctx = ledemu.getContext('2d');
+    ctx.canvas.width = window.innerWidth;
+    ctx.canvas.height = 300;
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    function establish_socket_connection() {
+        console.log("Connecting to websocket")
+        socket = new WebSocket('ws://' + window.location.hostname + ':8765/ledemu');
+
+        socket.addEventListener('open', function (event) {
+            console.log('Connected to server');
+        });
+        var count = 0;
+        socket.addEventListener('message', function (event) {
+            count++;
+            const msg = JSON.parse(event.data);
+            ledwidth = ledemu.width / msg.leds.length;
+            if ("leds" in msg) {
+                for (i = 0; i < msg.leds.length; i++) {
+                    red = msg.leds[i] >> 16 & 0xFF;
+                    green = msg.leds[i] >> 8 & 0xFF;
+                    blue = msg.leds[i] & 0xFF;
+
+                    red = (red / 255) ** (1/2.2);
+                    green = (green / 255) ** (1/2.2);
+                    blue = (blue / 255) ** (1/2.2);
+
+                    red = Math.round(red * 255);
+                    green = Math.round(green * 255);
+                    blue = Math.round(blue * 255);
+
+                    ctx.fillStyle = `rgb(${red} ${green} ${blue})`;
+                    ctx.fillRect(i*ledwidth, 50, ledwidth, ledwidth*2);
+                }
+            }
+        });
+        socket.addEventListener('close', function (event) {
+            console.log('Connection closed.');
+        });
+
+        socket.addEventListener('error', function (event) {
+            console.log('WebSocket error: ', event);
+        });
+    }
+
+    establish_socket_connection();
+
+    window.onbeforeunload = function () {
+        socket.onclose = function () {
+        }; // disable onclose handler first
+        socket.close();
+    };
+
+    // Commenting out: we need updates since virtual keyboard may be in foreground
+    /*
+    window.addEventListener('focus', () => {
+        console.log("Gained focus");
+        socket.send(JSON.stringify({"cmd": "resume"}));
+    })
+    window.addEventListener('blur', () => {
+        console.log("Lost focus");
+        socket.send(JSON.stringify({"cmd": "pause"}));
+    })
+    */
+
+</script>
+
+</body>

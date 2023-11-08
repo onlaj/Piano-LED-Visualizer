@@ -1,6 +1,6 @@
 from lib.functions import *
 import lib.colormaps as cmap
-from rpi_ws281x import Color
+from lib.rpi_drivers import Color
 import colorsys
 import mido
 import random

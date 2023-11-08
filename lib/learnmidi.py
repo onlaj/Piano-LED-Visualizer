@@ -8,7 +8,7 @@ import subprocess
 import os
 
 from lib.functions import clamp, fastColorWipe, find_between, get_note_position
-from rpi_ws281x import Color
+from lib.rpi_drivers import Color
 
 import numpy as np
 import pickle
@@ -18,11 +18,6 @@ def find_nearest(array, target):
     array = np.asarray(array)
     idx = (np.abs(array - target)).argmin()
     return idx
-
-
-def install_midi2abc():
-    print("Installing abcmidi")
-    subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
 
 
 # Get midi song tempo
@@ -472,8 +467,6 @@ class LearnMIDI:
             except Exception as e:
                 # check if e contains the string 'No such file or directory'
                 if 'No such file or directory' in str(e):
-                    print("Midiabc not found, installing...")
-                    install_midi2abc()
-                    self.convert_midi_to_abc(midi_file)
+                    print("midi2abc not found.")
         else:
             print("file already converted")

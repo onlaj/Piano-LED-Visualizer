@@ -1,5 +1,8 @@
+#!/usr/bin/env python3
+
 import webcolors as wc
 import sys
+import os
 
 import fcntl
 
@@ -10,15 +13,17 @@ from lib.menulcd import MenuLCD
 from lib.midiports import MidiPorts
 from lib.savemidi import SaveMIDI
 from lib.usersettings import UserSettings
-from lib.hotspot import *
 from lib.color_mode import *
 import lib.colormaps as cmap
+from lib.platform import Hotspot, PlatformRasp, Platform_null
+from lib.rpi_drivers import GPIO, RPiException
 
 import argparse
 import threading
 from webinterface import webinterface
-import filecmp
-from shutil import copyfile
+import webinterface as web_mod
+import asyncio
+import atexit
 from waitress import serve
 import traceback
 
@@ -46,6 +51,11 @@ def restart_script():
 
 singleton()
 
+appmode_default = 'platform'
+if isinstance(RPiException, RuntimeError):
+    # If Raspberry GPIO fails (no Raspberry Pi detected) then set default to app mode
+    appmode_default = 'app'
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
 parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
@@ -54,18 +64,21 @@ parser.add_argument('-p', '--port', type=int, help="set port for webinterface (8
 parser.add_argument('-s', '--skipupdate', action='store_true', help="Do not try to update /usr/local/bin/connectall.py")
 parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
 parser.add_argument('-r', '--rotatescreen', default="false", help="rotate screen: 'false' (default) | 'true'")
+parser.add_argument('-a', '--appmode', default=appmode_default, help="appmode: 'platform' (default) | 'app'")
+parser.add_argument('-l', '--leddriver', default="rpi_ws281x", help="leddriver: 'rpi_ws281x' (default) | 'emu' ")
 args = parser.parse_args()
 
 print(args)
 
-if not args.skipupdate:
-    # make sure connectall.py file exists and is updated
-    if not os.path.exists('/usr/local/bin/connectall.py') or \
-            filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
-        print("connectall.py script is outdated, updating...")
-        copyfile('lib/connectall.py', '/usr/local/bin/connectall.py')
-        os.chmod('/usr/local/bin/connectall.py', 493)
+if args.appmode == "platform":
+    platform = PlatformRasp()
+else:
+    platform = Platform_null()
 
+if not args.skipupdate:
+    platform.copy_connectall_script()
+
+platform.install_midi2abc()
 
 # A custom class to capture the printed messages
 class Logger:
@@ -136,7 +149,7 @@ GPIO.setup(JPRESS, GPIO.IN, GPIO.PUD_UP)
 usersettings = UserSettings()
 midiports = MidiPorts(usersettings)
 ledsettings = LedSettings(usersettings)
-ledstrip = LedStrip(usersettings, ledsettings)
+ledstrip = LedStrip(usersettings, ledsettings, args.leddriver)
 
 cmap.gradients.update(cmap.load_colormaps())
 cmap.generate_colormaps(cmap.gradients, ledstrip.led_gamma)
@@ -146,9 +159,9 @@ t = threading.Thread(target=startup_animation, args=(ledstrip, ledsettings))
 t.start()
 
 learning = LearnMIDI(usersettings, ledsettings, midiports, ledstrip)
-hotspot = Hotspot()
+hotspot = Hotspot(platform)
 saving = SaveMIDI()
-menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot)
+menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot, platform)
 
 midiports.add_instance(menu)
 ledsettings.add_instance(menu, ledstrip)
@@ -183,18 +196,28 @@ def start_webserver():
     webinterface.midiports = midiports
     webinterface.menu = menu
     webinterface.hotspot = hotspot
+    webinterface.platform = platform
     webinterface.jinja_env.auto_reload = True
     webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
     # webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
     serve(webinterface, host='0.0.0.0', port=args.port, threads=20)
 
-
+websocket_loop = asyncio.new_event_loop()
 if args.webinterface != "false":
     print("Starting webinterface")
     processThread = threading.Thread(target=start_webserver, daemon=True)
     processThread.start()
 
-manage_hotspot(hotspot, usersettings, midiports, True)
+    # Start websocket server
+    processThread = threading.Thread(target=web_mod.start_server, args=(websocket_loop,), daemon=True)
+    processThread.start()
+
+    # Register the shutdown handler
+    atexit.register(web_mod.stop_server, websocket_loop)
+
+
+
+platform.manage_hotspot(hotspot, usersettings, midiports, True)
 
 # Frame rate counters
 event_loop_stamp = time.perf_counter()
@@ -246,7 +269,7 @@ while True:
             menu.show()
             ledsettings.add_instance(menu, ledstrip)
 
-    manage_hotspot(hotspot, usersettings, midiports)
+    platform.manage_hotspot(hotspot, usersettings, midiports)
 
     # Process GPIO keys
 

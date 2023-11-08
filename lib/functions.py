@@ -1,12 +1,12 @@
 import threading
-from rpi_ws281x import Color
+from lib.rpi_drivers import Color
 import lib.colormaps as cmap
 import mido
 import datetime
 import psutil
 import time
 import socket
-import RPi.GPIO as GPIO
+from lib.rpi_drivers import GPIO
 import math
 import subprocess
 import random
@@ -247,7 +247,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
             try:
                 temp = find_between(str(psutil.sensors_temperatures()["cpu_thermal"]), "current=", ",")
             except:
-                temp = find_between(str(psutil.sensors_temperatures()["cpu-thermal"]), "current=", ",")
+                temp = 0
             temp = round(float(temp), 1)
         else:
             temp = 0
