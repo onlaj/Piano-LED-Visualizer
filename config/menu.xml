@@ -33,7 +33,7 @@
                 <Rainbow_Colors text="Confirm"></Rainbow_Colors>
             </LED_Color>
             <LED_Color text="Velocity Rainbow">
-                <Velocity_Rainbow text="Colormap"></Velocity_Rainbow>
+                <Velocity_Rainbow text="Velocity Colormap"></Velocity_Rainbow>
                 <Velocity_Rainbow text="Offset"></Velocity_Rainbow>
                 <Velocity_Rainbow text="Scale"></Velocity_Rainbow>
                 <Velocity_Rainbow text="Curve"></Velocity_Rainbow>

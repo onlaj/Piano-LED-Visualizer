@@ -133,12 +133,12 @@ class MenuLCD:
         replace_node = self.DOMTree.getElementsByTagName("Velocity_Rainbow")[0]
         colormap_mc = self.DOMTree.createElement("Velocity_Rainbow")
         colormap_mc.appendChild(self.DOMTree.createTextNode(""))
-        colormap_mc.setAttribute("text", "Colormap")
+        colormap_mc.setAttribute("text", "Velocity Colormap")
         replace_node.parentNode.replaceChild(colormap_mc, replace_node)
         # loop through cmap.colormaps_preview with a key
         for key, value in cmap.colormaps_preview.items():
             # List of colormaps
-            element = self.DOMTree.createElement("Colormap")
+            element = self.DOMTree.createElement("Velocity_Colormap")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", key)
             colormap_mc.appendChild(element)
@@ -1058,6 +1058,10 @@ class MenuLCD:
         if location == "Velocity_Rainbow" and choice == "Confirm":
             self.ledsettings.color_mode = "VelocityRainbow"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
+
+        if location == "Velocity_Colormap":
+            self.ledsettings.velocityrainbow_colormap = choice
+            self.usersettings.change_setting_value("velocityrainbow_colormap", self.ledsettings.velocityrainbow_colormap)
 
         if location == "Rainbow_Colors" and choice == "Confirm":
             self.ledsettings.color_mode = "Rainbow"
