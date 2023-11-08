@@ -265,7 +265,7 @@ while True:
             usersettings.pending_reset = False
             ledsettings = LedSettings(usersettings)
             ledstrip = LedStrip(usersettings, ledsettings)
-            menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports)
+            menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot, platform)
             menu.show()
             ledsettings.add_instance(menu, ledstrip)
 
