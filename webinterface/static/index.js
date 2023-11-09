@@ -20,6 +20,8 @@ let advancedMode = false;
 let gradients;
 let config_settings;
 let live_settings;
+let current_page = "main";
+let rainbow_animation;
 
 const tick1 = new Audio('/static/tick2.mp3');
 tick1.volume = 0.2;
@@ -83,6 +85,7 @@ function loadAjax(subpage) {
         xhttp.timeout = 5000;
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
+                current_page = subpage;
                 document.getElementById("main").innerHTML = this.responseText;
                 setTimeout(function () {
                     document.getElementById("main").classList.add("show");
@@ -95,7 +98,7 @@ function loadAjax(subpage) {
                     get_settings(false);
                 }
                 if (subpage === "ledsettings") {
-                    populate_colormaps(["velocityrainbow_colormap"]);
+                    populate_colormaps(["velocityrainbow_colormap","rainbow_colormap"]);
                     initialize_led_settings();
                     get_current_sequence_setting();
                     clearInterval(homepage_interval);
@@ -526,6 +529,7 @@ function get_settings(home = true) {
                 document.getElementById("rainbow_offset").value = response["rainbow_offset"];
                 document.getElementById("rainbow_scale").value = response["rainbow_scale"];
                 document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
+                document.getElementById("rainbow_colormap").value = response.rainbow_colormap;
 
                 document.getElementById("velocityrainbow_offset").value = response["velocityrainbow_offset"];
                 document.getElementById("velocityrainbow_scale").value = response["velocityrainbow_scale"];
@@ -808,60 +812,65 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             }
 
             if (response["color_mode"] === "Rainbow") {
-                offset = response["rainbow_offset"] % 175;
-                offset_percent = (offset / 175) * 100;
-                offset_percent = -200 - offset_percent;
-
-                if (response.rainbow_timeshift < 0) {
-                    response.rainbow_timeshift *= -1;
-                    timeshift_speed_in_seconds = 19 * (10 / response.rainbow_timeshift);
-                    animation = 'animation: bannermove_right ' + timeshift_speed_in_seconds + 's linear infinite;';
-                } else {
-                    timeshift_speed_in_seconds = 19 * (10 / response.rainbow_timeshift);
-                    animation = 'animation: bannermove_left ' + timeshift_speed_in_seconds + 's linear infinite;';
-                }
-
-                //calculating width of gradient box
-                box_amount = Math.floor(response["rainbow_scale"] / 150);
-                box_remaining = response["rainbow_scale"] % 150;
-                box_remaining_percent = (box_remaining / 150) * 100
-                if (box_remaining > 0) {
-                    if (box_amount > 0) {
-                        parts = 100 / box_remaining_percent;
-                        total_parts_visible = ((parts * box_amount) + 1);
-                        width = (100 / total_parts_visible) * parts;
-                    } else {
-                        width = (100 / box_remaining_percent) * 100;
-                    }
-                    box_amount += 1;
-                } else {
-                    width = 0;
-                }
-
+                const now = Date.now();
                 let rainbow_example = '';
                 rainbow_example += '<div class="flex overflow-hidden mt-2">';
-                //+4, because there has to be two additional gradient boxes on both sides, so both offset and animation can be applied
-                for (i = 0; i < (box_amount + 4); i++) {
-                    rainbow_example += '<div class="rainbow-box" style="' + animation + '' +
-                        'transform: translateX(' + offset_percent + '%);min-width:' + width + '%;"></div>';
-                }
-                rainbow_example += '</div>'
-                rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">'
-                rainbow_example += '<p class="text-xs italic text-right text-gray-600 dark:text-gray-400">*approximate look</p>'
-                /*
-                rainbow_example += '<label ' +
-                    'class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Offset</label>' +
-                    '<div class="w-full">' + response.rainbow_offset + '</div>'
-                rainbow_example += '<label ' +
-                    'class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">Timeshift</label>' +
-                    '<div class="w-full">' + response.rainbow_timeshift + '</div>'
-                 */
+                rainbow_example += '<canvas id="RainbowPreview" style="width: 100%; height: 50px;"></canvas></div>';
+                rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
+                rainbow_example += '<p class="text-xs italic text-right text-gray-600 dark:text-gray-400">*approximate look</p>';
                 document.getElementById("current_led_color").innerHTML = rainbow_example;
+
+                window.cancelAnimationFrame(rainbow_animation);
+                let count = -1;
+                function update_rainbowctx() {
+                    const canvas = document.getElementById('RainbowPreview');
+                    if (!canvas)
+                        return;
+
+                    count++;
+                    if (count % 2 == 0) { // 60fps from window.requestAnimationFrame may be excessive...
+                        const width = canvas.clientWidth;
+                        const height = canvas.clientHeight;
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext("2d");
+                        //ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        const grd = ctx.createLinearGradient(0, 0, width, 0);
+                        const cmap = gradients[response.rainbow_colormap] ?? [];
+
+                        const led_count = +(config_settings["led_count"] ?? 176);
+                        const reverse = (+config_settings["led_reverse"] == 1 ? -1 : 1);
+                        const reverse_offset = (reverse == -1 ? led_count : 0);
+                        const density = +(config_settings["leds_per_meter"] ?? 144) / 72;
+
+                        const curtime = Date.now();
+                        for (let i=0; i<=88; i+=2) {   // i+=2: it's a preview gradient, 44 gradient stops should be fine
+                            const shift = ((curtime - now) * response.rainbow_timeshift) / 1000;
+
+                            // Approximate get_note_position
+                            const note_position = ~~(reverse * i * density + reverse_offset)
+                            const rainbow_value = ~~((note_position + response["rainbow_offset"] + shift) *
+                                    (response["rainbow_scale"] / 100)) & 255;
+                            x = (rainbow_value/255) * (cmap.length - 1);
+                            grd.addColorStop(i/88, rgbToHexA(cmap[~~x]));
+                        }
+                        ctx.fillStyle = grd;
+                        ctx.fillRect(0, 0, width, height);
+                    }
+
+                    if (Number(document.getElementById("rainbow_timeshift").value) != 0 
+                            && document.getElementById("color_mode").value == "Rainbow" 
+                            && current_page == "ledsettings") {
+                        rainbow_animation = window.requestAnimationFrame(update_rainbowctx);
+                    }
+                }
+                update_rainbowctx();
 
                 if (is_editing_sequence === "true") {
                     document.getElementById("rainbow_offset").value = response["rainbow_offset"];
                     document.getElementById("rainbow_scale").value = response["rainbow_scale"];
                     document.getElementById("rainbow_timeshift").value = response.rainbow_timeshift;
+                    document.getElementById("rainbow_colormap").value = response.rainbow_colormap;
 
                     remove_color_modes();
                     document.getElementById('Rainbow').hidden = false;
@@ -869,6 +878,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     change_setting("rainbow_offset", response["rainbow_offset"], "no_reload", true);
                     change_setting("rainbow_scale", response["rainbow_scale"], "no_reload", true);
                     change_setting("rainbow_timeshift", response.rainbow_timeshift, "no_reload", true);
+                    change_setting("rainbow_colormap", response.rainbow_colormap, "no_reload", true);
                 }
             }
 
@@ -878,19 +888,12 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 const curve = ~~document.getElementById("velocityrainbow_curve").value;
                 const colormap = document.getElementById("velocityrainbow_colormap").value;
 
-                const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
-                    const hex = x.toString(16)
-                    return hex.length === 1 ? '0' + hex : hex
-                }).join('');
-
-                const rgbToHexA = (a) => '#' + [~~a[0], ~~a[1], ~~a[2]].map(x => {
-                    const hex = x.toString(16)
-                    return hex.length === 1 ? '0' + hex : hex
-                }).join('');
-
-                document.getElementById("current_led_color").innerHTML = '<canvas id="VelocityRainbowPreview" style="width: 100%;" height=40px></canvas>';
+                document.getElementById("current_led_color").innerHTML = '<canvas id="VelocityRainbowPreview" style="width: 100%; height: 40px;"></canvas>';
                 const canvas = document.getElementById('VelocityRainbowPreview');
-                var width = canvas.clientWidth;
+                const width = canvas.clientWidth;
+                const height = canvas.clientHeight;
+                canvas.width = width;
+                canvas.height = height;
                 const ctx = canvas.getContext("2d");
                 const grd = ctx.createLinearGradient(0, 0, width, 0);
                 const cmap = gradients[colormap] ?? [];
@@ -904,7 +907,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     grd.addColorStop(i / stops, rgbToHexA(cmap[~~(vel4 * stops / 255)]));
                 }
                 ctx.fillStyle = grd;
-                ctx.fillRect(0, 0, width, 40);
+                ctx.fillRect(0, 0, width, height);
 
 
                 if (is_editing_sequence === "true") {
@@ -1104,6 +1107,10 @@ function initialize_led_settings() {
         change_setting("rainbow_timeshift", this.value, false, true)
     }
 
+    document.getElementById('rainbow_colormap').onchange = function () {
+        change_setting("rainbow_colormap", this.value, false, true)
+    }
+
     document.getElementById('velocityrainbow_offset').onchange = function () {
         change_setting("velocityrainbow_offset", this.value, false, true)
     }
@@ -1254,6 +1261,18 @@ function hexToRgb(hex) {
 function rgbToHex(r, g, b) {
     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
+
+/*
+const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+    const hex = x.toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+}).join('');
+*/
+
+const rgbToHexA = (a) => '#' + [~~a[0], ~~a[1], ~~a[2]].map(x => {
+    const hex = x.toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+}).join('');
 
 function enforceMinMax(el) {
     if (el.value !== "") {

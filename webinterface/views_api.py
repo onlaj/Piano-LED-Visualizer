@@ -381,6 +381,12 @@ def change_setting():
                                                        int(webinterface.ledsettings.rainbow_timeshift))
         return jsonify(success=True, reload_sequence=reload_sequence)
 
+    if setting_name == "rainbow_colormap":
+        webinterface.ledsettings.rainbow_colormap = value
+        webinterface.usersettings.change_setting_value("rainbow_colormap",
+                                                       webinterface.ledsettings.rainbow_colormap)
+        return jsonify(success=True, reload_sequence=reload_sequence)
+
     if setting_name == "velocityrainbow_offset":
         webinterface.ledsettings.velocityrainbow_offset = int(value)
         webinterface.usersettings.change_setting_value("velocityrainbow_offset",
@@ -1286,6 +1292,7 @@ def get_sequence_setting():
     rainbow_scale = webinterface.ledsettings.rainbow_scale
     rainbow_offset = webinterface.ledsettings.rainbow_offset
     rainbow_timeshift = webinterface.ledsettings.rainbow_timeshift
+    rainbow_colormap = webinterface.ledsettings.rainbow_colormap
 
     velocityrainbow_scale = webinterface.ledsettings.velocityrainbow_scale
     velocityrainbow_offset = webinterface.ledsettings.velocityrainbow_offset
@@ -1340,6 +1347,7 @@ def get_sequence_setting():
     response["rainbow_scale"] = rainbow_scale
     response["rainbow_offset"] = rainbow_offset
     response["rainbow_timeshift"] = rainbow_timeshift
+    response["rainbow_colormap"] = rainbow_colormap
     response["velocityrainbow_scale"] = velocityrainbow_scale
     response["velocityrainbow_offset"] = velocityrainbow_offset
     response["velocityrainbow_curve"] = velocityrainbow_curve
@@ -1410,6 +1418,7 @@ def get_settings():
     response["rainbow_offset"] = webinterface.usersettings.get_setting_value("rainbow_offset")
     response["rainbow_scale"] = webinterface.usersettings.get_setting_value("rainbow_scale")
     response["rainbow_timeshift"] = webinterface.usersettings.get_setting_value("rainbow_timeshift")
+    response["rainbow_colormap"] = webinterface.usersettings.get_setting_value("rainbow_colormap")
 
     response["velocityrainbow_offset"] = webinterface.usersettings.get_setting_value("velocityrainbow_offset")
     response["velocityrainbow_scale"] = webinterface.usersettings.get_setting_value("velocityrainbow_scale")

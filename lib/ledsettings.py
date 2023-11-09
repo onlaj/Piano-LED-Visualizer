@@ -27,6 +27,7 @@ class LedSettings:
         self.rainbow_offset = int(usersettings.get_setting_value("rainbow_offset"))
         self.rainbow_scale = int(usersettings.get_setting_value("rainbow_scale"))
         self.rainbow_timeshift = int(usersettings.get_setting_value("rainbow_timeshift"))
+        self.rainbow_colormap = usersettings.get_setting_value("rainbow_colormap")
         self.velocityrainbow_offset = int(usersettings.get_setting_value("velocityrainbow_offset"))
         self.velocityrainbow_scale = int(usersettings.get_setting_value("velocityrainbow_scale"))
         self.velocityrainbow_curve = int(usersettings.get_setting_value("velocityrainbow_curve"))

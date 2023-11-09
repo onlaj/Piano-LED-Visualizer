@@ -141,21 +141,18 @@ class Rainbow(ColorMode):
         self.scale = int(ledsettings.rainbow_scale)
         self.timeshift = int(ledsettings.rainbow_timeshift)
         self.timeshift_start = time.time()
+        self.colormap = ledsettings.rainbow_colormap
+        if self.colormap not in cmap.colormaps:
+            self.colormaps = "Rainbow"
 
     def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
         shift = (time.time() - self.timeshift_start) * self.timeshift
-        return self.calculate_rainbow_colors(note_position, shift)
+        rainbow_value = int((int(note_position) + self.offset + shift) * (
+                float(self.scale) / 100)) & 255
+        return cmap.colormaps[self.colormap][rainbow_value]
 
     def ColorUpdate(self, time_delta, led_pos, old_color):
         return self.NoteOn(None, None, None, led_pos)
-
-    def calculate_rainbow_colors(self, note_position, shift):
-        rainbow_value = int((int(note_position) + self.offset + shift) * (
-                float(self.scale) / 100)) & 255
-        red = get_rainbow_colors(rainbow_value, "red")
-        green = get_rainbow_colors(rainbow_value, "green")
-        blue = get_rainbow_colors(rainbow_value, "blue")
-        return red, green, blue
 
 
 class SpeedColor(ColorMode):
