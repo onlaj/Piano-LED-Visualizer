@@ -815,7 +815,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 const now = Date.now();
                 let rainbow_example = '';
                 rainbow_example += '<div class="flex overflow-hidden mt-2">';
-                rainbow_example += '<canvas id="RainbowPreview" style="width: 100%;" height=50px></canvas></div>';
+                rainbow_example += '<canvas id="RainbowPreview" style="width: 100%; height: 50px;"></canvas></div>';
                 rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
                 rainbow_example += '<p class="text-xs italic text-right text-gray-600 dark:text-gray-400">*approximate look</p>';
                 document.getElementById("current_led_color").innerHTML = rainbow_example;
@@ -830,6 +830,9 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     count++;
                     if (count % 2 == 0) { // 60fps from window.requestAnimationFrame may be excessive...
                         const width = canvas.clientWidth;
+                        const height = canvas.clientHeight;
+                        canvas.width = width;
+                        canvas.height = height;
                         const ctx = canvas.getContext("2d");
                         //ctx.clearRect(0, 0, canvas.width, canvas.height);
                         const grd = ctx.createLinearGradient(0, 0, width, 0);
@@ -852,7 +855,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                             grd.addColorStop(i/88, rgbToHexA(cmap[~~x]));
                         }
                         ctx.fillStyle = grd;
-                        ctx.fillRect(0, 0, width, 50);
+                        ctx.fillRect(0, 0, width, height);
                     }
 
                     if (Number(document.getElementById("rainbow_timeshift").value) != 0 
