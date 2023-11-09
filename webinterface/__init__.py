@@ -40,16 +40,16 @@ def start_server(loop):
                     webinterface.ledemu_pause = True
                 elif msg["cmd"] == "resume":
                     webinterface.ledemu_pause = False
+            except websockets.exceptions.ConnectionClosed:
+                pass
+            except websockets.exceptions.WebSocketException:
+                pass
             except Exception as e:
-                traceback.print_exc()
+                print(e)
+                return
 
     async def ledemu(websocket):
         try:
-            if not isinstance(strip, PixelStrip_Emu):
-                print("Led Emulator disabled")
-                await websocket.send(json.dumps({"message": "LED Emulator disabled"}))
-                return
-
             await websocket.send(json.dumps({"settings": 
                 {"gamma": webinterface.ledstrip.led_gamma,
                  "reverse": webinterface.ledstrip.reverse}}))
@@ -58,18 +58,21 @@ def start_server(loop):
 
         while True:
             try:
-                strip = webinterface.ledstrip.strip
-                await asyncio.sleep(1 / strip.WEB_FPS)
+                ledstrip = webinterface.ledstrip
+                await asyncio.sleep(1 / ledstrip.WEBEMU_FPS)
 
                 if webinterface.ledemu_pause:
                     continue
 
-                await websocket.send(json.dumps({"leds": strip.led_state}))
+                await websocket.send(json.dumps({"leds": ledstrip.strip.getPixels()}))
 
             except websockets.exceptions.ConnectionClosed:
-                return
+                pass
+            except websockets.exceptions.WebSocketException:
+                pass
             except:
-                traceback.print_exc()
+                print(e)
+                return
 
     async def handler(websocket):
         if websocket.path == "/learning":

@@ -38,8 +38,8 @@
         socket.addEventListener('message', function (event) {
             count++;
             const msg = JSON.parse(event.data);
-            ledwidth = ledemu.width / msg.leds.length;
             if ("leds" in msg) {
+                ledwidth = ledemu.width / msg.leds.length;
                 for (i = 0; i < msg.leds.length; i++) {
                     red = msg.leds[i] >> 16 & 0xFF;
                     green = msg.leds[i] >> 8 & 0xFF;
