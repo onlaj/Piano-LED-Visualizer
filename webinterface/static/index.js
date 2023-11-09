@@ -888,9 +888,12 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 const curve = ~~document.getElementById("velocityrainbow_curve").value;
                 const colormap = document.getElementById("velocityrainbow_colormap").value;
 
-                document.getElementById("current_led_color").innerHTML = '<canvas id="VelocityRainbowPreview" style="width: 100%;" height=40px></canvas>';
+                document.getElementById("current_led_color").innerHTML = '<canvas id="VelocityRainbowPreview" style="width: 100%; height: 40px;"></canvas>';
                 const canvas = document.getElementById('VelocityRainbowPreview');
-                var width = canvas.clientWidth;
+                const width = canvas.clientWidth;
+                const height = canvas.clientHeight;
+                canvas.width = width;
+                canvas.height = height;
                 const ctx = canvas.getContext("2d");
                 const grd = ctx.createLinearGradient(0, 0, width, 0);
                 const cmap = gradients[colormap] ?? [];
@@ -904,7 +907,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     grd.addColorStop(i / stops, rgbToHexA(cmap[~~(vel4 * stops / 255)]));
                 }
                 ctx.fillStyle = grd;
-                ctx.fillRect(0, 0, width, 40);
+                ctx.fillRect(0, 0, width, height);
 
 
                 if (is_editing_sequence === "true") {
