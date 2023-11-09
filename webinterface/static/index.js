@@ -815,7 +815,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 const now = Date.now();
                 let rainbow_example = '';
                 rainbow_example += '<div class="flex overflow-hidden mt-2">';
-                rainbow_example += '<canvas id="RainbowPreview" style="width: 100%;" height=40px></canvas></div>';
+                rainbow_example += '<canvas id="RainbowPreview" style="width: 100%;" height=50px></canvas></div>';
                 rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
                 rainbow_example += '<p class="text-xs italic text-right text-gray-600 dark:text-gray-400">*approximate look</p>';
                 document.getElementById("current_led_color").innerHTML = rainbow_example;
@@ -835,16 +835,24 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         const grd = ctx.createLinearGradient(0, 0, width, 0);
                         const cmap = gradients[response.rainbow_colormap] ?? [];
 
+                        const led_count = +(config_settings["led_count"] ?? 176);
+                        const reverse = (+config_settings["led_reverse"] == 1 ? -1 : 1);
+                        const reverse_offset = (reverse == -1 ? led_count : 0);
+                        const density = +(config_settings["leds_per_meter"] ?? 144) / 72;
+
                         const curtime = Date.now();
-                        for (let i=0; i<=88; i++) {
+                        for (let i=0; i<=88; i+=2) {   // i+=2: it's a preview gradient, 44 gradient stops should be fine
                             const shift = ((curtime - now) * response.rainbow_timeshift) / 1000;
-                            const rainbow_value = ~~((i + response["rainbow_offset"] + shift) *
+
+                            // Approximate get_note_position
+                            const note_position = ~~(reverse * i * density + reverse_offset)
+                            const rainbow_value = ~~((note_position + response["rainbow_offset"] + shift) *
                                     (response["rainbow_scale"] / 100)) & 255;
                             x = (rainbow_value/255) * (cmap.length - 1);
                             grd.addColorStop(i/88, rgbToHexA(cmap[~~x]));
                         }
                         ctx.fillStyle = grd;
-                        ctx.fillRect(0, 0, width, 40);
+                        ctx.fillRect(0, 0, width, 50);
                     }
 
                     if (Number(document.getElementById("rainbow_timeshift").value) != 0 
