@@ -35,6 +35,8 @@ class LedStrip:
         self.LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
         self.LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
+        self.WEBEMU_FPS = 10
+
         self.init_strip()
 
     def init_strip(self):

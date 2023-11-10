@@ -13,19 +13,35 @@
     <title>Piano LED Emulator</title>
 </head>
 
-<body class="bg-gray-800">
+<body style="background-color: #000000;">
 
-<canvas id="ledemu" style="width: 100%;">
+<canvas id="ledemu1" style="width: 100%;">
+</canvas>
+
+<canvas id="ledemu2" style="width: 100%;">
+</canvas>
+
+<canvas id="ledemu3" style="width: 96vmin; height: 96vmin">
 </canvas>
 
 <script>
     let socket;
-    const ledemu = document.getElementById("ledemu");
-    var ctx = ledemu.getContext('2d');
-    ctx.canvas.width = window.innerWidth;
-    ctx.canvas.height = 300;
-    ctx.fillStyle = "#000000";
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const ledemu1 = document.getElementById("ledemu1");
+    var ctx1 = ledemu1.getContext('2d');
+    ctx1.canvas.width = window.innerWidth;
+    ctx1.canvas.height = 30;
+    ctx1.fillStyle = "#000000";
+    ctx1.fillRect(0, 0, ctx1.canvas.width, ctx1.canvas.height);
+
+    const ledemu2 = document.getElementById("ledemu2");
+    var ctx2 = ledemu2.getContext('2d');
+    ctx2.canvas.width = window.innerWidth;
+    ctx2.canvas.height = 50;
+
+    const ledemu3 = document.getElementById("ledemu3");
+    var ctx3 = ledemu3.getContext('2d');
+    ctx3.canvas.width = window.innerWidth;
+    ctx3.canvas.height = 600;
 
     function establish_socket_connection() {
         console.log("Connecting to websocket")
@@ -38,24 +54,10 @@
         socket.addEventListener('message', function (event) {
             count++;
             const msg = JSON.parse(event.data);
-            ledwidth = ledemu.width / msg.leds.length;
             if ("leds" in msg) {
-                for (i = 0; i < msg.leds.length; i++) {
-                    red = msg.leds[i] >> 16 & 0xFF;
-                    green = msg.leds[i] >> 8 & 0xFF;
-                    blue = msg.leds[i] & 0xFF;
-
-                    red = (red / 255) ** (1/2.2);
-                    green = (green / 255) ** (1/2.2);
-                    blue = (blue / 255) ** (1/2.2);
-
-                    red = Math.round(red * 255);
-                    green = Math.round(green * 255);
-                    blue = Math.round(blue * 255);
-
-                    ctx.fillStyle = `rgb(${red} ${green} ${blue})`;
-                    ctx.fillRect(i*ledwidth, 50, ledwidth, ledwidth*2);
-                }
+                bar(ledemu1, ctx1, msg.leds);
+                lights(ledemu2, ctx2, msg.leds);
+                ring(ledemu3, ctx3, msg.leds);
             }
         });
         socket.addEventListener('close', function (event) {
@@ -86,6 +88,103 @@
         socket.send(JSON.stringify({"cmd": "pause"}));
     })
     */
+
+
+    function bar(canvas, ctx, leds) {
+        ledwidth = canvas.width / leds.length;
+        for (let i = 0; i < leds.length; i++) {
+                red = leds[i] >> 16 & 0xFF;
+                green = leds[i] >> 8 & 0xFF;
+                blue = leds[i] & 0xFF;
+
+                red = (red / 255) ** (1/2.2);
+                green = (green / 255) ** (1/2.2);
+                blue = (blue / 255) ** (1/2.2);
+
+                red = Math.round(red * 255);
+                green = Math.round(green * 255);
+                blue = Math.round(blue * 255);
+
+                ctx.fillStyle = `rgb(${red} ${green} ${blue})`;
+                ctx.fillRect(i*ledwidth, 10, ledwidth, 10);
+        }
+    }
+
+    function lights(canvas, ctx, leds) {
+        ledwidth = canvas.width / leds.length;
+
+        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+        for (let i = 0; i < leds.length; i++) {
+            red = leds[i] >> 16 & 0xFF;
+            green = leds[i] >> 8 & 0xFF;
+            blue = leds[i] & 0xFF;
+
+            red = (red / 255) ** (1/2.2);
+            green = (green / 255) ** (1/2.2);
+            blue = (blue / 255) ** (1/2.2);
+
+            ctx.save();
+            ctx.translate(i*ledwidth + ledwidth/2, 25);
+            ctx.globalCompositeOperation = "lighten";
+
+            const bloom = ledwidth * 4;
+            grad = ctx.createRadialGradient(0, 0, 1, 0, 0, bloom);
+            grad.addColorStop(0, `rgb(${red*100}%, ${green*100}%, ${blue*100}%)`);
+            grad.addColorStop(0.2, `rgb(${red**2.2*80}%, ${green**2.2*80}%, ${blue**2.2*80}%)`);
+            grad.addColorStop(1, 'rgb(0,0,0)');
+
+            ctx.fillStyle = grad;
+            ctx.fillRect(-bloom, -bloom, bloom*2, bloom*2);
+
+            ctx.restore();
+        }
+    }
+
+    function ring(canvas, ctx, leds) {
+        const canvas_dim = Math.min(canvas.clientWidth, canvas.clientHeight);
+        canvas.clientWidth = canvas_dim;
+        canvas.clientHeight = canvas_dim;
+        canvas.width = canvas_dim;
+        canvas.height = canvas_dim;
+        const dim = Math.min(canvas.width, canvas.height);
+
+        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        const numleds = leds.length;
+        for (let i = 0; i < numleds; i++) {
+            red = leds[i] >> 16 & 0xFF;
+            green = leds[i] >> 8 & 0xFF;
+            blue = leds[i] & 0xFF;
+
+            red = (red / 255) ** (1/2.2);
+            green = (green / 255) ** (1/2.2);
+            blue = (blue / 255) ** (1/2.2);
+
+            ctx.save();
+            const pos = i/numleds;
+            const partial_circle = pos * 0.9 + 0.05;
+            const posrad = partial_circle * 2 * Math.PI;
+            x = Math.cos(posrad + Math.PI/2);   // + Math.PI/2 to rotate origin to bottom
+            y = Math.sin(posrad + Math.PI/2);
+
+            ctx.translate(x * dim*0.4 + dim/2, y * dim*0.4 + dim/2);
+            ctx.globalCompositeOperation = "screen";
+
+            const bloom = dim * 0.08;
+            grad = ctx.createRadialGradient(0, 0, 0.1, 0, 0, bloom);
+            grad.addColorStop(0, `rgb(${red*250}%, ${green*250}%, ${blue*250}%)`);
+            grad.addColorStop(0.08, `rgb(${red*150}%, ${green*150}%, ${blue*150}%)`);
+            grad.addColorStop(0.13, `rgb(${red**2.2*25}%, ${green**2.2*25}%, ${blue**2.2*25}%)`);
+            grad.addColorStop(1, 'rgb(0,0,0)');
+
+            ctx.fillStyle = grad;
+            ctx.fillRect(-bloom, -bloom, bloom*2, bloom*2);
+
+            ctx.restore();
+        }
+    }
 
 </script>
 
