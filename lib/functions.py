@@ -10,6 +10,7 @@ from lib.rpi_drivers import GPIO
 import math
 import subprocess
 import random
+from lib.log_setup import logger
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
@@ -108,7 +109,7 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
                 strip = ledstrip.strip
                 fastColorWipe(strip, True, ledsettings)
                 break
-        print('play time: {:.2f} s (expected {:.2f})'.format(time.perf_counter() - t0, total_delay))
+        logger.info('play time: {:.2f} s (expected {:.2f})'.format(time.perf_counter() - t0, total_delay))
         # print('play time: {:.2f} s (expected {:.2f})'.format(time.perf_counter() - t0, length))
         # saving.is_playing_midi = False
     except FileNotFoundError:
