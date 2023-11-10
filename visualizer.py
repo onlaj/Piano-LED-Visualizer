@@ -42,8 +42,7 @@ def singleton():
     try:
         fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except Exception as error:
-        print(f"Unexpected exception occurred: {error}")
-        traceback.print_exc()
+        logger.warning(f"Unexpected exception occurred: {e}")
         restart_script()
 
 
@@ -71,7 +70,6 @@ parser.add_argument('-a', '--appmode', default=appmode_default, help="appmode: '
 parser.add_argument('-l', '--leddriver', default="rpi_ws281x", help="leddriver: 'rpi_ws281x' (default) | 'emu' ")
 args = parser.parse_args()
 
-print(args)
 
 if args.appmode == "platform":
     platform = PlatformRasp()
@@ -106,6 +104,14 @@ file_handler.setFormatter(formatter)
 # Add handlers to the logger
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
+
+# Custom exception handler to log unhandled exceptions
+def log_unhandled_exception(exc_type, exc_value, exc_traceback):
+    logger.error("Unhandled Exception: ", exc_info=(exc_type, exc_value, exc_traceback))
+
+sys.excepthook = log_unhandled_exception
+
+logger.info(args)
 
 
 if args.rotatescreen != "true":
@@ -196,7 +202,7 @@ def start_webserver():
 
 websocket_loop = asyncio.new_event_loop()
 if args.webinterface != "false":
-    print("Starting webinterface")
+    logger.info('Starting webinterface')
     processThread = threading.Thread(target=start_webserver, daemon=True)
     processThread.start()
 
@@ -227,8 +233,7 @@ while True:
         elapsed_time = time.perf_counter() - saving.start_time
     except Exception as e:
         # Handle any other unexpected exceptions here
-        print(f"Unexpected exception occurred: {e}")
-        traceback.print_exc()
+        logger.warning(f"Unexpected exception occurred: {e}")
         elapsed_time = 0
 
     # IDLE animation
@@ -388,7 +393,7 @@ while True:
                 try:
                     learning.socket_send.append("midi_event" + str(msg))
                 except Exception as e:
-                    print(e)
+                    logger.warning(f"Unexpected exception occurred: {e}")
 
         midiports.last_activity = time.time()
 
@@ -504,8 +509,7 @@ while True:
                 except TypeError as e:
                     pass
                 except Exception as e:
-                    print(f"An unexpected exception occurred: {e}")
-                    traceback.print_exc()
+                    logger.warning(f"Unexpected exception occurred: {e}")
 
             if saving.is_recording:
                 saving.add_control_change("control_change", 0, control, value, msg_timestamp)
