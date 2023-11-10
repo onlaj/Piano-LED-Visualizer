@@ -2,6 +2,7 @@ from lib.functions import *
 import lib.colormaps as cmap
 from lib.rpi_drivers import PixelStrip, ws
 from lib.LED_drivers import PixelStrip_Emu
+from lib.log_setup import logger
 
 class LedStrip:
     def __init__(self, usersettings, ledsettings, driver="rpi_ws281x"):
@@ -55,15 +56,16 @@ class LedStrip:
                     self.strip.releaseGIL()
                 self.change_gamma(self.led_gamma)
             except Exception as e:
-                print(e)
+                logger.warning(e)
+
                 if isinstance(e, RuntimeError):
                     # rpi_ws281x registers _cleanup() atexit, but if it's not initialized ws2811_fini will segfault.
                     # Manually clean up memory, then bypass _cleanup() using knowledge that _cleanup() checks _leds first
-                    print("Cleaning up ws281x instance.")
+                    logger.info("Cleaning up ws281x instance.")
                     ws.delete_ws2811_t(self.strip._leds)
                     self.strip._leds = None
 
-                print("Failed to load LED strip.  Using emu driver.")
+                logger.info("Failed to load LED strip.  Using emu driver.")
                 self.strip = PixelStrip_Emu(int(self.led_number))
                 self.driver = "emu"
         elif self.driver == "emu":

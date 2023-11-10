@@ -12,6 +12,8 @@ from lib.functions import *
 from lib.rpi_drivers import GPIO
 
 import lib.colormaps as cmap
+from lib.log_setup import logger
+
 
 
 class MenuLCD:
@@ -1106,7 +1108,7 @@ class MenuLCD:
             if choice == "Confirm":
                 self.usersettings.change_setting_value("is_hotspot_active", 1)
                 self.render_message("Starting Hotspot...", "It might take a few minutes...", 2000)
-                print("Starting Hotspot...")
+                logger.info("Starting Hotspot...")
                 time.sleep(2)
                 self.platform.disconnect_from_wifi(self.hotspot, self.usersettings)
             else:

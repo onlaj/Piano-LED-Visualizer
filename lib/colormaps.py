@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import glob
+from lib.log_setup import logger
 
 colormaps = {}
 colormaps_preview = {}
@@ -102,7 +103,7 @@ def update_colormap(name, gamma):
         colormaps[name] = gradient_to_cmaplut(gradients[name], gamma)
         colormaps_preview[name] = gradient_to_cmaplut(gradients[name], 2.2, 64)
     except Exception as e:
-        print(f"Loading colormap {k} failed: {e}") # if a gradient fails, skip it
+        logger.warning(f"Loading colormap {k} failed: {e}")
 
 def generate_colormaps(gradients, gamma):
     global colorsmaps, colorsmaps_preview
@@ -120,7 +121,7 @@ def load_colormaps():
             name = os.path.splitext(name_ext)[0]
             gradients[name] = np.loadtxt(f).tolist()
         except Exception as e:
-            print(f"Loading colormap datafile {f} failed: {e}") # if a gradient fails, skip it
+            logger.warning(f"Loading colormap datafile {f} failed: {e}")
     
     # sRGB files are gamma converted by **2.2 before loading into gradients to keep with ws2812's intensity-based color space
     files = glob.glob("Colormaps/*.sRGB.data")
@@ -132,7 +133,8 @@ def load_colormaps():
                 name = name + "~"
             gradients[name] = np.loadtxt(f, converters=lambda x: float(x)**2.2).tolist()
         except Exception as e:
-            print(f"Loading colormap datafile {f} failed: {e}") # if a gradient fails, skip it
+            logger.warning(f"Loading colormap datafile {f} failed: {e}")
+
     
     return dict(sorted(gradients.items()))
 

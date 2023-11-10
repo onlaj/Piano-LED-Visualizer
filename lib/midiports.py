@@ -2,7 +2,7 @@ import mido
 from lib import connectall
 import time
 from collections import deque
-import traceback
+from lib.log_setup import logger
 
 class MidiPorts:
     def __init__(self, usersettings):
@@ -24,17 +24,16 @@ class MidiPorts:
         try:
             mido.get_input_names()
         except Exception as e:
-            print("First access to mido failed.  Possibly from known issue: https://github.com/SpotlightKid/python-rtmidi/issues/138")
-            #traceback.print_exc()
+            logger.warning("First access to mido failed.  Possibly from known issue: https://github.com/SpotlightKid/python-rtmidi/issues/138")
 
         # checking if the input port was previously set by the user
         port = self.usersettings.get_setting_value("input_port")
         if port != "default":
             try:
                 self.inport = mido.open_input(port, callback=self.msg_callback)
-                print("Inport loaded and set to " + port)
+                logger.info("Inport loaded and set to " + port)
             except:
-                print("Can't load input port: " + port)
+                logger.info("Can't load input port: " + port)
         else:
             # if not, try to find the new midi port
             try:
@@ -42,18 +41,18 @@ class MidiPorts:
                     if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
                         self.inport = mido.open_input(port, callback=self.msg_callback)
                         self.usersettings.change_setting_value("input_port", port)
-                        print("Inport set to " + port)
+                        logger.info("Inport set to " + port)
                         break
             except:
-                print("no input port")
+                logger.info("no input port")
         # checking if the play port was previously set by the user
         port = self.usersettings.get_setting_value("play_port")
         if port != "default":
             try:
                 self.playport = mido.open_output(port)
-                print("Playport loaded and set to " + port)
+                logger.info("Playport loaded and set to " + port)
             except:
-                print("Can't load input port: " + port)
+                logger.info("Can't load input port: " + port)
         else:
             # if not, try to find the new midi port
             try:
@@ -61,10 +60,10 @@ class MidiPorts:
                     if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
                         self.playport = mido.open_output(port)
                         self.usersettings.change_setting_value("play_port", port)
-                        print("Playport set to " + port)
+                        logger.info("Playport set to " + port)
                         break
             except:
-                print("no play port")
+                logger.info("no play port")
 
         self.portname = "inport"
 
@@ -105,7 +104,7 @@ class MidiPorts:
                 time.sleep(0.002)
                 destroy_old.close()
         except:
-            print("Can't reconnect input port: " + port)
+            logger.info("Can't reconnect input port: " + port)
         try:
             destroy_old = self.playport
             port = self.usersettings.get_setting_value("play_port")
@@ -114,7 +113,7 @@ class MidiPorts:
                 time.sleep(0.002)
                 destroy_old.close()
         except:
-            print("Can't reconnect play port: " + port)
+            logger.info("Can't reconnect play port: " + port)
 
     def msg_callback(self, msg):
         self.midi_queue.append((msg, time.perf_counter()))

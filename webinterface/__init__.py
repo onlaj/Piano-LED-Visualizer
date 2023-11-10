@@ -1,13 +1,10 @@
 from flask import Flask
 import asyncio
 import websockets
-import threading
 from lib.functions import get_ip_address
-import time
-import atexit
 import json
-from lib.LED_drivers import PixelStrip_Emu
-import traceback
+from lib.log_setup import logger
+
 
 UPLOAD_FOLDER = 'Songs/'
 
@@ -45,7 +42,7 @@ def start_server(loop):
             except websockets.exceptions.WebSocketException:
                 pass
             except Exception as e:
-                print(e)
+                logger.warning(e)
                 return
 
     async def ledemu(websocket):
@@ -71,7 +68,7 @@ def start_server(loop):
             except websockets.exceptions.WebSocketException:
                 pass
             except:
-                print(e)
+                logger.warning(e)
                 return
 
     async def handler(websocket):
@@ -84,7 +81,7 @@ def start_server(loop):
             return
 
     async def main():
-        print("WebSocket listening on: " + str(get_ip_address())+":8765")
+        logger.info("WebSocket listening on: " + str(get_ip_address())+":8765")
         async with websockets.serve(handler, "0.0.0.0", 8765):
             await asyncio.Future()
 

@@ -116,7 +116,7 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
         menu.render_message(song_path, "File not found", 2000)
     except Exception as e:
         menu.render_message(song_path, "Error while playing song " + str(e), 2000)
-        print(e)
+        logger.warning(e)
     saving.is_playing_midi.clear()
 
 
@@ -205,8 +205,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
         midiports.inport.poll()
     except Exception as e:
         menu.render_message("Error while getting ports", "", 2000)
-
-        print("Error while getting ports " + str(e))
+        logger.warning("Error while getting ports " + str(e))
 
     while True:
         manage_idle_animation(ledstrip, ledsettings, menu)

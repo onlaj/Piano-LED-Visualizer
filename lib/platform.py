@@ -4,6 +4,7 @@ from subprocess import call
 import os
 import filecmp
 from shutil import copyfile
+from lib.log_setup import logger
 
 class Hotspot:
     def __init__(self, platform):
@@ -27,13 +28,13 @@ class PlatformRasp():
         # make sure connectall.py file exists and is updated
         if not os.path.exists('/usr/local/bin/connectall.py') or \
                 filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
-            print("connectall.py script is outdated, updating...")
+            logger.info("connectall.py script is outdated, updating...")
             copyfile('lib/connectall.py', '/usr/local/bin/connectall.py')
             os.chmod('/usr/local/bin/connectall.py', 493)
 
     def install_midi2abc(self):
         if not self.is_package_installed("abcmidi"):
-            print("Installing abcmidi")
+            logger.info("Installing abcmidi")
             subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
 
     def update_visualizer(self):
@@ -65,13 +66,13 @@ class PlatformRasp():
             status_line = [line for line in output.split('\n') if line.startswith('Status:')][0]
 
             if "install ok installed" in status_line:
-                print(f"{package_name} package is installed")
+                logger.info(f"{package_name} package is installed")
                 return True
             else:
-                print(f"{package_name} package is not installed")
+                logger.info(f"{package_name} package is not installed")
                 return False
         except subprocess.CalledProcessError:
-            print(f"Error checking {package_name} package status")
+            logger.warning(f"Error checking {package_name} package status")
             return False
 
     def manage_hotspot(self, hotspot, usersettings, midiports, first_run=False):
@@ -86,12 +87,12 @@ class PlatformRasp():
                 return
             elif int(usersettings.get_setting_value("reinitialize_network_on_boot")) == 1:
                 try:
-                    print("Running disable_ap.sh")
+                    logger.info("Running disable_ap.sh")
                     subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.DEVNULL,
                                     stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
                 except Exception as error:
                     # handle the exception
-                    print("An exception occurred while shutting down a hotspot:", error)
+                    logger.info("An exception occurred while shutting down a hotspot:", error)
 
         # Calculate time passed without Wi-fi
         current_time = time.time()
@@ -112,7 +113,7 @@ class PlatformRasp():
             if not wifi_success:
                 # Update the time without Wi-Fi
                 hotspot.time_without_wifi += time_without_wifi
-                print("Time without Wi-Fi: ", hotspot.time_without_wifi)
+                logger.info("Time without Wi-Fi: ", hotspot.time_without_wifi)
 
                 # If hotspot.time_without_wifi is greater than 240 seconds, start hotspot
                 if hotspot.time_without_wifi > 240:
@@ -148,9 +149,9 @@ rsn_pairwise=CCMP
             if not (os.path.exists(filepath) and os.path.getsize(filepath) > 0):
                 with open(filepath, 'w') as file:
                     file.write(hotspot_config_content)
-                print("Hotspot configuration added successfully.")
+                logger.info("Hotspot configuration added successfully.")
         except Exception as e:
-            print(f"Error: {e}")
+            logger.warning(f"Error: {e}")
 
     def get_current_connections(self):
         try:
@@ -176,12 +177,12 @@ rsn_pairwise=CCMP
 
     def connect_to_wifi(self, ssid, password, hotspot, usersettings):
         hotspot.hotspot_script_time = time.time()
-        print("Method:connecting to wifi")
+        logger.info("Method:connecting to wifi")
         success, wifi_ssid, address = self.get_current_connections()
 
         if success:
             if wifi_ssid == ssid:
-                print("Already connected to Wi-Fi:", ssid)
+                logger.info("Already connected to Wi-Fi:", ssid)
                 return True
 
         wpa_conf = """country=GB
@@ -199,24 +200,24 @@ rsn_pairwise=CCMP
 
         with open('config/wpa_disable_ap.conf', 'w') as f:
             f.write(wpa_conf % (ssid, pwd))
-        print("Running shell script disable_ap")
+        logger.info("Running shell script disable_ap")
         try:
             subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
         except Exception as error:
             # handle the exception
-            print("An exception occurred while shutting down a hotspot:", error)
+            logger.warning("An exception occurred while shutting down a hotspot:", error)
         usersettings.change_setting_value("is_hotspot_active", 0)
 
     def disconnect_from_wifi(self, hotspot, usersettings):
         hotspot.hotspot_script_time = time.time()
-        print("Running script enable_ap")
+        logger.info("Running script enable_ap")
         try:
             subprocess.Popen(['sudo', './enable_ap.sh'], stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
         except Exception as error:
             # handle the exception
-            print("An exception occurred while creating a hotspot:", error)
+            logger.warning("An exception occurred while creating a hotspot:", error)
         usersettings.change_setting_value("is_hotspot_active", 1)
 
     def get_wifi_networks(self):
@@ -266,5 +267,5 @@ rsn_pairwise=CCMP
             return wifi_list
 
         except subprocess.CalledProcessError as e:
-            print("Error while scanning Wi-Fi networks:", e.output)
+            logger.warning("Error while scanning Wi-Fi networks:", e.output)
             return []
