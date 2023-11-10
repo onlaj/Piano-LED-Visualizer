@@ -6,6 +6,7 @@ import filecmp
 from shutil import copyfile
 from lib.log_setup import logger
 
+
 class Hotspot:
     def __init__(self, platform):
         self.hotspot_script_time = 0
@@ -13,7 +14,8 @@ class Hotspot:
         self.last_wifi_check_time = 0
         self.is_hostapd_installed = platform.is_package_installed("hostapd")
 
-class Platform_null():
+
+class Platform_null:
     def __getattr__(self, name):
         return self.pass_func
 
@@ -23,7 +25,8 @@ class Platform_null():
     def get_current_connections(self):
         return False, "Platform disabled", ""
 
-class PlatformRasp():
+
+class PlatformRasp:
     def copy_connectall_script(self):
         # make sure connectall.py file exists and is updated
         if not os.path.exists('/usr/local/bin/connectall.py') or \
@@ -89,7 +92,7 @@ class PlatformRasp():
                 try:
                     logger.info("Running disable_ap.sh")
                     subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.DEVNULL,
-                                    stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+                                     stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
                 except Exception as error:
                     # handle the exception
                     logger.info("An exception occurred while shutting down a hotspot:", error)
@@ -203,7 +206,7 @@ rsn_pairwise=CCMP
         logger.info("Running shell script disable_ap")
         try:
             subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+                             stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
         except Exception as error:
             # handle the exception
             logger.warning("An exception occurred while shutting down a hotspot:", error)
@@ -214,7 +217,7 @@ rsn_pairwise=CCMP
         logger.info("Running script enable_ap")
         try:
             subprocess.Popen(['sudo', './enable_ap.sh'], stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+                             stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
         except Exception as error:
             # handle the exception
             logger.warning("An exception occurred while creating a hotspot:", error)

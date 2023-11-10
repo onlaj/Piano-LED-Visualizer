@@ -13,18 +13,23 @@ gradients = {}
 # Hard-coded gradients:
 
 # Rainbow, as existing in lib/functions.py, equiv to FastLED-HSV Spectrum
-gradients["Rainbow"] = [ (255,0,0), (0,255,0), (0,0,255), (255,0,0) ]
+gradients["Rainbow"] = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 0, 0)]
 
 # FastLED Rainbow - https://github.com/FastLED/FastLED/wiki/FastLED-HSV-Colors
-gradients["Rainbow-FastLED"] = [ (0.0, (255,0,0)), (0.125, (170,85,0)), (0.25, (170,170,0)), (0.375, (0,255,0)), (0.5, (0,170,85)), (0.625, (0,0,255)), (1.0, (255,0,0)) ]
+gradients["Rainbow-FastLED"] = [(0.0, (255, 0, 0)), (0.125, (170, 85, 0)), (0.25, (170, 170, 0)), (0.375, (0, 255, 0)),
+                                (0.5, (0, 170, 85)), (0.625, (0, 0, 255)), (1.0, (255, 0, 0))]
 # Rainbow-FastLED-Y2: Should the 0.375 green have some red?
-#gradients["Rainbow-FastLED-Y2"] = [ (0.0, (255,0,0)), (0.125, (170,85,0)), (0.25, (255,255,0)), (0.375, (0,255,0)), (0.5, (0,170,85)), (0.625, (0,0,255)), (1.0, (255,0,0)) ]
+# gradients["Rainbow-FastLED-Y2"] = [ (0.0, (255,0,0)), (0.125, (170,85,0)), (0.25, (255,255,0)), (0.375, (0,255,0)), (0.5, (0,170,85)), (0.625, (0,0,255)), (1.0, (255,0,0)) ]
 
-gradients["Pastel"] = [ (255,72,72), (72,255,72), (72,72,255), (255,72,72) ]
+gradients["Pastel"] = [(255, 72, 72), (72, 255, 72), (72, 72, 255), (255, 72, 72)]
 
-gradients["Ice-Cyclic"] = [ (0.0, (0,128,128)), (0.25, (0,0,255)), (0.5, (128,0,128)), (0.75, (86,86,86)), (1.0, (0,128,128)) ]
-gradients["Cool-Cyclic"] = [ (0.0, (0,128,0)), (0.25, (0,126,128)), (0.5, (0,0,255)), (0.75, (86,86,86)), (1.0, (0,128,0)) ]
-gradients["Warm-Cyclic"] = [ (0.0, (255,0,0)), (0.4, (170,64,0)), (0.6, (128,126,0)), (0.8, (86,85,86)), (1.0, (255,0,0)) ]
+gradients["Ice-Cyclic"] = [(0.0, (0, 128, 128)), (0.25, (0, 0, 255)), (0.5, (128, 0, 128)), (0.75, (86, 86, 86)),
+                           (1.0, (0, 128, 128))]
+gradients["Cool-Cyclic"] = [(0.0, (0, 128, 0)), (0.25, (0, 126, 128)), (0.5, (0, 0, 255)), (0.75, (86, 86, 86)),
+                            (1.0, (0, 128, 0))]
+gradients["Warm-Cyclic"] = [(0.0, (255, 0, 0)), (0.4, (170, 64, 0)), (0.6, (128, 126, 0)), (0.8, (86, 85, 86)),
+                            (1.0, (255, 0, 0))]
+
 
 # Gradients from files:
 #
@@ -49,7 +54,6 @@ gradients["Warm-Cyclic"] = [ (0.0, (255,0,0)), (0.4, (170,64,0)), (0.6, (128,126
 # It is nearly perceptually uniform, monotonic in luminosity, and is suitable for
 # plotting nearly anything, especially velocity maps (blue/redshifted).
 # It resembles "gist_earth" (but with more vivid colors) or MATLAB's "parula".
-
 
 
 # Homemade rough equivalent to matplotlib's LinearSegmentedColormap.from_list()
@@ -85,16 +89,17 @@ def gradient_to_cmaplut(gradient, gamma=1, entries=256, int_table=True):
         xpoints = np.linspace(0, 1, num=entries, endpoint=True)
 
     # output tables
-    table = np.zeros((3,entries), dtype=float)
+    table = np.zeros((3, entries), dtype=float)
 
-    for i, c in enumerate((r,g,b)):
+    for i, c in enumerate((r, g, b)):
         c01 = np.divide(c, 255) if div255 else c
-        table[i] = np.interp(xpoints, pos, c01) ** (1/gamma)
+        table[i] = np.interp(xpoints, pos, c01) ** (1 / gamma)
 
     if int_table:
-        return [ (round(x[0] * 255), round(x[1] * 255), round(x[2] * 255)) for x in table.T ]
+        return [(round(x[0] * 255), round(x[1] * 255), round(x[2] * 255)) for x in table.T]
     else:
-        return [ (x[0], x[1], x[2]) for x in table.T ]
+        return [(x[0], x[1], x[2]) for x in table.T]
+
 
 def update_colormap(name, gamma):
     global colormaps, colormaps_preview, gradients
@@ -105,11 +110,13 @@ def update_colormap(name, gamma):
     except Exception as e:
         logger.warning(f"Loading colormap {k} failed: {e}")
 
+
 def generate_colormaps(gradients, gamma):
     global colorsmaps, colorsmaps_preview
 
     for k, v in gradients.items():
         update_colormap(k, gamma)
+
 
 def load_colormaps():
     gradients = {}
@@ -122,7 +129,7 @@ def load_colormaps():
             gradients[name] = np.loadtxt(f).tolist()
         except Exception as e:
             logger.warning(f"Loading colormap datafile {f} failed: {e}")
-    
+
     # sRGB files are gamma converted by **2.2 before loading into gradients to keep with ws2812's intensity-based color space
     files = glob.glob("Colormaps/*.sRGB.data")
     for f in files:
@@ -131,12 +138,12 @@ def load_colormaps():
             name = os.path.splitext(name_ext)[0]
             if name in gradients:
                 name = name + "~"
-            gradients[name] = np.loadtxt(f, converters=lambda x: float(x)**2.2).tolist()
+            gradients[name] = np.loadtxt(f, converters=lambda x: float(x) ** 2.2).tolist()
         except Exception as e:
             logger.warning(f"Loading colormap datafile {f} failed: {e}")
 
-    
     return dict(sorted(gradients.items()))
+
 
 def multicolor_to_gradient(multicolor_range, multicolor):
     m = zip(multicolor_range, multicolor)
@@ -156,6 +163,7 @@ def multicolor_to_gradient(multicolor_range, multicolor):
     output = sorted(output)
     return output
 
+
 def update_multicolor(multicolor_range, multicolor):
     global gradients
 
@@ -164,6 +172,6 @@ def update_multicolor(multicolor_range, multicolor):
         gradients["^Multicolor"] = g
     else:
         # default to some error color
-        gradients["^Multicolor"] = [(15,5,5)]
+        gradients["^Multicolor"] = [(15, 5, 5)]
 
     update_colormap("^Multicolor", 1)

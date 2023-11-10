@@ -41,7 +41,7 @@ def singleton():
     try:
         fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except Exception as error:
-        logger.warning(f"Unexpected exception occurred: {e}")
+        logger.warning(f"Unexpected exception occurred: {error}")
         restart_script()
 
 
@@ -128,7 +128,8 @@ t.start()
 learning = LearnMIDI(usersettings, ledsettings, midiports, ledstrip)
 hotspot = Hotspot(platform)
 saving = SaveMIDI()
-menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot, platform)
+menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving,
+               midiports, hotspot, platform)
 
 midiports.add_instance(menu)
 ledsettings.add_instance(menu, ledstrip)
@@ -169,7 +170,9 @@ def start_webserver():
     # webinterface.run(use_reloader=False, debug=False, port=80, host='0.0.0.0')
     serve(webinterface, host='0.0.0.0', port=args.port, threads=20)
 
+
 websocket_loop = asyncio.new_event_loop()
+
 if args.webinterface != "false":
     logger.info('Starting webinterface')
     processThread = threading.Thread(target=start_webserver, daemon=True)
@@ -181,7 +184,6 @@ if args.webinterface != "false":
 
     # Register the shutdown handler
     atexit.register(web_mod.stop_server, websocket_loop)
-
 
 
 platform.manage_hotspot(hotspot, usersettings, midiports, True)
@@ -231,7 +233,8 @@ while True:
             usersettings.pending_reset = False
             ledsettings = LedSettings(usersettings)
             ledstrip = LedStrip(usersettings, ledsettings)
-            menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot, platform)
+            menu = MenuLCD("config/menu.xml", args, usersettings, ledsettings, ledstrip, learning,
+                           saving, midiports, hotspot, platform)
             menu.show()
             ledsettings.add_instance(menu, ledstrip)
 

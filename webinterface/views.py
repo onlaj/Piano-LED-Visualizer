@@ -10,6 +10,7 @@ ALLOWED_EXTENSIONS = {'mid', 'musicxml', 'mxl', 'xml', 'abc'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 @webinterface.before_request
 def before_request():
     excluded_routes = ['/api/get_homepage_data']
