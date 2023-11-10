@@ -27,6 +27,9 @@ import atexit
 from waitress import serve
 import traceback
 
+import logging
+from logging.handlers import RotatingFileHandler
+
 os.chdir(sys.path[0])
 
 # Ensure there is only one instance of the script running.
@@ -80,41 +83,30 @@ if not args.skipupdate:
 
 platform.install_midi2abc()
 
-# A custom class to capture the printed messages
-class Logger:
-    def __init__(self):
-        self.terminal = sys.stdout
-        self.logfile = open("visualizer.log", "a")  # Open a file to store the log messages
+# Create a custom logger
+logger = logging.getLogger(__name__)
 
-    def write(self, message):
-        message = message.strip()
-        if not message:
-            return
+# Set the level of this logger.
+logger.setLevel(logging.DEBUG)
 
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        formatted_message = f"[{timestamp}] {message}\n"
+# Create handlers
+console_handler = logging.StreamHandler()
+file_handler = RotatingFileHandler('visualizer.log', maxBytes=500000, backupCount=10) # adjust as needed
 
-        self.terminal.write(message + "\n")  # Write the message to the terminal with a new line
-        self.logfile.write(formatted_message)  # Write the message to the log file
-        self.logfile.flush()
+# Set the level for handlers
+console_handler.setLevel(logging.DEBUG)
+file_handler.setLevel(logging.DEBUG)
 
-    def close(self):
-        self.logfile.close()
+# Create formatters and add it to handlers
+formatter = logging.Formatter('[%(asctime)s] %(levelname)s - %(message)s',
+                              datefmt='%Y-%m-%d %H:%M:%S')
+console_handler.setFormatter(formatter)
+file_handler.setFormatter(formatter)
 
+# Add handlers to the logger
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
 
-# Custom exception handler to log unhandled exceptions
-def log_unhandled_exception(exc_type, exc_value, exc_traceback):
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    error_message = f"[{timestamp}] Unhandled Exception: {exc_type.__name__} - {exc_value}\n"
-
-    with open("visualizer.log", "a") as log_file:
-        log_file.write(error_message)
-
-
-sys.stdout = Logger()
-
-# Set the custom exception handler
-sys.excepthook = log_unhandled_exception
 
 if args.rotatescreen != "true":
     KEYRIGHT = 26
