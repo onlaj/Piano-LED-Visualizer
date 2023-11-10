@@ -1,9 +1,11 @@
+from lib.log_setup import logger
+
 # GPIO
 try:
     import RPi.GPIO as GPIO
     RPiException = None
 except Exception as e:
-    print("RPi GPIO failed, using null driver.")
+    logger.warning("RPi GPIO failed, using null driver.")
     RPiException = e
     from lib.null_drivers import GPIOnull
     GPIO = GPIOnull()
@@ -12,7 +14,7 @@ except Exception as e:
 try:
     from rpi_ws281x import PixelStrip, ws, Color
 except ModuleNotFoundError as e:
-    print("Module rpi_ws281x not found, using null driver.")
+    logger.warning("Module rpi_ws281x not found, using null driver.")
     from lib.null_drivers import Color
     PixelStrip = None
     ws = None
@@ -21,5 +23,5 @@ except ModuleNotFoundError as e:
 try:
     import spidev
 except ModuleNotFoundError as e:
-    print("Module spidev not found.")
+    logger.warning("Module spidev not found.")
     spidev = None

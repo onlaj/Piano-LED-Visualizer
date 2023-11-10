@@ -25,7 +25,9 @@ import webinterface as web_mod
 import asyncio
 import atexit
 from waitress import serve
-import traceback
+
+from lib.log_setup import logger
+
 
 os.chdir(sys.path[0])
 
@@ -39,8 +41,7 @@ def singleton():
     try:
         fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except Exception as error:
-        print(f"Unexpected exception occurred: {error}")
-        traceback.print_exc()
+        logger.warning(f"Unexpected exception occurred: {e}")
         restart_script()
 
 
@@ -68,7 +69,6 @@ parser.add_argument('-a', '--appmode', default=appmode_default, help="appmode: '
 parser.add_argument('-l', '--leddriver', default="rpi_ws281x", help="leddriver: 'rpi_ws281x' (default) | 'emu' ")
 args = parser.parse_args()
 
-print(args)
 
 if args.appmode == "platform":
     platform = PlatformRasp()
@@ -80,41 +80,8 @@ if not args.skipupdate:
 
 platform.install_midi2abc()
 
-# A custom class to capture the printed messages
-class Logger:
-    def __init__(self):
-        self.terminal = sys.stdout
-        self.logfile = open("visualizer.log", "a")  # Open a file to store the log messages
+logger.info(args)
 
-    def write(self, message):
-        message = message.strip()
-        if not message:
-            return
-
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        formatted_message = f"[{timestamp}] {message}\n"
-
-        self.terminal.write(message + "\n")  # Write the message to the terminal with a new line
-        self.logfile.write(formatted_message)  # Write the message to the log file
-        self.logfile.flush()
-
-    def close(self):
-        self.logfile.close()
-
-
-# Custom exception handler to log unhandled exceptions
-def log_unhandled_exception(exc_type, exc_value, exc_traceback):
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    error_message = f"[{timestamp}] Unhandled Exception: {exc_type.__name__} - {exc_value}\n"
-
-    with open("visualizer.log", "a") as log_file:
-        log_file.write(error_message)
-
-
-sys.stdout = Logger()
-
-# Set the custom exception handler
-sys.excepthook = log_unhandled_exception
 
 if args.rotatescreen != "true":
     KEYRIGHT = 26
@@ -204,7 +171,7 @@ def start_webserver():
 
 websocket_loop = asyncio.new_event_loop()
 if args.webinterface != "false":
-    print("Starting webinterface")
+    logger.info('Starting webinterface')
     processThread = threading.Thread(target=start_webserver, daemon=True)
     processThread.start()
 
@@ -235,8 +202,7 @@ while True:
         elapsed_time = time.perf_counter() - saving.start_time
     except Exception as e:
         # Handle any other unexpected exceptions here
-        print(f"Unexpected exception occurred: {e}")
-        traceback.print_exc()
+        logger.warning(f"Unexpected exception occurred: {e}")
         elapsed_time = 0
 
     # IDLE animation
@@ -396,7 +362,7 @@ while True:
                 try:
                     learning.socket_send.append("midi_event" + str(msg))
                 except Exception as e:
-                    print(e)
+                    logger.warning(f"Unexpected exception occurred: {e}")
 
         midiports.last_activity = time.time()
 
@@ -512,8 +478,7 @@ while True:
                 except TypeError as e:
                     pass
                 except Exception as e:
-                    print(f"An unexpected exception occurred: {e}")
-                    traceback.print_exc()
+                    logger.warning(f"Unexpected exception occurred: {e}")
 
             if saving.is_recording:
                 saving.add_control_change("control_change", 0, control, value, msg_timestamp)

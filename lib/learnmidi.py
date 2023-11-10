@@ -12,6 +12,7 @@ from lib.rpi_drivers import Color
 
 import numpy as np
 import pickle
+from lib.log_setup import logger
 
 
 def find_nearest(array, target):
@@ -148,7 +149,7 @@ class LearnMIDI:
         # Load song from cache
         try:
             if os.path.isfile('Songs/cache/' + song_path + '.p'):
-                print("Loading song from cache")
+                logger.info("Loading song from cache")
                 with open('Songs/cache/' + song_path + '.p', 'rb') as handle:
                     cache = pickle.load(handle)
                     self.song_tempo = cache['song_tempo']
@@ -160,7 +161,7 @@ class LearnMIDI:
             else:
                 return False
         except Exception as e:
-            print(e)
+            logger.warning(e)
 
     def load_midi(self, song_path):
         while 4 > self.loading > 0:
@@ -178,7 +179,7 @@ class LearnMIDI:
         # Load song from cache
         if self.load_song_from_cache(song_path):
             return
-        print("Cache not found")
+        logger.info("Cache nor found")
 
         try:
             # Load the midi file
@@ -221,7 +222,7 @@ class LearnMIDI:
 
             self.loading = 4  # 4 = Done
         except Exception as e:
-            print(e)
+            logger.warning(e)
             self.loading = 5  # 5 = Error!
             self.is_loaded_midi.clear()
 
@@ -352,7 +353,8 @@ class LearnMIDI:
                         try:
                             self.socket_send.append(self.notes_time[self.current_idx])
                         except Exception as e:
-                            print(e)
+                            logger.warning(e)
+
                         self.current_idx += 1
 
                         if tDelay > 0 and (
@@ -452,7 +454,7 @@ class LearnMIDI:
 
 
             except Exception as e:
-                print(e)
+                logger.warning(e)
                 self.is_started_midi = False
 
             if not self.is_loop_active or self.is_started_midi is False:
@@ -467,6 +469,6 @@ class LearnMIDI:
             except Exception as e:
                 # check if e contains the string 'No such file or directory'
                 if 'No such file or directory' in str(e):
-                    print("midi2abc not found.")
+                    logger.info("midi2abc not found")
         else:
-            print("file already converted")
+            logger.info("file already converted")

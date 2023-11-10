@@ -1,6 +1,7 @@
 from xml.etree import ElementTree as ET
 import time
 from functools import reduce
+from lib.log_setup import logger
 
 
 class UserSettings:
@@ -17,7 +18,7 @@ class UserSettings:
             self.root = self.tree.getroot()
             self.xml_to_dict(self.cache, self.root)
         except:
-            print("Can't load settings file, restoring defaults")
+            logger.warning("Can't load settings file, restoring defaults")
             self.reset_to_default()
 
         self.pending_reset = False

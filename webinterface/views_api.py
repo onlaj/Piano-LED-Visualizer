@@ -18,6 +18,7 @@ from zipfile import ZipFile
 import json
 import ast
 from lib.rpi_drivers import GPIO
+from lib.log_setup import logger
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
@@ -1038,7 +1039,7 @@ def change_setting():
             try:
                 os.remove("Songs/cache/" + value + ".p")
             except:
-                print("No cache file for " + value)
+                logger.info("No cache file for " + value)
 
         return jsonify(success=True, reload_songs=True)
 
@@ -1081,7 +1082,7 @@ def change_setting():
             return send_file(safe_join("../Songs/", value.replace(".mid", ".abc")), mimetype='application/x-csv',
                              download_name=value.replace(".mid", ".abc"), as_attachment=True)
         except:
-            print("Converting failed")
+            logger.warning("Converting failed")
 
     if setting_name == "start_midi_play":
         webinterface.saving.t = threading.Thread(target=play_midi, args=(value, webinterface.midiports,
@@ -1233,7 +1234,7 @@ def change_setting():
         return jsonify(success=True)
 
     if setting_name == "connect_to_wifi":
-        print("Controller: connecting to wifi")
+        logger.info("Controller: connecting to wifi")
         try:
             response = webinterface.platform.connect_to_wifi(value, second_value, webinterface.hotspot, webinterface.usersettings)
         except:
