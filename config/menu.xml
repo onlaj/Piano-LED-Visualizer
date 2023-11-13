@@ -27,6 +27,7 @@
                 <Multicolor text="Add Color"></Multicolor>
             </LED_Color>
             <LED_Color text="Rainbow Colors">
+                <Rainbow_Colors text="Rainbow Colormap"></Rainbow_Colors>
                 <Rainbow_Colors text="Offset"></Rainbow_Colors>
                 <Rainbow_Colors text="Scale"></Rainbow_Colors>
                 <Rainbow_Colors text="Timeshift"></Rainbow_Colors>

@@ -15,7 +15,6 @@ import lib.colormaps as cmap
 from lib.log_setup import logger
 
 
-
 class MenuLCD:
     def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot, platform):
         self.list_count = None
@@ -131,20 +130,32 @@ class MenuLCD:
             load_song_mc.appendChild(element)
 
     def update_colormap(self):
-        # Assume the first node is "Colormap"
+        # Assume the first node is "Velocity Colormap"
         replace_node = self.DOMTree.getElementsByTagName("Velocity_Rainbow")[0]
-        colormap_mc = self.DOMTree.createElement("Velocity_Rainbow")
-        colormap_mc.appendChild(self.DOMTree.createTextNode(""))
-        colormap_mc.setAttribute("text", "Velocity Colormap")
-        replace_node.parentNode.replaceChild(colormap_mc, replace_node)
+        velocity_colormap_mc = self.DOMTree.createElement("Velocity_Rainbow")
+        velocity_colormap_mc.appendChild(self.DOMTree.createTextNode(""))
+        velocity_colormap_mc.setAttribute("text", "Velocity Colormap")
+        replace_node.parentNode.replaceChild(velocity_colormap_mc, replace_node)
+
+        # Assume the first node is "Rainbow Colormap"
+        replace_node = self.DOMTree.getElementsByTagName("Rainbow_Colors")[0]
+        rainbow_colormap_mc = self.DOMTree.createElement("Rainbow_Colors")
+        rainbow_colormap_mc.appendChild(self.DOMTree.createTextNode(""))
+        rainbow_colormap_mc.setAttribute("text", "Rainbow Colormap")
+        replace_node.parentNode.replaceChild(rainbow_colormap_mc, replace_node)
+
         # loop through cmap.colormaps_preview with a key
         for key, value in cmap.colormaps_preview.items():
-            # List of colormaps
+            # List of colormaps for Rainbow colormap
+            element = self.DOMTree.createElement("Rainbow_Colormap")
+            element.appendChild(self.DOMTree.createTextNode(""))
+            element.setAttribute("text", key)
+            rainbow_colormap_mc.appendChild(element)
+            # List of colormaps for Velocity colormap
             element = self.DOMTree.createElement("Velocity_Colormap")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", key)
-            colormap_mc.appendChild(element)
-
+            velocity_colormap_mc.appendChild(element)
 
     def update_sequence_list(self):
         seq_mc = self.DOMTree.createElement("LED_Strip_Settings")
@@ -653,9 +664,8 @@ class MenuLCD:
         if self.current_location == "Scale_Coloring":
             draw_value("scale: " + str(self.ledsettings.scales[self.ledsettings.scale_key]), 10, 70)
 
-        if self.current_location == "Velocity_Rainbow":
+        if self.current_location == "Velocity_Rainbow" or self.current_location == "Rainbow_Colors":
             self.update_colormap()
-
 
         # Learn MIDI
         if self.current_location == "Learn_MIDI":
@@ -1065,7 +1075,17 @@ class MenuLCD:
             self.ledsettings.velocityrainbow_colormap = choice
             self.usersettings.change_setting_value("velocityrainbow_colormap", self.ledsettings.velocityrainbow_colormap)
 
+            self.ledsettings.color_mode = "VelocityRainbow"
+            self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
+
         if location == "Rainbow_Colors" and choice == "Confirm":
+            self.ledsettings.color_mode = "Rainbow"
+            self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
+
+        if location == "Rainbow_Colormap":
+            self.ledsettings.rainbow_colormap = choice
+            self.usersettings.change_setting_value("rainbow_colormap", self.ledsettings.rainbow_colormap)
+
             self.ledsettings.color_mode = "Rainbow"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
 
