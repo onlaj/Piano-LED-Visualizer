@@ -381,6 +381,11 @@ class LedSettings:
                     self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName("Timeshift")[
                         0].firstChild.nodeValue)
+                self.rainbow_colormap = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName("Colormap")[
+                        0].firstChild.nodeValue)
+
 
             if self.color_mode == "Speed":
                 self.speed_slowest["red"] = int(
