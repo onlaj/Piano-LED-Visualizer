@@ -789,6 +789,11 @@ def change_setting():
                 sequences_tree.createTextNode(str(webinterface.ledsettings.rainbow_timeshift)))
             step.appendChild(rainbow_timeshift)
 
+            rainbow_colormap = sequences_tree.createElement("Colormap")
+            rainbow_colormap.appendChild(
+                sequences_tree.createTextNode(str(webinterface.ledsettings.rainbow_colormap)))
+            step.appendChild(rainbow_colormap)
+
         # if color_mode is equal to "VelocityRainbow" load colors from webinterface.ledsettings and put it into step node
         if webinterface.ledsettings.color_mode == "VelocityRainbow":
             velocityrainbow_offset = sequences_tree.createElement("Offset")

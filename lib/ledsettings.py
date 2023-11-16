@@ -381,10 +381,26 @@ class LedSettings:
                     self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName("Timeshift")[
                         0].firstChild.nodeValue)
-                self.rainbow_colormap = int(
-                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                self.rainbow_colormap = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName("Colormap")[
-                        0].firstChild.nodeValue)
+                        0].firstChild.nodeValue
+
+            if self.color_mode == "VelocityRainbow":
+                self.velocityrainbow_scale = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "Scale")[0].firstChild.nodeValue)
+                self.velocityrainbow_offset = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "Offset")[0].firstChild.nodeValue)
+                self.velocityrainbow_curve = int(
+                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "Curve")[0].firstChild.nodeValue)
+                self.velocityrainbow_colormap = self.sequences_tree.getElementsByTagName("sequence_" + str(
+                    self.sequence_number))[0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                    "Colormap")[0].firstChild.nodeValue
 
 
             if self.color_mode == "Speed":
@@ -463,24 +479,6 @@ class LedSettings:
                     self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
                         "key_in_scale_blue")[0].firstChild.nodeValue)
-
-            if self.color_mode == "VelocityRainbow":
-                self.velocityrainbow_scale = int(
-                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
-                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
-                        "Scale")[0].firstChild.nodeValue)
-                self.velocityrainbow_offset = int(
-                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
-                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
-                        "Offset")[0].firstChild.nodeValue)
-                self.velocityrainbow_curve = int(
-                    self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
-                        0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
-                        "Curve")[0].firstChild.nodeValue)
-                self.velocityrainbow_colormap = self.sequences_tree.getElementsByTagName("sequence_" + str(
-                    self.sequence_number))[0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
-                    "Colormap")[0].firstChild.nodeValue
-
 
                 self.key_not_in_scale["red"] = int(
                     self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
