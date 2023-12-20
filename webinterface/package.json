@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "build": "npx tailwindcss build -i static/styles.css -o static/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
