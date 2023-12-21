@@ -1,5 +1,5 @@
 <table class="w-full table text-gray-400 border-separate space-y-6">
-    <thead class="bg-gray-100 dark:bg-gray-600">
+    <thead class="bg-gray-100 dark:bg-gray-600 hidden md:table-header-group">
     <tr>
         <th class="p-3 text-left">
             <div class="flex" id="sort_by_name" data-translate="name">
@@ -47,47 +47,52 @@
                 </svg>
             </div>
         </th>
-        <th class="p-3 text-center" data-translate="action">Action</th>
+        <th class="p-3 text-center w-[184px]" data-translate="action">Action</th>
     </tr>
     </thead>
     <tbody>
 
     {% for key, segment in songs_list_dict.items() %}
-    <tr class="bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200">
-        <td class="p-3 text-center flex flex-wrap">
-            <svg onclick="this.nextElementSibling.classList.remove('pointer-events-none');
-                        this.nextElementSibling.focus();
-                        this.nextElementSibling.classList.add('text-gray-400');
-                        this.nextElementSibling.nextElementSibling.classList.remove('hidden');
-                        this.nextElementSibling.nextElementSibling.nextElementSibling.classList.remove('hidden');"
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 cursor-pointer" fill="none"
-                 viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-            </svg>
-            <input class="w-4/5 bg-gray-100 dark:bg-gray-600 pointer-events-none text-left song_name truncate"
-                   type="text"
-                   value="{{key}}">
-
-            <svg onclick="change_setting('change_song_name', '{{key}}', this.previousElementSibling.value+'.mid');
-                                this.classList.add('hidden');
-                                this.previousElementSibling.classList.add('pointer-events-none');
-                                this.previousElementSibling.classList.remove('text-gray-400');
-                                this.nextElementSibling.classList.add('hidden');"
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden cursor-pointer" fill="none"
-                 viewBox="0 0 24 24"
-                 stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-            </svg>
-            <svg onclick="this.classList.add('hidden');
-                      this.previousElementSibling.previousElementSibling.classList.add('pointer-events-none');
-                      this.previousElementSibling.previousElementSibling.classList.remove('text-gray-400');
-                      this.previousElementSibling.classList.add('hidden');"
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-6 hidden cursor-pointer" fill="none"
-                 viewBox="0 0 24 24"
-                 stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
+    <tr class="bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 block md:table-row mb-3">
+        <td class="p-3 text-center flex flex-wrap song_wrapper">
+            <div>
+                <svg onclick="this.closest('.song_wrapper').querySelector('.song_name').classList.remove('pointer-events-none');
+                            this.closest('.song_wrapper').querySelector('.song_name').focus();
+                            this.closest('.song_wrapper').querySelector('.song_name').classList.add('text-gray-400');
+                            this.closest('.song_wrapper').querySelector('.song_name_actions').classList.remove('hidden');
+                            this.closest('.song_wrapper').querySelector('.song_name_actions').classList.add('flex');"
+                     xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 cursor-pointer" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                </svg>
+            </div>
+            <div class="flex grow">
+                <input class="w-full bg-gray-100 dark:bg-gray-600 pointer-events-none text-left song_name truncate"
+                       type="text"
+                       value="{{key}}">
+            </div>
+            <div class="hidden song_name_actions">
+                <svg onclick="change_setting('change_song_name', '{{key}}', this.closest('.song_wrapper').querySelector('.song_name').value+'.mid');
+                                    this.closest('.song_name_actions').classList.add('hidden');
+                                    this.closest('.song_name_actions').classList.remove('flex');
+                                    this.closest('.song_wrapper').querySelector('.song_name').classList.add('pointer-events-none');
+                                    this.closest('.song_wrapper').querySelector('.song_name').classList.remove('text-gray-400');"
+                     xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <svg onclick="this.closest('.song_name_actions').classList.add('hidden');
+                                    this.closest('.song_name_actions').classList.remove('flex');
+                                    this.closest('.song_wrapper').querySelector('.song_name').classList.add('pointer-events-none');
+                                    this.closest('.song_wrapper').querySelector('.song_name').classList.remove('text-gray-400');"
+                     xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2 cursor-pointer" fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </div>
         </td>
         <td class="p-3 song_date text-xs">{{ segment }}</td>
         <td class="p-3 flex flex-wrap justify-between">
@@ -119,7 +124,7 @@
 
                 }
              }, false);"
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-14 cursor-pointer" fill="none" viewBox="0 0 24 24"
+                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-10 cursor-pointer" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
@@ -130,7 +135,7 @@
             <svg onclick="change_setting('learning_load_song', '{{key}}');
             document.getElementById('learn_midi_wrapper').classList.remove('hidden');
             document.getElementById('stop_learning').click();window.loadSheet('{{key}}')"
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-14 cursor-pointer" fill="none" viewBox="0 0 24 24"
+                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-10 cursor-pointer" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor">
                 <path d="M12 14l9-5-9-5-9 5 9 5z"/>
                 <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0
@@ -141,14 +146,14 @@
             </svg>
 
             <svg onclick="window.location = '/api/change_setting?setting_name=download_song&value={{key}}';"
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-14 cursor-pointer" fill="none" viewBox="0 0 24 24"
+                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-10 cursor-pointer" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
             </svg>
             <svg onclick="this.classList.add('hidden');
             this.nextElementSibling.classList.remove('hidden');" xmlns="http://www.w3.org/2000/svg"
-                 class="h-6 w-14 cursor-pointer" fill="none" viewBox="0 0 24 24"
+                 class="h-6 w-10 cursor-pointer" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
