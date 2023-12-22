@@ -208,7 +208,7 @@ while True:
         elapsed_time = 0
 
     # IDLE animation
-    manage_idle_animation(ledstrip, ledsettings, menu)
+    manage_idle_animation(ledstrip, ledsettings, menu, midiports)
 
     # Show menulcd
     if display_cycle >= 3:

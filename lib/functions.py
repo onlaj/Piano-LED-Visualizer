@@ -120,17 +120,22 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     saving.is_playing_midi.clear()
 
 
-def manage_idle_animation(ledstrip, ledsettings, menu):
+def manage_idle_animation(ledstrip, ledsettings, menu, midiports):
     animation_delay_minutes = int(menu.led_animation_delay)
     if animation_delay_minutes == 0:
         return
 
     time_since_last_activity_minutes = (time.time() - menu.last_activity) / 60
+    time_since_last_ports_activity_minutes = (time.time() - midiports.last_activity) / 60
+
+    if time_since_last_ports_activity_minutes < animation_delay_minutes:
+        menu.is_idle_animation_running = False
 
     # Check conditions
     if (
             0 < animation_delay_minutes < time_since_last_activity_minutes
             and not menu.is_idle_animation_running
+            and 0 < animation_delay_minutes < time_since_last_ports_activity_minutes
     ):
         menu.is_idle_animation_running = True
 
@@ -208,7 +213,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
         logger.warning("Error while getting ports " + str(e))
 
     while True:
-        manage_idle_animation(ledstrip, ledsettings, menu)
+        manage_idle_animation(ledstrip, ledsettings, menu, midiports)
 
         if (time.perf_counter() - saving.start_time) > 3600 and delay < 0.5 and menu.screensaver_is_running is False:
             delay = 0.9

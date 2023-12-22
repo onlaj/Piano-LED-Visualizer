@@ -179,7 +179,7 @@ class LearnMIDI:
         # Load song from cache
         if self.load_song_from_cache(song_path):
             return
-        logger.info("Cache nor found")
+        logger.info("Cache not found")
 
         try:
             # Load the midi file
@@ -341,6 +341,7 @@ class LearnMIDI:
                 absolute_idx = start_idx
 
                 for msg in self.song_tracks[start_idx:end_idx]:
+                    self.midiports.last_activity = time.time()
                     # Exit thread if learning is stopped
                     if not self.is_started_midi:
                         break
