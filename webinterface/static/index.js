@@ -395,7 +395,7 @@ function update_wifi_list(response) {
             `<div class="rounded-md flex items-center justify-between">
                 ${wifi_icon}
                 <div class="block">
-                    <div class="ml-4">${wifi["ESSID"]}</div>
+                    <div class="ml-4 truncate w-40">${wifi["ESSID"]}</div>
                     <div class="ml-4 text-xs text-center opacity-50">${wifi["Address"]}</div>
                 </div>
                 <button onclick="this.classList.add('hidden');                            
