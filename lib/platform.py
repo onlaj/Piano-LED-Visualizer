@@ -267,6 +267,9 @@ rsn_pairwise=CCMP
 
                 wifi_list.append(wifi_data)
 
+            # Sort descending by "Signal Strength"
+            wifi_list.sort(key=lambda x: x['Signal Strength'], reverse=True)
+
             return wifi_list
 
         except subprocess.CalledProcessError as e:
