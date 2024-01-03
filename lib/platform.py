@@ -84,6 +84,10 @@ class PlatformRasp:
 
         # Visualizer is starting, check if hotspot is active and run enable_ap.sh
         if first_run:
+            subprocess.call(['sudo', 'chmod', '+x', './disable_ap.sh'])
+            subprocess.call(['sudo', 'chmod', '+x', './enable_ap.sh'])
+            subprocess.call(['sudo', 'chmod', '+w', './config/wpa_disable_ap.conf'])
+
             self.create_hotspot_config()
             if int(usersettings.get("is_hotspot_active")):
                 self.disconnect_from_wifi(hotspot, usersettings)
