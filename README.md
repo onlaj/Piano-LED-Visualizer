@@ -39,6 +39,9 @@ The Piano LED Visualizer is a project that enables you to connect an LED strip t
   - USB OTG [Amazon US](https://amzn.to/3yVpdmV) | [Aliexpress](https://s.click.aliexpress.com/e/_DBrYA2p)
   - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Aliexpress](https://s.click.aliexpress.com/e/_DEEkJyR)
   - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/3O5zAJc) | [Aliexpress](https://s.click.aliexpress.com/e/_Dn5Mt0n)
+
+ **Make sure the power supply is 5V (5 Volt). using power supply with more Volt WILL damage both LED strip and Raspberry Pi.**
+
   - DC 5.5x2.5mm socket with quick connection [Amazon US](https://amzn.to/3NJcTfP) | [Aliexpress](http://s.click.aliexpress.com/e/T8YSkbq)
   - Some wires [Amazon US](https://amzn.to/3ky6k2G) | [Aliexpress](https://s.click.aliexpress.com/e/_AKKvPu)
 
