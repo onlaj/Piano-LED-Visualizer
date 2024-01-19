@@ -183,7 +183,7 @@ class LearnMIDI:
 
         try:
             # Load the midi file
-            mid = mido.MidiFile('Songs/' + song_path)
+            mid = mido.MidiFile('Songs/' + song_path, clip=True) # clip=True fixes some midi files
 
             # Get tempo and Ticks per beat
             self.song_tempo = get_tempo(mid)
