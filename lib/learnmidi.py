@@ -197,7 +197,7 @@ class LearnMIDI:
                 offset = 0
             for k in range(len(mid.tracks)):
                 for msg in mid.tracks[k]:
-                    if not msg.is_meta:
+                    if not msg.is_meta and msg.type in ['note_on', 'note_off']:
                         msg.channel = k + offset
                         if msg.type == 'note_off':
                             msg.velocity = 0
