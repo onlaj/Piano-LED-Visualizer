@@ -33,16 +33,17 @@ The Piano LED Visualizer is a project that enables you to connect an LED strip t
 # What you need:
 
   - Piano with MIDI or USB output
-  - MIDI to USB interface (if your piano doesn't have USB output) [Amazon US](https://amzn.to/2nhsYBl) | [Aliexpress](https://s.click.aliexpress.com/e/_DBobxwH) (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use iConnectivity mio 
-  - Raspberry Pi Zero WH [Amazon US](https://amzn.to/3D9hMdc) | [Aliexpress](https://s.click.aliexpress.com/e/_dXc8jGl) | [Aliexpress #2](https://s.click.aliexpress.com/e/_DmR3jvb)
-  - MicroSD card (16 GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Aliexpress](https://s.click.aliexpress.com/e/_DdNW6lB)
-  - USB OTG [Amazon US](https://amzn.to/3yVpdmV) | [Aliexpress](https://s.click.aliexpress.com/e/_DBrYA2p)
-  - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Aliexpress](https://s.click.aliexpress.com/e/_DEEkJyR)
-  - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/3O5zAJc) | [Aliexpress](https://s.click.aliexpress.com/e/_Dn5Mt0n)
+  - MIDI to USB interface (if your piano doesn't have USB output) [Amazon US](https://amzn.to/2nhsYBl) | [Amazon FR](https://amzn.to/3Ul5wAi) | [Aliexpress](https://s.click.aliexpress.com/e/_DBobxwH) (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use iConnectivity mio 
+  - Raspberry Pi Zero WH [Amazon US](https://amzn.to/3D9hMdc) | [Amazon FR](https://amzn.to/3SDyxWA) | [Aliexpress](https://s.click.aliexpress.com/e/_dXc8jGl) | [Aliexpress #2](https://s.click.aliexpress.com/e/_DmR3jvb)
+  - MicroSD card (16 GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Amazon FR](https://amzn.to/480tZxM)) | [Aliexpress](https://s.click.aliexpress.com/e/_DdNW6lB)
+  - USB OTG [Amazon US](https://amzn.to/3yVpdmV) | [Amazon FR](https://amzn.to/3HBY6kv) | [Aliexpress](https://s.click.aliexpress.com/e/_DBrYA2p)
+  - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Amazon FR](https://amzn.to/3SBT0eh) | [Aliexpress](https://s.click.aliexpress.com/e/_DEEkJyR)
+  - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/3O5zAJc) | [Amazon FR](https://amzn.to/42loc4x) | [Aliexpress](https://s.click.aliexpress.com/e/_Dn5Mt0n)
 
  **Make sure the power supply is 5V (5 Volt). using power supply with more Volt WILL damage both LED strip and Raspberry Pi.**
 
   - DC 5.5x2.5mm socket with quick connection [Amazon US](https://amzn.to/3NJcTfP) | [Aliexpress](http://s.click.aliexpress.com/e/T8YSkbq)
+   *(if you bought power supply on amazon it might be already included)*
   - Some wires [Amazon US](https://amzn.to/3ky6k2G) | [Aliexpress](https://s.click.aliexpress.com/e/_AKKvPu)
 
 **Not required but worth having, to make everything look neat:**
