@@ -152,6 +152,8 @@ To enhance the learning experience, there are two optional features:
 
 ### We need to make a connection between your PC/MAC/Android. There are at least 3 ways of doing that: ###
 
+## [Connection schematics](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/external_devices.md)
+
 **1. Sevilla's Soft MIDI USB-USB device**
 This is, in my opinion, the best way to make connection between RPi and PC. It works with any device that support MIDI over USB, offers the lowest latency and no lost packets. The only downside is that it cost €39.00 (~48 USD) + shipping. You connect your Piano and PC to USB HUB connected to RPi and that's it, everything just works.
 [Link to store](http://compasflamenco.com/midi-c-3/midi-usbusb-p-4.html)
