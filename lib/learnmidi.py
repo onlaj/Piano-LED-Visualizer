@@ -183,7 +183,7 @@ class LearnMIDI:
 
         try:
             # Load the midi file
-            mid = mido.MidiFile('Songs/' + song_path)
+            mid = mido.MidiFile('Songs/' + song_path, clip=True) # clip=True fixes some midi files
 
             # Get tempo and Ticks per beat
             self.song_tempo = get_tempo(mid)
@@ -197,7 +197,7 @@ class LearnMIDI:
                 offset = 0
             for k in range(len(mid.tracks)):
                 for msg in mid.tracks[k]:
-                    if not msg.is_meta:
+                    if not msg.is_meta and msg.type in ['note_on', 'note_off']:
                         msg.channel = k + offset
                         if msg.type == 'note_off':
                             msg.velocity = 0
