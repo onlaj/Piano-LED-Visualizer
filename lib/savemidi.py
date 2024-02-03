@@ -56,7 +56,7 @@ class SaveMIDI:
             self.mid.tracks.append(self.track)
             previous_message_time = self.first_note_time
             for message in multicolor_track:
-                time_delay = message[1] - previous_message_time
+                time_delay = max(0, message[1] - previous_message_time)
                 previous_message_time = message[1]
 
                 if message[0] == "note":
