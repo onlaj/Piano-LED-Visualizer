@@ -972,18 +972,17 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
 }
 
 
+/**
+ * Initialize the homepage and set up refresh functionality
+ */
 function initialize_homepage() {
     clearInterval(homepage_interval);
-    if (getCookie("refresh_rate") != null) {
-        refresh_rate = getCookie("refresh_rate");
-    } else {
-        setCookie("refresh_rate", 3, 365);
-    }
+    refresh_rate = getCookie("refresh_rate") || 3;
+    setCookie("refresh_rate", refresh_rate, 365);
     document.getElementById("refresh_rate").value = refresh_rate;
-    if (getCookie("refresh_rate") != 0 && refresh_rate != null) {
+    if (refresh_rate !== 0) {
         homepage_interval = setInterval(get_homepage_data_loop, refresh_rate * 1000)
-    }
-    if (getCookie("refresh_rate") == 0) {
+    } else {
         setTimeout(get_homepage_data_loop, 1000)
     }
     document.getElementById('refresh_rate').onchange = function () {
