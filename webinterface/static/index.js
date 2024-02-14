@@ -167,7 +167,7 @@ function get_homepage_data_loop() {
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             let refresh_rate = getCookie("refresh_rate");
-            if (refresh_rate == 0) {
+            if (refresh_rate === 0) {
                 refresh_rate = 1
             }
             const response_pc_stats = JSON.parse(this.responseText);
@@ -267,22 +267,22 @@ function change_setting(setting_name, value, second_value = false, disable_seque
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             response = JSON.parse(this.responseText);
-            if (response.reload == true) {
+            if (response.reload === true) {
                 get_settings();
                 get_current_sequence_setting();
             }
-            if (response["reload_ports"] == true) {
+            if (response["reload_ports"] === true) {
                 get_ports();
             }
-            if (response["reload_songs"] == true) {
+            if (response["reload_songs"] === true) {
                 get_recording_status();
                 get_songs();
             }
-            if (response["reload_sequence"] == true) {
+            if (response["reload_sequence"] === true) {
                 get_current_sequence_setting();
                 get_sequences();
             }
-            if (response["reload_steps_list"] == true) {
+            if (response["reload_steps_list"] === true) {
                 document.getElementById("sequence_edit_block").classList.add("animate-pulse", "pointer-events-none")
                 get_steps_list();
                 setTimeout(function () {
@@ -290,7 +290,7 @@ function change_setting(setting_name, value, second_value = false, disable_seque
                     document.getElementById("sequence_edit_block").classList.remove("animate-pulse", "pointer-events-none")
                 }, 2000);
             }
-            if (response["reload_learning_settings"] == true) {
+            if (response["reload_learning_settings"] === true) {
                 get_learning_status();
             }
 
@@ -432,7 +432,7 @@ function update_wifi_list(response) {
             `;
 
         wifiListElement.appendChild(listItem);
-        if (connected_wifi != "No Wi-Fi interface found.") {
+        if (connected_wifi !== "No Wi-Fi interface found.") {
             document.getElementById("disconnect-button").classList.remove("hidden");
             document.getElementById("connected_wifi_address").classList.remove("hidden");
         }
@@ -513,11 +513,11 @@ function get_settings(home = true) {
                     document.getElementById('fading').hidden = false;
                     document.getElementById('fading_speed').value = response["fading_speed"];
                 }
-                if (response.light_mode == "Velocity") {
+                if (response.light_mode === "Velocity") {
                     document.getElementById('velocity').hidden = false;
                     document.getElementById('velocity_speed').value = response.fading_speed;
                 }
-                if (response.light_mode == "Pedal") {
+                if (response.light_mode === "Pedal") {
                     document.getElementById('velocity').hidden = false;
                     document.getElementById('velocity_speed').value = response.fading_speed;
                 }
@@ -832,7 +832,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         return;
 
                     count++;
-                    if (count % 2 == 0) { // 60fps from window.requestAnimationFrame may be excessive...
+                    if (count % 2 === 0) { // 60fps from window.requestAnimationFrame may be excessive...
                         const width = canvas.clientWidth;
                         const height = canvas.clientHeight;
                         canvas.width = width;
@@ -843,8 +843,8 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         const cmap = gradients[response.rainbow_colormap] ?? [];
 
                         const led_count = +(config_settings["led_count"] ?? 176);
-                        const reverse = (+config_settings["led_reverse"] == 1 ? -1 : 1);
-                        const reverse_offset = (reverse == -1 ? led_count : 0);
+                        const reverse = (+config_settings["led_reverse"] === 1 ? -1 : 1);
+                        const reverse_offset = (reverse === -1 ? led_count : 0);
                         const density = +(config_settings["leds_per_meter"] ?? 144) / 72;
 
                         const curtime = Date.now();
@@ -862,9 +862,9 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         ctx.fillRect(0, 0, width, height);
                     }
 
-                    if (Number(document.getElementById("rainbow_timeshift").value) != 0 
-                            && document.getElementById("color_mode").value == "Rainbow" 
-                            && current_page == "ledsettings") {
+                    if (Number(document.getElementById("rainbow_timeshift").value) !== 0
+                            && document.getElementById("color_mode").value === "Rainbow"
+                            && current_page === "ledsettings") {
                         rainbow_animation = window.requestAnimationFrame(update_rainbowctx);
                     }
                 }
@@ -1380,7 +1380,7 @@ function get_steps_list() {
             set_step_properties(sequence_element.value,
                 document.getElementById('sequence_step').value);
 
-            if (i > 0 && document.getElementById('sequence_step').value == '') {
+            if (i > 0 && document.getElementById('sequence_step').value === '') {
                 document.getElementById('sequence_step').value = 0;
             }
         }
