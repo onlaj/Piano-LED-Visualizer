@@ -69,78 +69,82 @@ let ticker = new AdjustingInterval(play_tick_sound, 60000 / beats_per_minute);
 
 function loadAjax(subpage) {
     if (!subpage || subpage === "/") {
-        subpage = "home"
+        subpage = "home";
     }
-    document.getElementById("main").classList.remove("show");
-    setTimeout(function () {
-        document.getElementById("main").innerHTML = "";
+
+    const mainElement = document.getElementById("main");
+    mainElement.classList.remove("show");
+    setTimeout(() => {
+        mainElement.innerHTML = "";
     }, 100);
 
-    if (document.getElementById("midi_player")) {
-        document.getElementById('midi_player').stop()
+    const midiPlayerElement = document.getElementById("midi_player");
+    if (midiPlayerElement) {
+        midiPlayerElement.stop();
     }
 
-    setTimeout(function () {
+    setTimeout(() => {
         const xhttp = new XMLHttpRequest();
         xhttp.timeout = 5000;
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 current_page = subpage;
-                document.getElementById("main").innerHTML = this.responseText;
-                setTimeout(function () {
-                    document.getElementById("main").classList.add("show");
+                mainElement.innerHTML = this.responseText;
+                setTimeout(() => {
+                    mainElement.classList.add("show");
                 }, 100);
-                remove_page_indicators()
+                remove_page_indicators();
                 document.getElementById(subpage).classList.add("dark:bg-gray-700", "bg-gray-100");
-                if (subpage === "home") {
-                    initialize_homepage();
-                    get_homepage_data_loop();
-                    get_settings(false);
-                }
-                if (subpage === "ledsettings") {
-                    populate_colormaps(["velocityrainbow_colormap","rainbow_colormap"]);
-                    initialize_led_settings();
-                    get_current_sequence_setting();
-                    clearInterval(homepage_interval);
-                    setAdvancedMode(advancedMode);
-                }
-                if (subpage === "ledanimations") {
-                    get_led_idle_animation_settings();
-                    clearInterval(homepage_interval);
-                    populate_colormaps(["colormap_anim_id"]);
-                }
-                if (subpage === "songs") {
-                    initialize_songs();
-                    clearInterval(homepage_interval);
-                }
-                if (subpage === "sequences") {
-                    initialize_sequences();
-                    initialize_led_settings();
-                    populate_colormaps(["velocityrainbow_colormap","rainbow_colormap"]);
-                    clearInterval(homepage_interval);
-                }
-                if (subpage === "ports") {
-                    clearInterval(homepage_interval);
-                    initialize_ports_settings();
-                }
-                if (subpage === "settings") {
-                    clearInterval(homepage_interval);
-                }
-                if (subpage === "network") {
-                    clearInterval(homepage_interval);
-                    get_wifi_list();
+                switch (subpage) {
+                    case "home":
+                        initialize_homepage();
+                        get_homepage_data_loop();
+                        get_settings(false);
+                        break;
+                    case "ledsettings":
+                        populate_colormaps(["velocityrainbow_colormap","rainbow_colormap"]);
+                        initialize_led_settings();
+                        get_current_sequence_setting();
+                        clearInterval(homepage_interval);
+                        setAdvancedMode(advancedMode);
+                        break;
+                    case "ledanimations":
+                        get_led_idle_animation_settings();
+                        clearInterval(homepage_interval);
+                        populate_colormaps(["colormap_anim_id"]);
+                        break;
+                    case "songs":
+                        initialize_songs();
+                        clearInterval(homepage_interval);
+                        break;
+                    case "sequences":
+                        initialize_sequences();
+                        initialize_led_settings();
+                        populate_colormaps(["velocityrainbow_colormap","rainbow_colormap"]);
+                        clearInterval(homepage_interval);
+                        break;
+                    case "ports":
+                        clearInterval(homepage_interval);
+                        initialize_ports_settings();
+                        break;
+                    case "settings":
+                        clearInterval(homepage_interval);
+                        break;
+                    case "network":
+                        clearInterval(homepage_interval);
+                        get_wifi_list();
+                        break;
                 }
             }
-
             translateStaticContent();
         };
         xhttp.ontimeout = function () {
-            document.getElementById("main").innerHTML = "REQUEST TIMEOUT";
+            mainElement.innerHTML = "REQUEST TIMEOUT";
         };
         xhttp.onerror = function () {
-            document.getElementById("main").innerHTML = "REQUEST FAILED";
+            mainElement.innerHTML = "REQUEST FAILED";
         };
-        xhttp.open("GET", "/" + subpage, true);
+        xhttp.open("GET", `/${subpage}`, true);
         xhttp.send();
     }, 100);
 }
