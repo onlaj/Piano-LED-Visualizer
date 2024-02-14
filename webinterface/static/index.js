@@ -69,78 +69,82 @@ let ticker = new AdjustingInterval(play_tick_sound, 60000 / beats_per_minute);
 
 function loadAjax(subpage) {
     if (!subpage || subpage === "/") {
-        subpage = "home"
+        subpage = "home";
     }
-    document.getElementById("main").classList.remove("show");
-    setTimeout(function () {
-        document.getElementById("main").innerHTML = "";
+
+    const mainElement = document.getElementById("main");
+    mainElement.classList.remove("show");
+    setTimeout(() => {
+        mainElement.innerHTML = "";
     }, 100);
 
-    if (document.getElementById("midi_player")) {
-        document.getElementById('midi_player').stop()
+    const midiPlayerElement = document.getElementById("midi_player");
+    if (midiPlayerElement) {
+        midiPlayerElement.stop();
     }
 
-    setTimeout(function () {
+    setTimeout(() => {
         const xhttp = new XMLHttpRequest();
         xhttp.timeout = 5000;
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 current_page = subpage;
-                document.getElementById("main").innerHTML = this.responseText;
-                setTimeout(function () {
-                    document.getElementById("main").classList.add("show");
+                mainElement.innerHTML = this.responseText;
+                setTimeout(() => {
+                    mainElement.classList.add("show");
                 }, 100);
-                remove_page_indicators()
+                remove_page_indicators();
                 document.getElementById(subpage).classList.add("dark:bg-gray-700", "bg-gray-100");
-                if (subpage === "home") {
-                    initialize_homepage();
-                    get_homepage_data_loop();
-                    get_settings(false);
-                }
-                if (subpage === "ledsettings") {
-                    populate_colormaps(["velocityrainbow_colormap","rainbow_colormap"]);
-                    initialize_led_settings();
-                    get_current_sequence_setting();
-                    clearInterval(homepage_interval);
-                    setAdvancedMode(advancedMode);
-                }
-                if (subpage === "ledanimations") {
-                    get_led_idle_animation_settings();
-                    clearInterval(homepage_interval);
-                    populate_colormaps(["colormap_anim_id"]);
-                }
-                if (subpage === "songs") {
-                    initialize_songs();
-                    clearInterval(homepage_interval);
-                }
-                if (subpage === "sequences") {
-                    initialize_sequences();
-                    initialize_led_settings();
-                    populate_colormaps(["velocityrainbow_colormap","rainbow_colormap"]);
-                    clearInterval(homepage_interval);
-                }
-                if (subpage === "ports") {
-                    clearInterval(homepage_interval);
-                    initialize_ports_settings();
-                }
-                if (subpage === "settings") {
-                    clearInterval(homepage_interval);
-                }
-                if (subpage === "network") {
-                    clearInterval(homepage_interval);
-                    get_wifi_list();
+                switch (subpage) {
+                    case "home":
+                        initialize_homepage();
+                        get_homepage_data_loop();
+                        get_settings(false);
+                        break;
+                    case "ledsettings":
+                        populate_colormaps(["velocityrainbow_colormap","rainbow_colormap"]);
+                        initialize_led_settings();
+                        get_current_sequence_setting();
+                        clearInterval(homepage_interval);
+                        setAdvancedMode(advancedMode);
+                        break;
+                    case "ledanimations":
+                        get_led_idle_animation_settings();
+                        clearInterval(homepage_interval);
+                        populate_colormaps(["colormap_anim_id"]);
+                        break;
+                    case "songs":
+                        initialize_songs();
+                        clearInterval(homepage_interval);
+                        break;
+                    case "sequences":
+                        initialize_sequences();
+                        initialize_led_settings();
+                        populate_colormaps(["velocityrainbow_colormap","rainbow_colormap"]);
+                        clearInterval(homepage_interval);
+                        break;
+                    case "ports":
+                        clearInterval(homepage_interval);
+                        initialize_ports_settings();
+                        break;
+                    case "settings":
+                        clearInterval(homepage_interval);
+                        break;
+                    case "network":
+                        clearInterval(homepage_interval);
+                        get_wifi_list();
+                        break;
                 }
             }
-
             translateStaticContent();
         };
         xhttp.ontimeout = function () {
-            document.getElementById("main").innerHTML = "REQUEST TIMEOUT";
+            mainElement.innerHTML = "REQUEST TIMEOUT";
         };
         xhttp.onerror = function () {
-            document.getElementById("main").innerHTML = "REQUEST FAILED";
+            mainElement.innerHTML = "REQUEST FAILED";
         };
-        xhttp.open("GET", "/" + subpage, true);
+        xhttp.open("GET", `/${subpage}`, true);
         xhttp.send();
     }, 100);
 }
@@ -163,7 +167,7 @@ function get_homepage_data_loop() {
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             let refresh_rate = getCookie("refresh_rate");
-            if (refresh_rate == 0) {
+            if (refresh_rate === 0) {
                 refresh_rate = 1
             }
             const response_pc_stats = JSON.parse(this.responseText);
@@ -263,22 +267,22 @@ function change_setting(setting_name, value, second_value = false, disable_seque
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             response = JSON.parse(this.responseText);
-            if (response.reload == true) {
+            if (response.reload === true) {
                 get_settings();
                 get_current_sequence_setting();
             }
-            if (response["reload_ports"] == true) {
+            if (response["reload_ports"] === true) {
                 get_ports();
             }
-            if (response["reload_songs"] == true) {
+            if (response["reload_songs"] === true) {
                 get_recording_status();
                 get_songs();
             }
-            if (response["reload_sequence"] == true) {
+            if (response["reload_sequence"] === true) {
                 get_current_sequence_setting();
                 get_sequences();
             }
-            if (response["reload_steps_list"] == true) {
+            if (response["reload_steps_list"] === true) {
                 document.getElementById("sequence_edit_block").classList.add("animate-pulse", "pointer-events-none")
                 get_steps_list();
                 setTimeout(function () {
@@ -286,7 +290,7 @@ function change_setting(setting_name, value, second_value = false, disable_seque
                     document.getElementById("sequence_edit_block").classList.remove("animate-pulse", "pointer-events-none")
                 }, 2000);
             }
-            if (response["reload_learning_settings"] == true) {
+            if (response["reload_learning_settings"] === true) {
                 get_learning_status();
             }
 
@@ -428,7 +432,7 @@ function update_wifi_list(response) {
             `;
 
         wifiListElement.appendChild(listItem);
-        if (connected_wifi != "No Wi-Fi interface found.") {
+        if (connected_wifi !== "No Wi-Fi interface found.") {
             document.getElementById("disconnect-button").classList.remove("hidden");
             document.getElementById("connected_wifi_address").classList.remove("hidden");
         }
@@ -509,11 +513,11 @@ function get_settings(home = true) {
                     document.getElementById('fading').hidden = false;
                     document.getElementById('fading_speed').value = response["fading_speed"];
                 }
-                if (response.light_mode == "Velocity") {
+                if (response.light_mode === "Velocity") {
                     document.getElementById('velocity').hidden = false;
                     document.getElementById('velocity_speed').value = response.fading_speed;
                 }
-                if (response.light_mode == "Pedal") {
+                if (response.light_mode === "Pedal") {
                     document.getElementById('velocity').hidden = false;
                     document.getElementById('velocity_speed').value = response.fading_speed;
                 }
@@ -828,7 +832,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         return;
 
                     count++;
-                    if (count % 2 == 0) { // 60fps from window.requestAnimationFrame may be excessive...
+                    if (count % 2 === 0) { // 60fps from window.requestAnimationFrame may be excessive...
                         const width = canvas.clientWidth;
                         const height = canvas.clientHeight;
                         canvas.width = width;
@@ -839,8 +843,8 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         const cmap = gradients[response.rainbow_colormap] ?? [];
 
                         const led_count = +(config_settings["led_count"] ?? 176);
-                        const reverse = (+config_settings["led_reverse"] == 1 ? -1 : 1);
-                        const reverse_offset = (reverse == -1 ? led_count : 0);
+                        const reverse = (+config_settings["led_reverse"] === 1 ? -1 : 1);
+                        const reverse_offset = (reverse === -1 ? led_count : 0);
                         const density = +(config_settings["leds_per_meter"] ?? 144) / 72;
 
                         const curtime = Date.now();
@@ -858,9 +862,9 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         ctx.fillRect(0, 0, width, height);
                     }
 
-                    if (Number(document.getElementById("rainbow_timeshift").value) != 0 
-                            && document.getElementById("color_mode").value == "Rainbow" 
-                            && current_page == "ledsettings") {
+                    if (Number(document.getElementById("rainbow_timeshift").value) !== 0
+                            && document.getElementById("color_mode").value === "Rainbow"
+                            && current_page === "ledsettings") {
                         rainbow_animation = window.requestAnimationFrame(update_rainbowctx);
                     }
                 }
@@ -968,18 +972,17 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
 }
 
 
+/**
+ * Initialize the homepage and set up refresh functionality
+ */
 function initialize_homepage() {
     clearInterval(homepage_interval);
-    if (getCookie("refresh_rate") != null) {
-        refresh_rate = getCookie("refresh_rate");
-    } else {
-        setCookie("refresh_rate", 3, 365);
-    }
+    refresh_rate = getCookie("refresh_rate") || 3;
+    setCookie("refresh_rate", refresh_rate, 365);
     document.getElementById("refresh_rate").value = refresh_rate;
-    if (getCookie("refresh_rate") != 0 && refresh_rate != null) {
+    if (refresh_rate !== 0) {
         homepage_interval = setInterval(get_homepage_data_loop, refresh_rate * 1000)
-    }
-    if (getCookie("refresh_rate") == 0) {
+    } else {
         setTimeout(get_homepage_data_loop, 1000)
     }
     document.getElementById('refresh_rate').onchange = function () {
@@ -1377,7 +1380,7 @@ function get_steps_list() {
             set_step_properties(sequence_element.value,
                 document.getElementById('sequence_step').value);
 
-            if (i > 0 && document.getElementById('sequence_step').value == '') {
+            if (i > 0 && document.getElementById('sequence_step').value === '') {
                 document.getElementById('sequence_step').value = 0;
             }
         }
