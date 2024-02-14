@@ -23,6 +23,7 @@ class LedSettings:
         self.blue = int(usersettings.get_setting_value("blue"))
         self.mode = usersettings.get_setting_value("mode")
         self.fadingspeed = int(usersettings.get_setting_value("fadingspeed"))
+        self.fadepedal_notedrop = int(usersettings.get_setting_value("fadepedal_notedrop"))
         self.color_mode = usersettings.get_setting_value("color_mode")
         self.rainbow_offset = int(usersettings.get_setting_value("rainbow_offset"))
         self.rainbow_scale = int(usersettings.get_setting_value("rainbow_scale"))

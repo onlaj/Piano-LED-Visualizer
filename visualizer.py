@@ -383,6 +383,8 @@ while True:
                 ledstrip.keylist[note_position] = 1000
             elif ledsettings.mode == "Normal":
                 ledstrip.keylist[note_position] = 0
+            elif ledsettings.mode == "Pedal":
+                ledstrip.keylist[note_position] *= (100 - ledsettings.fadepedal_notedrop)/100
 
             if ledstrip.keylist[note_position] <= 0:
                 if ledsettings.backlight_brightness > 0 and menu.screensaver_is_running is not True:
