@@ -1,3 +1,104 @@
+get_colormap_gradients();
+
+function remove_page_indicators() {
+    document.getElementById("home").classList.remove("dark:bg-gray-700", "bg-gray-100");
+    document.getElementById("ledsettings").classList.remove("dark:bg-gray-700", "bg-gray-100");
+    document.getElementById("songs").classList.remove("dark:bg-gray-700", "bg-gray-100");
+    document.getElementById("sequences").classList.remove("dark:bg-gray-700", "bg-gray-100");
+    document.getElementById("ports").classList.remove("dark:bg-gray-700", "bg-gray-100");
+    document.getElementById("ledanimations").classList.remove("dark:bg-gray-700", "bg-gray-100");
+    document.getElementById("network").classList.remove("dark:bg-gray-700", "bg-gray-100");
+}
+
+function get_homepage_data_loop() {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            let refresh_rate = getCookie("refresh_rate");
+            if (refresh_rate === 0) {
+                refresh_rate = 1
+            }
+            const response_pc_stats = JSON.parse(this.responseText);
+
+            let download = (response_pc_stats.download - download_start) / refresh_rate;
+            let upload = (response_pc_stats.upload - upload_start) / refresh_rate;
+            if (download_start === 0) {
+                download = 0;
+                upload = 0;
+            }
+            animateValue(document.getElementById("cpu_number"), last_cpu_usage,
+                response_pc_stats["cpu_usage"], refresh_rate * 500, false);
+            document.getElementById("memory_usage_percent").innerHTML = response_pc_stats["memory_usage_percent"] + "%";
+            document.getElementById("memory_usage").innerHTML =
+
+                formatBytes(response_pc_stats["memory_usage_used"], 2, false) + "/" +
+                formatBytes(response_pc_stats["memory_usage_total"]);
+            document.getElementById("cpu_temp").innerHTML = response_pc_stats["cpu_temp"];
+
+            document.getElementById("card_usage").innerHTML =
+                formatBytes(response_pc_stats["card_space_used"], 2, false) + "/" +
+                formatBytes(response_pc_stats["card_space_total"]);
+            document.getElementById("card_usage_percent").innerHTML = response_pc_stats["card_space_percent"] + "%";
+            animateValue(document.getElementById("download_number"), last_download, download, refresh_rate * 500, true);
+            animateValue(document.getElementById("upload_number"), last_upload, upload, refresh_rate * 500, true);
+
+            document.getElementById("cover_state").innerHTML = response_pc_stats["cover_state"];
+
+            document.getElementById("led_fps").innerHTML = response_pc_stats.led_fps;
+            document.getElementById("cpu_count").innerHTML = response_pc_stats.cpu_count;
+            document.getElementById("cpu_pid").innerHTML = response_pc_stats.cpu_pid;
+            document.getElementById("cpu_freq").innerHTML = response_pc_stats.cpu_freq;
+            document.getElementById("memory_pid").innerHTML =
+                formatBytes(response_pc_stats.memory_pid, 2, false);
+
+            document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
+
+            // change value of select based on response_pc_stats.screen_on
+            document.getElementById("screen_on").value = response_pc_stats.screen_on;
+            document.getElementById("reinitialize_network_on_boot").value = response_pc_stats.reinitialize_network_on_boot;
+
+            document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
+
+
+            download_start = response_pc_stats.download;
+            upload_start = response_pc_stats.upload;
+
+            last_cpu_usage = response_pc_stats["cpu_usage"];
+            last_download = download;
+            last_upload = upload;
+
+            checkSavedMode();
+        }
+    };
+    xhttp.open("GET", "/api/get_homepage_data", true);
+    xhttp.send();
+}
+function get_colormap_gradients() {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            gradients = JSON.parse(this.responseText);
+        }
+    };
+    xhttp.open("GET", "/api/get_colormap_gradients", true);
+    xhttp.send();
+}
+
+function populate_colormaps(select_ids) {
+    if (!gradients)
+        return;
+
+    for (const id of select_ids) {
+        const select = document.getElementById(id);
+        var options = [];
+        for (const key in gradients)
+            options.push(new Option(key, key));
+        const value = select.value;
+        select.replaceChildren(...options);
+        select.value = value;
+    }
+}
+
 function switch_ports() {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
