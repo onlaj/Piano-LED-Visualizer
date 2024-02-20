@@ -62,11 +62,7 @@ function initialize_led_settings() {
 
         document.getElementById('sides_color_mode').onchange = function () {
             change_setting("sides_color_mode", this.value)
-            if (this.value === "RGB") {
-                document.getElementById('sides_color_choose').hidden = false;
-            } else {
-                document.getElementById('sides_color_choose').hidden = true;
-            }
+            document.getElementById('sides_color_choose').hidden = this.value !== "RGB";
         }
     }
 
@@ -217,8 +213,7 @@ function initialize_songs() {
     get_songs();
     initialize_upload();
     window.addEventListener('resize', function (event) {
-        const note_width = document.getElementById('player_and_songs').offsetWidth / 54;
-        document.getElementById('myVisualizer').config.whiteNoteWidth = note_width;
+        document.getElementById('myVisualizer').config.whiteNoteWidth = document.getElementById('player_and_songs').offsetWidth / 54;
     }, true);
 
     if (is_playing) {
