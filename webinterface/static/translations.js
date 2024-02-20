@@ -1,3 +1,46 @@
+function translate(key) {
+    let lang = getLanguage();
+    if (translations[lang] && translations[lang][key]) {
+        return translations[lang][key];
+    }
+    // Return the original text if no translation found
+    return key;
+}
+
+function translateStaticContent(lang) {
+    let language = getLanguage();
+    const elements = document.querySelectorAll('[data-translate]');
+    elements.forEach((element) => {
+        const key = element.getAttribute('data-translate');
+        if (translations[language] && translations[language][key]) {
+            element.textContent = translations[language][key];
+        }
+    });
+}
+
+function getLanguage() {
+    let language = getCookie('lang');
+    if (!language) {
+        const browserLanguage = navigator.language.slice(0, 2);
+        // Map supported languages to their respective codes
+        const languageMap = {
+            'pl': 'pl',
+            'en': 'en',
+            'de': 'de',
+            'fr': 'fr',
+            'es': 'es',
+            'zh': 'zh',
+            'hi': 'hi',
+            'pt': 'pt',
+            'ja': 'ja',
+        };
+        // If the browser language is supported, set it; otherwise, set to 'en'
+        language = languageMap[browserLanguage] || "en";
+    }
+    return language;
+}
+
+
 const translations = {
     en: {
         //index
