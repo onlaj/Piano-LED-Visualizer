@@ -7,7 +7,7 @@ function translate(key) {
     return key;
 }
 
-function translateStaticContent(lang) {
+function translateStaticContent() {
     let language = getLanguage();
     const elements = document.querySelectorAll('[data-translate]');
     elements.forEach((element) => {
@@ -111,7 +111,6 @@ const translations = {
         shift_notes_for_better_alignment: "Shift notes for better alignment",
         light_number_means: "Light number: 92 and Offset: 2 means that notes after the LED 92 will be shifted by 2 lefts to the left",
         light_number: "Light Number",
-        offset: "Offset",
         note_offset: "Note offset",
 
         //songs
@@ -328,7 +327,6 @@ const translations = {
         shift_notes_for_better_alignment: "Przesuń by wyrównać diody względem klawiszy",
         light_number_means: "Numer diody: 92 i Wyrównanie: 2 oznaczają, że diody od 92 wzwyż będą przesunięte o dwie pozycje w lewo",
         light_number: "Numer diody",
-        offset: "Wyrównanie",
         note_offset: "Przesunięcie",
 
         //songs
@@ -544,7 +542,6 @@ const translations = {
         shift_notes_for_better_alignment: "Décaler les notes pour un meilleur alignement",
         light_number_means: "Numéro de lumière : 92 et Décalage : 2 signifient que les notes après la LED 92 seront déplacées de 2 positions vers la gauche",
         light_number: "Numéro de lumière",
-        offset: "Décalage",
         note_offset: "Décalage des notes",
 
         //songs
@@ -761,7 +758,6 @@ const translations = {
         shift_notes_for_better_alignment: "Noten verschieben für bessere Ausrichtung",
         light_number_means: "Lichtnummer: 92 und Versatz: 2 bedeutet, dass Noten nach LED 92 um 2 Positionen nach links verschoben werden",
         light_number: "Lichtnummer",
-        offset: "Versatz",
         note_offset: "Notenversatz",
 
         //songs
@@ -978,7 +974,6 @@ const translations = {
         shift_notes_for_better_alignment: "Desplazar notas para una mejor alineación",
         light_number_means: "Número de luz: 92 y Offset: 2 significa que las notas después del LED 92 serán desplazadas 2 posiciones a la izquierda",
         light_number: "Número de luz",
-        offset: "Offset",
         note_offset: "Offset de nota",
 
         //songs
@@ -1193,7 +1188,6 @@ const translations = {
         shift_notes_for_better_alignment: "移动音符以更好地对齐",
         light_number_means: "灯编号：92和偏移量：2意味着LED 92之后的音符将向左移动2个",
         light_number: "灯光编号",
-        offset: "偏移",
         note_offset: "音符偏移",
 
         //songs
@@ -1409,7 +1403,6 @@ const translations = {
         shift_notes_for_better_alignment: "बेहतर संरेखण के लिए नोट्स शिफ्ट करें",
         light_number_means: "प्रकाश संख्या का मतलब 92 और ऑफसेट 2 होता है कि एलईडी 92 के बाद के नोट बाईं तरफ 2 डिग्री तक शिफ्ट होंगे",
         light_number: "प्रकाश संख्या",
-        offset: "ऑफसेट",
         note_offset: "ध्यान ऑफसेट",
 
         //songs
@@ -1624,7 +1617,6 @@ const translations = {
         shift_notes_for_better_alignment: "Desloque notas para melhor alinhamento",
         light_number_means: "O número da luz: 92 e Offset: 2 significa que as notas após o LED 92 serão deslocadas em 2 para a esquerda",
         light_number: "Número da luz",
-        offset: "Compensação",
         note_offset: "Desvio da nota",
 
         //songs
@@ -1840,7 +1832,6 @@ const translations = {
         shift_notes_for_better_alignment: "より良い整列のためにシフトノート",
         light_number_means: "ライト番号：92、オフセット：2は、LED 92以降のノートが2つ左にシフトされることを意味します",
         light_number: "ライト番号",
-        offset: "オフセット",
         note_offset: "ノートオフセット",
 
         //songs
