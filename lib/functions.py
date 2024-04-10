@@ -11,6 +11,7 @@ import math
 import subprocess
 import random
 from lib.log_setup import logger
+import os
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
@@ -30,6 +31,10 @@ def get_ip_address():
 
 def get_last_logs(n=100):
     file_path = 'visualizer.log'
+    # If the file does not exist, create it with write permissions
+    if not os.path.exists(file_path):
+        open(file_path, 'w').close()
+
     try:
         # Use the 'tail' command to get the last N lines of the log file
         tail_command = ["tail", f"-n{n}", file_path]
