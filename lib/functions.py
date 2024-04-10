@@ -34,6 +34,7 @@ def get_last_logs(n=100):
     # If the file does not exist, create it with write permissions
     if not os.path.exists(file_path):
         open(file_path, 'w').close()
+        os.chmod(file_path, 0o777)
 
     try:
         # Use the 'tail' command to get the last N lines of the log file
