@@ -44,7 +44,7 @@ class PlatformRasp:
     def update_visualizer(self):
         call("sudo git reset --hard HEAD", shell=True)
         call("sudo git checkout .", shell=True)
-        call("sudo git clean -fdx -e Songs/ -e config/settings.xml", shell=True)
+        call("sudo git clean -fdx -e Songs/ -e config/settings.xml -e visualizer.log", shell=True)
         call("sudo git clean -fdx Songs/cache", shell=True)
         call("sudo git pull origin master", shell=True)
         call("sudo pip install -r requirements.txt", shell=True)
