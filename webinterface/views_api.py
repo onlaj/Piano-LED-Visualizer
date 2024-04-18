@@ -212,6 +212,10 @@ def change_setting():
                                                        webinterface.ledsettings.backlight_brightness_percent)
         fastColorWipe(webinterface.ledstrip.strip, True, webinterface.ledsettings)
 
+    if setting_name == "disable_backlight_on_idle":
+        webinterface.ledsettings.disable_backlight_on_idle = int(value)
+        webinterface.usersettings.change_setting_value("disable_backlight_on_idle", webinterface.ledsettings.disable_backlight_on_idle)
+
     if setting_name == "backlight_color":
         rgb = wc.hex_to_rgb("#" + value)
 
