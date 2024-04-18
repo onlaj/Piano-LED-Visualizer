@@ -409,11 +409,14 @@ def check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
 
 # LED animations
 def fastColorWipe(strip, update, ledsettings):
-    brightness = ledsettings.backlight_brightness_percent / 100
-    red = int(ledsettings.get_backlight_color("Red") * brightness)
-    green = int(ledsettings.get_backlight_color("Green") * brightness)
-    blue = int(ledsettings.get_backlight_color("Blue") * brightness)
-    color = Color(red, green, blue)
+    if ledsettings.backlight_stopped:
+        color = Color(0, 0, 0)
+    else:
+        brightness = ledsettings.backlight_brightness_percent / 100
+        red = int(ledsettings.get_backlight_color("Red") * brightness)
+        green = int(ledsettings.get_backlight_color("Green") * brightness)
+        blue = int(ledsettings.get_backlight_color("Blue") * brightness)
+        color = Color(red, green, blue)
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
     if update:

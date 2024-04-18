@@ -192,7 +192,7 @@ platform.manage_hotspot(hotspot, usersettings, midiports, True)
 event_loop_stamp = time.perf_counter()
 frame_count = 0
 frame_avg_stamp = time.perf_counter()
-
+backlight_cleared = False
 # Main event loop
 
 while True:
@@ -209,6 +209,18 @@ while True:
 
     # IDLE animation
     manage_idle_animation(ledstrip, ledsettings, menu, midiports)
+
+    # Check for activity
+    if (time.time() - midiports.last_activity) > 120:
+        if backlight_cleared == False:
+            ledsettings.backlight_stopped = True
+            fastColorWipe(ledstrip.strip, True, ledsettings)
+            backlight_cleared = True
+    else:
+        if backlight_cleared == True:
+            ledsettings.backlight_stopped = False
+            fastColorWipe(ledstrip.strip, True, ledsettings)
+            backlight_cleared = False
 
     # Show menulcd
     if display_cycle >= 3:
