@@ -1397,6 +1397,7 @@ def get_settings():
 
     brightness = webinterface.usersettings.get_setting_value("brightness_percent")
     backlight_brightness = webinterface.usersettings.get_setting_value("backlight_brightness_percent")
+    disable_backlight_on_idle = webinterface.usersettings.get_setting_value("disable_backlight_on_idle")
 
     response["led_color"] = led_color
     response["light_mode"] = light_mode
@@ -1405,6 +1406,7 @@ def get_settings():
     response["brightness"] = brightness
     response["backlight_brightness"] = backlight_brightness
     response["backlight_color"] = backlight_color
+    response["disable_backlight_on_idle"] = disable_backlight_on_idle
     response["led_gamma"] = webinterface.usersettings.get_setting_value("led_gamma")
 
     response["sides_color_mode"] = webinterface.usersettings.get_setting_value("adjacent_mode")

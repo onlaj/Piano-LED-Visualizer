@@ -283,6 +283,9 @@ function get_settings(home = true) {
                     document.getElementById("gamma_correction").value = response["led_gamma"];
                     document.getElementById("backlight_brightness").value = response["backlight_brightness"];
                     document.getElementById("backlight_brightness_percent").value = response["backlight_brightness"] + "%";
+                    if (response["disable_backlight_on_idle"] === "1") {
+                        document.getElementById("disable_backlight").checked = true;
+                    }
                     document.getElementById("skipped_notes").value = response["skipped_notes"];
                     document.getElementById("led_count").value = response["led_count"];
                     document.getElementById("leds_per_meter").value = response["leds_per_meter"];
