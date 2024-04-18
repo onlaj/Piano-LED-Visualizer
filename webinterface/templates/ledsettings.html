@@ -54,6 +54,16 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
                    oninput="this.nextElementSibling.value = this.value+'%' ">
             <output id="backlight_brightness_percent" class="flex justify-center -mb-4">50%</output>
         </div>
+
+        <div class="flex items-center mb-4">
+            <input onclick="change_setting('disable_backlight_on_idle', this.checked)" id="disable_backlight" type="checkbox"
+                   value="" class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500
+                   dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+            <label for="disable_backlight" class="pl-2 block uppercase
+            tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="disable_backlight_on_idle">
+                Disable on idle
+            </label>
+        </div>
     </div>
 
     <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
