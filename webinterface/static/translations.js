@@ -112,6 +112,7 @@ const translations = {
         light_number_means: "Light number: 92 and Offset: 2 means that notes after the LED 92 will be shifted by 2 lefts to the left",
         light_number: "Light Number",
         note_offset: "Note offset",
+        disable_backlight_on_idle: "Disable Backlight on idle",
 
         //songs
         status: "Status",
@@ -328,6 +329,7 @@ const translations = {
         light_number_means: "Numer diody: 92 i Wyrównanie: 2 oznaczają, że diody od 92 wzwyż będą przesunięte o dwie pozycje w lewo",
         light_number: "Numer diody",
         note_offset: "Przesunięcie",
+        disable_backlight_on_idle: "Wyłącz podświetlenie w stanie spoczynku",
 
         //songs
         status: "Status",
@@ -543,6 +545,7 @@ const translations = {
         light_number_means: "Numéro de lumière : 92 et Décalage : 2 signifient que les notes après la LED 92 seront déplacées de 2 positions vers la gauche",
         light_number: "Numéro de lumière",
         note_offset: "Décalage des notes",
+        disable_backlight_on_idle: "Désactiver le rétroéclairage en veille",
 
         //songs
         status: "Statut",
@@ -759,6 +762,7 @@ const translations = {
         light_number_means: "Lichtnummer: 92 und Versatz: 2 bedeutet, dass Noten nach LED 92 um 2 Positionen nach links verschoben werden",
         light_number: "Lichtnummer",
         note_offset: "Notenversatz",
+        disable_backlight_on_idle: "Deaktivieren Sie die Hintergrundbeleuchtung im Leerlauf",
 
         //songs
         status: "Status",
@@ -975,6 +979,7 @@ const translations = {
         light_number_means: "Número de luz: 92 y Offset: 2 significa que las notas después del LED 92 serán desplazadas 2 posiciones a la izquierda",
         light_number: "Número de luz",
         note_offset: "Offset de nota",
+        disable_backlight_on_idle: "Desactivar retroiluminación en reposo",
 
         //songs
         status: "Estado",
@@ -1189,6 +1194,7 @@ const translations = {
         light_number_means: "灯编号：92和偏移量：2意味着LED 92之后的音符将向左移动2个",
         light_number: "灯光编号",
         note_offset: "音符偏移",
+        disable_backlight_on_idle: "न待机时关闭背光",
 
         //songs
         status: "状态",
@@ -1404,6 +1410,7 @@ const translations = {
         light_number_means: "प्रकाश संख्या का मतलब 92 और ऑफसेट 2 होता है कि एलईडी 92 के बाद के नोट बाईं तरफ 2 डिग्री तक शिफ्ट होंगे",
         light_number: "प्रकाश संख्या",
         note_offset: "ध्यान ऑफसेट",
+        disable_backlight_on_idle: "निष्क्रिय पर प्रकाश प्रक्षेपण बंद करें",
 
         //songs
         status: "स्थिति",
@@ -1618,6 +1625,7 @@ const translations = {
         light_number_means: "O número da luz: 92 e Offset: 2 significa que as notas após o LED 92 serão deslocadas em 2 para a esquerda",
         light_number: "Número da luz",
         note_offset: "Desvio da nota",
+        disable_backlight_on_idle: "Desativar iluminação de fundo em repousoं",
 
         //songs
         status: "Status",
@@ -1833,6 +1841,7 @@ const translations = {
         light_number_means: "ライト番号：92、オフセット：2は、LED 92以降のノートが2つ左にシフトされることを意味します",
         light_number: "ライト番号",
         note_offset: "ノートオフセット",
+        disable_backlight_on_idle: "アイドル状態でバックライトを無効にする",
 
         //songs
         status: "ステータス",
