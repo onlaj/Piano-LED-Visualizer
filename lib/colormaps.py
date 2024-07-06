@@ -110,7 +110,7 @@ def update_colormap(name, gamma):
         colormaps[name] = gradient_to_cmaplut(gradients[name], gamma)
         colormaps_preview[name] = gradient_to_cmaplut(gradients[name], 2.2, 64)
     except Exception as e:
-        logger.warning(f"Loading colormap {k} failed: {e}")
+        logger.warning(f"Loading colormap failed: {e}")
 
 
 def generate_colormaps(gradients, gamma):
