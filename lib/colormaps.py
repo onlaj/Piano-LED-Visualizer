@@ -2,7 +2,6 @@ import numpy as np
 import os
 import glob
 from lib.log_setup import logger
-import functools
 
 colormaps = {}
 colormaps_preview = {}
@@ -58,7 +57,7 @@ gradients["Warm-Cyclic"] = [(0.0, (255, 0, 0)), (0.4, (170, 64, 0)), (0.6, (128,
 
 
 # Homemade rough equivalent to matplotlib's LinearSegmentedColormap.from_list()
-@functools.lru_cache(maxsize=256)
+
 def gradient_to_cmaplut(gradient, gamma=1, entries=256, int_table=True):
     """Linear-interpolate gradient to a colormap lookup."""
     _CYCLIC_UNDUP = False
@@ -110,7 +109,7 @@ def update_colormap(name, gamma):
         colormaps[name] = gradient_to_cmaplut(gradients[name], gamma)
         colormaps_preview[name] = gradient_to_cmaplut(gradients[name], 2.2, 64)
     except Exception as e:
-        logger.warning(f"Loading colormap failed: {e}")
+        logger.warning(f"Loading colormap {name} failed: {e}")
 
 
 def generate_colormaps(gradients, gamma):
