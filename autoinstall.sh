@@ -183,10 +183,12 @@ wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
 install_piano_led_visualizer() {
   execute_command "cd /home/"
   execute_command "sudo git clone https://github.com/onlaj/Piano-LED-Visualizer" "check_internet"
+  execute_command "sudo chown -R $USER:$USER /home/Piano-LED-Visualizer"
+  execute_command "sudo chmod -R u+rwx /home/Piano-LED-Visualizer"
   execute_command "cd Piano-LED-Visualizer"
   execute_command "python3 -m venv venv"
   execute_command "source venv/bin/activate"
-  execute_command "sudo python3 -m pip install -r requirements.txt" "check_internet"
+  execute_command "python3 -m pip install -r requirements.txt" "check_internet"
   execute_command "sudo raspi-config nonint do_boot_behaviour B2"
   cat <<EOF | sudo tee /lib/systemd/system/visualizer.service > /dev/null
 [Unit]
