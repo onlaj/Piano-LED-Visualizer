@@ -182,6 +182,8 @@ install_piano_led_visualizer() {
   execute_command "cd /home/"
   execute_command "sudo git clone https://github.com/onlaj/Piano-LED-Visualizer" "check_internet"
   execute_command "cd Piano-LED-Visualizer"
+  execute_command "python3 -m venv venv"
+  execute_command "source venv/bin/activate"
   execute_command "sudo pip3 install -r requirements.txt" "check_internet"
   execute_command "sudo raspi-config nonint do_boot_behaviour B2"
   cat <<EOF | sudo tee /lib/systemd/system/visualizer.service > /dev/null
