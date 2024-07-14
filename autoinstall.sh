@@ -114,7 +114,7 @@ enable_spi_interface() {
 
 # Function to install required packages
 install_packages() {
-  execute_command "sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev python-dev libatlas-base-dev libopenjp2-7 libtiff5 libjack0 libjack-dev libasound2-dev fonts-freefont-ttf gcc make build-essential python-dev git scons swig libavahi-client3 abcmidi dnsmasq hostapd" "check_internet"
+  execute_command "sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libopenblas-dev libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev python3 libatlas-base-dev libopenjp2-7 libtiff6 libjack0 libjack-dev libasound2-dev fonts-freefont-ttf gcc make build-essential git scons swig libavahi-client3 abcmidi dnsmasq hostapd" "check_internet"
 }
 
 # Function to disable audio output
@@ -128,6 +128,8 @@ install_rtpmidi_server() {
   execute_command "cd /home/"
   execute_command "sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v21.11/rtpmidid_21.11_armhf.deb" "check_internet"
   execute_command "sudo dpkg -i rtpmidid_21.11_armhf.deb"
+  execute_command "sudo apt -f install"
+  execute_command "rm rtpmidid_21.11_armhf.deb"
 }
 
 # Function to create Hot-Spot
@@ -181,8 +183,10 @@ wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
 install_piano_led_visualizer() {
   execute_command "cd /home/"
   execute_command "sudo git clone https://github.com/onlaj/Piano-LED-Visualizer" "check_internet"
+  execute_command "sudo chown -R $USER:$USER /home/Piano-LED-Visualizer"
+  execute_command "sudo chmod -R u+rwx /home/Piano-LED-Visualizer"
   execute_command "cd Piano-LED-Visualizer"
-  execute_command "sudo pip3 install -r requirements.txt" "check_internet"
+  execute_command "sudo pip3 install -r requirements.txt --break-system-packages" "check_internet"
   execute_command "sudo raspi-config nonint do_boot_behaviour B2"
   cat <<EOF | sudo tee /lib/systemd/system/visualizer.service > /dev/null
 [Unit]
