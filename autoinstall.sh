@@ -253,7 +253,8 @@ enable_spi_interface
 install_packages
 disable_audio_output
 install_rtpmidi_server
-install_piano_led_visualizer
-configure_network_interfaces
-create_hotspot
+# Temporary disable installing hotspot and Visualizer
+#install_piano_led_visualizer
+#configure_network_interfaces
+#create_hotspot
 finish_installation
