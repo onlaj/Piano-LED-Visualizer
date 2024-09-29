@@ -182,15 +182,46 @@ class PlatformRasp:
 
         hotspot.last_wifi_check_time = current_time
 
+    # def connect_to_wifi(self, ssid, password, hotspot, usersettings):
+    #     print("connecting to wifi")
+    #     self.disable_hotspot()
+    #     hotspot.hotspot_script_time = time.time()
+    #     usersettings.change_setting_value("is_hotspot_active", 0)
+    #     subprocess.run([
+    #         'sudo', 'nmcli', 'device', 'wifi', 'connect', ssid,
+    #         'password', password
+    #     ])
+
     def connect_to_wifi(self, ssid, password, hotspot, usersettings):
-        print("connecting to wifi")
+        # Disable the hotspot first
         self.disable_hotspot()
-        hotspot.hotspot_script_time = time.time()
-        usersettings.change_setting_value("is_hotspot_active", 0)
-        subprocess.run([
-            'sudo', 'nmcli', 'device', 'wifi', 'connect', ssid,
-            'password', password
-        ])
+
+        try:
+            result = subprocess.run(
+                ['sudo', 'nmcli', 'device', 'wifi', 'connect', ssid, 'password', password],
+                capture_output=True,
+                text=True,
+                timeout=30  # Set a timeout for the connection attempt
+            )
+            print("Result: ", result)
+            # Check if the connection was successful
+            if result.returncode == 0:
+                print(f"Successfully connected to {ssid}")
+                usersettings.change_setting_value("is_hotspot_active", 0)
+                return True
+            else:
+                print(f"Failed to connect to {ssid}. Error: {result.stderr}")
+                usersettings.change_setting_value("is_hotspot_active", 1)
+                self.enable_hotspot()
+
+        except subprocess.TimeoutExpired:
+            print(f"Connection attempt to {ssid} timed out")
+            usersettings.change_setting_value("is_hotspot_active", 1)
+            self.enable_hotspot()
+        except Exception as e:
+            print(f"An error occurred while connecting to {ssid}: {str(e)}")
+            usersettings.change_setting_value("is_hotspot_active", 1)
+            self.enable_hotspot()
 
     def disconnect_from_wifi(self, hotspot, usersettings):
         print("disconnecting from wifi")
