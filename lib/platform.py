@@ -118,31 +118,47 @@ class PlatformRasp:
             print(f"An error occurred while creating the Hotspot profile: {e}")
 
     def enable_hotspot(self):
+        print("run nmcli connection up Hotspot")
         subprocess.run(['sudo', 'nmcli', 'connection', 'up', 'Hotspot'])
 
     def disable_hotspot(self):
+        print("run nmcli connection down Hotspot")
         subprocess.run(['sudo', 'nmcli', 'connection', 'down', 'Hotspot'])
 
     def get_current_connections(self):
-        result = subprocess.run(['nmcli', '-t', '-f', 'NAME,TYPE,DEVICE', 'connection', 'show', '--active'],
-                                capture_output=True, text=True)
-        connections = result.stdout.strip().split('\n')
-        for conn in connections:
-            name, type, device = conn.split(':')
-            if type == 'wifi' and device == 'wlan0':
-                return True, name, ''
-        return False, "Not connected to any Wi-Fi network.", ""
+        try:
+            with open(os.devnull, 'w') as null_file:
+                output = subprocess.check_output(['iwconfig'], text=True, stderr=null_file)
 
+            for line in output.split('\n'):
+                if "ESSID:" in line:
+                    ssid = line.split("ESSID:")[-1].strip().strip('"')
+                    if ssid != "off/any":
+                        access_point_line = [line for line in output.split('\n') if "Access Point:" in line]
+                        if access_point_line:
+                            access_point = access_point_line[0].split("Access Point:")[1].strip()
+                            return True, ssid, access_point
+                        else:
+                            return False, "Not connected to any Wi-Fi network.", ""
+                    else:
+                        return False, "Not connected to any Wi-Fi network.", ""
+
+            return False, "No Wi-Fi interface found.", ""
+        except subprocess.CalledProcessError:
+            return False, "Error occurred while getting Wi-Fi information.", ""
 
 
     def manage_hotspot(self, hotspot, usersettings, midiports, first_run=False):
         if first_run:
-            self.create_hotspot_profile()
+            #self.create_hotspot_profile()
             if int(usersettings.get("is_hotspot_active")):
-                self.enable_hotspot()
+                print("enabling hotspot - test")
+                #usersettings.change_setting_value("is_hotspot_active", 1)
+                #self.enable_hotspot()
                 return
             elif int(usersettings.get_setting_value("reinitialize_network_on_boot")) == 1:
-                self.disable_hotspot()
+                pass
+                #self.disable_hotspot()
 
         current_time = time.time()
         if not hotspot.last_wifi_check_time:
@@ -158,6 +174,7 @@ class PlatformRasp:
             if not wifi_success:
                 hotspot.time_without_wifi += (current_time - hotspot.last_wifi_check_time)
                 if hotspot.time_without_wifi > 240:
+                    print("enabling hotspot - test 2")
                     usersettings.change_setting_value("is_hotspot_active", 1)
                     self.enable_hotspot()
             else:
@@ -165,13 +182,18 @@ class PlatformRasp:
 
         hotspot.last_wifi_check_time = current_time
 
-    def connect_to_wifi(ssid, password):
+    def connect_to_wifi(self, ssid, password, hotspot, usersettings):
+        print("connecting to wifi")
+        self.disable_hotspot()
+        hotspot.hotspot_script_time = time.time()
+        usersettings.change_setting_value("is_hotspot_active", 0)
         subprocess.run([
             'sudo', 'nmcli', 'device', 'wifi', 'connect', ssid,
             'password', password
         ])
 
     def disconnect_from_wifi(self, hotspot, usersettings):
+        print("disconnecting from wifi")
         hotspot.hotspot_script_time = time.time()
         self.enable_hotspot()
         usersettings.change_setting_value("is_hotspot_active", 1)
@@ -224,7 +246,6 @@ class PlatformRasp:
             wifi_list.sort(key=lambda x: x['Signal Strength'], reverse=True)
 
             return wifi_list
-
         except subprocess.CalledProcessError as e:
             logger.warning("Error while scanning Wi-Fi networks:", e.output)
             return []
