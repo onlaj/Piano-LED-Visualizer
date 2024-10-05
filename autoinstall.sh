@@ -135,52 +135,6 @@ install_rtpmidi_server() {
   execute_command "rm rtpmidid_20.07_armhf.deb"
 }
 
-# Function to create Hot-Spot
-create_hotspot() {
-  echo 'interface wlan0 static ip_address=192.168.4.1/24' | sudo tee --append /etc/dhcpcd.conf > /dev/null
-  sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
-  sudo systemctl daemon-reload
-  sudo systemctl restart dhcpcd
-  echo 'interface=wlan0 dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h' | sudo tee --append /etc/dnsmasq.conf > /dev/null
-
-  hotspot_config_content=$(cat <<EOT
-interface=wlan0
-driver=nl80211
-ssid=PianoLEDVisualizer
-hw_mode=g
-channel=7
-wmm_enabled=0
-macaddr_acl=0
-auth_algs=1
-ignore_broadcast_ssid=0
-wpa=2
-wpa_passphrase=visualizer
-wpa_key_mgmt=WPA-PSK
-wpa_pairwise=TKIP
-rsn_pairwise=CCMP
-EOT
-  )
-
-  # Use echo to send the content to the file with sudo
-  echo "$hotspot_config_content" | sudo tee /etc/hostapd/hostapd.conf > /dev/null
-
-  echo 'DAEMON_CONF="/etc/hostapd/hostapd.conf"' | sudo tee --append /etc/default/hostapd > /dev/null
-  execute_command "sudo systemctl unmask hostapd"
-  execute_command "sudo systemctl enable hostapd && sudo systemctl enable dnsmasq"
-}
-
-configure_network_interfaces() {
-  # Edit /etc/network/interfaces file
-  local interfaces_file="/etc/network/interfaces"
-  local interfaces_config="
-auto wlan0
-iface wlan0 inet manual
-wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
-"
-
-  echo "$interfaces_config" | sudo tee -a "$interfaces_file" > /dev/null
-  echo "Network interfaces configuration added to $interfaces_file."
-}
 
 # Function to install Piano-LED-Visualizer
 install_piano_led_visualizer() {
@@ -256,8 +210,5 @@ enable_spi_interface
 install_packages
 disable_audio_output
 install_rtpmidi_server
-# Temporary disable installing hotspot and Visualizer
-#install_piano_led_visualizer
-#configure_network_interfaces
-#create_hotspot
+install_piano_led_visualizer
 finish_installation
