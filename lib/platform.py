@@ -9,6 +9,13 @@ import re
 import socket
 
 
+class PlatformBase:
+    def __getattr__(self, name):
+        def method(*args, **kwargs):
+            return False, f"Method '{name}' is not supported on this platform", ""
+        return method
+
+
 class Hotspot:
     def __init__(self):
         self.hotspot_script_time = 0
@@ -18,19 +25,17 @@ class Hotspot:
         subprocess.run("sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/", shell=True, check=True)
 
 
-class PlatformNull:
+class PlatformNull(PlatformBase):
     def __getattr__(self, name):
         return self.pass_func
 
     def pass_func(self, *args, **kwargs):
         pass
 
-    def get_current_connections(self):
-        return False, "Platform disabled", ""
 
-
-class PlatformRasp:
-    def copy_connectall_script(self):
+class PlatformRasp(PlatformBase):
+    @staticmethod
+    def copy_connectall_script():
         # make sure connectall.py file exists and is updated
         if not os.path.exists('/usr/local/bin/connectall.py') or \
                 filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
@@ -43,27 +48,34 @@ class PlatformRasp:
             logger.info("Installing abcmidi")
             subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
 
-    def update_visualizer(self):
+    @staticmethod
+    def update_visualizer():
         call("sudo git reset --hard HEAD", shell=True)
         call("sudo git checkout .", shell=True)
-        call("sudo git clean -fdx -e Songs/ -e config/settings.xml -e config/wpa_disable_ap.conf -e visualizer.log", shell=True)
+        call("sudo git clean -fdx -e Songs/ -e "
+             "config/settings.xml -e config/wpa_disable_ap.conf -e visualizer.log", shell=True)
         call("sudo git clean -fdx Songs/cache", shell=True)
         call("sudo git pull origin master", shell=True)
         call("sudo pip install -r requirements.txt", shell=True)
 
-    def shutdown(self):
+    @staticmethod
+    def shutdown():
         call("sudo /sbin/shutdown -h now", shell=True)
 
-    def reboot(self):
+    @staticmethod
+    def reboot():
         call("sudo /sbin/reboot now", shell=True)
 
-    def restart_visualizer(self):
+    @staticmethod
+    def restart_visualizer():
         call("sudo systemctl restart visualizer", shell=True)
 
-    def restart_rtpmidid(self):
+    @staticmethod
+    def restart_rtpmidid():
         call("sudo systemctl restart rtpmidid", shell=True)
 
-    def is_package_installed(self, package_name):
+    @staticmethod
+    def is_package_installed(package_name):
         try:
             # Run the 'dpkg' command to check if the package is installed
             result = subprocess.run(['dpkg', '-s', package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -81,7 +93,8 @@ class PlatformRasp:
             logger.warning(f"Error checking {package_name} package status")
             return False
 
-    def create_hotspot_profile(self):
+    @staticmethod
+    def create_hotspot_profile():
         # Check if the 'Hotspot' profile already exists
         check_profile = subprocess.run(['sudo', 'nmcli', 'connection', 'show', 'Hotspot'],
                                        capture_output=True, text=True)
@@ -119,15 +132,18 @@ class PlatformRasp:
         except subprocess.CalledProcessError as e:
             logger.warning(f"An error occurred while creating the Hotspot profile: {e}")
 
-    def enable_hotspot(self):
+    @staticmethod
+    def enable_hotspot():
         logger.info("Enabling Hotspot")
         subprocess.run(['sudo', 'nmcli', 'connection', 'up', 'Hotspot'])
 
-    def disable_hotspot(self):
+    @staticmethod
+    def disable_hotspot():
         logger.info("Disabling Hotspot")
         subprocess.run(['sudo', 'nmcli', 'connection', 'down', 'Hotspot'])
 
-    def get_current_connections(self):
+    @staticmethod
+    def get_current_connections():
         try:
             with open(os.devnull, 'w') as null_file:
                 output = subprocess.check_output(['iwconfig'], text=True, stderr=null_file)
@@ -149,10 +165,9 @@ class PlatformRasp:
         except subprocess.CalledProcessError:
             return False, "Error occurred while getting Wi-Fi information.", ""
 
-
     def manage_hotspot(self, hotspot, usersettings, midiports, first_run=False):
         if first_run:
-            #self.create_hotspot_profile()
+            self.create_hotspot_profile()
             if int(usersettings.get("is_hotspot_active")):
                 print("enabling hotspot - test")
                 #usersettings.change_setting_value("is_hotspot_active", 1)
@@ -220,7 +235,8 @@ class PlatformRasp:
         self.enable_hotspot()
         usersettings.change_setting_value("is_hotspot_active", 1)
 
-    def get_wifi_networks(self):
+    @staticmethod
+    def get_wifi_networks():
         try:
             output = subprocess.check_output(['sudo', 'iwlist', 'wlan0', 'scan'], stderr=subprocess.STDOUT)
             networks = output.decode().split('Cell ')
@@ -272,7 +288,8 @@ class PlatformRasp:
             logger.warning("Error while scanning Wi-Fi networks:", e.output)
             return []
 
-    def get_local_address(self):
+    @staticmethod
+    def get_local_address():
         try:
             # Get the hostname
             hostname = socket.gethostname()
@@ -294,7 +311,8 @@ class PlatformRasp:
                 "error": str(e)
             }
 
-    def change_local_address(self, new_name):
+    @staticmethod
+    def change_local_address(new_name):
         new_name = new_name.rstrip('.local')
         logger.info("Changing local address to " + new_name)
         # Validate the new name
