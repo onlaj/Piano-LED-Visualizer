@@ -97,6 +97,7 @@ function loadAjax(subpage) {
                     case "network":
                         clearInterval(homepage_interval);
                         get_wifi_list();
+                        getCurrentLocalAddress();
                         break;
                 }
             }
