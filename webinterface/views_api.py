@@ -1659,6 +1659,36 @@ def get_wifi_list():
                 "connected_wifi_address": address}
     return jsonify(response)
 
+@webinterface.route('/api/get_local_address', methods=['GET'])
+def get_local_address():
+    result = webinterface.platform.get_local_address()
+    if result["success"]:
+        return jsonify({
+            "success": True,
+            "local_address": result["local_address"],
+            "ip_address": result["ip_address"]
+        })
+    else:
+        return jsonify({
+            "success": False,
+            "error": result["error"]
+        }), 500
+
+@webinterface.route('/api/change_local_address', methods=['POST'])
+def change_local_address():
+    new_name = request.json.get('new_name')
+    if not new_name:
+        return jsonify({"success": False, "error": "No name provided"}), 400
+
+    try:
+        success = webinterface.platform.change_local_address(new_name)
+        if success:
+            return jsonify({"success": True, "new_address": f"{new_name}.local"})
+        else:
+            return jsonify({"success": False, "error": "Failed to change address"}), 500
+    except ValueError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
 
 @webinterface.route('/api/get_logs', methods=['GET'])
 def get_logs():
