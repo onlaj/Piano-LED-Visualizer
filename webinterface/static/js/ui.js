@@ -151,6 +151,7 @@ function get_wifi_list() {
     xhttp.send();
 }
 
+
 function update_wifi_list(response) {
     const wifiListElement = document.getElementById("wifi-list");
     wifiListElement.innerHTML = '';
@@ -257,7 +258,51 @@ function getWifiIcon(signalStrength) {
     }
 }
 
+function getCurrentLocalAddress() {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            const response = JSON.parse(this.responseText);
+            document.getElementById("current-local-address").innerText = response.local_address;
+        }
+    };
+    xhttp.open("GET", "/api/get_local_address", true);
+    xhttp.send();
+}
 
+function changeLocalAddress() {
+    const newAddress = document.getElementById("new-local-address").value;
+    if (!newAddress) {
+        showAddressChangeMessage("Please enter a new address", "text-red-500");
+        return;
+    }
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4) {
+            const response = JSON.parse(this.responseText);
+            if (this.status === 200 && response.success) {
+                showAddressChangeMessage(`Address changed to ${response.new_address}. Please reconnect using the new address.`, "text-green-500");
+                document.getElementById("current-local-address").innerText = response.new_address;
+            } else {
+                showAddressChangeMessage(response.error || "Failed to change address", "text-red-500");
+            }
+        }
+    };
+    xhttp.open("POST", "/api/change_local_address", true);
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhttp.send(JSON.stringify({ new_name: newAddress }));
+}
+
+function showAddressChangeMessage(message, className) {
+    const messageElement = document.getElementById("address-change-message");
+    messageElement.innerText = message;
+    messageElement.className = `text-sm text-center ${className}`;
+    messageElement.classList.remove("hidden");
+    setTimeout(() => {
+        messageElement.classList.add("hidden");
+    }, 5000);
+}
 
 function get_settings(home = true) {
     const xhttp = new XMLHttpRequest();
