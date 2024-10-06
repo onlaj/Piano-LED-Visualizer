@@ -57,5 +57,20 @@
         <div id="wifi-list">
         </div>
     </div>
+
+    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+        <div class="text-lg font-semibold mb-2" data-translate="local_address">
+            Local Address
+        </div>
+        <div id="current-local-address" class="text-xl font-bold mb-4"></div>
+        <div class="mb-4">
+            <input id="new-local-address" class="w-full h-10 dark:text-black bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" placeholder="Enter new local address">
+        </div>
+        <button onclick="changeLocalAddress()" class="w-full h-10 outline-none mb-2 bg-blue-500 dark:bg-blue-600 text-white font-bold py-2 px-2 rounded-2xl">
+            <span data-translate="change_address">Change Address</span>
+        </button>
+        <div id="address-change-message" class="text-sm text-center hidden"></div>
+    </div>
+
 </div>
 
