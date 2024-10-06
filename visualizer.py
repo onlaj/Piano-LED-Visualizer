@@ -15,7 +15,7 @@ from lib.savemidi import SaveMIDI
 from lib.usersettings import UserSettings
 from lib.color_mode import *
 import lib.colormaps as cmap
-from lib.platform import Hotspot, PlatformRasp, Platform_null
+from lib.platform import Hotspot, PlatformRasp, PlatformNull
 from lib.rpi_drivers import GPIO, RPiException
 
 import argparse
@@ -73,7 +73,7 @@ args = parser.parse_args()
 if args.appmode == "platform":
     platform = PlatformRasp()
 else:
-    platform = Platform_null()
+    platform = PlatformNull()
 
 if not args.skipupdate:
     platform.copy_connectall_script()

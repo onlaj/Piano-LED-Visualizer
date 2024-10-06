@@ -10,7 +10,7 @@ import socket
 
 
 class Hotspot:
-    def __init__(self, platform):
+    def __init__(self):
         self.hotspot_script_time = 0
         self.time_without_wifi = 0
         self.last_wifi_check_time = 0
@@ -18,7 +18,7 @@ class Hotspot:
         subprocess.run("sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/", shell=True, check=True)
 
 
-class Platform_null:
+class PlatformNull:
     def __getattr__(self, name):
         return self.pass_func
 
@@ -184,8 +184,7 @@ class PlatformRasp:
 
         hotspot.last_wifi_check_time = current_time
 
-
-    def connect_to_wifi(self, ssid, password, hotspot, usersettings):
+    def connect_to_wifi(self, ssid, password, usersettings):
         # Disable the hotspot first
         self.disable_hotspot()
 
