@@ -7,22 +7,22 @@ from shutil import copyfile
 from lib.log_setup import logger
 import re
 import socket
+from collections import defaultdict
 
+
+class Hotspot:
+    def __init__(self, hotspot):
+        self.hotspot_script_time = 0
+        self.time_without_wifi = 0
+        self.last_wifi_check_time = 0
+
+        subprocess.run("sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/", shell=True, check=True)
 
 class PlatformBase:
     def __getattr__(self, name):
         def method(*args, **kwargs):
             return False, f"Method '{name}' is not supported on this platform", ""
         return method
-
-
-class Hotspot:
-    def __init__(self):
-        self.hotspot_script_time = 0
-        self.time_without_wifi = 0
-        self.last_wifi_check_time = 0
-
-        subprocess.run("sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/", shell=True, check=True)
 
 
 class PlatformNull(PlatformBase):
@@ -199,7 +199,7 @@ class PlatformRasp(PlatformBase):
 
         hotspot.last_wifi_check_time = current_time
 
-    def connect_to_wifi(self, ssid, password, usersettings):
+    def connect_to_wifi(self, ssid, password, hotspot, usersettings):
         # Disable the hotspot first
         self.disable_hotspot()
 
@@ -252,7 +252,8 @@ class PlatformRasp(PlatformBase):
                 else:
                     return 100 - (100 / 40) * (level + 90)
 
-            wifi_list = []
+            wifi_dict = defaultdict(lambda: {'Signal Strength': -float('inf'), 'Signal dBm': -float('inf')})
+
             for network in networks[1:]:
                 wifi_data = {}
 
@@ -262,7 +263,8 @@ class PlatformRasp(PlatformBase):
 
                 ssid_line = [line for line in network.split('\n') if 'ESSID:' in line]
                 if ssid_line:
-                    wifi_data['ESSID'] = ssid_line[0].split('ESSID:')[1].strip('"')
+                    ssid = ssid_line[0].split('ESSID:')[1].strip('"')
+                    wifi_data['ESSID'] = ssid
 
                 freq_line = [line for line in network.split('\n') if 'Frequency:' in line]
                 if freq_line:
@@ -270,22 +272,24 @@ class PlatformRasp(PlatformBase):
 
                 signal_line = [line for line in network.split('\n') if 'Signal level=' in line]
                 if signal_line:
-                    signal_level = int(signal_line[0].split('Signal level=')[1].split(' dBm')[0])
-                    wifi_data['Signal Strength'] = calculate_signal_strength(signal_level)
+                    signal_dbm = int(signal_line[0].split('Signal level=')[1].split(' dBm')[0])
+                    signal_strength = calculate_signal_strength(signal_dbm)
+                    wifi_data['Signal Strength'] = signal_strength
+                    wifi_data['Signal dBm'] = signal_dbm
 
-                signal_dbm = [line for line in network.split('\n') if 'Signal level=' in line]
-                if signal_dbm:
-                    signal_dbm = signal_dbm[0].split('Signal level=')[1].split(' dBm')[0]
-                    wifi_data['Signal dBm'] = int(signal_dbm)
+                # Update the network info if this is the strongest signal for this SSID
+                if wifi_data['Signal Strength'] > wifi_dict[ssid]['Signal Strength']:
+                    wifi_dict[ssid].update(wifi_data)
 
-                wifi_list.append(wifi_data)
+            # Convert the dictionary to a list
+            wifi_list = list(wifi_dict.values())
 
             # Sort descending by "Signal Strength"
             wifi_list.sort(key=lambda x: x['Signal Strength'], reverse=True)
 
             return wifi_list
         except subprocess.CalledProcessError as e:
-            logger.warning("Error while scanning Wi-Fi networks:", e.output)
+            logger.warning(f"Error while scanning Wi-Fi networks: {e.output}")
             return []
 
     @staticmethod
