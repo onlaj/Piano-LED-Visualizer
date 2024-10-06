@@ -5,6 +5,8 @@ import os
 import filecmp
 from shutil import copyfile
 from lib.log_setup import logger
+import re
+import socket
 
 
 class Hotspot:
@@ -12,9 +14,9 @@ class Hotspot:
         self.hotspot_script_time = 0
         self.time_without_wifi = 0
         self.last_wifi_check_time = 0
-        self.is_hostapd_installed = platform.is_package_installed("hostapd")
 
         subprocess.run("sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/", shell=True, check=True)
+
 
 class Platform_null:
     def __getattr__(self, name):
@@ -85,11 +87,11 @@ class PlatformRasp:
                                        capture_output=True, text=True)
 
         if 'Hotspot' in check_profile.stdout:
-            print("Hotspot profile already exists. Skipping creation.")
+            logger.info("Hotspot profile already exists. Skipping creation.")
             return
 
         # If we reach here, the profile doesn't exist, so we create it
-        print("Creating new Hotspot profile...")
+        logger.info("Creating new Hotspot profile...")
 
         try:
             subprocess.run([
@@ -113,16 +115,16 @@ class PlatformRasp:
                 'wifi-sec.psk', 'visualizer'
             ], check=True)
 
-            print("Hotspot profile created successfully.")
+            logger.info("Hotspot profile created successfully.")
         except subprocess.CalledProcessError as e:
-            print(f"An error occurred while creating the Hotspot profile: {e}")
+            logger.warning(f"An error occurred while creating the Hotspot profile: {e}")
 
     def enable_hotspot(self):
-        print("run nmcli connection up Hotspot")
+        logger.info("Enabling Hotspot")
         subprocess.run(['sudo', 'nmcli', 'connection', 'up', 'Hotspot'])
 
     def disable_hotspot(self):
-        print("run nmcli connection down Hotspot")
+        logger.info("Disabling Hotspot")
         subprocess.run(['sudo', 'nmcli', 'connection', 'down', 'Hotspot'])
 
     def get_current_connections(self):
@@ -182,15 +184,6 @@ class PlatformRasp:
 
         hotspot.last_wifi_check_time = current_time
 
-    # def connect_to_wifi(self, ssid, password, hotspot, usersettings):
-    #     print("connecting to wifi")
-    #     self.disable_hotspot()
-    #     hotspot.hotspot_script_time = time.time()
-    #     usersettings.change_setting_value("is_hotspot_active", 0)
-    #     subprocess.run([
-    #         'sudo', 'nmcli', 'device', 'wifi', 'connect', ssid,
-    #         'password', password
-    #     ])
 
     def connect_to_wifi(self, ssid, password, hotspot, usersettings):
         # Disable the hotspot first
@@ -203,28 +196,27 @@ class PlatformRasp:
                 text=True,
                 timeout=30  # Set a timeout for the connection attempt
             )
-            print("Result: ", result)
             # Check if the connection was successful
             if result.returncode == 0:
-                print(f"Successfully connected to {ssid}")
+                logger.info(f"Successfully connected to {ssid}")
                 usersettings.change_setting_value("is_hotspot_active", 0)
                 return True
             else:
-                print(f"Failed to connect to {ssid}. Error: {result.stderr}")
+                logger.warning(f"Failed to connect to {ssid}. Error: {result.stderr}")
                 usersettings.change_setting_value("is_hotspot_active", 1)
                 self.enable_hotspot()
 
         except subprocess.TimeoutExpired:
-            print(f"Connection attempt to {ssid} timed out")
+            logger.warning(f"Connection attempt to {ssid} timed out")
             usersettings.change_setting_value("is_hotspot_active", 1)
             self.enable_hotspot()
         except Exception as e:
-            print(f"An error occurred while connecting to {ssid}: {str(e)}")
+            logger.warning(f"An error occurred while connecting to {ssid}: {str(e)}")
             usersettings.change_setting_value("is_hotspot_active", 1)
             self.enable_hotspot()
 
     def disconnect_from_wifi(self, hotspot, usersettings):
-        print("disconnecting from wifi")
+        logger.info("Disconnecting from wifi")
         hotspot.hotspot_script_time = time.time()
         self.enable_hotspot()
         usersettings.change_setting_value("is_hotspot_active", 1)
@@ -280,3 +272,66 @@ class PlatformRasp:
         except subprocess.CalledProcessError as e:
             logger.warning("Error while scanning Wi-Fi networks:", e.output)
             return []
+
+    def get_local_address(self):
+        try:
+            # Get the hostname
+            hostname = socket.gethostname()
+
+            # Get the IP address
+            ip_address = socket.gethostbyname(hostname + ".local")
+
+            # Construct the full local address
+            local_address = f"{hostname}.local"
+
+            return {
+                "success": True,
+                "local_address": local_address,
+                "ip_address": ip_address
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def change_local_address(self, new_name):
+        new_name = new_name.rstrip('.local')
+        logger.info("Changing local address to " + new_name)
+        # Validate the new name
+        if not re.match(r'^[a-zA-Z0-9-]+$', new_name):
+            raise ValueError("Invalid name. Use only letters, numbers, and hyphens.")
+
+        try:
+            # Change the hostname
+            subprocess.run(['sudo', 'hostnamectl', 'set-hostname', new_name], check=True)
+
+            # Update /etc/hosts file
+            with open('/etc/hosts', 'r') as file:
+                hosts_content = file.readlines()
+
+            with open('/etc/hosts', 'w') as file:
+                for line in hosts_content:
+                    if "127.0.1.1" in line:
+                        file.write(f"127.0.1.1\t{new_name}\n")
+                    else:
+                        file.write(line)
+
+            # Restart avahi-daemon to apply changes
+            subprocess.run(['sudo', 'systemctl', 'restart', 'avahi-daemon'], check=True)
+
+            # Optionally, restart the networking service
+            subprocess.run(['sudo', 'systemctl', 'restart', 'networking'], check=True)
+
+            logger.info(f"Local address successfully changed to {new_name}.local")
+            return True
+
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"An error occurred while changing the local address: {e}")
+            return False
+        except IOError as e:
+            logger.warning(f"An error occurred while updating the hosts file: {e}")
+            return False
+        except Exception as e:
+            logger.warning(f"An unexpected error occurred: {e}")
+            return False
