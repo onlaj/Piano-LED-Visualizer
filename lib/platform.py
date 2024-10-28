@@ -173,9 +173,6 @@ class PlatformRasp(PlatformBase):
                 #usersettings.change_setting_value("is_hotspot_active", 1)
                 #self.enable_hotspot()
                 return
-            elif int(usersettings.get_setting_value("reinitialize_network_on_boot")) == 1:
-                pass
-                #self.disable_hotspot()
 
         current_time = time.time()
         if not hotspot.last_wifi_check_time:

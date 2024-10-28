@@ -141,7 +141,6 @@ def get_homepage_data():
         'cover_state': 'Opened' if cover_opened else 'Closed',
         'led_fps': round(webinterface.ledstrip.current_fps, 2),
         'screen_on': webinterface.menu.screen_on,
-        'reinitialize_network_on_boot': int(webinterface.usersettings.get_setting_value("reinitialize_network_on_boot")),
     }
     return jsonify(homepage_data)
 
@@ -958,12 +957,6 @@ def change_setting():
             webinterface.menu.disable_screen()
         else:
             webinterface.menu.enable_screen()
-
-    if setting_name == "reinitialize_network_on_boot":
-        if int(value) == 0:
-            webinterface.usersettings.change_setting_value("reinitialize_network_on_boot", 0)
-        else:
-            webinterface.usersettings.change_setting_value("reinitialize_network_on_boot", 1)
 
     if setting_name == "reset_to_default":
         webinterface.usersettings.reset_to_default()
