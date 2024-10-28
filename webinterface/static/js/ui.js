@@ -215,7 +215,7 @@ function update_wifi_list(response) {
             `;
 
         wifiListElement.appendChild(listItem);
-        if (connected_wifi !== "No Wi-Fi interface found.") {
+        if (connected_wifi !== "No Wi-Fi interface found." && connected_wifi !== "Running as hotspot") {
             document.getElementById("disconnect-button").classList.remove("hidden");
             document.getElementById("connected_wifi_address").classList.remove("hidden");
         }

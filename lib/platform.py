@@ -148,6 +148,9 @@ class PlatformRasp(PlatformBase):
             with open(os.devnull, 'w') as null_file:
                 output = subprocess.check_output(['iwconfig'], text=True, stderr=null_file)
 
+            if "Mode:Master" in output:
+                return False, "Running as hotspot", ""
+
             for line in output.split('\n'):
                 if "ESSID:" in line:
                     ssid = line.split("ESSID:")[-1].strip().strip('"')
@@ -156,10 +159,8 @@ class PlatformRasp(PlatformBase):
                         if access_point_line:
                             access_point = access_point_line[0].split("Access Point:")[1].strip()
                             return True, ssid, access_point
-                        else:
-                            return False, "Not connected to any Wi-Fi network.", ""
-                    else:
                         return False, "Not connected to any Wi-Fi network.", ""
+                    return False, "Not connected to any Wi-Fi network.", ""
 
             return False, "No Wi-Fi interface found.", ""
         except subprocess.CalledProcessError:
