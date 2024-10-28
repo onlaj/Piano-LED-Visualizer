@@ -165,14 +165,33 @@ class PlatformRasp(PlatformBase):
         except subprocess.CalledProcessError:
             return False, "Error occurred while getting Wi-Fi information.", ""
 
+    def is_hotspot_running(self):
+        try:
+            result = subprocess.run(
+                ['nmcli', 'connection', 'show', '--active'],
+                capture_output=True,
+                text=True
+            )
+            return 'Hotspot' in result.stdout
+        except Exception as e:
+            logger.warning(f"Error checking hotspot status: {str(e)}")
+            return False
+
     def manage_hotspot(self, hotspot, usersettings, midiports, first_run=False):
         if first_run:
             self.create_hotspot_profile()
             if int(usersettings.get("is_hotspot_active")):
-                print("enabling hotspot - test")
-                #usersettings.change_setting_value("is_hotspot_active", 1)
-                #self.enable_hotspot()
-                return
+                if not self.is_hotspot_running():
+                    logger.info("Hotspot is enabled in settings but not running. Starting hotspot...")
+                    self.enable_hotspot()
+                    time.sleep(5)
+
+                    if self.is_hotspot_running():
+                        logger.info("Hotspot started successfully")
+                    else:
+                        logger.warning("Failed to start hotspot")
+                else:
+                    logger.info("Hotspot is already running")
 
         current_time = time.time()
         if not hotspot.last_wifi_check_time:
