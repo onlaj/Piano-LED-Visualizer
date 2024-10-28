@@ -207,7 +207,7 @@ class PlatformRasp(PlatformBase):
             if not wifi_success:
                 hotspot.time_without_wifi += (current_time - hotspot.last_wifi_check_time)
                 if hotspot.time_without_wifi > 240:
-                    print("enabling hotspot - test 2")
+                    logger.info("No wifi connection. Enabling hotspot")
                     usersettings.change_setting_value("is_hotspot_active", 1)
                     self.enable_hotspot()
             else:
