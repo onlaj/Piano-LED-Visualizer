@@ -9,11 +9,22 @@ function translate(key) {
 
 function translateStaticContent() {
     let language = getLanguage();
-    const elements = document.querySelectorAll('[data-translate]');
-    elements.forEach((element) => {
+
+    // Translate text content
+    const textElements = document.querySelectorAll('[data-translate]');
+    textElements.forEach((element) => {
         const key = element.getAttribute('data-translate');
         if (translations[language] && translations[language][key]) {
             element.textContent = translations[language][key];
+        }
+    });
+
+    // Translate placeholders
+    const placeholderElements = document.querySelectorAll('[data-translate-placeholder]');
+    placeholderElements.forEach((element) => {
+        const key = element.getAttribute('data-translate-placeholder');
+        if (translations[language] && translations[language][key]) {
+            element.placeholder = translations[language][key];
         }
     });
 }
@@ -210,6 +221,9 @@ const translations = {
         disconnecting_warning_line_1: "Disconnecting from Wi-Fi will start the process of creating a Hotspot. This might take a moment.",
         disconnecting_warning_line_2: "You'll need to connect to the newly created Hotspot to access the web interface again.",
         wifi_list: "Wi-Fi List",
+        local_address: "Local Address",
+        change_address: "Change Address",
+        enter_local_address: "Enter new local address",
 
         //ledanimations
         stop_animation: "Stop animation",
@@ -428,6 +442,9 @@ const translations = {
         disconnecting_warning_line_1: "Rozłączenie z Wi-Fi rozpocznie proces tworzenia Hotspota. Może to zająć kilka minut",
         disconnecting_warning_line_2: "By uzyskać dostęp do interfejsu, należy najpierw połaczyć się z Hotspotem",
         wifi_list: "Lista dostępnych Wi-Fi",
+        local_address: "Adres Lokalny",
+        change_address: "Zmień Adres",
+        enter_local_address: "Wprowadź nowy adres lokalny",
 
         //ledanimations
         stop_animation: "Zatrzymaj animacje",
@@ -643,6 +660,9 @@ const translations = {
         disconnecting_warning_line_1: "La déconnexion du Wi-Fi commencera le processus de création d'un hotspot. Cela peut prendre un moment.",
         disconnecting_warning_line_2: "Vous devrez vous connecter au nouveau hotspot créé pour accéder à nouveau à l'interface Web.",
         wifi_list: "Liste Wi-Fi",
+        local_address: "Adresse Locale",
+        change_address: "Modifier l'Adresse",
+        enter_local_address: "Saisir nouvelle adresse locale",
 
         //ledanimations
         stop_animation: "Arrêter l'animation",
@@ -860,6 +880,9 @@ const translations = {
         disconnecting_warning_line_1: "Das Trennen des Wi-Fi startet den Prozess zum Erstellen eines Hotspots. Das kann eine Weile dauern.",
         disconnecting_warning_line_2: "Sie müssen sich mit dem neu erstellten Hotspot verbinden, um wieder auf die Weboberfläche zugreifen zu können.",
         wifi_list: "Wi-Fi-Liste",
+        local_address: "Lokale Adresse",
+        change_address: "Adresse Ändern",
+        enter_local_address: "Neue lokale Adresse eingeben",
 
         //ledanimations
         stop_animation: "Animation stoppen",
@@ -1077,6 +1100,9 @@ const translations = {
         disconnecting_warning_line_1: "Desconectarse de Wi-Fi iniciará el proceso de creación de un punto de acceso. Esto puede llevar un momento.",
         disconnecting_warning_line_2: "Deberás conectarte al punto de acceso recién creado para volver a acceder a la interfaz web.",
         wifi_list: "Lista de Wi-Fi",
+        local_address: "Dirección Local",
+        change_address: "Cambiar Dirección",
+        enter_local_address: "Ingrese nueva dirección local",
 
         //ledanimations
         stop_animation: "Detener animación",
@@ -1293,6 +1319,9 @@ const translations = {
         disconnecting_warning_line_1: "断开Wi-Fi将开始创建热点的过程。这可能需要一些时间。",
         disconnecting_warning_line_2: "你需要连接到新创建的热点才能再次访问网络接口。",
         wifi_list: "Wi-Fi列表",
+        local_address: "本地地址",
+        change_address: "更改地址",
+        enter_local_address: "输入新的本地地址",
 
         //ledanimations
         stop_animation: "停止动画",
@@ -1507,6 +1536,9 @@ const translations = {
         disconnecting_warning_line_1: "वाई-फ़ाई से डिस्कनेक्ट होने से हॉटस्पॉट बनाने की प्रक्रिया शुरू हो जाएगी। इसमें थोड़ी देर लग सकती है।",
         disconnecting_warning_line_2: "आपको वेब इंटरफ़ेस तक पुनः पहुँचने के लिए नए डिस्कनेक्ट हास्पॉट से जोड़ने की आवश्यकता होगी।",
         wifi_list: "वाई-फ़ाई सूची",
+        local_address: "स्थानीय पता",
+        change_address: "पता बदलें",
+        enter_local_address: "नया स्थानीय पता दर्ज करें",
 
         //ledanimations
         stop_animation: "एनिमेशन रोकें",
@@ -1724,6 +1756,9 @@ const translations = {
         disconnecting_warning_line_1: "A desconexão do Wi-Fi vai iniciar o processo para criar um Hotspot. Isso pode demorar um pouco.",
         disconnecting_warning_line_2: "Você precisará se conectar ao novo Hotspot criado para acessar a interface web novamente.",
         wifi_list: "Lista de Wi-Fi",
+        local_address: "Endereço Local",
+        change_address: "Alterar Endereço",
+        enter_local_address: "Digite novo endereço local",
 
         //ledanimations
         stop_animation: "Parar animação",
@@ -1939,6 +1974,9 @@ const translations = {
         disconnecting_warning_line_1: "Wi-Fiの接続を切ると、ホットスポットの作成プロセスが開始されます。これには少し時間がかかる場合があります。",
         disconnecting_warning_line_2: "ウェブインターフェースに再度アクセスするには、新しく作成されたホットスポットに接続する必要があります。",
         wifi_list: "Wi-Fiのリスト",
+        local_address: "現地住所",
+        change_address: "住所を変更",
+        enter_local_address: "新しい現地住所を入力",
 
         //ledanimations
         stop_animation: "アニメーション停止",

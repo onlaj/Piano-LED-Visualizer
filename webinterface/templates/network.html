@@ -15,10 +15,11 @@
                     <div class="has-tooltip h-6 w-full justify-items-center">
                             <span class="text-sm inline-block tooltip rounded shadow-lg p-1
                             bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8"
-                            data-translate="disconnect_wifi_and_create_hotspot">
+                                  data-translate="disconnect_wifi_and_create_hotspot">
                                 Disconnect Wi-Fi and create Hotspot
                             </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center stroke-red-600" fill="none"
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center stroke-red-600"
+                             fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -28,14 +29,17 @@
                 <div class="hidden">
                     <div class="text-sm text-center text-red-400">
                         <div data-translate="disconnecting_warning_line_1"> Disconnecting from Wi-Fi
-                            will start the process of creating a Hotspot. This might take a moment.</div>
+                            will start the process of creating a Hotspot. This might take a moment.
+                        </div>
                         <br>
                         <div data-translate="disconnecting_warning_line_2">You'll need to connect to the newly created
-                        Hotspot to access the web interface again.</div>
+                            Hotspot to access the web interface again.
+                        </div>
                     </div>
                     <button onclick="change_setting('disconnect_wifi', '0');temporary_disable_button(this, 25000);"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
-                        <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">Confirm</span></button>
+                        <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -64,9 +68,16 @@
         </div>
         <div id="current-local-address" class="text-xl font-bold mb-4"></div>
         <div class="mb-4">
-            <input id="new-local-address" class="w-full h-10 dark:text-black bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" placeholder="Enter new local address">
+            <input
+                    id="new-local-address"
+                    class="w-full h-10 dark:text-black bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    type="text"
+                    placeholder="Enter new local address"
+                    data-translate-placeholder="enter_local_address"
+            >
         </div>
-        <button onclick="changeLocalAddress()" class="w-full h-10 outline-none mb-2 bg-blue-500 dark:bg-blue-600 text-white font-bold py-2 px-2 rounded-2xl">
+        <button onclick="changeLocalAddress()"
+                class="w-full h-10 outline-none mb-2 bg-blue-500 dark:bg-blue-600 text-white font-bold py-2 px-2 rounded-2xl">
             <span data-translate="change_address">Change Address</span>
         </button>
         <div id="address-change-message" class="text-sm text-center hidden"></div>
