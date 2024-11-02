@@ -176,7 +176,6 @@ finish_installation() {
   echo "After the reboot, please wait for up to 10 minutes. The Visualizer should start, and the Hotspot 'PianoLEDVisualizer' will become available."
 
   execute_command "sudo shutdown -r +1"
-  execute_command "sudo nmcli connection up Hotspot"
   sleep 60
   # Reboot Raspberry Pi
   execute_command "sudo reboot"
