@@ -10,7 +10,8 @@ logger.setLevel(logging.DEBUG)
 
 # Create handlers
 console_handler = logging.StreamHandler()
-file_handler = RotatingFileHandler('visualizer.log', maxBytes=500000, backupCount=10)
+file_handler = RotatingFileHandler('/home/Piano-LED-Visualizer/visualizer.log', maxBytes=500000, backupCount=10)
+
 
 # Set the level for handlers
 console_handler.setLevel(logging.DEBUG)
