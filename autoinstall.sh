@@ -166,9 +166,6 @@ EOF
   execute_command "sudo systemctl start visualizer.service"
 
   execute_command "sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/"
-
-  execute_command "sudo chmod +x /home/Piano-LED-Visualizer/disable_ap.sh"
-  execute_command "sudo chmod +x /home/Piano-LED-Visualizer/enable_ap.sh"
 }
 
 finish_installation() {
@@ -179,7 +176,6 @@ finish_installation() {
   echo "After the reboot, please wait for up to 10 minutes. The Visualizer should start, and the Hotspot 'PianoLEDVisualizer' will become available."
 
   execute_command "sudo shutdown -r +1"
-  execute_command "sudo /home/Piano-LED-Visualizer/enable_ap.sh"
   sleep 60
   # Reboot Raspberry Pi
   execute_command "sudo reboot"
