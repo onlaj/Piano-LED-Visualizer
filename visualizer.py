@@ -27,8 +27,6 @@ import atexit
 from waitress import serve
 
 from lib.log_setup import logger
-from lib.rtpmidi_threaded import ThreadedMIDIServer
-
 
 
 os.chdir(sys.path[0])
@@ -203,12 +201,6 @@ time.sleep(2)
 
 # Main event loop
 while True:
-
-    # midi_server.send_note_on('65', velocity=64, channel=0)
-    # time.sleep(2.5)
-    # midi_server.send_note_off('65', velocity=0, channel=0)
-    # time.sleep(2.5)
-
     # screensaver
     if int(menu.screensaver_delay) > 0:
         if (time.time() - midiports.last_activity) > (int(menu.screensaver_delay) * 60):
