@@ -92,7 +92,7 @@ WantedBy=multi-user.target
 ### 4. **Installing packages** //*ready for another cup?* ### 
 
 ```bash
-sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libopenblas-dev libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev python3 libatlas-base-dev libopenjp2-7 libtiff6 libjack0 libjack-dev libasound2-dev fonts-freefont-ttf gcc make build-essential git scons swig libavahi-client3 abcmidi
+sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2 libavahi-client3 libavahi-common3 libc6 libfmt9 libgcc-s1 libstdc++6 python3 libopenblas-dev libavahi-client-dev libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libatlas-base-dev libopenjp2-7 libtiff6 libjack0 libjack-dev fonts-freefont-ttf gcc make build-essential scons swig abcmidi
 ```
 
 
@@ -120,20 +120,13 @@ We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://githu
 
 ` cd /home/`   
 
-- Download missing package:
-`sudo wget https://ftp.debian.org/debian/pool/main/f/fmtlib/libfmt7_7.1.3+ds1-5_armhf.deb`
-
-
-- Install
-
-`sudo dpkg -i libfmt7_7.1.3+ds1-5_armhf.deb`
-
 - Download deb package:
 
-`sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v23.10/rtpmidid_23.10_armhf.deb`
+
+`sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v24.12/rtpmidid_24.12.2_armhf.deb`
 - Install package
 
-`sudo dpkg -i rtpmidid_21.11_armhf.deb`
+`sudo dpkg -i rtpmidid_24.12.2_armhf.deb`
 
 `sudo apt -f install`
 
