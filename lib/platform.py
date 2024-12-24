@@ -8,7 +8,7 @@ from lib.log_setup import logger
 import re
 import socket
 from collections import defaultdict
-
+import alsaseq
 
 class Hotspot:
     def __init__(self, hotspot):

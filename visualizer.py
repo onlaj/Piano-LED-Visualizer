@@ -194,11 +194,6 @@ frame_count = 0
 frame_avg_stamp = time.perf_counter()
 backlight_cleared = False
 
-midi_server = ThreadedMIDIServer()
-midi_server.start()
-# Wait for initialization
-time.sleep(2)
-
 # Main event loop
 while True:
     # screensaver
