@@ -114,7 +114,7 @@ enable_spi_interface() {
 
 # Function to install required packages
 install_packages() {
-  execute_command "sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libopenblas-dev libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev python3 libatlas-base-dev libopenjp2-7 libtiff6 libjack0 libjack-dev libasound2-dev fonts-freefont-ttf gcc make build-essential git scons swig libavahi-client3 abcmidi dnsmasq hostapd" "check_internet"
+  execute_command "sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2 libavahi-client3 libavahi-common3 libc6 libfmt9 libgcc-s1 libstdc++6 python3 libopenblas-dev libavahi-client-dev libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libatlas-base-dev libopenjp2-7 libtiff6 libjack0 libjack-dev fonts-freefont-ttf gcc make build-essential scons swig abcmidi" "check_internet"
 }
 
 # Function to disable audio output
@@ -126,63 +126,17 @@ disable_audio_output() {
 # Function to install RTP-midi server
 install_rtpmidi_server() {
   execute_command "cd /home/"
-  execute_command "sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v21.11/rtpmidid_21.11_armhf.deb" "check_internet"
-  execute_command "sudo dpkg -i rtpmidid_21.11_armhf.deb"
+  execute_command "sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v24.12/rtpmidid_24.12.2_armhf.deb" "check_internet"
+  execute_command "sudo dpkg -i rtpmidid_24.12.2_armhf.deb"
   execute_command "sudo apt -f install"
-  execute_command "rm rtpmidid_21.11_armhf.deb"
+  execute_command "rm rtpmidid_24.12.2_armhf.deb"
 }
 
-# Function to create Hot-Spot
-create_hotspot() {
-  echo 'interface wlan0 static ip_address=192.168.4.1/24' | sudo tee --append /etc/dhcpcd.conf > /dev/null
-  sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
-  sudo systemctl daemon-reload
-  sudo systemctl restart dhcpcd
-  echo 'interface=wlan0 dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h' | sudo tee --append /etc/dnsmasq.conf > /dev/null
-
-  hotspot_config_content=$(cat <<EOT
-interface=wlan0
-driver=nl80211
-ssid=PianoLEDVisualizer
-hw_mode=g
-channel=7
-wmm_enabled=0
-macaddr_acl=0
-auth_algs=1
-ignore_broadcast_ssid=0
-wpa=2
-wpa_passphrase=visualizer
-wpa_key_mgmt=WPA-PSK
-wpa_pairwise=TKIP
-rsn_pairwise=CCMP
-EOT
-  )
-
-  # Use echo to send the content to the file with sudo
-  echo "$hotspot_config_content" | sudo tee /etc/hostapd/hostapd.conf > /dev/null
-
-  echo 'DAEMON_CONF="/etc/hostapd/hostapd.conf"' | sudo tee --append /etc/default/hostapd > /dev/null
-  execute_command "sudo systemctl unmask hostapd"
-  execute_command "sudo systemctl enable hostapd && sudo systemctl enable dnsmasq"
-}
-
-configure_network_interfaces() {
-  # Edit /etc/network/interfaces file
-  local interfaces_file="/etc/network/interfaces"
-  local interfaces_config="
-auto wlan0
-iface wlan0 inet manual
-wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
-"
-
-  echo "$interfaces_config" | sudo tee -a "$interfaces_file" > /dev/null
-  echo "Network interfaces configuration added to $interfaces_file."
-}
 
 # Function to install Piano-LED-Visualizer
 install_piano_led_visualizer() {
   execute_command "cd /home/"
-  execute_command "sudo git clone https://github.com/onlaj/Piano-LED-Visualizer" "check_internet"
+  execute_command "sudo git clone -b autoinstall-update https://github.com/onlaj/Piano-LED-Visualizer" "check_internet"
   execute_command "sudo chown -R $USER:$USER /home/Piano-LED-Visualizer"
   execute_command "sudo chmod -R u+rwx /home/Piano-LED-Visualizer"
   execute_command "cd Piano-LED-Visualizer"
@@ -209,9 +163,6 @@ EOF
   execute_command "sudo systemctl start visualizer.service"
 
   execute_command "sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/"
-
-  execute_command "sudo chmod +x /home/Piano-LED-Visualizer/disable_ap.sh"
-  execute_command "sudo chmod +x /home/Piano-LED-Visualizer/enable_ap.sh"
 }
 
 finish_installation() {
@@ -222,7 +173,6 @@ finish_installation() {
   echo "After the reboot, please wait for up to 10 minutes. The Visualizer should start, and the Hotspot 'PianoLEDVisualizer' will become available."
 
   execute_command "sudo shutdown -r +1"
-  execute_command "sudo /home/Piano-LED-Visualizer/enable_ap.sh"
   sleep 60
   # Reboot Raspberry Pi
   execute_command "sudo reboot"
@@ -254,6 +204,4 @@ install_packages
 disable_audio_output
 install_rtpmidi_server
 install_piano_led_visualizer
-configure_network_interfaces
-create_hotspot
 finish_installation

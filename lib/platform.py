@@ -5,30 +5,37 @@ import os
 import filecmp
 from shutil import copyfile
 from lib.log_setup import logger
+import re
+import socket
+from collections import defaultdict
 
 
 class Hotspot:
-    def __init__(self, platform):
+    def __init__(self, hotspot):
         self.hotspot_script_time = 0
         self.time_without_wifi = 0
         self.last_wifi_check_time = 0
-        self.is_hostapd_installed = platform.is_package_installed("hostapd")
 
         subprocess.run("sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/", shell=True, check=True)
 
-class Platform_null:
+class PlatformBase:
+    def __getattr__(self, name):
+        def method(*args, **kwargs):
+            return False, f"Method '{name}' is not supported on this platform", ""
+        return method
+
+
+class PlatformNull(PlatformBase):
     def __getattr__(self, name):
         return self.pass_func
 
     def pass_func(self, *args, **kwargs):
         pass
 
-    def get_current_connections(self):
-        return False, "Platform disabled", ""
 
-
-class PlatformRasp:
-    def copy_connectall_script(self):
+class PlatformRasp(PlatformBase):
+    @staticmethod
+    def copy_connectall_script():
         # make sure connectall.py file exists and is updated
         if not os.path.exists('/usr/local/bin/connectall.py') or \
                 filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
@@ -41,27 +48,34 @@ class PlatformRasp:
             logger.info("Installing abcmidi")
             subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
 
-    def update_visualizer(self):
+    @staticmethod
+    def update_visualizer():
         call("sudo git reset --hard HEAD", shell=True)
         call("sudo git checkout .", shell=True)
-        call("sudo git clean -fdx -e Songs/ -e config/settings.xml -e config/wpa_disable_ap.conf -e visualizer.log", shell=True)
+        call("sudo git clean -fdx -e Songs/ -e "
+             "config/settings.xml -e config/wpa_disable_ap.conf -e visualizer.log", shell=True)
         call("sudo git clean -fdx Songs/cache", shell=True)
         call("sudo git pull origin master", shell=True)
         call("sudo pip install -r requirements.txt", shell=True)
 
-    def shutdown(self):
+    @staticmethod
+    def shutdown():
         call("sudo /sbin/shutdown -h now", shell=True)
 
-    def reboot(self):
+    @staticmethod
+    def reboot():
         call("sudo /sbin/reboot now", shell=True)
 
-    def restart_visualizer(self):
+    @staticmethod
+    def restart_visualizer():
         call("sudo systemctl restart visualizer", shell=True)
 
-    def restart_rtpmidid(self):
+    @staticmethod
+    def restart_rtpmidid():
         call("sudo systemctl restart rtpmidid", shell=True)
 
-    def is_package_installed(self, package_name):
+    @staticmethod
+    def is_package_installed(package_name):
         try:
             # Run the 'dpkg' command to check if the package is installed
             result = subprocess.run(['dpkg', '-s', package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -79,92 +93,63 @@ class PlatformRasp:
             logger.warning(f"Error checking {package_name} package status")
             return False
 
-    def manage_hotspot(self, hotspot, usersettings, midiports, first_run=False):
-        if not hotspot.is_hostapd_installed:
+    @staticmethod
+    def create_hotspot_profile():
+        # Check if the 'Hotspot' profile already exists
+        check_profile = subprocess.run(['sudo', 'nmcli', 'connection', 'show', 'Hotspot'],
+                                       capture_output=True, text=True)
+
+        if 'Hotspot' in check_profile.stdout:
+            logger.info("Hotspot profile already exists. Skipping creation.")
             return
 
-        # Visualizer is starting, check if hotspot is active and run enable_ap.sh
-        if first_run:
-            subprocess.call(['sudo', 'chmod', '+x', './disable_ap.sh'])
-            subprocess.call(['sudo', 'chmod', '+x', './enable_ap.sh'])
-            subprocess.call(['sudo', 'chmod', '+w', './config/wpa_disable_ap.conf'])
-
-            self.create_hotspot_config()
-            if int(usersettings.get("is_hotspot_active")):
-                self.disconnect_from_wifi(hotspot, usersettings)
-                return
-            elif int(usersettings.get_setting_value("reinitialize_network_on_boot")) == 1:
-                try:
-                    logger.info("Running disable_ap.sh")
-                    subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.DEVNULL,
-                                     stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
-                except Exception as error:
-                    # handle the exception
-                    logger.info("An exception occurred while shutting down a hotspot:", error)
-
-        # Calculate time passed without Wi-fi
-        current_time = time.time()
-        if not hotspot.last_wifi_check_time:
-            hotspot.last_wifi_check_time = current_time
-
-        time_without_wifi = current_time - hotspot.last_wifi_check_time
-
-        # run script every 60 seconds
-        if (time.time() - hotspot.hotspot_script_time) > 60 and time.time() - midiports.last_activity > 60:
-            hotspot.hotspot_script_time = current_time
-            if int(usersettings.get("is_hotspot_active")):
-                return
-
-            # check if wi-fi is connected
-            wifi_success, wifi_ssid, address = self.get_current_connections()
-
-            if not wifi_success:
-                # Update the time without Wi-Fi
-                hotspot.time_without_wifi += time_without_wifi
-                logger.info("Time without Wi-Fi: ", hotspot.time_without_wifi)
-
-                # If hotspot.time_without_wifi is greater than 240 seconds, start hotspot
-                if hotspot.time_without_wifi > 240:
-                    usersettings.change_setting_value("is_hotspot_active", 1)
-                    time.sleep(2)
-                    self.disconnect_from_wifi(hotspot, usersettings)
-            else:
-                # Reset the time without Wi-Fi since there is a connection now
-                hotspot.time_without_wifi = 0
-
-    def create_hotspot_config(self):
-        hotspot_config_content = """
-interface=wlan0
-driver=nl80211
-ssid=PianoLEDVisualizer
-hw_mode=g
-channel=7
-wmm_enabled=0
-macaddr_acl=0
-auth_algs=1
-ignore_broadcast_ssid=0
-wpa=2
-wpa_passphrase=visualizer
-wpa_key_mgmt=WPA-PSK
-wpa_pairwise=TKIP
-rsn_pairwise=CCMP
-"""
-
-        filepath = '/etc/hostapd/hostapd.conf'
+        # If we reach here, the profile doesn't exist, so we create it
+        logger.info("Creating new Hotspot profile...")
 
         try:
-            # Check if the file doesn't exist or is empty
-            if not (os.path.exists(filepath) and os.path.getsize(filepath) > 0):
-                with open(filepath, 'w') as file:
-                    file.write(hotspot_config_content)
-                logger.info("Hotspot configuration added successfully.")
-        except Exception as e:
-            logger.warning(f"Error: {e}")
+            subprocess.run([
+                'sudo', 'nmcli', 'connection', 'add', 'type', 'wifi', 'ifname', 'wlan0',
+                'con-name', 'Hotspot', 'autoconnect', 'no', 'ssid', 'PianoLEDVisualizer'
+            ], check=True)
 
-    def get_current_connections(self):
+            subprocess.run([
+                'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
+                '802-11-wireless.mode', 'ap', '802-11-wireless.band', 'bg',
+                'ipv4.method', 'shared'
+            ], check=True)
+
+            subprocess.run([
+                'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
+                'wifi-sec.key-mgmt', 'wpa-psk'
+            ], check=True)
+
+            subprocess.run([
+                'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
+                'wifi-sec.psk', 'visualizer'
+            ], check=True)
+
+            logger.info("Hotspot profile created successfully.")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"An error occurred while creating the Hotspot profile: {e}")
+
+    @staticmethod
+    def enable_hotspot():
+        logger.info("Enabling Hotspot")
+        subprocess.run(['sudo', 'nmcli', 'connection', 'up', 'Hotspot'])
+
+    @staticmethod
+    def disable_hotspot():
+        logger.info("Disabling Hotspot")
+        subprocess.run(['sudo', 'nmcli', 'connection', 'down', 'Hotspot'])
+
+    @staticmethod
+    def get_current_connections():
         try:
             with open(os.devnull, 'w') as null_file:
                 output = subprocess.check_output(['iwconfig'], text=True, stderr=null_file)
+
+            if "Mode:Master" in output:
+                return False, "Running as hotspot", ""
 
             for line in output.split('\n'):
                 if "ESSID:" in line:
@@ -174,61 +159,101 @@ rsn_pairwise=CCMP
                         if access_point_line:
                             access_point = access_point_line[0].split("Access Point:")[1].strip()
                             return True, ssid, access_point
-                        else:
-                            return False, "Not connected to any Wi-Fi network.", ""
-                    else:
                         return False, "Not connected to any Wi-Fi network.", ""
+                    return False, "Not connected to any Wi-Fi network.", ""
 
             return False, "No Wi-Fi interface found.", ""
         except subprocess.CalledProcessError:
             return False, "Error occurred while getting Wi-Fi information.", ""
 
-    def connect_to_wifi(self, ssid, password, hotspot, usersettings):
-        hotspot.hotspot_script_time = time.time()
-        logger.info("Method:connecting to wifi")
-        success, wifi_ssid, address = self.get_current_connections()
-
-        if success:
-            if wifi_ssid == ssid:
-                logger.info("Already connected to Wi-Fi:", ssid)
-                return True
-
-        wpa_conf = """country=GB
-        ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-        update_config=1
-        network={
-            scan_ssid=1
-            ssid="%s"
-            %s
-        }"""
-
-        pwd = 'psk="' + password + '"'
-        if password == "":
-            pwd = "key_mgmt=NONE"  # If open AP
-
-        with open('config/wpa_disable_ap.conf', 'w') as f:
-            f.write(wpa_conf % (ssid, pwd))
-        logger.info("Running shell script disable_ap")
+    def is_hotspot_running(self):
         try:
-            subprocess.Popen(['sudo', './disable_ap.sh'], stdout=subprocess.DEVNULL,
-                             stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
-        except Exception as error:
-            # handle the exception
-            logger.warning("An exception occurred while shutting down a hotspot:", error)
-        usersettings.change_setting_value("is_hotspot_active", 0)
+            result = subprocess.run(
+                ['nmcli', 'connection', 'show', '--active'],
+                capture_output=True,
+                text=True
+            )
+            return 'Hotspot' in result.stdout
+        except Exception as e:
+            logger.warning(f"Error checking hotspot status: {str(e)}")
+            return False
+
+    def manage_hotspot(self, hotspot, usersettings, midiports, first_run=False):
+        if first_run:
+            self.create_hotspot_profile()
+            if int(usersettings.get("is_hotspot_active")):
+                if not self.is_hotspot_running():
+                    logger.info("Hotspot is enabled in settings but not running. Starting hotspot...")
+                    self.enable_hotspot()
+                    time.sleep(5)
+
+                    if self.is_hotspot_running():
+                        logger.info("Hotspot started successfully")
+                    else:
+                        logger.warning("Failed to start hotspot")
+                else:
+                    logger.info("Hotspot is already running")
+
+        current_time = time.time()
+        if not hotspot.last_wifi_check_time:
+            hotspot.last_wifi_check_time = current_time
+
+        if (current_time - hotspot.hotspot_script_time) > 60 and (current_time - midiports.last_activity) > 60:
+            hotspot.hotspot_script_time = current_time
+            if int(usersettings.get("is_hotspot_active")):
+                return
+
+            wifi_success, wifi_ssid, _ = self.get_current_connections()
+
+            if not wifi_success:
+                hotspot.time_without_wifi += (current_time - hotspot.last_wifi_check_time)
+                if hotspot.time_without_wifi > 240:
+                    logger.info("No wifi connection. Enabling hotspot")
+                    usersettings.change_setting_value("is_hotspot_active", 1)
+                    self.enable_hotspot()
+            else:
+                hotspot.time_without_wifi = 0
+
+        hotspot.last_wifi_check_time = current_time
+
+    def connect_to_wifi(self, ssid, password, hotspot, usersettings):
+        # Disable the hotspot first
+        self.disable_hotspot()
+
+        try:
+            result = subprocess.run(
+                ['sudo', 'nmcli', 'device', 'wifi', 'connect', ssid, 'password', password],
+                capture_output=True,
+                text=True,
+                timeout=30  # Set a timeout for the connection attempt
+            )
+            # Check if the connection was successful
+            if result.returncode == 0:
+                logger.info(f"Successfully connected to {ssid}")
+                usersettings.change_setting_value("is_hotspot_active", 0)
+                return True
+            else:
+                logger.warning(f"Failed to connect to {ssid}. Error: {result.stderr}")
+                usersettings.change_setting_value("is_hotspot_active", 1)
+                self.enable_hotspot()
+
+        except subprocess.TimeoutExpired:
+            logger.warning(f"Connection attempt to {ssid} timed out")
+            usersettings.change_setting_value("is_hotspot_active", 1)
+            self.enable_hotspot()
+        except Exception as e:
+            logger.warning(f"An error occurred while connecting to {ssid}: {str(e)}")
+            usersettings.change_setting_value("is_hotspot_active", 1)
+            self.enable_hotspot()
 
     def disconnect_from_wifi(self, hotspot, usersettings):
+        logger.info("Disconnecting from wifi")
         hotspot.hotspot_script_time = time.time()
-        logger.info("Running script enable_ap")
-        try:
-            subprocess.Popen(['sudo', './enable_ap.sh'], stdout=subprocess.DEVNULL,
-                             stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
-        except Exception as error:
-            # handle the exception
-            logger.warning("An exception occurred while creating a hotspot:", error)
+        self.enable_hotspot()
         usersettings.change_setting_value("is_hotspot_active", 1)
 
-    def get_wifi_networks(self):
+    @staticmethod
+    def get_wifi_networks():
         try:
             output = subprocess.check_output(['sudo', 'iwlist', 'wlan0', 'scan'], stderr=subprocess.STDOUT)
             networks = output.decode().split('Cell ')
@@ -244,7 +269,8 @@ rsn_pairwise=CCMP
                 else:
                     return 100 - (100 / 40) * (level + 90)
 
-            wifi_list = []
+            wifi_dict = defaultdict(lambda: {'Signal Strength': -float('inf'), 'Signal dBm': -float('inf')})
+
             for network in networks[1:]:
                 wifi_data = {}
 
@@ -254,7 +280,8 @@ rsn_pairwise=CCMP
 
                 ssid_line = [line for line in network.split('\n') if 'ESSID:' in line]
                 if ssid_line:
-                    wifi_data['ESSID'] = ssid_line[0].split('ESSID:')[1].strip('"')
+                    ssid = ssid_line[0].split('ESSID:')[1].strip('"')
+                    wifi_data['ESSID'] = ssid
 
                 freq_line = [line for line in network.split('\n') if 'Frequency:' in line]
                 if freq_line:
@@ -262,21 +289,87 @@ rsn_pairwise=CCMP
 
                 signal_line = [line for line in network.split('\n') if 'Signal level=' in line]
                 if signal_line:
-                    signal_level = int(signal_line[0].split('Signal level=')[1].split(' dBm')[0])
-                    wifi_data['Signal Strength'] = calculate_signal_strength(signal_level)
+                    signal_dbm = int(signal_line[0].split('Signal level=')[1].split(' dBm')[0])
+                    signal_strength = calculate_signal_strength(signal_dbm)
+                    wifi_data['Signal Strength'] = signal_strength
+                    wifi_data['Signal dBm'] = signal_dbm
 
-                signal_dbm = [line for line in network.split('\n') if 'Signal level=' in line]
-                if signal_dbm:
-                    signal_dbm = signal_dbm[0].split('Signal level=')[1].split(' dBm')[0]
-                    wifi_data['Signal dBm'] = int(signal_dbm)
+                # Update the network info if this is the strongest signal for this SSID
+                if wifi_data['Signal Strength'] > wifi_dict[ssid]['Signal Strength']:
+                    wifi_dict[ssid].update(wifi_data)
 
-                wifi_list.append(wifi_data)
+            # Convert the dictionary to a list
+            wifi_list = list(wifi_dict.values())
 
             # Sort descending by "Signal Strength"
             wifi_list.sort(key=lambda x: x['Signal Strength'], reverse=True)
 
             return wifi_list
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Error while scanning Wi-Fi networks: {e.output}")
+            return []
+
+    @staticmethod
+    def get_local_address():
+        try:
+            # Get the hostname
+            hostname = socket.gethostname()
+
+            # Get the IP address
+            ip_address = socket.gethostbyname(hostname + ".local")
+
+            # Construct the full local address
+            local_address = f"{hostname}.local"
+
+            return {
+                "success": True,
+                "local_address": local_address,
+                "ip_address": ip_address
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    @staticmethod
+    def change_local_address(new_name):
+        new_name = new_name.rstrip('.local')
+        logger.info("Changing local address to " + new_name)
+        # Validate the new name
+        if not re.match(r'^[a-zA-Z0-9-]+$', new_name):
+            raise ValueError("Invalid name. Use only letters, numbers, and hyphens.")
+
+        try:
+            # Change the hostname
+            subprocess.run(['sudo', 'hostnamectl', 'set-hostname', new_name], check=True)
+
+            # Update /etc/hosts file
+            with open('/etc/hosts', 'r') as file:
+                hosts_content = file.readlines()
+
+            with open('/etc/hosts', 'w') as file:
+                for line in hosts_content:
+                    if "127.0.1.1" in line:
+                        file.write(f"127.0.1.1\t{new_name}\n")
+                    else:
+                        file.write(line)
+
+            # Restart avahi-daemon to apply changes
+            subprocess.run(['sudo', 'systemctl', 'restart', 'avahi-daemon'], check=True)
+
+            # Optionally, restart the networking service
+            subprocess.run(['sudo', 'systemctl', 'restart', 'networking'], check=True)
+
+            logger.info(f"Local address successfully changed to {new_name}.local")
+            return True
 
         except subprocess.CalledProcessError as e:
-            logger.warning("Error while scanning Wi-Fi networks:", e.output)
-            return []
+            logger.warning(f"An error occurred while changing the local address: {e}")
+            return False
+        except IOError as e:
+            logger.warning(f"An error occurred while updating the hosts file: {e}")
+            return False
+        except Exception as e:
+            logger.warning(f"An unexpected error occurred: {e}")
+            return False

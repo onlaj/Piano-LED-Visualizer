@@ -141,7 +141,6 @@ def get_homepage_data():
         'cover_state': 'Opened' if cover_opened else 'Closed',
         'led_fps': round(webinterface.ledstrip.current_fps, 2),
         'screen_on': webinterface.menu.screen_on,
-        'reinitialize_network_on_boot': int(webinterface.usersettings.get_setting_value("reinitialize_network_on_boot")),
     }
     return jsonify(homepage_data)
 
@@ -959,12 +958,6 @@ def change_setting():
         else:
             webinterface.menu.enable_screen()
 
-    if setting_name == "reinitialize_network_on_boot":
-        if int(value) == 0:
-            webinterface.usersettings.change_setting_value("reinitialize_network_on_boot", 0)
-        else:
-            webinterface.usersettings.change_setting_value("reinitialize_network_on_boot", 1)
-
     if setting_name == "reset_to_default":
         webinterface.usersettings.reset_to_default()
 
@@ -1658,6 +1651,36 @@ def get_wifi_list():
                 "connected_wifi": wifi_ssid,
                 "connected_wifi_address": address}
     return jsonify(response)
+
+@webinterface.route('/api/get_local_address', methods=['GET'])
+def get_local_address():
+    result = webinterface.platform.get_local_address()
+    if result["success"]:
+        return jsonify({
+            "success": True,
+            "local_address": result["local_address"],
+            "ip_address": result["ip_address"]
+        })
+    else:
+        return jsonify({
+            "success": False,
+            "error": result["error"]
+        }), 500
+
+@webinterface.route('/api/change_local_address', methods=['POST'])
+def change_local_address():
+    new_name = request.json.get('new_name')
+    if not new_name:
+        return jsonify({"success": False, "error": "No name provided"}), 400
+
+    try:
+        success = webinterface.platform.change_local_address(new_name)
+        if success:
+            return jsonify({"success": True, "new_address": f"{new_name}.local"})
+        else:
+            return jsonify({"success": False, "error": "Failed to change address"}), 500
+    except ValueError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
 
 
 @webinterface.route('/api/get_logs', methods=['GET'])
