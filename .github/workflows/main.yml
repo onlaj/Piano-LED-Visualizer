@@ -19,7 +19,7 @@ jobs:
       run: |
         wget https://downloads.raspberrypi.com/raspios_lite_armhf/images/raspios_lite_armhf-2024-11-19/2024-11-19-raspios-bookworm-armhf-lite.img.xz
         unxz 2024-11-19-raspios-bookworm-armhf-lite.img.xz
-        mv 2024-11-19-raspios-bookworm-armhf-lite.img
+        mv 2024-11-19-raspios-bookworm-armhf-lite.img raspi.img
 
     - name: Prepare image
       run: |
@@ -130,10 +130,10 @@ jobs:
       run: |
         wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
         chmod +x pishrink.sh
-        sudo ./pishrink.sh -z raspi.img pianoled-visualizer.img
+        sudo ./pishrink.sh -z raspi.img plv.img
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: pianoled-image
-        path: pianoled-visualizer.img
+        name: plv
+        path: plv.img
