@@ -28,7 +28,8 @@ jobs:
         sudo losetup -fP raspi.img
         LOOPDEV=$(sudo losetup -j raspi.img | cut -d: -f1)
         sudo parted $LOOPDEV resizepart 2 100%
-        sudo e2fsck -f ${LOOPDEV}p2
+        sudo e2fsck -y -f ${LOOPDEV}p2  # Added "-y" for auto-repair
+        
         sudo resize2fs ${LOOPDEV}p2
 
     - name: Mount image
