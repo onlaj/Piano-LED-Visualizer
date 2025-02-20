@@ -1,0 +1,139 @@
+name: Build Piano LED Visualizer Image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+    - name: Set up QEMU
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-user-static
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+    - name: Download base image
+      run: |
+        wget https://downloads.raspberrypi.com/raspios_lite_armhf/images/raspios_lite_armhf-2024-11-19/2024-11-19-raspios-bookworm-armhf-lite.img.xz
+        unxz 2024-11-19-raspios-bookworm-armhf-lite.img.xz
+        mv 2024-11-19-raspios-bookworm-armhf-lite.img
+
+    - name: Prepare image
+      run: |
+        # Expand image by 1GB
+        dd if=/dev/zero bs=1G count=1 >> raspi.img
+        sudo losetup -fP raspi.img
+        LOOPDEV=$(sudo losetup -j raspi.img | cut -d: -f1)
+        sudo parted $LOOPDEV resizepart 2 100%
+        sudo e2fsck -f ${LOOPDEV}p2
+        sudo resize2fs ${LOOPDEV}p2
+
+    - name: Mount image
+      run: |
+        mkdir -p rootfs
+        sudo mount ${LOOPDEV}p2 rootfs
+        sudo mount ${LOOPDEV}p1 rootfs/boot
+
+    - name: Basic configuration
+      run: |
+        # Set hostname
+        echo "pianoledvisualizer" | sudo tee rootfs/etc/hostname
+        sudo sed -i 's/raspberrypi/pianoledvisualizer.local/g' rootfs/etc/hosts
+
+        # Create user
+        sudo chroot rootfs useradd -m -G sudo -s /bin/bash plv
+        echo "plv:visualizer" | sudo chroot rootfs chpasswd
+
+        # Remove pi user
+        sudo chroot rootfs userdel -r pi
+
+    - name: Install dependencies
+      run: |
+        sudo cp /usr/bin/qemu-arm-static rootfs/usr/bin/
+        sudo mount -t proc /proc rootfs/proc
+        sudo mount -t sysfs /sys rootfs/sys
+        sudo mount -o bind /dev rootfs/dev
+
+        sudo chroot rootfs /bin/bash -c " \
+          apt-get update && \
+          apt-get upgrade -y && \
+          apt-get install -y git wget python3-pip libopenblas-dev \
+            libatlas-base-dev libavahi-client-dev libasound2-dev \
+            libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev \
+            libical-dev libreadline-dev fonts-freefont-ttf \
+            libopenjp2-7 libtiff6 libjack0 libjack-dev autoconf \
+            libtool make gcc build-essential scons swig abcmidi && \
+          systemctl mask ssh switch-root.service && \
+          apt-get clean && \
+          rm -rf /var/lib/apt/lists/*"
+
+    - name: Install RTP-MIDI
+      run: |
+        sudo chroot rootfs /bin/bash -c " \
+          cd /tmp && \
+          wget https://github.com/davidmoreno/rtpmidid/releases/download/v24.12/rtpmidid_24.12.2_armhf.deb && \
+          dpkg -i rtpmidid_24.12.2_armhf.deb && \
+          apt -f install -y && \
+          systemctl enable rtpmidid && \
+          rm rtpmidid_24.12.2_armhf.deb"
+
+    - name: Configure system
+      run: |
+        # Disable audio
+        sudo sed -i 's/dtparam=audio=on/#dtparam=audio=on/' rootfs/boot/config.txt
+        echo "blacklist snd_bcm2835" | sudo tee rootfs/etc/modprobe.d/snd-blacklist.conf
+
+        # Enable SPI
+        echo "dtparam=spi=on" | sudo tee -a rootfs/boot/config.txt
+
+        # Create autoconnect script
+        sudo cp -v connectall.py rootfs/usr/local/bin/connectall.py
+        sudo chmod +x rootfs/usr/local/bin/connectall.py
+
+    - name: Install Piano LED Visualizer
+      run: |
+        sudo chroot rootfs /bin/bash -c " \
+          git clone https://github.com/onlaj/Piano-LED-Visualizer /home/plv/Piano-LED-Visualizer && \
+          pip3 install -r /home/plv/Piano-LED-Visualizer/requirements.txt"
+
+        # Configure service
+        echo "[Unit]
+        Description=Piano LED Visualizer
+        After=network-online.target
+        Wants=network-online.target
+        
+        [Install]
+        WantedBy=multi-user.target
+        
+        [Service]
+        ExecStart=sudo python3 /home/plv/Piano-LED-Visualizer/visualizer.py
+        Restart=always
+        Type=simple
+        User=plv
+        Group=plv" | sudo tee rootfs/etc/systemd/system/visualizer.service
+
+        sudo chroot rootfs systemctl enable visualizer.service
+
+    - name: Clean up
+      run: |
+        sudo umount rootfs/dev
+        sudo umount rootfs/sys
+        sudo umount rootfs/proc
+        sudo umount rootfs/boot
+        sudo umount rootfs
+        sudo losetup -d $LOOPDEV
+
+    - name: Shrink image
+      run: |
+        wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
+        chmod +x pishrink.sh
+        sudo ./pishrink.sh -z raspi.img pianoled-visualizer.img
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: pianoled-image
+        path: pianoled-visualizer.img
