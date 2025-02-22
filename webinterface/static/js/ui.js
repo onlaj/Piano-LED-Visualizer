@@ -1304,24 +1304,29 @@ function show_note_offsets(note_offsets) {
     offset_element.classList.remove("pointer-events-none", "opacity-50");
     offset_element.innerHTML += add_button;
     for (const element of note_offsets) {
-        offset_element.innerHTML += `<div class="mb-2 bg-gray-100 dark:bg-gray-600" id="noteoffset_${i}"><label class="ml-2 inline block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                    ${translate("note_offset")} ${parseInt(i + 1)}
-                </label><div onclick='this.classList.add("hidden");this.nextElementSibling.classList.remove("hidden");temporary_show_chords_animation();' class="inline float-right text-red-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-</svg></div><div onclick='change_setting("remove_note_offset", "${i}");
-    document.getElementById("NoteOffsetEntry").classList.add("pointer-events-none","opacity-50");
-    temporary_show_chords_animation();' class="hidden inline float-right text-red-400">Click to confirm</div>
-    <div id="note_offset_${i}" class="justify-center flex" 
-    onchange='change_setting("update_note_offset", "${i}", document.getElementById("note_offset_${i}_num").value+ "," + document.getElementById("note_offset_${i}_off").value);temporary_show_chords_animation();'>
-                    <span class="w-1/20 px-2 bg-gray-100 dark:bg-gray-600 text-red-400">${translate("light_number")}:</span>
-                    <input id="note_offset_${i}_num" type="number" value="${element[0]}" min="0" max="255"
-                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>
-                    <span class="w-1/20 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-green-400">${translate("offset")}:</span>
-                    <input id="note_offset_${i}_off" type="number" value="${element[1]}" min="-255" max="255"
-                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>
-                </div>               </div>`;
+        offset_element.innerHTML += `<div class="mb-2 bg-gray-100 dark:bg-gray-600" id="noteoffset_${i}">
+            <label class="ml-2 inline block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                ${translate("note_offset")} ${parseInt(i + 1)}
+            </label>
+            <div onclick='this.classList.add("hidden");this.nextElementSibling.classList.remove("hidden");temporary_show_chords_animation();' class="inline float-right text-red-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </div>
+            <div onclick='change_setting("remove_note_offset", "${i}"); document.getElementById("NoteOffsetEntry").classList.add("pointer-events-none","opacity-50"); temporary_show_chords_animation();' class="hidden inline float-right text-red-400">Click to confirm</div>
+            <div id="note_offset_${i}" class="justify-center flex" 
+                onchange='change_setting("update_note_offset", "${i}", (parseInt(document.getElementById("note_offset_${i}_num").value) + 20) + "," + document.getElementById("note_offset_${i}_off").value); temporary_show_chords_animation();'>
+                <span class="w-1/20 px-2 bg-gray-100 dark:bg-gray-600 text-red-400">${translate("light_number")}:</span>
+                <input id="note_offset_${i}_num" type="number" value="${element[0] - 20}" min="0" max="255"
+                       class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>
+                <span class="w-1/20 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-green-400">${translate("offset")}:</span>
+                <input id="note_offset_${i}_off" type="number" value="${element[1]}" min="-255" max="255"
+                       class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>
+            </div>
+        </div>`;
         i++;
     }
+
     if (i >= 1) {
         let end_button = add_button.replace("add_note_offset", "append_note_offset")
         end_button = end_button.replace("note_offsets_add", "note_offsets_add2")
