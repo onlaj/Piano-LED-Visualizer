@@ -515,12 +515,16 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
 
             }
             if (response["color_mode"] === "Gradient") {
+                const is_reversed = config_settings["led_reverse"] === "1";
+                const start_color = is_reversed ? response["gradient_end_color"] : response["gradient_start_color"];
+                const end_color = is_reversed ? response["gradient_start_color"] : response["gradient_end_color"];
+
                 document.getElementById("current_led_color").innerHTML = '<svg ' +
                     'width="100%" height="45px">\n' +
                     '      <defs>\n' +
                     '        <linearGradient id="g1">\n' +
-                    '          <stop offset="5%" stop-color="' + response["gradient_end_color"] + '" />\n' +
-                    '          <stop offset="95%" stop-color="' + response["gradient_start_color"] + '" />\n' +
+                    '          <stop offset="5%" stop-color="' + start_color + '" />\n' +
+                    '          <stop offset="95%" stop-color="' + end_color + '" />\n' +
                     '        </linearGradient>\n' +
                     '       <linearGradient id="g2" x1=".5" x2=".5" y2="1">\n' +
                     '           <stop stop-color="#000" stop-opacity="0"/>\n' +
