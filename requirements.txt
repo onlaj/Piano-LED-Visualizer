@@ -8,6 +8,6 @@ rpi-ws281x~=5.0.0
 spidev~=3.5
 numpy~=1.22
 Flask~=2.3.2
-waitress~=2.1.2
+waitress~=3.0.1
 websockets~=11.0.3
 Werkzeug~=2.3.6
