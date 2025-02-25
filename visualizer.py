@@ -37,64 +37,41 @@ def restart_script():
     os.execl(python, python, *sys.argv)
 
 
-def parse_arguments():
-    """Parse command line arguments."""
-    appmode_default = 'platform'
-    if isinstance(RPiException, RuntimeError):
-        # If Raspberry GPIO fails (no Raspberry Pi detected) then set default to app mode
-        appmode_default = 'app'
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-    parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
-    parser.add_argument('-f', '--fontdir', type=str, help="Use an alternate directory for fonts")
-    parser.add_argument('-p', '--port', type=int, help="set port for webinterface (80 is default)")
-    parser.add_argument('-s', '--skipupdate', action='store_true',
-                        help="Do not try to update /usr/local/bin/connectall.py")
-    parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
-    parser.add_argument('-r', '--rotatescreen', default="false", help="rotate screen: 'false' (default) | 'true'")
-    parser.add_argument('-a', '--appmode', default=appmode_default, help="appmode: 'platform' (default) | 'app'")
-    parser.add_argument('-l', '--leddriver', default="rpi_ws281x",
-                        help="leddriver: 'rpi_ws281x' (default) | 'emu' ")
-    return parser.parse_args()
-
-
-class VisualizerApp:
+class ArgumentParser:
     def __init__(self):
-        self.fh = None
-        self.ensure_singleton()
-        os.chdir(sys.path[0])
-        self.args = parse_arguments()
+        self.args = self.parse_arguments()
+
+    def parse_arguments(self):
+        appmode_default = 'platform'
+        if isinstance(RPiException, RuntimeError):
+            appmode_default = 'app'
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
+        parser.add_argument('-d', '--display', type=str, help="choose type of display: '1in44' (default) | '1in3'")
+        parser.add_argument('-f', '--fontdir', type=str, help="Use an alternate directory for fonts")
+        parser.add_argument('-p', '--port', type=int, help="set port for webinterface (80 is default)")
+        parser.add_argument('-s', '--skipupdate', action='store_true',
+                            help="Do not try to update /usr/local/bin/connectall.py")
+        parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
+        parser.add_argument('-r', '--rotatescreen', default="false", help="rotate screen: 'false' (default) | 'true'")
+        parser.add_argument('-a', '--appmode', default=appmode_default, help="appmode: 'platform' (default) | 'app'")
+        parser.add_argument('-l', '--leddriver', default="rpi_ws281x",
+                            help="leddriver: 'rpi_ws281x' (default) | 'emu' ")
+        return parser.parse_args()
+
+
+class GPIOHandler:
+    def __init__(self, args, midiports, menu, ledstrip, ledsettings, usersettings):
+        self.args = args
+        self.midiports = midiports
+        self.menu = menu
+        self.ledstrip = ledstrip
+        self.ledsettings = ledsettings
+        self.usersettings = usersettings
         self.setup_gpio()
-        self.setup_components()
-        self.setup_web_interface()
-
-        # Frame rate counters
-        self.event_loop_stamp = time.perf_counter()
-        self.frame_count = 0
-        self.frame_avg_stamp = time.perf_counter()
-        self.backlight_cleared = False
-
-        # State tracking
-        self.display_cycle = 0
-        self.screen_hold_time = 16
-        self.last_sustain = 0
-        self.pedal_deadzone = 10
-        self.ledshow_timestamp = time.time()
-        self.color_mode_name = ""
-        self.color_mode = None
-
-    def ensure_singleton(self):
-        """Ensure there is only one instance of the script running."""
-        self.fh = open(os.path.realpath(__file__), 'r')
-        try:
-            fcntl.flock(self.fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except Exception as error:
-            logger.warning(f"[ensure_singleton] Unexpected exception occurred: {error}")
-            restart_script()
 
     def setup_gpio(self):
-        """Set up GPIO pins for buttons and controls."""
         if self.args.rotatescreen != "true":
             self.KEYRIGHT = 26
             self.KEYLEFT = 5
@@ -114,9 +91,7 @@ class VisualizerApp:
         self.JPRESS = 13
         self.BACKLIGHT = 24
 
-        # pins are interpreted as BCM pins.
         GPIO.setmode(GPIO.BCM)
-        # Sets the pin as input and sets Pull-up mode for the pin.
         GPIO.setup(self.KEYRIGHT, GPIO.IN, GPIO.PUD_UP)
         GPIO.setup(self.KEYLEFT, GPIO.IN, GPIO.PUD_UP)
         GPIO.setup(self.KEYUP, GPIO.IN, GPIO.PUD_UP)
@@ -126,101 +101,7 @@ class VisualizerApp:
         GPIO.setup(self.KEY3, GPIO.IN, GPIO.PUD_UP)
         GPIO.setup(self.JPRESS, GPIO.IN, GPIO.PUD_UP)
 
-    def setup_components(self):
-        """Initialize all application components."""
-        # Setup platform
-        if self.args.appmode == "platform":
-            self.platform = PlatformRasp()
-        else:
-            self.platform = PlatformNull()
-
-        if not self.args.skipupdate:
-            self.platform.copy_connectall_script()
-
-        self.platform.install_midi2abc()
-        logger.info(self.args)
-
-        # Initialize components
-        self.usersettings = UserSettings()
-        self.midiports = MidiPorts(self.usersettings)
-        self.ledsettings = LedSettings(self.usersettings)
-        self.ledstrip = LedStrip(self.usersettings, self.ledsettings, self.args.leddriver)
-
-        # Set up colormaps
-        cmap.gradients.update(cmap.load_colormaps())
-        cmap.generate_colormaps(cmap.gradients, self.ledstrip.led_gamma)
-        cmap.update_multicolor(self.ledsettings.multicolor_range, self.ledsettings.multicolor)
-
-        # Run startup animation in a separate thread
-        t = threading.Thread(target=startup_animation, args=(self.ledstrip, self.ledsettings))
-        t.start()
-
-        # Initialize remaining components
-        self.learning = LearnMIDI(self.usersettings, self.ledsettings, self.midiports, self.ledstrip)
-        self.hotspot = Hotspot(self.platform)
-        self.saving = SaveMIDI()
-        self.menu = MenuLCD("config/menu.xml", self.args, self.usersettings, self.ledsettings,
-                            self.ledstrip, self.learning, self.saving, self.midiports,
-                            self.hotspot, self.platform)
-
-        # Register instances
-        self.midiports.add_instance(self.menu)
-        self.ledsettings.add_instance(self.menu, self.ledstrip)
-        self.saving.add_instance(self.menu)
-        self.learning.add_instance(self.menu)
-
-        self.menu.show()
-        self.midiports.last_activity = time.time()
-        self.hotspot.hotspot_script_time = time.time()
-
-        # Initial LED setup
-        fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
-
-    def setup_web_interface(self):
-        """Set up web interface if enabled."""
-        self.websocket_loop = asyncio.new_event_loop()
-
-        if self.args.webinterface != "false":
-            logger.info('Starting webinterface')
-
-            # Configure webinterface components
-            webinterface.usersettings = self.usersettings
-            webinterface.ledsettings = self.ledsettings
-            webinterface.ledstrip = self.ledstrip
-            webinterface.learning = self.learning
-            webinterface.saving = self.saving
-            webinterface.midiports = self.midiports
-            webinterface.menu = self.menu
-            webinterface.hotspot = self.hotspot
-            webinterface.platform = self.platform
-            webinterface.jinja_env.auto_reload = True
-            webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
-
-            # Start web server in a separate thread
-            if not self.args.port:
-                self.args.port = 80
-
-            processThread = threading.Thread(
-                target=serve,
-                args=(webinterface,),
-                kwargs={'host': '0.0.0.0', 'port': self.args.port, 'threads': 20},
-                daemon=True
-            )
-            processThread.start()
-
-            # Start websocket server in a separate thread
-            processThread = threading.Thread(
-                target=web_mod.start_server,
-                args=(self.websocket_loop,),
-                daemon=True
-            )
-            processThread.start()
-
-            # Register the shutdown handler
-            atexit.register(web_mod.stop_server, self.websocket_loop)
-
     def process_gpio_keys(self):
-        """Handle GPIO button presses."""
         if GPIO.input(self.KEYUP) == 0:
             self.midiports.last_activity = time.time()
             self.menu.change_pointer(0)
@@ -277,64 +158,152 @@ class VisualizerApp:
             while GPIO.input(self.JPRESS) == 0:
                 time.sleep(0.01)
 
-    def process_fade_effects(self, event_loop_time):
-        """Process fading effects for LED strip."""
-        for n, strength in enumerate(self.ledstrip.keylist):
-            # Only apply fade processing to activated leds
-            if strength <= 0:
-                continue
 
-            # Restore saved led colors
-            if type(self.ledstrip.keylist_color[n]) is list:
-                red = self.ledstrip.keylist_color[n][0]
-                green = self.ledstrip.keylist_color[n][1]
-                blue = self.ledstrip.keylist_color[n][2]
-            else:
-                red, green, blue = (0, 0, 0)
+class ComponentInitializer:
+    def __init__(self, args):
+        self.args = args
+        self.platform = PlatformRasp() if self.args.appmode == "platform" else PlatformNull()
+        self.usersettings = UserSettings()
+        self.midiports = MidiPorts(self.usersettings)
+        self.ledsettings = LedSettings(self.usersettings)
+        self.ledstrip = LedStrip(self.usersettings, self.ledsettings, self.args.leddriver)
+        self.learning = LearnMIDI(self.usersettings, self.ledsettings, self.midiports, self.ledstrip)
+        self.hotspot = Hotspot(self.platform)
+        self.saving = SaveMIDI()
+        self.menu = MenuLCD("config/menu.xml", self.args, self.usersettings, self.ledsettings,
+                            self.ledstrip, self.learning, self.saving, self.midiports,
+                            self.hotspot, self.platform)
+        self.setup_components()
 
-            led_changed = False
-            new_color = self.color_mode.ColorUpdate(None, n, (red, green, blue))
-            if new_color is not None:
-                red, green, blue = new_color
-                led_changed = True
+    def setup_components(self):
+        if not self.args.skipupdate:
+            self.platform.copy_connectall_script()
 
-            fading = 1
+        self.platform.install_midi2abc()
+        logger.info(self.args)
 
-            # Calculate fading for Fading and Velocity modes
-            if self.ledsettings.mode == "Velocity" or self.ledsettings.mode == "Pedal" or (
-                    self.ledsettings.mode == "Fading" and self.ledstrip.keylist_status[n] == 0):
-                fading = (strength / float(100)) / 10
-                red = int(red * fading)
-                green = int(green * fading)
-                blue = int(blue * fading)
+        cmap.gradients.update(cmap.load_colormaps())
+        cmap.generate_colormaps(cmap.gradients, self.ledstrip.led_gamma)
+        cmap.update_multicolor(self.ledsettings.multicolor_range, self.ledsettings.multicolor)
 
-                # Calculate how much to decrease based on fade speed and elapsed time
-                decrease_amount = int((event_loop_time / float(self.ledsettings.fadingspeed / 1000)) * 1000)
-                self.ledstrip.keylist[n] = max(0, self.ledstrip.keylist[n] - decrease_amount)
-                led_changed = True
+        t = threading.Thread(target=startup_animation, args=(self.ledstrip, self.ledsettings))
+        t.start()
 
-            if self.ledsettings.mode == "Velocity" or self.ledsettings.mode == "Pedal":
-                # If sustain pedal is off and note is off, turn off fade processing
-                if int(self.last_sustain) < self.pedal_deadzone and self.ledstrip.keylist_status[n] == 0:
-                    self.ledstrip.keylist[n] = 0
-                    red, green, blue = (0, 0, 0)
-                    led_changed = True
+        self.midiports.add_instance(self.menu)
+        self.ledsettings.add_instance(self.menu, self.ledstrip)
+        self.saving.add_instance(self.menu)
+        self.learning.add_instance(self.menu)
 
-            # If fade mode newly completed, apply backlight
-            if self.ledstrip.keylist[n] <= 0 and self.menu.screensaver_is_running is not True:
-                backlight_level = float(self.ledsettings.backlight_brightness_percent) / 100
-                red = int(self.ledsettings.get_backlight_color("Red")) * backlight_level
-                green = int(self.ledsettings.get_backlight_color("Green")) * backlight_level
-                blue = int(self.ledsettings.get_backlight_color("Blue")) * backlight_level
-                led_changed = True
+        self.menu.show()
+        self.midiports.last_activity = time.time()
+        self.hotspot.hotspot_script_time = time.time()
 
-            # Apply fade mode colors to ledstrip
-            if led_changed:
-                self.ledstrip.strip.setPixelColor(n, Color(int(red), int(green), int(blue)))
-                self.ledstrip.set_adjacent_colors(n, Color(int(red), int(green), int(blue)), False, fading)
+        fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
+
+
+class WebInterfaceManager:
+    def __init__(self, args, usersettings, ledsettings, ledstrip, learning, saving, midiports, menu, hotspot, platform):
+        self.args = args
+        self.usersettings = usersettings
+        self.ledsettings = ledsettings
+        self.ledstrip = ledstrip
+        self.learning = learning
+        self.saving = saving
+        self.midiports = midiports
+        self.menu = menu
+        self.hotspot = hotspot
+        self.platform = platform
+        self.websocket_loop = asyncio.new_event_loop()
+        self.setup_web_interface()
+
+    def setup_web_interface(self):
+        if self.args.webinterface != "false":
+            logger.info('Starting webinterface')
+
+            webinterface.usersettings = self.usersettings
+            webinterface.ledsettings = self.ledsettings
+            webinterface.ledstrip = self.ledstrip
+            webinterface.learning = self.learning
+            webinterface.saving = self.saving
+            webinterface.midiports = self.midiports
+            webinterface.menu = self.menu
+            webinterface.hotspot = self.hotspot
+            webinterface.platform = self.platform
+            webinterface.jinja_env.auto_reload = True
+            webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
+
+            if not self.args.port:
+                self.args.port = 80
+
+            processThread = threading.Thread(
+                target=serve,
+                args=(webinterface,),
+                kwargs={'host': '0.0.0.0', 'port': self.args.port, 'threads': 20},
+                daemon=True
+            )
+            processThread.start()
+
+            processThread = threading.Thread(
+                target=web_mod.start_server,
+                args=(self.websocket_loop,),
+                daemon=True
+            )
+            processThread.start()
+
+            atexit.register(web_mod.stop_server, self.websocket_loop)
+
+
+class MIDIEventProcessor:
+    def __init__(self, midiports, ledstrip, ledsettings, usersettings, saving, learning, menu, color_mode):
+        self.midiports = midiports
+        self.ledstrip = ledstrip
+        self.ledsettings = ledsettings
+        self.usersettings = usersettings
+        self.saving = saving
+        self.learning = learning
+        self.menu = menu
+        self.color_mode = color_mode
+        self.last_sustain = 0  # Initialize last_sustain
+        # Add a timestamp for the last sequence advance
+        self.last_sequence_advance = 0
+
+    def process_midi_events(self):
+        if len(self.saving.is_playing_midi) == 0 and self.learning.is_started_midi is False:
+            self.midiports.midipending = self.midiports.midi_queue
+        else:
+            self.midiports.midipending = self.midiports.midifile_queue
+
+        while self.midiports.midipending:
+            msg, msg_timestamp = self.midiports.midipending.popleft()
+
+            if int(self.usersettings.get_setting_value("midi_logging")) == 1:
+                if not msg.is_meta:
+                    try:
+                        self.learning.socket_send.append("midi_event" + str(msg))
+                    except Exception as e:
+                        logger.warning(f"[process midi events] Unexpected exception occurred: {e}")
+
+            self.midiports.last_activity = time.time()
+
+            if (msg.type == "note_off" or (
+                    msg.type == "note_on" and msg.velocity == 0)) and self.ledsettings.mode != "Disabled":
+                note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
+                if 0 <= note_position < self.ledstrip.led_number:
+                    self.handle_note_off(msg, msg_timestamp, note_position)
+
+            elif msg.type == 'note_on' and msg.velocity > 0 and self.ledsettings.mode != "Disabled":
+                note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
+                if 0 <= note_position < self.ledstrip.led_number:
+                    self.handle_note_on(msg, msg_timestamp, note_position)
+
+            elif msg.type == "control_change":
+                self.handle_control_change(msg, msg_timestamp)
+
+            self.color_mode.MidiEvent(msg, None, self.ledstrip)
+
+            self.saving.restart_time()
 
     def handle_note_off(self, msg, msg_timestamp, note_position):
-        """Handle MIDI note off events."""
         velocity = 0
         self.ledstrip.keylist_status[note_position] = 0
 
@@ -364,7 +333,6 @@ class VisualizerApp:
             self.saving.add_track("note_off", msg.note, velocity, msg_timestamp)
 
     def handle_note_on(self, msg, msg_timestamp, note_position):
-        """Handle MIDI note on events."""
         velocity = msg.velocity
 
         color = self.color_mode.NoteOn(msg, msg_timestamp, None, note_position)
@@ -373,10 +341,8 @@ class VisualizerApp:
         else:
             red, green, blue = (0, 0, 0)
 
-        # Save ledstrip led colors
         self.ledstrip.keylist_color[note_position] = [red, green, blue]
 
-        # Set initial fade processing state
         self.ledstrip.keylist_status[note_position] = 1
         if self.ledsettings.mode == "Velocity":
             brightness = (100 / (float(velocity) / 127)) / 100
@@ -392,7 +358,6 @@ class VisualizerApp:
         elif self.ledsettings.mode == "Pedal":
             self.ledstrip.keylist[note_position] = 999
 
-        # Apply learning colors
         channel = find_between(str(msg), "channel=", " ")
         if channel == "12" or channel == "11":
             if self.ledsettings.skipped_notes != "Finger-based":
@@ -412,7 +377,6 @@ class VisualizerApp:
                 self.ledstrip.strip.setPixelColor(note_position, s_color)
                 self.ledstrip.set_adjacent_colors(note_position, s_color, False)
 
-        # Saving
         if self.saving.is_recording:
             if self.ledsettings.color_mode == "Multicolor":
                 import webcolors as wc
@@ -422,195 +386,268 @@ class VisualizerApp:
                 self.saving.add_track("note_on", msg.note, velocity, msg_timestamp)
 
     def handle_control_change(self, msg, msg_timestamp):
-        """Handle MIDI control change events."""
         control = msg.control
         value = msg.value
 
-        # midi control 64 = sustain pedal
-        if control == 64:
+        # Check if the control change is for the sustain pedal
+        if control == 64:  # Sustain pedal
             self.last_sustain = value
 
+        current_time = time.time()
+        # Check if the sequence is active and next_step is defined
         if self.ledsettings.sequence_active and self.ledsettings.next_step is not None:
             try:
-                if "+" in self.ledsettings.next_step:
-                    if int(value) > int(self.ledsettings.next_step) and control == self.ledsettings.control_number:
-                        self.ledsettings.set_sequence(0, 1)
-                else:
-                    if int(value) < int(self.ledsettings.next_step) and control == self.ledsettings.control_number:
-                        self.ledsettings.set_sequence(0, 1)
+                # Ensure the control number matches the expected control number for sequence advancement
+                if int(control) == int(self.ledsettings.control_number):
+                    # Logic to advance the sequence:
+                    # - If next_step is positive, advance when the pedal value exceeds next_step
+                    # - If next_step is -1, advance when the pedal is released (value is 0)
+                    if (int(self.ledsettings.next_step) > 0 and int(value) > int(self.ledsettings.next_step)) or \
+                       (int(self.ledsettings.next_step) == -1 and int(value) == 0):
+                        # Ensure at least 1 second has passed since the last sequence advancement
+                        if (current_time - self.last_sequence_advance) > 1:
+                            self.ledsettings.set_sequence(0, 1)
+                            self.last_sequence_advance = current_time
             except TypeError:
-                pass
+                logger.warning("TypeError encountered in sequence logic")
             except Exception as e:
                 logger.warning(f"[handle control change] Unexpected exception occurred: {e}")
 
+        # Record the control change if recording is active
         if self.saving.is_recording:
             self.saving.add_control_change("control_change", 0, control, value, msg_timestamp)
 
-    def process_midi_events(self):
-        """Process pending MIDI events."""
-        # Prep midi event queue
-        if len(self.saving.is_playing_midi) == 0 and self.learning.is_started_midi is False:
-            self.midiports.midipending = self.midiports.midi_queue
-        else:
-            self.midiports.midipending = self.midiports.midifile_queue
 
-        # loop through incoming midi messages
-        while self.midiports.midipending:
-            msg, msg_timestamp = self.midiports.midipending.popleft()
+class LEDEffectsProcessor:
+    def __init__(self, ledstrip, ledsettings, menu, color_mode, last_sustain, pedal_deadzone):
+        self.ledstrip = ledstrip
+        self.ledsettings = ledsettings
+        self.menu = menu
+        self.color_mode = color_mode
+        self.last_sustain = last_sustain
+        self.pedal_deadzone = pedal_deadzone
 
-            if int(self.usersettings.get_setting_value("midi_logging")) == 1:
-                if not msg.is_meta:
-                    try:
-                        self.learning.socket_send.append("midi_event" + str(msg))
-                    except Exception as e:
-                        logger.warning(f"[process midi events] Unexpected exception occurred: {e}")
+    def process_fade_effects(self, event_loop_time):
+        for n, strength in enumerate(self.ledstrip.keylist):
+            if strength <= 0:
+                continue
 
-            self.midiports.last_activity = time.time()
+            if type(self.ledstrip.keylist_color[n]) is list:
+                red = self.ledstrip.keylist_color[n][0]
+                green = self.ledstrip.keylist_color[n][1]
+                blue = self.ledstrip.keylist_color[n][2]
+            else:
+                red, green, blue = (0, 0, 0)
 
-            # when a note is lifted (off)
-            if (msg.type == "note_off" or (
-                    msg.type == "note_on" and msg.velocity == 0)) and self.ledsettings.mode != "Disabled":
-                note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
-                if 0 <= note_position < self.ledstrip.led_number:
-                    self.handle_note_off(msg, msg_timestamp, note_position)
+            led_changed = False
+            new_color = self.color_mode.ColorUpdate(None, n, (red, green, blue))
+            if new_color is not None:
+                red, green, blue = new_color
+                led_changed = True
 
-            # when a note is pressed
-            elif msg.type == 'note_on' and msg.velocity > 0 and self.ledsettings.mode != "Disabled":
-                note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
-                if 0 <= note_position < self.ledstrip.led_number:
-                    self.handle_note_on(msg, msg_timestamp, note_position)
+            fading = 1
 
-            # Midi control change event
-            elif msg.type == "control_change":
-                self.handle_control_change(msg, msg_timestamp)
+            if self.ledsettings.mode == "Velocity" or self.ledsettings.mode == "Pedal" or (
+                    self.ledsettings.mode == "Fading" and self.ledstrip.keylist_status[n] == 0):
+                fading = (strength / float(100)) / 10
+                red = int(red * fading)
+                green = int(green * fading)
+                blue = int(blue * fading)
 
-            # Process other MIDI events
-            self.color_mode.MidiEvent(msg, None, self.ledstrip)
+                decrease_amount = int((event_loop_time / float(self.ledsettings.fadingspeed / 1000)) * 1000)
+                self.ledstrip.keylist[n] = max(0, self.ledstrip.keylist[n] - decrease_amount)
+                led_changed = True
 
-            # Save event-loop update
-            self.saving.restart_time()
+            if self.ledsettings.mode == "Velocity" or self.ledsettings.mode == "Pedal":
+                if int(self.last_sustain) >= self.pedal_deadzone and self.ledstrip.keylist_status[n] == 0:
+                    # Keep the lights on when the pedal is pressed
+                    self.ledstrip.keylist[n] = 1000
+                    led_changed = True
+                elif int(self.last_sustain) < self.pedal_deadzone and self.ledstrip.keylist_status[n] == 0:
+                    self.ledstrip.keylist[n] = 0
+                    red, green, blue = (0, 0, 0)
+                    led_changed = True
 
-    def update_fps_stats(self):
-        """Update FPS statistics."""
-        self.frame_count += 1
-        frame_seconds = time.perf_counter() - self.frame_avg_stamp
+            if self.ledstrip.keylist[n] <= 0 and self.menu.screensaver_is_running is not True:
+                backlight_level = float(self.ledsettings.backlight_brightness_percent) / 100
+                red = int(self.ledsettings.get_backlight_color("Red")) * backlight_level
+                green = int(self.ledsettings.get_backlight_color("Green")) * backlight_level
+                blue = int(self.ledsettings.get_backlight_color("Blue")) * backlight_level
+                led_changed = True
 
-        # calculate fps average over 2 seconds
-        if frame_seconds >= 2:
-            fps = self.frame_count / frame_seconds
-            self.ledstrip.current_fps = fps
+            if led_changed:
+                self.ledstrip.strip.setPixelColor(n, Color(int(red), int(green), int(blue)))
+                self.ledstrip.set_adjacent_colors(n, Color(int(red), int(green), int(blue)), False, fading)
 
-            # reset counters
-            self.frame_avg_stamp = time.perf_counter()
-            self.frame_count = 0
 
-    def check_screensaver(self):
-        """Check if screensaver should be activated."""
-        if int(self.menu.screensaver_delay) > 0:
-            if (time.time() - self.midiports.last_activity) > (int(self.menu.screensaver_delay) * 60):
-                screensaver(self.menu, self.midiports, self.saving, self.ledstrip, self.ledsettings)
+class VisualizerApp:
+    def __init__(self):
+        self.fh = None
+        self.ensure_singleton()
+        os.chdir(sys.path[0])
 
-    def check_activity_backlight(self):
-        """Manage backlight based on activity."""
-        if (time.time() - self.midiports.last_activity) > 120:
-            if not self.backlight_cleared:
-                self.ledsettings.backlight_stopped = True
-                fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
-                self.backlight_cleared = True
-        else:
-            if self.backlight_cleared:
-                self.ledsettings.backlight_stopped = False
-                fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
-                self.backlight_cleared = False
+        # State tracking
+        self.last_sustain = 0
+        self.pedal_deadzone = 10
 
-    def update_display(self, elapsed_time):
-        """Update LCD display when needed."""
-        if self.display_cycle >= 3:
-            self.display_cycle = 0
-            if elapsed_time > self.screen_hold_time:
-                self.menu.show()
-        self.display_cycle += 1
+        # Initialize components
+        self.args = ArgumentParser().args
+        self.component_initializer = ComponentInitializer(self.args)
+        self.color_mode = ColorMode(self.component_initializer.ledsettings.color_mode,
+                                    self.component_initializer.ledsettings)
+        self.color_mode_name = self.component_initializer.ledsettings.color_mode
+        self.gpio_handler = GPIOHandler(self.args, self.component_initializer.midiports, self.component_initializer.menu,
+                                        self.component_initializer.ledstrip, self.component_initializer.ledsettings,
+                                        self.component_initializer.usersettings)
+        self.web_interface_manager = WebInterfaceManager(self.args, self.component_initializer.usersettings,
+                                                         self.component_initializer.ledsettings,
+                                                         self.component_initializer.ledstrip,
+                                                         self.component_initializer.learning,
+                                                         self.component_initializer.saving,
+                                                         self.component_initializer.midiports,
+                                                         self.component_initializer.menu,
+                                                         self.component_initializer.hotspot,
+                                                         self.component_initializer.platform)
+        self.midi_event_processor = MIDIEventProcessor(self.component_initializer.midiports,
+                                                       self.component_initializer.ledstrip,
+                                                       self.component_initializer.ledsettings,
+                                                       self.component_initializer.usersettings,
+                                                       self.component_initializer.saving,
+                                                       self.component_initializer.learning,
+                                                       self.component_initializer.menu,
+                                                       self.color_mode)
+        self.led_effects_processor = LEDEffectsProcessor(self.component_initializer.ledstrip,
+                                                         self.component_initializer.ledsettings,
+                                                         self.component_initializer.menu,
+                                                         self.color_mode,
+                                                         self.last_sustain,
+                                                         self.pedal_deadzone)
 
-    def check_color_mode(self):
-        """Create or update ColorMode if needed."""
-        if self.ledsettings.color_mode != self.color_mode_name or self.ledsettings.incoming_setting_change:
-            self.ledsettings.incoming_setting_change = False
-            self.color_mode = ColorMode(self.ledsettings.color_mode, self.ledsettings)
-            self.color_mode_name = self.ledsettings.color_mode
+        # Frame rate counters
+        self.event_loop_stamp = time.perf_counter()
+        self.frame_count = 0
+        self.frame_avg_stamp = time.perf_counter()
+        self.backlight_cleared = False
 
-    def check_settings_changes(self):
-        """Save settings if they have changed."""
-        if (time.time() - self.usersettings.last_save) > 1:
-            if self.usersettings.pending_changes:
-                self.color_mode.LoadSettings(self.ledsettings)
-                self.usersettings.save_changes()
+        # State tracking
+        self.display_cycle = 0
+        self.screen_hold_time = 16
+        self.ledshow_timestamp = time.time()
 
-            if self.usersettings.pending_reset:
-                self.usersettings.pending_reset = False
-                self.ledsettings = LedSettings(self.usersettings)
-                self.ledstrip = LedStrip(self.usersettings, self.ledsettings)
-                self.menu = MenuLCD("config/menu.xml", self.args, self.usersettings, self.ledsettings,
-                                    self.ledstrip, self.learning, self.saving, self.midiports,
-                                    self.hotspot, self.platform)
-                self.menu.show()
-                self.ledsettings.add_instance(self.menu, self.ledstrip)
+    def ensure_singleton(self):
+        self.fh = open(os.path.realpath(__file__), 'r')
+        try:
+            fcntl.flock(self.fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except Exception as error:
+            logger.warning(f"[ensure_singleton] Unexpected exception occurred: {error}")
+            restart_script()
 
     def run(self):
-        """Run the main event loop."""
-        self.platform.manage_hotspot(self.hotspot, self.usersettings, self.midiports, True)
+        self.component_initializer.platform.manage_hotspot(self.component_initializer.hotspot,
+                                                            self.component_initializer.usersettings,
+                                                            self.component_initializer.midiports, True)
 
-        # Initialize color mode
-        self.color_mode = ColorMode(self.ledsettings.color_mode, self.ledsettings)
-        self.color_mode_name = self.ledsettings.color_mode
-
-        # Main event loop
         while True:
-            # Calculate elapsed time since saving started
             try:
-                elapsed_time = time.perf_counter() - self.saving.start_time
+                elapsed_time = time.perf_counter() - self.component_initializer.saving.start_time
             except Exception as e:
                 logger.warning(f"[elapsed time calculation] Unexpected exception occurred: {e}")
                 elapsed_time = 0
 
-            # Check if screensaver should be shown
             self.check_screensaver()
-
-            # Process IDLE animation
-            manage_idle_animation(self.ledstrip, self.ledsettings, self.menu, self.midiports)
-
-            # Check for activity to manage backlight
+            manage_idle_animation(self.component_initializer.ledstrip, self.component_initializer.ledsettings,
+                                  self.component_initializer.menu, self.component_initializer.midiports)
             self.check_activity_backlight()
-
-            # Update display if needed
             self.update_display(elapsed_time)
-
-            # Update color mode if needed
             self.check_color_mode()
-
-            # Check for settings changes
             self.check_settings_changes()
+            self.component_initializer.platform.manage_hotspot(self.component_initializer.hotspot,
+                                                                self.component_initializer.usersettings,
+                                                                self.component_initializer.midiports)
+            self.gpio_handler.process_gpio_keys()
 
-            # Manage hotspot
-            self.platform.manage_hotspot(self.hotspot, self.usersettings, self.midiports)
-
-            # Process GPIO key presses
-            self.process_gpio_keys()
-
-            # Calculate time for event loop
             event_loop_time = time.perf_counter() - self.event_loop_stamp
             self.event_loop_stamp = time.perf_counter()
 
-            # Process fade effects
-            self.process_fade_effects(event_loop_time)
+            self.led_effects_processor.process_fade_effects(event_loop_time)
+            self.midi_event_processor.process_midi_events()
 
-            # Process MIDI events
-            self.process_midi_events()
-
-            # Update the LED strip
-            self.ledstrip.strip.show()
-
-            # Update FPS statistics
+            self.component_initializer.ledstrip.strip.show()
             self.update_fps_stats()
+
+    def update_fps_stats(self):
+        self.frame_count += 1
+        frame_seconds = time.perf_counter() - self.frame_avg_stamp
+
+        if frame_seconds >= 2:
+            fps = self.frame_count / frame_seconds
+            self.component_initializer.ledstrip.current_fps = fps
+
+            self.frame_avg_stamp = time.perf_counter()
+            self.frame_count = 0
+
+    def check_screensaver(self):
+        if int(self.component_initializer.menu.screensaver_delay) > 0:
+            if (time.time() - self.component_initializer.midiports.last_activity) > (int(self.component_initializer.menu.screensaver_delay) * 60):
+                screensaver(self.component_initializer.menu, self.component_initializer.midiports,
+                            self.component_initializer.saving, self.component_initializer.ledstrip,
+                            self.component_initializer.ledsettings)
+
+    def check_activity_backlight(self):
+        if (time.time() - self.component_initializer.midiports.last_activity) > 120:
+            if not self.backlight_cleared:
+                self.component_initializer.ledsettings.backlight_stopped = True
+                fastColorWipe(self.component_initializer.ledstrip.strip, True,
+                              self.component_initializer.ledsettings)
+                self.backlight_cleared = True
+        else:
+            if self.backlight_cleared:
+                self.component_initializer.ledsettings.backlight_stopped = False
+                fastColorWipe(self.component_initializer.ledstrip.strip, True,
+                              self.component_initializer.ledsettings)
+                self.backlight_cleared = False
+
+    def update_display(self, elapsed_time):
+        if self.display_cycle >= 3:
+            self.display_cycle = 0
+            if elapsed_time > self.screen_hold_time:
+                self.component_initializer.menu.show()
+        self.display_cycle += 1
+
+    def check_color_mode(self):
+        if self.component_initializer.ledsettings.color_mode != self.color_mode_name or self.component_initializer.ledsettings.incoming_setting_change:
+            self.component_initializer.ledsettings.incoming_setting_change = False
+            self.color_mode = ColorMode(self.component_initializer.ledsettings.color_mode,
+                                        self.component_initializer.ledsettings)
+            self.color_mode_name = self.component_initializer.ledsettings.color_mode
+            # Reinitialize MIDIEventProcessor and LEDEffectsProcessor with the new color_mode
+            self.midi_event_processor.color_mode = self.color_mode
+            self.led_effects_processor.color_mode = self.color_mode
+            logger.info(f"Color mode changed to {self.color_mode_name}")
+
+    def check_settings_changes(self):
+        if (time.time() - self.component_initializer.usersettings.last_save) > 1:
+            if self.component_initializer.usersettings.pending_changes:
+                self.color_mode.LoadSettings(self.component_initializer.ledsettings)
+                self.component_initializer.usersettings.save_changes()
+
+            if self.component_initializer.usersettings.pending_reset:
+                self.component_initializer.usersettings.pending_reset = False
+                self.component_initializer.ledsettings = LedSettings(self.component_initializer.usersettings)
+                self.component_initializer.ledstrip = LedStrip(self.component_initializer.usersettings,
+                                                                self.component_initializer.ledsettings)
+                self.component_initializer.menu = MenuLCD("config/menu.xml", self.args,
+                                                          self.component_initializer.usersettings,
+                                                          self.component_initializer.ledsettings,
+                                                          self.component_initializer.ledstrip,
+                                                          self.component_initializer.learning,
+                                                          self.component_initializer.saving,
+                                                          self.component_initializer.midiports,
+                                                          self.component_initializer.hotspot,
+                                                          self.component_initializer.platform)
+                self.component_initializer.menu.show()
+                self.component_initializer.ledsettings.add_instance(self.component_initializer.menu,
+                                                                     self.component_initializer.ledstrip)
 
 
 if __name__ == "__main__":
