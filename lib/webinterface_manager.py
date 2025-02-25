@@ -6,7 +6,7 @@ from waitress import serve
 
 import webinterface as web_mod
 from lib.log_setup import logger
-from webinterface import webinterface
+from webinterface import webinterface, app_state
 
 
 class WebInterfaceManager:
@@ -28,15 +28,16 @@ class WebInterfaceManager:
         if self.args.webinterface != "false":
             logger.info('Starting webinterface')
 
-            webinterface.usersettings = self.usersettings
-            webinterface.ledsettings = self.ledsettings
-            webinterface.ledstrip = self.ledstrip
-            webinterface.learning = self.learning
-            webinterface.saving = self.saving
-            webinterface.midiports = self.midiports
-            webinterface.menu = self.menu
-            webinterface.hotspot = self.hotspot
-            webinterface.platform = self.platform
+            app_state.usersettings = self.usersettings
+            app_state.ledsettings = self.ledsettings
+            app_state.ledstrip = self.ledstrip
+            app_state.learning = self.learning
+            app_state.saving = self.saving
+            app_state.midiports = self.midiports
+            app_state.menu = self.menu
+            app_state.hotspot = self.hotspot
+            app_state.platform = self.platform
+
             webinterface.jinja_env.auto_reload = True
             webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
 

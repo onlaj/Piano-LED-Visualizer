@@ -8,13 +8,31 @@ from lib.log_setup import logger
 
 UPLOAD_FOLDER = 'Songs/'
 
-webinterface = Flask(__name__, template_folder='templates')
+webinterface = Flask(__name__,
+                     static_folder='static',
+                     template_folder='templates')
 webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
 webinterface.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 webinterface.config['MAX_CONTENT_LENGTH'] = 32 * 1000 * 1000
 webinterface.json.sort_keys = False
 
 webinterface.socket_input = []
+
+# State container to hold app components
+class AppState:
+    def __init__(self):
+        self.usersettings = None
+        self.ledsettings = None
+        self.ledstrip = None
+        self.learning = None
+        self.saving = None
+        self.midiports = None
+        self.menu = None
+        self.hotspot = None
+        self.platform = None
+
+# Create a single instance of AppState
+app_state = AppState()
 
 def start_server(loop):
     async def learning(websocket):
@@ -47,7 +65,7 @@ def start_server(loop):
 
     async def ledemu(websocket):
         try:
-            await websocket.send(json.dumps({"settings": 
+            await websocket.send(json.dumps({"settings":
                 {"gamma": webinterface.ledstrip.led_gamma,
                  "reverse": webinterface.ledstrip.reverse}}))
         except:
@@ -67,7 +85,7 @@ def start_server(loop):
                 pass
             except websockets.exceptions.WebSocketException:
                 pass
-            except:
+            except Exception as e:
                 logger.warning(e)
                 return
 
@@ -98,5 +116,5 @@ def stop_server(loop):
     loop.stop()
 
 
-from webinterface import views
-from webinterface import views_api
+# Import views after app is defined to avoid circular imports
+from webinterface import views, views_api
