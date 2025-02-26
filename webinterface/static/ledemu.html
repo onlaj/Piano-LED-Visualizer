@@ -26,6 +26,11 @@
 
 <script>
     let socket;
+    let lastLedState = null;
+    let lastFrameTime = 0;
+    const TARGET_FPS = 60;
+    const FRAME_TIME = 1000 / TARGET_FPS;
+
     const ledemu1 = document.getElementById("ledemu1");
     var ctx1 = ledemu1.getContext('2d');
     ctx1.canvas.width = window.innerWidth;
@@ -43,6 +48,17 @@
     ctx3.canvas.width = window.innerWidth;
     ctx3.canvas.height = 600;
 
+    function renderFrame() {
+        const currentTime = performance.now();
+        if (currentTime - lastFrameTime >= FRAME_TIME && lastLedState) {
+            bar(ledemu1, ctx1, lastLedState);
+            lights(ledemu2, ctx2, lastLedState);
+            ring(ledemu3, ctx3, lastLedState);
+            lastFrameTime = currentTime;
+        }
+        requestAnimationFrame(renderFrame);
+    }
+
     function establish_socket_connection() {
         console.log("Connecting to websocket")
         socket = new WebSocket('ws://' + window.location.hostname + ':8765/ledemu');
@@ -50,14 +66,10 @@
         socket.addEventListener('open', function (event) {
             console.log('Connected to server');
         });
-        var count = 0;
         socket.addEventListener('message', function (event) {
-            count++;
             const msg = JSON.parse(event.data);
             if ("leds" in msg) {
-                bar(ledemu1, ctx1, msg.leds);
-                lights(ledemu2, ctx2, msg.leds);
-                ring(ledemu3, ctx3, msg.leds);
+                lastLedState = msg.leds;
             }
         });
         socket.addEventListener('close', function (event) {
@@ -70,12 +82,20 @@
     }
 
     establish_socket_connection();
+    requestAnimationFrame(renderFrame);
 
-    window.onbeforeunload = function () {
-        socket.onclose = function () {
-        }; // disable onclose handler first
-        socket.close();
-    };
+    // Ensure WebSocket is closed when page is unloaded
+    window.addEventListener('unload', function() {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.close();
+        }
+    });
+
+    window.addEventListener('beforeunload', function() {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.close();
+        }
+    });
 
     // Commenting out: we need updates since virtual keyboard may be in foreground
     /*
