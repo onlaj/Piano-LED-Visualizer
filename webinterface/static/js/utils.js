@@ -1,4 +1,3 @@
-
 function hexToRgb(hex) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -128,4 +127,39 @@ function hsvToRgb(h, s, v) {
 function powercurve(x, p) {
     if (p === 0) return x;
     return (Math.exp(-p * x) - 1) / (Math.exp(-p) - 1);
+}
+
+let recordingTimer = null;
+let recordingStartTime = 0;
+
+function formatTime(timeInSeconds) {
+    const hours = Math.floor(timeInSeconds / 3600);
+    const minutes = Math.floor((timeInSeconds % 3600) / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function startRecordingTimer() {
+    const timerElement = document.getElementById('recording_timer');
+    timerElement.classList.remove('hidden');
+    recordingStartTime = Date.now();
+
+    recordingTimer = setInterval(() => {
+        const currentTime = Math.floor((Date.now() - recordingStartTime) / 1000);
+        timerElement.querySelector('span').textContent = formatTime(currentTime);
+    }, 1000);
+}
+
+function stopRecordingTimer() {
+    if (recordingTimer) {
+        clearInterval(recordingTimer);
+        recordingTimer = null;
+    }
+}
+
+function hideRecordingTimer() {
+    stopRecordingTimer();
+    const timerElement = document.getElementById('recording_timer');
+    timerElement.classList.add('hidden');
 }

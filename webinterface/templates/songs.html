@@ -27,7 +27,8 @@
                     this.classList.add('animate-pulse', 'pointer-events-none');
                     document.getElementById('save_recording_button').classList.remove('pointer-events-none', 'opacity-50');
                     document.getElementById('cancel_recording_button').classList.remove('pointer-events-none', 'opacity-50');
-                    document.getElementById('recording_status').innerHTML = '<p class=\'text-red-400\' data-translate=\'starting\'>starting</p>'"
+                    document.getElementById('recording_status').innerHTML = '<p class=\'text-red-400\' data-translate=\'starting\'>starting</p>';
+                    startRecordingTimer();"
                             class="w-auto px-10 h-10 outline-none mb-2
                             bg-gray-100 dark:bg-gray-600 font-bold py-2 rounded-2xl inline-flex items-center">
                         <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +59,8 @@
                     temporary_disable_button(this, 3000);
                     document.getElementById('save_recording_button').classList.add('pointer-events-none', 'opacity-50');
                     document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');
-                    document.getElementById('recording_status').innerHTML = '<p>saving</p>'"
+                    document.getElementById('recording_status').innerHTML = '<p>saving</p>';
+                    stopRecordingTimer();"
                             class="w-auto px-10 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
                             py-2 rounded-2xl inline-flex items-center hidden">
                         <span class="w-full uppercase text-xs text-green-400" data-translate="confirm">Confirm</span>
@@ -85,13 +87,18 @@
                     temporary_disable_button(this, 3000);
                     document.getElementById('save_recording_button').classList.add('pointer-events-none', 'opacity-50');
                     document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');
-                    document.getElementById('recording_status').innerHTML = '<p data-translate=\'canceling\'>canceling</p>'"
+                    document.getElementById('recording_status').innerHTML = '<p data-translate=\'canceling\'>canceling</p>';
+                    hideRecordingTimer();"
                             class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
                             py-2 px-2 rounded-2xl inline-flex items-center hidden">
                         <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
                     </button>
                 </div>
             </div>
+        </div>
+
+        <div id="recording_timer" class="text-center hidden mb-4">
+            <span class="text-2xl font-mono">00:00:00</span>
         </div>
     </div>
 
