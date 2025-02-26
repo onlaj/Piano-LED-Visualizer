@@ -43,9 +43,9 @@ def start_server(loop):
         try:
             while True:
                 await asyncio.sleep(0.01)
-                for msg in webinterface.learning.socket_send[:]:
+                for msg in app_state.learning.socket_send[:]:
                     await websocket.send(str(msg))
-                    webinterface.learning.socket_send.remove(msg)
+                    app_state.learning.socket_send.remove(msg)
         except:
             # Handle the connection closed error
             pass
