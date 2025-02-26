@@ -52,9 +52,9 @@ def start_server(loop):
             try:
                 msg = json.loads(message)
                 if msg["cmd"] == "pause":
-                    webinterface.ledemu_pause = True
+                    app_state.ledemu_pause = True
                 elif msg["cmd"] == "resume":
-                    webinterface.ledemu_pause = False
+                    app_state.ledemu_pause = False
             except websockets.exceptions.ConnectionClosed:
                 pass
             except websockets.exceptions.WebSocketException:
@@ -66,17 +66,17 @@ def start_server(loop):
     async def ledemu(websocket):
         try:
             await websocket.send(json.dumps({"settings":
-                {"gamma": webinterface.ledstrip.led_gamma,
-                 "reverse": webinterface.ledstrip.reverse}}))
+                {"gamma": app_state.ledstrip.led_gamma,
+                 "reverse": app_state.ledstrip.reverse}}))
         except:
             pass
 
         while True:
             try:
-                ledstrip = webinterface.ledstrip
+                ledstrip = app_state.ledstrip
                 await asyncio.sleep(1 / ledstrip.WEBEMU_FPS)
 
-                if webinterface.ledemu_pause:
+                if app_state.ledemu_pause:
                     continue
 
                 await websocket.send(json.dumps({"leds": ledstrip.strip.getPixels()}))
@@ -103,7 +103,7 @@ def start_server(loop):
         async with websockets.serve(handler, "0.0.0.0", 8765):
             await asyncio.Future()
 
-    webinterface.ledemu_pause = False
+    app_state.ledemu_pause = False
 
     asyncio.set_event_loop(loop)
     loop.run_until_complete(main())
