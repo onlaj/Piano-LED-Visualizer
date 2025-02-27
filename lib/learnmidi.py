@@ -405,7 +405,7 @@ class LearnMIDI:
 
                     # Realize time delay, consider also the time lost during computation
                     delay = max(0, tDelay - (
-                            time.time() - time_prev) - 0.003)  # 0.003 sec calibratable to acount for extra time loss
+                            time.time() - time_prev) - 0.003)  # 0.003 sec calibratable to account for extra time loss
                     time.sleep(delay)
                     time_prev = time.time()
 
