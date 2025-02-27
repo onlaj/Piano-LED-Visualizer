@@ -53,6 +53,12 @@ class LearnMIDI:
         self.notes_time = []
         self.socket_send = []
 
+        # Store software's notes that need to be played when user presses their key
+        self.pending_software_notes = []
+        # Store the next note's timing information
+        self.next_note_time = None
+        self.next_note_delay = None
+
         self.is_loop_active = int(usersettings.get_setting_value("is_loop_active"))
 
         self.loadingList = ['', 'Load..', 'Proces', 'Merge', 'Done', 'Error!']
@@ -183,7 +189,7 @@ class LearnMIDI:
 
         try:
             # Load the midi file
-            mid = mido.MidiFile('Songs/' + song_path, clip=True) # clip=True fixes some midi files
+            mid = mido.MidiFile('Songs/' + song_path, clip=True)  # clip=True fixes some midi files
 
             # Get tempo and Ticks per beat
             self.song_tempo = get_tempo(mid)
@@ -363,6 +369,11 @@ class LearnMIDI:
                             notes_pressed = []
                             wrong_notes = []
                             self.predict_future_notes(absolute_idx, end_idx, notes_to_press)
+
+                            # Store timing information for next note
+                            self.next_note_time = time.time() + tDelay
+                            self.next_note_delay = tDelay
+
                             while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
                                 if self.awaiting_restart_loop:
                                     break
@@ -381,6 +392,10 @@ class LearnMIDI:
                                     # check if note is in the list of notes to press
                                     if note not in notes_to_press:
                                         wrong_notes.append(msg_in)
+                                        # Clear pending software notes if wrong key is pressed
+                                        if velocity > 0:
+                                            self.pending_software_notes.clear()
+                                        continue
 
                                     if velocity > 0:
                                         if note not in notes_pressed:
@@ -397,6 +412,12 @@ class LearnMIDI:
                                 # light up predicted future notes again in case the future note was pressed
                                 # and color was overwritten
                                 self.predict_future_notes(absolute_idx, end_idx, notes_to_press)
+
+                            # Play any pending software notes only after all required notes have been pressed
+                            if set(notes_to_press).issubset(notes_pressed) and self.pending_software_notes:
+                                for software_note in self.pending_software_notes:
+                                    self.midiports.playport.send(software_note)
+                                self.pending_software_notes.clear()
 
                             # Turn off the pressed LEDs
                             fastColorWipe(self.ledstrip.strip, True,
@@ -421,14 +442,8 @@ class LearnMIDI:
 
                             red, green, blue = [0, 0, 0]
                             if msg.channel == 1:
-                                # red = int(self.hand_colorList[self.hand_colorR][0] * brightness)
-                                # green = int(self.hand_colorList[self.hand_colorR][1] * brightness)
-                                # blue = int(self.hand_colorList[self.hand_colorR][2] * brightness)
                                 red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorR]]
                             if msg.channel == 2:
-                                # red = int(self.hand_colorList[self.hand_colorL][0] * brightness)
-                                # green = int(self.hand_colorList[self.hand_colorL][1] * brightness)
-                                # blue = int(self.hand_colorList[self.hand_colorL][2] * brightness)
                                 red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
                             self.ledstrip.strip.setPixelColor(note_position, Color(red, green, blue))
                             self.ledstrip.strip.show()
@@ -438,16 +453,37 @@ class LearnMIDI:
                                 msg.channel == self.hands or self.hands == 0):
                             notes_to_press.append(msg.note)
 
-                        # Play selected Track
+                        # Handle software's notes
                         if ((
                                 self.hands == 1 and self.mute_hand != 2 and msg.channel == 2) or
-                                # send midi sound for Left hand
+                                # Left hand notes
                                 (
                                         self.hands == 2 and self.mute_hand != 1 and msg.channel == 1) or
-                                # send midi sound for Right hand
-                                self.practice == 2):  # send midi sound for Listen only
-                            self.midiports.playport.send(msg)
+                                # Right hand notes
+                                self.practice == 2):  # Listen mode
+                            if self.practice == 2:
+                                # In Listen mode, play immediately
+                                self.midiports.playport.send(msg)
+                            else:
+                                # Check if there are any user notes to press at this moment
+                                if notes_to_press:
+                                    # If there are user notes to press, store this software note to play when user presses their key
+                                    self.pending_software_notes.append(msg)
+                                else:
+                                    # If no user notes to press, play the software note immediately
+                                    self.midiports.playport.send(msg)
+
                     absolute_idx += 1
+
+                    # If we have pending software notes but no user notes to press,
+                    # and we've reached the next note's time, play and clear the pending notes
+                    if (self.pending_software_notes and not notes_to_press and
+                            self.next_note_time and time.time() >= self.next_note_time):
+                        for software_note in self.pending_software_notes:
+                            self.midiports.playport.send(software_note)
+                        self.pending_software_notes.clear()
+                        self.next_note_time = None
+                        self.next_note_delay = None
 
                     if self.awaiting_restart_loop:
                         self.awaiting_restart_loop = False
