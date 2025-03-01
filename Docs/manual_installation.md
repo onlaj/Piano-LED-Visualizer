@@ -1,3 +1,24 @@
+## Pre-installation setup
+
+Before installing Raspberry Pi OS Lite, it's recommended to configure your system with the following settings:
+- Username: plv
+- Password: visualizer
+- Local hostname: pianoledvisualizer.local
+
+These settings can be easily configured using the **Raspberry Pi Imager** tool:
+1. Open Raspberry Pi Imager
+2. Select Raspberry Pi OS Lite (for RPi Zero) as your operating system
+3. Click the gear/cog icon to access advanced options
+4. Set the hostname to "pianoledvisualizer.local"
+5. Enable SSH
+6. Set username to "plv" and password to "visualizer"
+7. Configure your WiFi settings if needed
+8. Save settings and write the image to your SD card
+
+This configuration will make it easier to connect to your Raspberry Pi using SSH via `ssh plv@pianoledvisualizer.local`
+
+---
+
 Install [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/) on your SD card.
 
 If you are not able to connect your monitor, mouse and keyboard to RPi you can connect to it using SSH over [Wi-Fi](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
