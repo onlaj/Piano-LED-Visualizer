@@ -35,16 +35,16 @@ The Piano LED Visualizer is a project that enables you to connect an LED strip t
   - Piano with MIDI or USB output
   - MIDI to USB interface (if your piano doesn't have USB output) [Amazon US](https://amzn.to/2nhsYBl) | [Amazon FR](https://amzn.to/3Ul5wAi) | [Aliexpress](https://s.click.aliexpress.com/e/_DBobxwH) (cheap midi interfaces might not work as intended, I recommend hardware from more known brands. I personally use iConnectivity mio 
   - Raspberry Pi Zero WH [Amazon US](https://amzn.to/3D9hMdc) | [Amazon FR](https://amzn.to/3SDyxWA) | [Aliexpress](https://s.click.aliexpress.com/e/_dXc8jGl) | [Aliexpress #2](https://s.click.aliexpress.com/e/_DmR3jvb)
-  - MicroSD card (16 GB is more than enough) [Amazon US](https://amzn.to/2oR93cC) | [Amazon FR](https://amzn.to/480tZxM)) | [Aliexpress](https://s.click.aliexpress.com/e/_DdNW6lB)
-  - USB OTG [Amazon US](https://amzn.to/3yVpdmV) | [Amazon FR](https://amzn.to/3HBY6kv) | [Aliexpress](https://s.click.aliexpress.com/e/_DBrYA2p)
+  - MicroSD card (16 GB is more than enough, Class 10 recommended for faster loading) [Amazon US](https://amzn.to/2oR93cC) | [Amazon FR](https://amzn.to/480tZxM)) | [Aliexpress](https://s.click.aliexpress.com/e/_DdNW6lB)
+  - USB OTG hub (At least two ports, for piano and computer/tablet connection) [Amazon US](https://amzn.to/3yVpdmV) | [Amazon FR](https://amzn.to/3HBY6kv) | [Aliexpress](https://s.click.aliexpress.com/e/_DBrYA2p)
   - WS2812B LED Strip (*at least 1.5m with 144 diodes/meter*)  [Amazon US](https://amzn.to/2JTFpuh) | [Amazon FR](https://amzn.to/3SBT0eh) | [Aliexpress](https://s.click.aliexpress.com/e/_DEEkJyR)
   - Power Supply (*5V 6A is enough to light 172 LEDs @50% power*)  [Amazon US](https://amzn.to/3O5zAJc) | [Amazon FR](https://amzn.to/42loc4x) | [Aliexpress](https://s.click.aliexpress.com/e/_Dn5Mt0n)
 
  **Make sure the power supply is 5V (5 Volt). using power supply with more Volt WILL damage both LED strip and Raspberry Pi.**
 
-  - DC 5.5x2.5mm socket with quick connection [Amazon US](https://amzn.to/3NJcTfP) | [Aliexpress](http://s.click.aliexpress.com/e/T8YSkbq)
+  - female DC 5.5x2.5mm socket with quick connection [Amazon US](https://amzn.to/3NJcTfP) | [Aliexpress](http://s.click.aliexpress.com/e/T8YSkbq)
    *(if you bought power supply on amazon it might be already included)*
-  - Some wires [Amazon US](https://amzn.to/3ky6k2G) | [Aliexpress](https://s.click.aliexpress.com/e/_AKKvPu)
+  - Some wires *(22–18 AWG, at least 1 meter; more if placing Raspberry Pi further away from piano)* [Amazon US](https://amzn.to/3ky6k2G) | [Aliexpress](https://s.click.aliexpress.com/e/_AKKvPu)
 
 **Not required but worth having, to make everything look neat:**
 
@@ -53,7 +53,7 @@ The Piano LED Visualizer is a project that enables you to connect an LED strip t
   - Screws M2.5 10mm [Amazon US](https://amzn.to/47iQv5P) | [Aliexpress](https://s.click.aliexpress.com/e/_DmAzsqB)
   - Waveshare LCD TFT 1,44'' 128x128px [Amazon US](https://amzn.to/2YkW5nC) | [Aliexpress](http://s.click.aliexpress.com/e/cpk00blQ)
   - Braid for cables [Amazon US](https://amzn.to/3rmCrYF) | [Aliexpress](http://s.click.aliexpress.com/e/cG7ur6Di)
-  - Heat shrink bands [Amazon US](https://amzn.to/3NPO3uy) | [Aliexpress](http://s.click.aliexpress.com/e/UwKVLo8)
+  - Heat shrink bands *(diameter slightly larger than chosen wires; used for insulation and securing connections)* [Amazon US](https://amzn.to/3NPO3uy) | [Aliexpress](http://s.click.aliexpress.com/e/UwKVLo8)
   - Aluminium LED Profile with diffuser (*highly recommend to search for the right one in local shops*) [pic#1](https://i.imgur.com/MF7dd1R.png) [pic#2](https://i.imgur.com/fFWOs3v.png) 
   Alternative made of silica gel: [Aliexpress](https://s.click.aliexpress.com/e/_A0HNfF)  *(choose T0515 for 12mm 2 meters, credits to [vzoltan](https://github.com/vzoltan) for finding this)*
   - Double side tape to stick everything on the piano
@@ -86,7 +86,7 @@ You can also connect Raspberry Pi to your network [manually](https://github.com/
 ### 2. **Manual installation**
 [Instructions](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
 
-## Connecting LED Strip to Raspberry Pi and enabling SPI
+## Connecting LED Strip to Raspberry Pi
 There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*.
 Double check how your LED strip is wired. Most strips use G-D-V (ground, data, voltage), however in the wiring diagram shown in the tutorial the voltage and data lines are swapped.
 Connecting voltage directly to your data pin might seriously damage or kill your Raspberry!
