@@ -1078,6 +1078,13 @@ function get_learning_status(loop_call = false) {
                     '   oninput="show_right_slider(this)" onchange="change_setting(\'learning_end_point\', this.value);\n' +
                     '   document.getElementById(\'end_point\').innerHTML = this.value">\n' +
                     '</div>';
+                
+                if (response["is_left_led_active"] === 1) {
+                    document.getElementById("is_left_led_active").checked = true;
+                }
+                if (response["is_right_led_active"] === 1) {
+                    document.getElementById("is_right_led_active").checked = true;
+                }
             }
 
         }
