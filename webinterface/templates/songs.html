@@ -615,6 +615,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
                     </div>
+                    <div class="justify-center flex">
+                        <label class="uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                            <input id="is_left_led_active" onchange="change_setting('change_left_led_active', this.checked)"
+                                class="w-4 h-4 mr-2 border border-gray-300 rounded"
+                                type="checkbox"/>
+                            <div class="inline" data-translate="active">Active</div>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="w-full md:w-1/2 px-3 m-auto">
@@ -636,6 +644,14 @@
                              class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
+                    </div>
+                    <div class="justify-center flex">
+                        <label class="uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                            <input id="is_right_led_active" onchange="change_setting('change_right_led_active', this.checked)"
+                                class="w-4 h-4 mr-2 border border-gray-300 rounded"
+                                type="checkbox"/>
+                            <div class="inline" data-translate="active">Active</div>
+                        </label>
                     </div>
                 </div>
             </div>
