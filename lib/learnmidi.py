@@ -46,6 +46,8 @@ class LearnMIDI:
         self.set_tempo = int(usersettings.get_setting_value("set_tempo"))
         self.hand_colorR = int(usersettings.get_setting_value("hand_colorR"))
         self.hand_colorL = int(usersettings.get_setting_value("hand_colorL"))
+        self.prev_hand_colorR = int(usersettings.get_setting_value("prev_hand_colorR"))
+        self.prev_hand_colorL = int(usersettings.get_setting_value("prev_hand_colorL"))
 
         self.show_wrong_notes = int(usersettings.get_setting_value("show_wrong_notes"))
         self.show_future_notes = int(usersettings.get_setting_value("show_future_notes"))
@@ -60,6 +62,9 @@ class LearnMIDI:
         self.next_note_delay = None
 
         self.is_loop_active = int(usersettings.get_setting_value("is_loop_active"))
+        
+        self.is_left_led_active = int(usersettings.get_setting_value("is_left_led_active"))
+        self.is_right_led_active = int(usersettings.get_setting_value("is_right_led_active"))
 
         self.loadingList = ['', 'Load..', 'Proces', 'Merge', 'Done', 'Error!']
         self.learningList = ['Start', 'Stop']
