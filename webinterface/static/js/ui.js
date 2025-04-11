@@ -1079,17 +1079,17 @@ function get_learning_status(loop_call = false) {
                     '   document.getElementById(\'end_point\').innerHTML = this.value">\n' +
                     '</div>';
                 
-                if (response["is_left_led_active"] === 1) {
-                    document.getElementById("is_left_led_active").checked = true;
+                if (response["is_led_activeL"] === 1) {
+                    document.getElementById("is_led_activeL").checked = true;
                 } else {
-                    document.getElementById("is_left_led_active").checked = false;
+                    document.getElementById("is_led_activeL").checked = false;
                     document.getElementById("hand_colorL").style.fill = 'rgb(0,0,0)';
                 }
 
-                if (response["is_right_led_active"] === 1) {
-                    document.getElementById("is_right_led_active").checked = true;
+                if (response["is_led_activeR"] === 1) {
+                    document.getElementById("is_led_activeR").checked = true;
                 } else {
-                    document.getElementById("is_right_led_active").checked = false;
+                    document.getElementById("is_led_activeR").checked = false;
                     document.getElementById("hand_colorR").style.fill = 'rgb(0,0,0)';
                 }
             }
