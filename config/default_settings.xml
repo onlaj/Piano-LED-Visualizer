@@ -118,8 +118,8 @@
     <show_wrong_notes>1</show_wrong_notes>
     <show_future_notes>1</show_future_notes>
 	<is_loop_active>1</is_loop_active>
-	<is_left_led_active>1</is_left_led_active>
-	<is_right_led_active>1</is_right_led_active>
+	<is_led_activeL>1</is_led_activeL>
+	<is_led_activeR>1</is_led_activeR>
     <midi_logging>0</midi_logging>
     <is_hotspot_active>1</is_hotspot_active>
 
