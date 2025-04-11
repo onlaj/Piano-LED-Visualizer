@@ -292,7 +292,7 @@ class LearnMIDI:
         if self.show_wrong_notes != 1:
             return
 
-        brightness = 0.5
+        brightness = 0.05
         # loop through wrong_notes and light them up
         for msg in wrong_notes:
             note = int(find_between(str(msg), "note=", " "))
@@ -308,11 +308,11 @@ class LearnMIDI:
                 self.mistakes_count += 1
                 if self.is_led_activeL == 0:
                     for expected_note in hand_hint_notesL:
-                        red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
+                        red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.prev_hand_colorL]]
                         self.ledstrip.strip.setPixelColor(expected_note, Color(red, green, blue))
                 if self.is_led_activeR == 0:
                     for expected_note in hand_hint_notesR:
-                        red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorR]]
+                        red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.prev_hand_colorR]]
                         self.ledstrip.strip.setPixelColor(expected_note, Color(red, green, blue))
             else:
                 self.ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
@@ -461,22 +461,22 @@ class LearnMIDI:
                             red, green, blue = [0, 0, 0]
                             if msg.channel == 1:
                                 red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorR]]
-                                if self.is_led_activeL == 0:
-                                    if brightness > 0:
-                                        hand_hint_notesL.append(note_position)
-                                    else:
-                                        try:
-                                            hand_hint_notesL.remove(note_position)
-                                        except ValueError:
-                                            pass  # do nothing
-                            if msg.channel == 2:
-                                red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
                                 if self.is_led_activeR == 0:
                                     if brightness > 0:
                                         hand_hint_notesR.append(note_position)
                                     else:
                                         try:
                                             hand_hint_notesR.remove(note_position)
+                                        except ValueError:
+                                            pass  # do nothing
+                            if msg.channel == 2:
+                                red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
+                                if self.is_led_activeL == 0:
+                                    if brightness > 0:
+                                        hand_hint_notesL.append(note_position)
+                                    else:
+                                        try:
+                                            hand_hint_notesL.remove(note_position)
                                         except ValueError:
                                             pass  # do nothing
                             self.ledstrip.strip.setPixelColor(note_position, Color(red, green, blue))
