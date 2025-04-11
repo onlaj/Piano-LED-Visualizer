@@ -1081,9 +1081,16 @@ function get_learning_status(loop_call = false) {
                 
                 if (response["is_left_led_active"] === 1) {
                     document.getElementById("is_left_led_active").checked = true;
+                } else {
+                    document.getElementById("is_left_led_active").checked = false;
+                    document.getElementById("hand_colorL").style.fill = 'rgb(0,0,0)';
                 }
+
                 if (response["is_right_led_active"] === 1) {
                     document.getElementById("is_right_led_active").checked = true;
+                } else {
+                    document.getElementById("is_right_led_active").checked = false;
+                    document.getElementById("hand_colorR").style.fill = 'rgb(0,0,0)';
                 }
             }
 
