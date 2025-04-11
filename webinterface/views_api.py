@@ -1196,7 +1196,7 @@ def change_setting():
 
     if setting_name == "change_handL_color":
         value = int(value)
-        if app_state.learning.is_left_led_active == 1:
+        if app_state.learning.is_led_activeL == 1:
             app_state.learning.hand_colorL += value
             app_state.learning.hand_colorL = clamp(app_state.learning.hand_colorL, 0,
                                                     len(app_state.learning.hand_colorList) - 1)
@@ -1206,7 +1206,7 @@ def change_setting():
 
     if setting_name == "change_handR_color":
         value = int(value)
-        if app_state.learning.is_right_led_active == 1:
+        if app_state.learning.is_led_activeR == 1:
             app_state.learning.hand_colorR += value
             app_state.learning.hand_colorR = clamp(app_state.learning.hand_colorR, 0,
                                                     len(app_state.learning.hand_colorList) - 1)
@@ -1240,8 +1240,8 @@ def change_setting():
 
     if setting_name == "change_left_led_active":
         value = int(value == 'true')
-        app_state.learning.is_left_led_active = value
-        app_state.usersettings.change_setting_value("is_left_led_active", app_state.learning.is_left_led_active)
+        app_state.learning.is_led_activeL = value
+        app_state.usersettings.change_setting_value("is_led_activeL", app_state.learning.is_led_activeL)
         if value == 0:
             app_state.learning.prev_hand_colorL = app_state.learning.hand_colorL
             app_state.usersettings.change_setting_value("prev_hand_colorL", app_state.learning.hand_colorL)
@@ -1255,8 +1255,8 @@ def change_setting():
 
     if setting_name == "change_right_led_active":
         value = int(value == 'true')
-        app_state.learning.is_right_led_active = value
-        app_state.usersettings.change_setting_value("is_right_led_active", app_state.learning.is_right_led_active)
+        app_state.learning.is_led_activeR = value
+        app_state.usersettings.change_setting_value("is_led_activeR", app_state.learning.is_led_activeR)
         if value == 0:
             app_state.learning.prev_hand_colorR = app_state.learning.hand_colorR
             app_state.usersettings.change_setting_value("prev_hand_colorR", app_state.learning.hand_colorR)
@@ -1535,8 +1535,8 @@ def get_learning_status():
                 "hand_colorList": ast.literal_eval(app_state.usersettings.get_setting_value("hand_colorList")),
                 "is_loop_active": ast.literal_eval(app_state.usersettings.get_setting_value("is_loop_active")),
                 "number_of_mistakes": ast.literal_eval(app_state.usersettings.get_setting_value("number_of_mistakes")),
-                "is_left_led_active": ast.literal_eval(app_state.usersettings.get_setting_value("is_left_led_active")),
-                "is_right_led_active": ast.literal_eval(app_state.usersettings.get_setting_value("is_right_led_active"))}
+                "is_led_activeL": ast.literal_eval(app_state.usersettings.get_setting_value("is_led_activeL")),
+                "is_led_activeR": ast.literal_eval(app_state.usersettings.get_setting_value("is_led_activeR"))}
 
     return jsonify(response)
 
