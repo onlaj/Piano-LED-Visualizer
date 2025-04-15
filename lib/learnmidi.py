@@ -13,6 +13,29 @@ from lib.rpi_drivers import Color
 import numpy as np
 import pickle
 from lib.log_setup import logger
+import logging
+
+# Create a custom logger
+my_logger = logging.getLogger("custom_logger")
+my_logger.setLevel(logging.DEBUG)  # Set specific level
+
+# Prevent it from propagating to the root logger (optional but recommended)
+my_logger.propagate = False
+
+# Create a file handler
+file_handler = logging.FileHandler("custom_log.txt")
+file_handler.setLevel(logging.DEBUG)
+
+# Create a custom formatter
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+file_handler.setFormatter(formatter)
+
+# Add the handler to the logger
+my_logger.addHandler(file_handler)
+
+# Use the logger
+
+my_logger.info("This is an info message.")
 
 
 def find_nearest(array, target):
@@ -85,6 +108,7 @@ class LearnMIDI:
         self.mistakes_count = 0
         self.number_of_mistakes = int(usersettings.get_setting_value("number_of_mistakes"))
         self.awaiting_restart_loop = False
+        self.score = 0 
 
     def add_instance(self, menu):
         self.menu = menu
@@ -410,12 +434,18 @@ class LearnMIDI:
                                         wrong_notes.append(msg_in)
                                         # Clear pending software notes if wrong key is pressed
                                         if velocity > 0:
+                                            
+                                            my_logger.debug("worng note pressed" + str(self.score))
+
                                             self.pending_software_notes.clear()
                                         continue
 
                                     if velocity > 0:
                                         if note not in notes_pressed:
                                             notes_pressed.append(note)
+                                            self.score += 1
+                                            my_logger.debug("score: velocity line 428 " + str(self.score))
+
                                     else:
                                         try:
                                             notes_pressed.remove(note)
