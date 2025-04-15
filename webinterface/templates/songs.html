@@ -655,6 +655,13 @@
                     </div>
                 </div>
             </div>
+              <!-- Score display -->
+              <div id="score_display" class="text-center text-xl font-bold text-gray-600 dark:text-gray-400">
+                Score: <span id="score_value">0</span>
+                <span class="text-lg ml-4">Combo: <span id="combo_value">0</span>x</span>
+                <span class="text-lg ml-4">Multiplier: <span id="multiplier_value">1</span>x</span>
+                <span id="score_update_feedback" class="ml-2 text-lg font-bold"></span>
+            </div>
 
             <div id="sheet_wrapper" style="height:80vh; margin-bottom: 100px;">
                 {% include 'sheet_music.html' %}
