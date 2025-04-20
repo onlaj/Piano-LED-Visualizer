@@ -37,8 +37,50 @@
                     textarea.value += t + event.data.replace("midi_event", "");
                     textarea.scrollTop = textarea.scrollHeight;
                 }
+                return;
+            }   
+            let data;
+            try {
+                data = JSON.parse(event.data);
+            } catch (e) {
+                // If not JSON, assume it's the old time update format
+                console.log("Received non-JSON message or parse error, assuming time update:", event.data);
+                if (typeof window.go_to_time === 'function') { 
+                     window.go_to_time(parseFloat(event.data));
+                } else {
+                     console.log("window.go_to_time is not defined");
+                }
+                return;
+            }
+
+            // Handle known JSON message types
+            if (data && data.type) {
+                if (data.type === "score_update") {
+                    handleScoreUpdate(data); 
+                } else if (data.type === "learning_note_index") {
+                    // This seems to be the intended recipient for the original else block
+                    if (typeof window.go_to_time === 'function') {
+                         window.go_to_time(parseFloat(data.current_note_index)); // Assuming payload has current_note_index
+                    } else {
+                         console.log("window.go_to_time is not defined");
+                    }
+                } else {
+                    console.log("Received unknown message type:", data.type);
+                    // Fallback? Maybe still try the old time update?
+                    if (typeof window.go_to_time === 'function') {
+                         window.go_to_time(parseFloat(event.data));
+                     } else {
+                         console.log("window.go_to_time is not defined");
+                     }
+                }
             } else {
-                window.go_to_time(parseFloat(event.data));
+                console.log("Received message without type:", event.data);
+                 // Fallback? Maybe still try the old time update?
+                 if (typeof window.go_to_time === 'function') {
+                     window.go_to_time(parseFloat(event.data));
+                 } else {
+                     console.log("window.go_to_time is not defined");
+                 }
             }
         });
         socket.addEventListener('close', function (event) {
