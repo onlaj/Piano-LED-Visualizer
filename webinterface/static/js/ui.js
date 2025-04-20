@@ -1,4 +1,57 @@
 get_colormap_gradients();
+// Add this function to handle score updates from WebSocket
+function handleScoreUpdate(data) {
+    if (data.type === "score_update") {
+        const scoreElement = document.getElementById('score_value');
+        const comboElement = document.getElementById('combo_value');
+        const multiplierElement = document.getElementById('multiplier_value');
+        const feedbackElement = document.getElementById('score_update_feedback');
+
+        if (scoreElement) scoreElement.textContent = data.score;
+        if (comboElement) comboElement.textContent = data.combo;
+        if (multiplierElement) multiplierElement.textContent = data.multiplier;
+
+        if (feedbackElement && data.last_update !== 0) {
+            let updateValue = data.last_update;
+            let updateColor = updateValue > 0 ? 'text-green-500' : 'text-red-500';
+            let sign = updateValue > 0 ? '+' : '';
+
+            feedbackElement.textContent = `(${sign}${updateValue})`;
+            feedbackElement.className = `ml-2 text-lg font-bold ${updateColor} opacity-100 transition-opacity duration-1000`;
+
+            // Fade out the feedback
+            setTimeout(() => {
+                feedbackElement.classList.add('opacity-0');
+            }, 100); // Start fading shortly after appearing
+            
+            // Clear the text after fade out
+             setTimeout(() => {
+                feedbackElement.textContent = '';
+            }, 1100); // Corresponds to duration-1000 + timeout delay
+        }
+         else if (feedbackElement) {
+             // Clear feedback instantly if last_update is 0 (e.g., on reset)
+             feedbackElement.textContent = '';
+             feedbackElement.className = `ml-2 text-lg font-bold opacity-0`;
+         }
+    }
+}
+
+// IMPORTANT: You need to call handleScoreUpdate(parsed_data) 
+// from your actual WebSocket onmessage handler. For example:
+/*
+websocket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    handleScoreUpdate(data);
+    // ... handle other message types like sheet music sync ...
+    if (data.type === "learning_note_index") { 
+        if (sheetMusic) {
+            clearTimeout(scrolldelay);
+            highlightCurrentNote(data.current_note_index);
+        }
+    }
+};
+*/
 
 function remove_page_indicators() {
     document.getElementById("home").classList.remove("dark:bg-gray-700", "bg-gray-100");
