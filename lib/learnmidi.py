@@ -1,6 +1,7 @@
 import ast
 import threading
 import time
+import json
 
 import mido
 import subprocess
@@ -13,6 +14,8 @@ from lib.rpi_drivers import Color
 import numpy as np
 import pickle
 from lib.log_setup import logger
+from lib.score_manager import ScoreManager
+
 import logging
 
 # Create a custom logger
@@ -59,6 +62,8 @@ class LearnMIDI:
         self.ledsettings = ledsettings
         self.midiports = midiports
         self.ledstrip = ledstrip
+        
+        # Initialize the score manager
 
         self.loading = 0
         self.practice = int(usersettings.get_setting_value("practice"))
@@ -108,8 +113,10 @@ class LearnMIDI:
         self.mistakes_count = 0
         self.number_of_mistakes = int(usersettings.get_setting_value("number_of_mistakes"))
         self.awaiting_restart_loop = False
-        self.score = 0 
-        self.combo = 0
+        ##self.score = 0 
+        ##self.combo = 0
+        self.score_manager = ScoreManager()
+
 
     def add_instance(self, menu):
         self.menu = menu
@@ -339,6 +346,26 @@ class LearnMIDI:
                     for expected_note in hand_hint_notesR:
                         red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.prev_hand_colorR]]
                         self.ledstrip.strip.setPixelColor(expected_note, Color(red, green, blue))
+                 
+                # Add this: Penalize for wrong note
+                self.score_manager.penalize_for_wrong_note()
+                my_logger.debug("wrong note - score:" +str(self.score_manager.get_score()))
+                my_logger.debug("panelty" +str(self.score_manager.get_last_score_update()))
+                # # Send score update to frontend
+                # self.socket_send.append(json.dumps({
+                #     "type": "score_update",
+                #     "score": self.score_manager.get_score(),
+                #     "combo": self.score_manager.get_combo(),
+                #     "multiplier": self.score_manager.get_multiplier(),
+                #     "last_update": self.score_manager.get_last_score_update()
+                # }))
+                self.socket_send.append(json.dumps({
+                    "type": "score_update",
+                    "score": self.score_manager.get_score(),
+                    "combo": self.score_manager.get_combo(),
+                    "multiplier": self.score_manager.get_multiplier(),
+                    "last_update": self.score_manager.get_last_score_update()
+                }))
             else:
                 self.ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
 
@@ -363,6 +390,25 @@ class LearnMIDI:
                 time.sleep(0.1)
         if self.loading == 4:
             self.is_started_midi = True  # Prevent restarting the Thread
+                # Reset the score when starting a new learning session
+            self.score_manager.reset()
+            my_logger.debug("score reset" +str(self.score_manager.get_score()))
+            # # Send score update to frontend
+            # self.socket_send.append(json.dumps({
+            #     "type": "score_update",
+            #     "score": self.score_manager.get_score(),
+            #     "combo": self.score_manager.get_combo(), 
+            #     "multiplier": self.score_manager.get_multiplier(),
+            #     "last_update": 0
+            # }))
+               # Send score update to frontend
+            self.socket_send.append(json.dumps({
+                "type": "score_update",
+                "score": self.score_manager.get_score(),
+                "combo": self.score_manager.get_combo(),
+                "multiplier": self.score_manager.get_multiplier(),
+                "last_update": 0 # Reset last update as well
+            }))
         elif self.loading == 5:
             self.is_started_midi = False  # Allow restarting the Thread
             return
@@ -374,10 +420,18 @@ class LearnMIDI:
         keep_looping = True
         while keep_looping:
             time.sleep(1)
-            self.score = 0
-            self.combo
-            my_logger.debug("keep_looping - score: " + str(self.score))
-
+            # self.score = 0
+            # self.combo
+            # my_logger.debug("keep_looping - score: " + str(self.score))
+            self.score_manager.reset()
+            my_logger.debug("score reset keep looping" +str(self.score_manager.get_score()))
+            self.socket_send.append(json.dumps({
+                "type": "score_update",
+                "score": self.score_manager.get_score(),
+                "combo": self.score_manager.get_combo(),
+                "multiplier": self.score_manager.get_multiplier(),
+                "last_update": 0 # Reset last update as well
+            }))
             try:
                 fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
                 time_prev = time.time()
@@ -441,8 +495,8 @@ class LearnMIDI:
                                         # Clear pending software notes if wrong key is pressed
                                         if velocity > 0:
                                             
-                                            my_logger.debug("worng note pressed" + str(self.score))
-                                            self.combo = 0
+                                            # my_logger.debug("worng note pressed" + str(self.score))
+                                            # self.combo = 0
 
                                             self.pending_software_notes.clear()
                                         continue
@@ -450,10 +504,38 @@ class LearnMIDI:
                                     if velocity > 0:
                                         if note not in notes_pressed:
                                             notes_pressed.append(note)
-                                            self.score += 1
-                                            self.combo += 1
-                                            my_logger.debug("score: velocity line 428 " + str(self.score))
+                                            # self.score += 1
+                                            # self.combo += 1
+                                            # my_logger.debug("score: velocity line 428 " + str(self.score))
+ 
+                                            # Calculate delay from ideal hit time
+                                            current_time = time.time()
+                                            if self.next_note_time:
+                                                # Get delay in seconds
+                                                delay = current_time - self.next_note_time
+                                                
+                                                # Add score for correct note
+                                                self.score_manager.add_score_for_correct_note(delay)
+                                                my_logger.debug("valocity - correct note - score:" + str(self.score_manager.get_score()))
+                                                my_logger.debug("increment" +str(self.score_manager.get_last_score_update()))
+                                                my_logger.debug("combo" +str(self.score_manager.get_combo()))
+                                               
 
+                                                # # Send score update to frontend
+                                                # self.socket_send.append(json.dumps({
+                                                #     "type": "score_update",
+                                                #     "score": self.score_manager.get_score(),
+                                                #     "combo": self.score_manager.get_combo(),
+                                                #     "multiplier": self.score_manager.get_multiplier(),
+                                                #     "last_update": self.score_manager.get_last_score_update()
+                                                # }))
+                                                self.socket_send.append(json.dumps({
+                                                    "type": "score_update",
+                                                    "score": self.score_manager.get_score(),
+                                                    "combo": self.score_manager.get_combo(),
+                                                    "multiplier": self.score_manager.get_multiplier(),
+                                                    "last_update": self.score_manager.get_last_score_update()
+                                                }))
                                     else:
                                         try:
                                             notes_pressed.remove(note)
