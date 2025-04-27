@@ -663,6 +663,28 @@
                 <span id="score_update_feedback" class="ml-2 text-lg font-bold"></span>
             </div>
 
+            <!-- Added: Session Summary Window -->
+            <div id="session_summary_window" 
+                 class="fixed bottom-4 right-4 z-50 w-80 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xl 
+                        border border-gray-300 dark:border-gray-600 
+                        transform translate-x-full opacity-0 transition-all duration-500 ease-in-out hidden">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300" data-translate="session_summary">Session Summary</h3>
+                    <button id="close_summary_button" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                    <p><strong data-translate="right_hand_mistakes">Right Hand Mistakes:</strong> <span id="summary_mistakes_r">0</span></p>
+                    <p><strong data-translate="right_hand_delay">Right Hand Max Delay Count:</strong> <span id="summary_delay_r">0</span></p>
+                    <p><strong data-translate="left_hand_mistakes">Left Hand Mistakes:</strong> <span id="summary_mistakes_l">0</span></p>
+                    <p><strong data-translate="left_hand_delay">Left Hand Max Delay Count:</strong> <span id="summary_delay_l">0</span></p>
+                </div>
+            </div>
+            <!-- End Added Section -->
+
             <div id="sheet_wrapper" style="height:80vh; margin-bottom: 100px;">
                 {% include 'sheet_music.html' %}
             </div>

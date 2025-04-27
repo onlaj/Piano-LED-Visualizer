@@ -37,6 +37,70 @@ function handleScoreUpdate(data) {
     }
 }
 
+// <<< Added: Function to handle session summary >>>
+let summaryTimeout = null; // To store the timeout ID
+
+function handleSessionSummary(data) {
+    console.log("Received session summary:", data); // For debugging
+    const summaryWindow = document.getElementById('session_summary_window');
+    const delayR = document.getElementById('summary_delay_r');
+    const delayL = document.getElementById('summary_delay_l');
+    const mistakesR = document.getElementById('summary_mistakes_r');
+    const mistakesL = document.getElementById('summary_mistakes_l');
+    const closeButton = document.getElementById('close_summary_button');
+
+    if (!summaryWindow || !delayR || !delayL || !mistakesR || !mistakesL || !closeButton) {
+        console.error("Summary elements not found!");
+        return;
+    }
+
+    // Populate data
+    delayR.textContent = data.delay_r;
+    delayL.textContent = data.delay_l;
+    mistakesR.textContent = data.mistakes_r;
+    mistakesL.textContent = data.mistakes_l;
+    
+    // Add translations if needed
+    translateStaticContent();
+
+    // Clear any existing timeout to prevent premature hiding
+    if (summaryTimeout) {
+        clearTimeout(summaryTimeout);
+        summaryTimeout = null;
+    }
+
+    // Show and animate the window
+    summaryWindow.classList.remove('hidden', 'translate-x-full', 'opacity-0');
+    summaryWindow.classList.add('translate-x-0', 'opacity-100');
+
+    // Function to hide the window
+    const hideSummary = () => {
+        summaryWindow.classList.remove('translate-x-0', 'opacity-100');
+        summaryWindow.classList.add('translate-x-full', 'opacity-0');
+        // Use setTimeout to truly hide after transition ends
+        setTimeout(() => {
+             summaryWindow.classList.add('hidden');
+        }, 500); // Match transition duration
+        if (summaryTimeout) {
+             clearTimeout(summaryTimeout);
+             summaryTimeout = null;
+        }
+    };
+
+    // Add event listener to close button (only once)
+    // Remove previous listener if it exists to avoid duplicates
+    closeButton.replaceWith(closeButton.cloneNode(true)); // Simple way to remove listeners
+    document.getElementById('close_summary_button').addEventListener('click', hideSummary);
+
+    // Automatically hide after 15 seconds
+    summaryTimeout = setTimeout(hideSummary, 15000); 
+}
+
+// Ensure this function is available globally if called from index.html
+window.handleSessionSummary = handleSessionSummary;
+// <<< End Added section >>>
+
+
 // IMPORTANT: You need to call handleScoreUpdate(parsed_data) 
 // from your actual WebSocket onmessage handler. For example:
 /*
