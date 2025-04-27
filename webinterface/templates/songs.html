@@ -688,6 +688,13 @@
                     </div>
                     <!-- Graph Canvas -->
                     <div class="flex-grow relative min-h-[300px]">
+                         <!-- Added Zoom Buttons -->
+                         <div class="absolute top-0 right-0 z-10 p-1 space-x-1">
+                              <button id="summary_zoom_in" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-lg font-bold hover:bg-gray-300 dark:hover:bg-gray-600">+</button>
+                              <button id="summary_zoom_out" class="px-2.5 py-1 bg-gray-200 dark:bg-gray-700 rounded text-lg font-bold hover:bg-gray-300 dark:hover:bg-gray-600">-</button>
+                              <button id="summary_zoom_reset" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm hover:bg-gray-300 dark:hover:bg-gray-600" data-translate="reset">Reset</button> <!-- Added Reset Button -->
+                         </div>
+                         <!-- End Zoom Buttons -->
                          <canvas id="summary_graph_canvas"></canvas>
                     </div>
                 </div>
