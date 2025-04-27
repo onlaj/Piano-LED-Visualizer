@@ -192,7 +192,25 @@ function handleSessionSummary(data, retries = 5) {
                             }
                         }
                     }
+                },
+                // <<< Added Zoom Plugin Configuration >>>
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'xy', // Allow panning in both directions
+                        threshold: 5, // Pixels before panning starts
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true, // Enable zooming with mouse wheel
+                        },
+                        pinch: {
+                             enabled: true // Enable zooming with pinch gesture
+                        },
+                        mode: 'xy', // Allow zooming in both directions
+                    }
                 }
+                // <<< End Zoom Plugin Configuration >>>
             },
             scales: {
                 x: {
@@ -249,6 +267,22 @@ function handleSessionSummary(data, retries = 5) {
     // Remove previous listener if it exists to avoid duplicates
     closeButton.replaceWith(closeButton.cloneNode(true)); // Simple way to remove listeners
     document.getElementById('close_summary_button').addEventListener('click', hideSummary);
+
+    // <<< Added: Event Listeners for Zoom Buttons >>>
+    const zoomInButton = document.getElementById('summary_zoom_in');
+    const zoomOutButton = document.getElementById('summary_zoom_out');
+    const zoomResetButton = document.getElementById('summary_zoom_reset');
+
+    if (zoomInButton && summaryChart) {
+        zoomInButton.onclick = () => summaryChart.zoom(1.1); // Zoom in by 10%
+    }
+    if (zoomOutButton && summaryChart) {
+        zoomOutButton.onclick = () => summaryChart.zoom(0.9); // Zoom out by 10%
+    }
+    if (zoomResetButton && summaryChart) {
+        zoomResetButton.onclick = () => summaryChart.resetZoom();
+    }
+    // <<< End Added Listeners >>>
 
     // No automatic hide for now, let user close it.
     // summaryTimeout = setTimeout(hideSummary, 30000); // Example: Hide after 30 seconds
