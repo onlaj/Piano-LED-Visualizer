@@ -547,7 +547,7 @@ class LearnMIDI:
                                                 # my_logger.debug("valocity - correct note - score:" + str(self.score_manager.get_score()))
                                                 # my_logger.debug("increment" +str(self.score_manager.get_last_score_update()))
                                                 # my_logger.debug("combo" +str(self.score_manager.get_combo()))
-                                                note_timing = (delay, midi_time)
+                                                note_timing = (midi_time, delay)
                                                
                                                 my_logger.debug("midi_time" +str(midi_time)) ####
                                                 if msg.channel == 1: 
@@ -697,17 +697,30 @@ class LearnMIDI:
             # <<< Added: Send session summary data >>>
             if not keep_looping:
                 try:
+                    # Get actual RGB colors
+                    color_r_rgb = self.hand_colorList[self.hand_colorR]
+                    color_l_rgb = self.hand_colorList[self.hand_colorL]
+
                     summary_data = {
                         "type": "session_summary",
+                        # Basic stats
                         "delay_r": self.delay_countR,
                         "delay_l": self.delay_countL,
-                        "mistakes_r": len(self.right_hand_mistakes),
-                        "mistakes_l": len(self.left_hand_mistakes)
+                        "mistakes_r_count": len(self.right_hand_mistakes),
+                        "mistakes_l_count": len(self.left_hand_mistakes),
+                        # Data for graph
+                        "timing_r": self.right_hand_timing,
+                        "timing_l": self.left_hand_timing,
+                        "mistakes_r_times": self.right_hand_mistakes,
+                        "mistakes_l_times": self.left_hand_mistakes,
+                        "max_delay": self.score_manager.max_delay,
+                        "color_r": f'rgb({color_r_rgb[0]}, {color_r_rgb[1]}, {color_r_rgb[2]})',
+                        "color_l": f'rgb({color_l_rgb[0]}, {color_l_rgb[1]}, {color_l_rgb[2]})'
                     }
                     self.socket_send.append(json.dumps(summary_data))
-                    my_logger.info(f"Sent session summary: {summary_data}")
+                    my_logger.info(f"Sent session summary (length: {len(json.dumps(summary_data))})") # Log length for debugging if needed
                 except Exception as e:
-                    my_logger.error(f"Error sending session summary: {e}")
+                    my_logger.error(f"Error preparing/sending session summary: {e}")
             # <<< End Added section >>>
 
     def convert_midi_to_abc(self, midi_file):

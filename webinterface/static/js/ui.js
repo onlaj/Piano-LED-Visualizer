@@ -39,26 +39,41 @@ function handleScoreUpdate(data) {
 
 // <<< Added: Function to handle session summary >>>
 let summaryTimeout = null; // To store the timeout ID
+let summaryChart = null; // To store the Chart instance
 
-function handleSessionSummary(data) {
-    console.log("Received session summary:", data); // For debugging
+function handleSessionSummary(data, retries = 5) {
+    // <<< Removed diagnostic log >>>
+
+    console.log(`Attempting to handle session summary (Retries left: ${retries})`, data);
+
     const summaryWindow = document.getElementById('session_summary_window');
-    const delayR = document.getElementById('summary_delay_r');
-    const delayL = document.getElementById('summary_delay_l');
-    const mistakesR = document.getElementById('summary_mistakes_r');
-    const mistakesL = document.getElementById('summary_mistakes_l');
+    const summaryContainer = summaryWindow ? summaryWindow.querySelector(':scope > div') : null; // Get the inner container for transform
+    const delayR_el = document.getElementById('summary_delay_r');
+    const delayL_el = document.getElementById('summary_delay_l');
+    const mistakesR_el = document.getElementById('summary_mistakes_r_count');
+    const mistakesL_el = document.getElementById('summary_mistakes_l_count');
     const closeButton = document.getElementById('close_summary_button');
+    const canvas = document.getElementById('summary_graph_canvas');
 
-    if (!summaryWindow || !delayR || !delayL || !mistakesR || !mistakesL || !closeButton) {
-        console.error("Summary elements not found!");
-        return;
+    // Check if elements are loaded
+    if (!summaryWindow || !summaryContainer || !delayR_el || !delayL_el || !mistakesR_el || !mistakesL_el || !closeButton || !canvas) {
+        if (retries > 0) {
+            console.log("Summary elements not found, retrying...");
+            setTimeout(() => handleSessionSummary(data, retries - 1), 200); // Wait 200ms and retry
+            return;
+        } else {
+            console.error("Summary elements or canvas not found after multiple retries!");
+            return; // Give up after several retries
+        }
     }
 
-    // Populate data
-    delayR.textContent = data.delay_r;
-    delayL.textContent = data.delay_l;
-    mistakesR.textContent = data.mistakes_r;
-    mistakesL.textContent = data.mistakes_l;
+    console.log("Summary elements found, proceeding.");
+
+    // Populate text data
+    delayR_el.textContent = data.delay_r;
+    delayL_el.textContent = data.delay_l;
+    mistakesR_el.textContent = data.mistakes_r_count;
+    mistakesL_el.textContent = data.mistakes_l_count;
     
     // Add translations if needed
     translateStaticContent();
@@ -68,19 +83,162 @@ function handleSessionSummary(data) {
         clearTimeout(summaryTimeout);
         summaryTimeout = null;
     }
+    
+    // --- Chart.js Setup --- 
+    const ctx = canvas.getContext('2d');
+    
+    // Destroy previous chart instance if it exists
+    if (summaryChart) {
+        summaryChart.destroy();
+        summaryChart = null;
+    }
 
-    // Show and animate the window
-    summaryWindow.classList.remove('hidden', 'translate-x-full', 'opacity-0');
-    summaryWindow.classList.add('translate-x-0', 'opacity-100');
+    // Prepare chart data
+    const timingDataR = data.timing_r.map(item => ({ x: item[0], y: item[1] }));
+    const timingDataL = data.timing_l.map(item => ({ x: item[0], y: item[1] }));
+
+    // Find min/max for axes scaling (adjust y slightly for markers)
+    const allDelays = timingDataR.map(p => p.y).concat(timingDataL.map(p => p.y));
+    const minY = allDelays.length > 0 ? Math.min(...allDelays) : -0.1;
+    const maxY = allDelays.length > 0 ? Math.max(...allDelays, data.max_delay) : data.max_delay + 0.1;
+    const minYAxis = minY - (maxY - minY) * 0.1; // Add 10% padding below
+    const maxYAxis = maxY + (maxY - minY) * 0.1; // Add 10% padding above
+
+    const mistakeDataR = data.mistakes_r_times.map(time => ({ x: time, y: minYAxis }));
+    const mistakeDataL = data.mistakes_l_times.map(time => ({ x: time, y: minYAxis }));
+
+    summaryChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                {
+                    label: 'Right Hand Notes',
+                    data: timingDataR,
+                    backgroundColor: data.color_r,
+                    borderColor: data.color_r,
+                    pointRadius: 5,
+                },
+                {
+                    label: 'Left Hand Notes',
+                    data: timingDataL,
+                    backgroundColor: data.color_l,
+                    borderColor: data.color_l,
+                    pointRadius: 5,
+                },
+                {
+                    label: 'Right Hand Mistakes',
+                    data: mistakeDataR,
+                    backgroundColor: data.color_r,
+                    borderColor: data.color_r,
+                    pointStyle: 'crossRot',
+                    radius: 8, 
+                    showLine: false
+                },
+                {
+                    label: 'Left Hand Mistakes',
+                    data: mistakeDataL,
+                    backgroundColor: data.color_l,
+                    borderColor: data.color_l,
+                    pointStyle: 'crossRot',
+                    radius: 8,
+                    showLine: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Note Timing vs Delay'
+                },
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label.includes('Mistakes')) {
+                                return `${label}: Time ${context.parsed.x.toFixed(2)}s`;
+                            }
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += `Delay ${context.parsed.y.toFixed(3)}s`;
+                            }
+                            if (context.parsed.x !== null) {
+                                label += ` at ${context.parsed.x.toFixed(2)}s`;
+                            }
+                            return label;
+                        }
+                    }
+                },
+                annotation: {
+                    annotations: {
+                        maxDelayLine: {
+                            type: 'line',
+                            yMin: data.max_delay,
+                            yMax: data.max_delay,
+                            borderColor: 'rgb(255, 99, 132)', // Red line
+                            borderWidth: 2,
+                            borderDash: [6, 6],
+                            label: {
+                                content: 'Max Acceptable Delay',
+                                enabled: true,
+                                position: 'start'
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    title: {
+                        display: true,
+                        text: 'MIDI Time (seconds)'
+                    },
+                    beginAtZero: true
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Delay (seconds)'
+                    },
+                    min: minYAxis,
+                    max: maxYAxis
+                }
+            }
+        }
+    });
+    // --- End Chart.js Setup ---
+
+    // Show and animate the window (slide from bottom)
+    summaryWindow.classList.remove('hidden'); // Make parent visible first
+    // Wait a tick for display change, then trigger animation
+    requestAnimationFrame(() => {
+        summaryContainer.classList.remove('translate-y-full', 'opacity-0');
+        summaryContainer.classList.add('translate-y-0', 'opacity-100');
+    });
 
     // Function to hide the window
     const hideSummary = () => {
-        summaryWindow.classList.remove('translate-x-0', 'opacity-100');
-        summaryWindow.classList.add('translate-x-full', 'opacity-0');
-        // Use setTimeout to truly hide after transition ends
+        summaryContainer.classList.remove('translate-y-0', 'opacity-100');
+        summaryContainer.classList.add('translate-y-full', 'opacity-0');
+        // Use setTimeout to truly hide parent after transition ends
         setTimeout(() => {
              summaryWindow.classList.add('hidden');
+             // Destroy chart when hiding
+             if (summaryChart) {
+                 summaryChart.destroy();
+                 summaryChart = null;
+             }
         }, 500); // Match transition duration
+        // Clear auto-hide timeout if closed manually
         if (summaryTimeout) {
              clearTimeout(summaryTimeout);
              summaryTimeout = null;
@@ -92,8 +250,8 @@ function handleSessionSummary(data) {
     closeButton.replaceWith(closeButton.cloneNode(true)); // Simple way to remove listeners
     document.getElementById('close_summary_button').addEventListener('click', hideSummary);
 
-    // Automatically hide after 15 seconds
-    summaryTimeout = setTimeout(hideSummary, 15000); 
+    // No automatic hide for now, let user close it.
+    // summaryTimeout = setTimeout(hideSummary, 30000); // Example: Hide after 30 seconds
 }
 
 // Ensure this function is available globally if called from index.html
