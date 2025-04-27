@@ -15,10 +15,19 @@
     <link href="{{ url_for('static', filename='custom.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='sheet_music.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='tailwind.css') }}" rel="stylesheet">
+
+    <!-- Changed Chart.js links to local -->
+    <script src="{{ url_for('static', filename='js/lib/chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/chartjs-adapter-date-fns.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/chartjs-plugin-annotation.min.js') }}"></script>
 </head>
 
 <body class="bg-gray-800">
 
+
+<script>
+    // <<< Removed diagnostic log >>>
+</script>
 
 <script>
     function establish_socket_connection(try_count) {
@@ -93,11 +102,18 @@
                         window.handleTimeUpdate(data.current_note_index); 
                         break;
                     case "session_summary":
-                        if (typeof window.handleSessionSummary === 'function') {
-                             window.handleSessionSummary(data);
-                        } else {
-                             console.log("window.handleSessionSummary is not defined.");
+                        function tryHandleSummary(summaryData, retryCount = 5) {
+                            if (typeof Chart !== 'undefined' && typeof window.handleSessionSummary === 'function') {
+                                console.log("Chart and handleSessionSummary are defined. Calling handler.");
+                                window.handleSessionSummary(summaryData);
+                            } else if (retryCount > 0) {
+                                console.log(`Chart or handleSessionSummary not ready, retrying (${retryCount} left)...`);
+                                setTimeout(() => tryHandleSummary(summaryData, retryCount - 1), 100);
+                            } else {
+                                console.error("Failed to call handleSessionSummary after multiple retries. Chart or function not defined.");
+                            }
                         }
+                        tryHandleSummary(data);
                         break;
                     // Removed midi_event case as it's handled before JSON parsing
                     default:
@@ -563,19 +579,26 @@
     </footer>
 </div>
 
+<!-- External Libraries First -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script> <!-- Optional: if time axis needs better handling -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script> <!-- For the max_delay line -->
 <script src="../static/alpine.min.js" defer></script>
+<script src="../static/jquery-1.11.1.min.js" defer></script>
+<script src="../static/html-midi-player.js" defer></script>
+<script src="../static/abc2svg-1.js" defer></script>
+<script src="../static/abc2web.js" defer></script>
+<script src="../static/xml2abc.js" defer></script>
+
+<!-- Application Scripts -->
 <script src="../static/translations.js" defer></script>
 <script src="../static/js/files.js" defer></script>
 <script src="../static/js/initialize.js" defer></script>
 <script src="../static/js/metronome.js" defer></script>
-<script src="../static/index.js" defer></script>
-<script src="../static/js/ui.js" defer></script>
 <script src="../static/js/utils.js" defer></script>
-<script src="../static/html-midi-player.js" defer></script>
-<script src="../static/jquery-1.11.1.min.js" defer></script>
-<script src="../static/abc2svg-1.js" defer></script>
-<script src="../static/abc2web.js" defer></script>
-<script src="../static/xml2abc.js" defer></script>
+<script src="../static/js/ui.js"></script>
+<script src="../static/index.js" defer></script>
+
 <script>
     var homepage_interval = null;
     var download_start = 0;
