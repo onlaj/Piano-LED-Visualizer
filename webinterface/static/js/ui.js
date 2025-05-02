@@ -1078,6 +1078,20 @@ function get_learning_status(loop_call = false) {
                     '   oninput="show_right_slider(this)" onchange="change_setting(\'learning_end_point\', this.value);\n' +
                     '   document.getElementById(\'end_point\').innerHTML = this.value">\n' +
                     '</div>';
+                
+                if (response["is_led_activeL"] === 1) {
+                    document.getElementById("is_led_activeL").checked = true;
+                } else {
+                    document.getElementById("is_led_activeL").checked = false;
+                    document.getElementById("hand_colorL").style.fill = 'rgb(0,0,0)';
+                }
+
+                if (response["is_led_activeR"] === 1) {
+                    document.getElementById("is_led_activeR").checked = true;
+                } else {
+                    document.getElementById("is_led_activeR").checked = false;
+                    document.getElementById("hand_colorR").style.fill = 'rgb(0,0,0)';
+                }
             }
 
         }

@@ -111,11 +111,15 @@
 	<hand_colorList>[[0, 255, 0], [0, 0, 255], [255, 128, 0], [255, 255, 0], [0, 255, 255], [255, 0, 255], [255, 0, 0], [255, 255, 255], [0, 0, 0]]</hand_colorList>
 	<hand_colorR>0</hand_colorR>
 	<hand_colorL>1</hand_colorL>
+	<prev_hand_colorR>0</prev_hand_colorR>
+	<prev_hand_colorL>1</prev_hand_colorL>
     <number_of_mistakes>0</number_of_mistakes>
 
     <show_wrong_notes>1</show_wrong_notes>
     <show_future_notes>1</show_future_notes>
 	<is_loop_active>1</is_loop_active>
+	<is_led_activeL>1</is_led_activeL>
+	<is_led_activeR>1</is_led_activeR>
     <midi_logging>0</midi_logging>
     <is_hotspot_active>1</is_hotspot_active>
 

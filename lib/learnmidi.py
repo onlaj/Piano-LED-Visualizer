@@ -46,6 +46,8 @@ class LearnMIDI:
         self.set_tempo = int(usersettings.get_setting_value("set_tempo"))
         self.hand_colorR = int(usersettings.get_setting_value("hand_colorR"))
         self.hand_colorL = int(usersettings.get_setting_value("hand_colorL"))
+        self.prev_hand_colorR = int(usersettings.get_setting_value("prev_hand_colorR"))
+        self.prev_hand_colorL = int(usersettings.get_setting_value("prev_hand_colorL"))
 
         self.show_wrong_notes = int(usersettings.get_setting_value("show_wrong_notes"))
         self.show_future_notes = int(usersettings.get_setting_value("show_future_notes"))
@@ -60,6 +62,9 @@ class LearnMIDI:
         self.next_note_delay = None
 
         self.is_loop_active = int(usersettings.get_setting_value("is_loop_active"))
+        
+        self.is_led_activeL = int(usersettings.get_setting_value("is_led_activeL"))
+        self.is_led_activeR = int(usersettings.get_setting_value("is_led_activeR"))
 
         self.loadingList = ['', 'Load..', 'Proces', 'Merge', 'Done', 'Error!']
         self.learningList = ['Start', 'Stop']
@@ -282,11 +287,12 @@ class LearnMIDI:
                     self.ledstrip.strip.setPixelColor(note_position, Color(red, green, blue))
                     self.ledstrip.strip.show()
 
-    def handle_wrong_notes(self, wrong_notes):
+    def handle_wrong_notes(self, wrong_notes, hand_hint_notesL, hand_hint_notesR):
 
         if self.show_wrong_notes != 1:
             return
 
+        brightness = 0.05
         # loop through wrong_notes and light them up
         for msg in wrong_notes:
             note = int(find_between(str(msg), "note=", " "))
@@ -300,6 +306,14 @@ class LearnMIDI:
             if velocity > 0:
                 self.ledstrip.strip.setPixelColor(note_position, Color(255, 0, 0))
                 self.mistakes_count += 1
+                if self.is_led_activeL == 0:
+                    for expected_note in hand_hint_notesL:
+                        red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.prev_hand_colorL]]
+                        self.ledstrip.strip.setPixelColor(expected_note, Color(red, green, blue))
+                if self.is_led_activeR == 0:
+                    for expected_note in hand_hint_notesR:
+                        red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.prev_hand_colorR]]
+                        self.ledstrip.strip.setPixelColor(expected_note, Color(red, green, blue))
             else:
                 self.ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
 
@@ -328,6 +342,8 @@ class LearnMIDI:
             return
 
         self.t = threading.currentThread()
+        hand_hint_notesL = []
+        hand_hint_notesR = []
 
         keep_looping = True
         while keep_looping:
@@ -406,13 +422,15 @@ class LearnMIDI:
                                         except ValueError:
                                             pass  # do nothing
 
-                                self.handle_wrong_notes(wrong_notes)
+                                self.handle_wrong_notes(wrong_notes, hand_hint_notesL, hand_hint_notesR)
                                 wrong_notes.clear()
 
                                 # light up predicted future notes again in case the future note was pressed
                                 # and color was overwritten
                                 self.predict_future_notes(absolute_idx, end_idx, notes_to_press)
-
+                            
+                            hand_hint_notesL = []
+                            hand_hint_notesR = []
                             # Play any pending software notes only after all required notes have been pressed
                             if set(notes_to_press).issubset(notes_pressed) and self.pending_software_notes:
                                 for software_note in self.pending_software_notes:
@@ -443,11 +461,26 @@ class LearnMIDI:
                             red, green, blue = [0, 0, 0]
                             if msg.channel == 1:
                                 red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorR]]
+                                if self.is_led_activeR == 0:
+                                    if brightness > 0:
+                                        hand_hint_notesR.append(note_position)
+                                    else:
+                                        try:
+                                            hand_hint_notesR.remove(note_position)
+                                        except ValueError:
+                                            pass  # do nothing
                             if msg.channel == 2:
                                 red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
+                                if self.is_led_activeL == 0:
+                                    if brightness > 0:
+                                        hand_hint_notesL.append(note_position)
+                                    else:
+                                        try:
+                                            hand_hint_notesL.remove(note_position)
+                                        except ValueError:
+                                            pass  # do nothing
                             self.ledstrip.strip.setPixelColor(note_position, Color(red, green, blue))
                             self.ledstrip.strip.show()
-
                         # Save notes to press
                         if msg.type == 'note_on' and msg.velocity > 0 and (
                                 msg.channel == self.hands or self.hands == 0):
