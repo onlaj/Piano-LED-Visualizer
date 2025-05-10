@@ -40,6 +40,11 @@ class VisualizerApp:
         # Initialize components
         self.args = ArgumentParser().args
         self.component_initializer = ComponentInitializer(self.args)
+        
+        # Check and enable SPI if running on Raspberry Pi
+        if hasattr(self.component_initializer.platform, 'check_and_enable_spi'):
+            self.component_initializer.platform.check_and_enable_spi()
+            
         self.color_mode = ColorMode(self.component_initializer.ledsettings.color_mode,
                                     self.component_initializer.ledsettings)
         self.color_mode_name = self.component_initializer.ledsettings.color_mode

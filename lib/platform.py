@@ -35,6 +35,23 @@ class PlatformNull(PlatformBase):
 
 class PlatformRasp(PlatformBase):
     @staticmethod
+    def check_and_enable_spi():
+        try:
+            # Check if SPI is enabled by looking for spidev in /dev
+            if not os.path.exists('/dev/spidev0.0'):
+                logger.info("SPI is not enabled. Enabling SPI interface...")
+                subprocess.run(['sudo', 'raspi-config', 'nonint', 'do_spi', '0'], check=True)
+                logger.info("SPI has been enabled. A reboot may be required for changes to take effect.")
+                return False
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Failed to enable SPI: {e}")
+            return False
+        except Exception as e:
+            logger.warning(f"Error checking SPI status: {e}")
+            return False
+
+    @staticmethod
     def copy_connectall_script():
         # make sure connectall.py file exists and is updated
         if not os.path.exists('/usr/local/bin/connectall.py') or \
