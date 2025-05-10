@@ -108,7 +108,11 @@ WantedBy=multi-user.target
 
 ###  3. **Enabling SPI interface** ### 
  - Here you can find instruction: [Enable SPI Interface on the Raspberry Pi](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/)
+ - Or simply use this command:
 
+```bash
+  sudo raspi-config nonint do_spi 0
+```
 
 ### 4. **Installing packages** //*ready for another cup?* ### 
 
