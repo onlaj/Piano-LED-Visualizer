@@ -125,4 +125,6 @@
 
 	<led_gamma>1</led_gamma>
 
+    <hotspot_password>visualizer</hotspot_password>
+
 </settings>
