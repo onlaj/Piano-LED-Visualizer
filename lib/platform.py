@@ -122,6 +122,9 @@ class PlatformRasp(PlatformBase):
 
         # If we reach here, the profile doesn't exist, so we create it
         logger.info("Creating new Hotspot profile...")
+        # Default password if not provided
+        password = "visualizer"
+
 
         try:
             subprocess.run([
@@ -142,12 +145,39 @@ class PlatformRasp(PlatformBase):
 
             subprocess.run([
                 'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
-                'wifi-sec.psk', 'visualizer'
+                'wifi-sec.psk', password
             ], check=True)
 
-            logger.info("Hotspot profile created successfully.")
+            logger.info(f"Hotspot profile created successfully with password: {password}")
         except subprocess.CalledProcessError as e:
             logger.warning(f"An error occurred while creating the Hotspot profile: {e}")
+
+    @staticmethod
+    def change_hotspot_password(new_password):
+        logger.info(f"Changing Hotspot password to: {new_password}")
+        try:
+            # Modify the Hotspot connection with the new password
+            subprocess.run([
+                'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
+                'wifi-sec.psk', new_password
+            ], check=True)
+
+            logger.info("Hotspot password changed successfully.")
+
+            # Restart the hotspot to apply changes
+            # First, bring the connection down
+            subprocess.run(['sudo', 'nmcli', 'connection', 'down', 'Hotspot'], check=False) # Allow failure if not up
+            time.sleep(2) # Give it a moment
+            # Then, bring it up again
+            subprocess.run(['sudo', 'nmcli', 'connection', 'up', 'Hotspot'], check=True)
+            logger.info("Hotspot restarted to apply new password.")
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"An error occurred while changing the Hotspot password: {e}")
+            return False
+        except Exception as e:
+            logger.warning(f"An unexpected error occurred while changing hotspot password: {e}")
+            return False
 
     @staticmethod
     def enable_hotspot():

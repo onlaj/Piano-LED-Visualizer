@@ -1304,6 +1304,17 @@ def change_setting():
 
         return jsonify(success=True)
 
+    if setting_name == "hotspot_password":
+        new_password = str(value)
+        if len(new_password) < 8:
+            return jsonify(success=False, error="Password must be at least 8 characters long")
+        success = app_state.platform.change_hotspot_password(new_password)
+        if success:
+            app_state.usersettings.change_setting_value("hotspot_password", new_password)
+            return jsonify(success=True)
+        else:
+            return jsonify(success=False, error="Failed to change hotspot password")
+
     return jsonify(success=True)
 
 
@@ -1388,6 +1399,8 @@ def get_sequence_setting():
     response["velocityrainbow_offset"] = velocityrainbow_offset
     response["velocityrainbow_curve"] = velocityrainbow_curve
     response["velocityrainbow_colormap"] = velocityrainbow_colormap
+    response["speed_max_notes"] = app_state.ledsettings.speed_max_notes
+    response["speed_period_in_seconds"] = app_state.ledsettings.speed_period_in_seconds
     return jsonify(response)
 
 
@@ -1504,6 +1517,7 @@ def get_settings():
 
     response["speed_max_notes"] = app_state.usersettings.get_setting_value("speed_max_notes")
     response["speed_period_in_seconds"] = app_state.usersettings.get_setting_value("speed_period_in_seconds")
+    response["hotspot_password"] = app_state.usersettings.get_setting_value("hotspot_password")
 
     return jsonify(response)
 
