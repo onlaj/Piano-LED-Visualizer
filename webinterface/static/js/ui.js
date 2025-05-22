@@ -1117,7 +1117,8 @@ function get_learning_status(loop_call = false) {
                 case 4:
                     document.getElementById("start_learning").classList.remove("pointer-events-none", "opacity-50");
                     document.getElementById("start_learning").innerHTML = '<span class="flex uppercase text-xs m-auto ">' +
-                        '<div id="learning_status" class="align-middle text-center">Start learning</div></span>';
+                        '<div id="learning_status" class="align-middle text-center" data-translate="learning_status">Start learning</div></span>';
+                    translateStaticContent();
                     break;
                 case 5:
                     document.getElementById("start_learning").innerHTML = '<span class="flex uppercase text-xs m-auto ">' +
