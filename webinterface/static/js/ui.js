@@ -1,313 +1,4 @@
 get_colormap_gradients();
-// Add this function to handle score updates from WebSocket
-function handleScoreUpdate(data) {
-    if (data.type === "score_update") {
-        const scoreElement = document.getElementById('score_value');
-        const comboElement = document.getElementById('combo_value');
-        const multiplierElement = document.getElementById('multiplier_value');
-        const feedbackElement = document.getElementById('score_update_feedback');
-
-        if (scoreElement) scoreElement.textContent = data.score;
-        if (comboElement) comboElement.textContent = data.combo;
-        if (multiplierElement) multiplierElement.textContent = data.multiplier;
-
-        if (feedbackElement && data.last_update !== 0) {
-            let updateValue = data.last_update;
-            let updateColor = updateValue > 0 ? 'text-green-500' : 'text-red-500';
-            let sign = updateValue > 0 ? '+' : '';
-
-            feedbackElement.textContent = `(${sign}${updateValue})`;
-            feedbackElement.className = `ml-2 text-lg font-bold ${updateColor} opacity-100 transition-opacity duration-1000`;
-
-            // Fade out the feedback
-            setTimeout(() => {
-                feedbackElement.classList.add('opacity-0');
-            }, 100); // Start fading shortly after appearing
-            
-            // Clear the text after fade out
-             setTimeout(() => {
-                feedbackElement.textContent = '';
-            }, 1100); // Corresponds to duration-1000 + timeout delay
-        }
-         else if (feedbackElement) {
-             // Clear feedback instantly if last_update is 0 (e.g., on reset)
-             feedbackElement.textContent = '';
-             feedbackElement.className = `ml-2 text-lg font-bold opacity-0`;
-         }
-    }
-}
-
-// <<< Added: Function to handle session summary >>>
-let summaryTimeout = null; // To store the timeout ID
-let summaryChart = null; // To store the Chart instance
-
-function handleSessionSummary(data, retries = 5) {
-    // <<< Removed diagnostic log >>>
-
-    console.log(`Attempting to handle session summary (Retries left: ${retries})`, data);
-
-    const summaryWindow = document.getElementById('session_summary_window');
-    const summaryContainer = summaryWindow ? summaryWindow.querySelector(':scope > div') : null; // Get the inner container for transform
-    const delayR_el = document.getElementById('summary_delay_r');
-    const delayL_el = document.getElementById('summary_delay_l');
-    const mistakesR_el = document.getElementById('summary_mistakes_r_count');
-    const mistakesL_el = document.getElementById('summary_mistakes_l_count');
-    const closeButton = document.getElementById('close_summary_button');
-    const canvas = document.getElementById('summary_graph_canvas');
-
-    // Check if elements are loaded
-    if (!summaryWindow || !summaryContainer || !delayR_el || !delayL_el || !mistakesR_el || !mistakesL_el || !closeButton || !canvas) {
-        if (retries > 0) {
-            console.log("Summary elements not found, retrying...");
-            setTimeout(() => handleSessionSummary(data, retries - 1), 200); // Wait 200ms and retry
-            return;
-        } else {
-            console.error("Summary elements or canvas not found after multiple retries!");
-            return; // Give up after several retries
-        }
-    }
-
-    console.log("Summary elements found, proceeding.");
-
-    // Populate text data
-    delayR_el.textContent = data.delay_r;
-    delayL_el.textContent = data.delay_l;
-    mistakesR_el.textContent = data.mistakes_r_count;
-    mistakesL_el.textContent = data.mistakes_l_count;
-    
-    // Add translations if needed
-    translateStaticContent();
-
-    // Clear any existing timeout to prevent premature hiding
-    if (summaryTimeout) {
-        clearTimeout(summaryTimeout);
-        summaryTimeout = null;
-    }
-    
-    // --- Chart.js Setup --- 
-    const ctx = canvas.getContext('2d');
-    
-    // Destroy previous chart instance if it exists
-    if (summaryChart) {
-        summaryChart.destroy();
-        summaryChart = null;
-    }
-
-    // Prepare chart data
-    const timingDataR = data.timing_r.map(item => ({ x: item[0], y: item[1] }));
-    const timingDataL = data.timing_l.map(item => ({ x: item[0], y: item[1] }));
-
-    // Find min/max for axes scaling (adjust y slightly for markers)
-    const allDelays = timingDataR.map(p => p.y).concat(timingDataL.map(p => p.y));
-    const minY = allDelays.length > 0 ? Math.min(...allDelays) : -0.1;
-    const maxY = allDelays.length > 0 ? Math.max(...allDelays, data.max_delay) : data.max_delay + 0.1;
-    const minYAxis = minY - (maxY - minY) * 0.1; // Add 10% padding below
-    const maxYAxis = maxY + (maxY - minY) * 0.1; // Add 10% padding above
-
-    const mistakeDataR = data.mistakes_r_times.map(time => ({ x: time, y: minYAxis }));
-    const mistakeDataL = data.mistakes_l_times.map(time => ({ x: time, y: minYAxis }));
-
-    summaryChart = new Chart(ctx, {
-        type: 'scatter',
-        data: {
-            datasets: [
-                {
-                    label: 'Right Hand Notes',
-                    data: timingDataR,
-                    backgroundColor: data.color_r,
-                    borderColor: data.color_r,
-                    pointRadius: 5,
-                },
-                {
-                    label: 'Left Hand Notes',
-                    data: timingDataL,
-                    backgroundColor: data.color_l,
-                    borderColor: data.color_l,
-                    pointRadius: 5,
-                },
-                {
-                    label: 'Right Hand Mistakes',
-                    data: mistakeDataR,
-                    backgroundColor: data.color_r,
-                    borderColor: data.color_r,
-                    pointStyle: 'crossRot',
-                    radius: 8, 
-                    showLine: false
-                },
-                {
-                    label: 'Left Hand Mistakes',
-                    data: mistakeDataL,
-                    backgroundColor: data.color_l,
-                    borderColor: data.color_l,
-                    pointStyle: 'crossRot',
-                    radius: 8,
-                    showLine: false
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Note Timing vs Delay'
-                },
-                legend: {
-                    position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label.includes('Mistakes')) {
-                                return `${label}: Time ${context.parsed.x.toFixed(2)}s`;
-                            }
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.parsed.y !== null) {
-                                label += `Delay ${context.parsed.y.toFixed(3)}s`;
-                            }
-                            if (context.parsed.x !== null) {
-                                label += ` at ${context.parsed.x.toFixed(2)}s`;
-                            }
-                            return label;
-                        }
-                    }
-                },
-                annotation: {
-                    annotations: {
-                        maxDelayLine: {
-                            type: 'line',
-                            yMin: data.max_delay,
-                            yMax: data.max_delay,
-                            borderColor: 'rgb(255, 99, 132)', // Red line
-                            borderWidth: 2,
-                            borderDash: [6, 6],
-                            label: {
-                                content: 'Max Acceptable Delay',
-                                enabled: true,
-                                position: 'start'
-                            }
-                        }
-                    }
-                },
-                // <<< Added Zoom Plugin Configuration >>>
-                zoom: {
-                    pan: {
-                        enabled: true,
-                        mode: 'xy', // Allow panning in both directions
-                        threshold: 5, // Pixels before panning starts
-                    },
-                    zoom: {
-                        wheel: {
-                            enabled: true, // Enable zooming with mouse wheel
-                        },
-                        pinch: {
-                             enabled: true // Enable zooming with pinch gesture
-                        },
-                        mode: 'xy', // Allow zooming in both directions
-                    }
-                }
-                // <<< End Zoom Plugin Configuration >>>
-            },
-            scales: {
-                x: {
-                    type: 'linear',
-                    position: 'bottom',
-                    title: {
-                        display: true,
-                        text: 'MIDI Time (seconds)'
-                    },
-                    beginAtZero: true
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Delay (seconds)'
-                    },
-                    min: minYAxis,
-                    max: maxYAxis
-                }
-            }
-        }
-    });
-    // --- End Chart.js Setup ---
-
-    // Show and animate the window (slide from bottom)
-    summaryWindow.classList.remove('hidden'); // Make parent visible first
-    // Wait a tick for display change, then trigger animation
-    requestAnimationFrame(() => {
-        summaryContainer.classList.remove('translate-y-full', 'opacity-0');
-        summaryContainer.classList.add('translate-y-0', 'opacity-100');
-    });
-
-    // Function to hide the window
-    const hideSummary = () => {
-        summaryContainer.classList.remove('translate-y-0', 'opacity-100');
-        summaryContainer.classList.add('translate-y-full', 'opacity-0');
-        // Use setTimeout to truly hide parent after transition ends
-        setTimeout(() => {
-             summaryWindow.classList.add('hidden');
-             // Destroy chart when hiding
-             if (summaryChart) {
-                 summaryChart.destroy();
-                 summaryChart = null;
-             }
-        }, 500); // Match transition duration
-        // Clear auto-hide timeout if closed manually
-        if (summaryTimeout) {
-             clearTimeout(summaryTimeout);
-             summaryTimeout = null;
-        }
-    };
-
-    // Add event listener to close button (only once)
-    // Remove previous listener if it exists to avoid duplicates
-    closeButton.replaceWith(closeButton.cloneNode(true)); // Simple way to remove listeners
-    document.getElementById('close_summary_button').addEventListener('click', hideSummary);
-
-    // <<< Added: Event Listeners for Zoom Buttons >>>
-    const zoomInButton = document.getElementById('summary_zoom_in');
-    const zoomOutButton = document.getElementById('summary_zoom_out');
-    const zoomResetButton = document.getElementById('summary_zoom_reset');
-
-    if (zoomInButton && summaryChart) {
-        zoomInButton.onclick = () => summaryChart.zoom(1.1); // Zoom in by 10%
-    }
-    if (zoomOutButton && summaryChart) {
-        zoomOutButton.onclick = () => summaryChart.zoom(0.9); // Zoom out by 10%
-    }
-    if (zoomResetButton && summaryChart) {
-        zoomResetButton.onclick = () => summaryChart.resetZoom();
-    }
-    // <<< End Added Listeners >>>
-
-    // No automatic hide for now, let user close it.
-    // summaryTimeout = setTimeout(hideSummary, 30000); // Example: Hide after 30 seconds
-}
-
-// Ensure this function is available globally if called from index.html
-window.handleSessionSummary = handleSessionSummary;
-// <<< End Added section >>>
-
-
-// IMPORTANT: You need to call handleScoreUpdate(parsed_data) 
-// from your actual WebSocket onmessage handler. For example:
-/*
-websocket.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    handleScoreUpdate(data);
-    // ... handle other message types like sheet music sync ...
-    if (data.type === "learning_note_index") { 
-        if (sheetMusic) {
-            clearTimeout(scrolldelay);
-            highlightCurrentNote(data.current_note_index);
-        }
-    }
-};
-*/
 
 function remove_page_indicators() {
     document.getElementById("home").classList.remove("dark:bg-gray-700", "bg-gray-100");
@@ -1831,3 +1522,283 @@ function handle_confirmation_button(element, delay = 1000) {
         element.classList.remove('pointer-events-none', "animate-pulse");
     }, delay);
 }
+
+function handleScoreUpdate(data) {
+    if (data.type === "score_update") {
+        const scoreElement = document.getElementById('score_value');
+        const comboElement = document.getElementById('combo_value');
+        const multiplierElement = document.getElementById('multiplier_value');
+        const feedbackElement = document.getElementById('score_update_feedback');
+
+        if (scoreElement) scoreElement.textContent = data.score;
+        if (comboElement) comboElement.textContent = data.combo;
+        if (multiplierElement) multiplierElement.textContent = data.multiplier;
+
+        if (feedbackElement && data.last_update !== 0) {
+            let updateValue = data.last_update;
+            let updateColor = updateValue > 0 ? 'text-green-500' : 'text-red-500';
+            let sign = updateValue > 0 ? '+' : '';
+
+            feedbackElement.textContent = `(${sign}${updateValue})`;
+            feedbackElement.className = `ml-2 text-lg font-bold ${updateColor} opacity-100 transition-opacity duration-1000`;
+
+            // Fade out the feedback
+            setTimeout(() => {
+                feedbackElement.classList.add('opacity-0');
+            }, 100); // Start fading shortly after appearing
+            
+            // Clear the text after fade out
+             setTimeout(() => {
+                feedbackElement.textContent = '';
+            }, 1100); // Corresponds to duration-1000 + timeout delay
+        }
+         else if (feedbackElement) {
+             // Clear feedback instantly if last_update is 0 (e.g., on reset)
+             feedbackElement.textContent = '';
+             feedbackElement.className = `ml-2 text-lg font-bold opacity-0`;
+         }
+    }
+}
+
+let summaryTimeout = null; // To store the timeout ID
+let summaryChart = null; // To store the Chart instance
+
+function handleSessionSummary(data, retries = 5) {
+
+    console.log(`Attempting to handle session summary (Retries left: ${retries})`, data);
+
+    const summaryWindow = document.getElementById('session_summary_window');
+    const summaryContainer = summaryWindow ? summaryWindow.querySelector(':scope > div') : null; // Get the inner container for transform
+    const delayR_el = document.getElementById('summary_delay_r');
+    const delayL_el = document.getElementById('summary_delay_l');
+    const mistakesR_el = document.getElementById('summary_mistakes_r_count');
+    const mistakesL_el = document.getElementById('summary_mistakes_l_count');
+    const closeButton = document.getElementById('close_summary_button');
+    const canvas = document.getElementById('summary_graph_canvas');
+
+    // Check if elements are loaded
+    if (!summaryWindow || !summaryContainer || !delayR_el || !delayL_el || !mistakesR_el || !mistakesL_el || !closeButton || !canvas) {
+        if (retries > 0) {
+            console.log("Summary elements not found, retrying...");
+            setTimeout(() => handleSessionSummary(data, retries - 1), 200); // Wait 200ms and retry
+            return;
+        } else {
+            console.error("Summary elements or canvas not found after multiple retries!");
+            return; // Give up after several retries
+        }
+    }
+
+    console.log("Summary elements found, proceeding.");
+
+    // Populate text data
+    delayR_el.textContent = data.delay_r;
+    delayL_el.textContent = data.delay_l;
+    mistakesR_el.textContent = data.mistakes_r_count;
+    mistakesL_el.textContent = data.mistakes_l_count;
+    
+    // Add translations if needed
+    translateStaticContent();
+
+    // Clear any existing timeout to prevent premature hiding
+    if (summaryTimeout) {
+        clearTimeout(summaryTimeout);
+        summaryTimeout = null;
+    }
+    
+    // --- Chart.js Setup --- 
+    const ctx = canvas.getContext('2d');
+    
+    // Destroy previous chart instance if it exists
+    if (summaryChart) {
+        summaryChart.destroy();
+        summaryChart = null;
+    }
+
+    // Prepare chart data
+    const timingDataR = data.timing_r.map(item => ({ x: item[0], y: item[1] }));
+    const timingDataL = data.timing_l.map(item => ({ x: item[0], y: item[1] }));
+
+    // Find min/max for axes scaling (adjust y slightly for markers)
+    const allDelays = timingDataR.map(p => p.y).concat(timingDataL.map(p => p.y));
+    const minY = allDelays.length > 0 ? Math.min(...allDelays) : -0.1;
+    const maxY = allDelays.length > 0 ? Math.max(...allDelays, data.max_delay) : data.max_delay + 0.1;
+    const minYAxis = minY - (maxY - minY) * 0.1; // Add 10% padding below
+    const maxYAxis = maxY + (maxY - minY) * 0.1; // Add 10% padding above
+
+    const mistakeDataR = data.mistakes_r_times.map(time => ({ x: time, y: minYAxis }));
+    const mistakeDataL = data.mistakes_l_times.map(time => ({ x: time, y: minYAxis }));
+
+    summaryChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                {
+                    label: translate('right_hand_notes'),
+                    data: timingDataR,
+                    backgroundColor: data.color_r,
+                    borderColor: data.color_r,
+                    pointRadius: 5,
+                },
+                {
+                    label: translate('left_hand_notes'),
+                    data: timingDataL,
+                    backgroundColor: data.color_l,
+                    borderColor: data.color_l,
+                    pointRadius: 5,
+                },
+                {
+                    label: translate('right_hand_mistakes'),
+                    data: mistakeDataR,
+                    backgroundColor: data.color_r,
+                    borderColor: data.color_r,
+                    pointStyle: 'crossRot',
+                    radius: 8, 
+                    showLine: false
+                },
+                {
+                    label: translate('left_hand_mistakes'),
+                    data: mistakeDataL,
+                    backgroundColor: data.color_l,
+                    borderColor: data.color_l,
+                    pointStyle: 'crossRot',
+                    radius: 8,
+                    showLine: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: translate('note_timing_vs_delay')
+                },
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label.includes(translate('mistakes')) || label.includes(translate('right_hand_mistakes')) || label.includes(translate('left_hand_mistakes'))) {
+                                return `${label}: ${translate('time')} ${context.parsed.x.toFixed(2)}s`;
+                            }
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += `${translate('delay')} ${context.parsed.y.toFixed(3)}s`;
+                            }
+                            if (context.parsed.x !== null) {
+                                label += ` ${translate('at')} ${context.parsed.x.toFixed(2)}s`;
+                            }
+                            return label;
+                        }
+                    }
+                },
+                annotation: {
+                    annotations: {
+                        maxDelayLine: {
+                            type: 'line',
+                            yMin: data.max_delay,
+                            yMax: data.max_delay,
+                            borderColor: 'rgb(15, 249, 78)', // Green line
+                            borderWidth: 2,
+                            borderDash: [6, 6],
+                            label: {
+                                content: translate('max_acceptable_delay'),
+                                enabled: true,
+                                position: 'start'
+                            }
+                        }
+                    }
+                },
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'xy',
+                        modifierKey: null, // Ensures no modifier key is needed for panning
+                        threshold: 5       // Panning starts after dragging 5 pixels
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true,
+                        },
+                        pinch: {
+                            enabled: true
+                        },
+                        mode: 'xy',
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    title: {
+                        display: true,
+                        text: translate('time')
+                    },
+                    beginAtZero: true
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: translate('delay')
+                    },
+                    min: minYAxis,
+                    max: maxYAxis
+                }
+            }
+        }
+    });
+
+    // Add event listener for the reset zoom button
+    const resetZoomButton = document.getElementById('reset_zoom_button');
+    if (resetZoomButton && summaryChart) {
+        resetZoomButton.addEventListener('click', () => {
+            summaryChart.resetZoom();
+        });
+    } else {
+        if (!resetZoomButton) console.warn("Reset zoom button (reset_zoom_button) not found in the DOM.");
+        // summaryChart might not be initialized if canvas wasn't found, which is handled earlier
+    }
+
+    // Show and animate the window (slide from bottom)
+    summaryWindow.classList.remove('hidden'); // Make parent visible first
+    // Wait a tick for display change, then trigger animation
+    requestAnimationFrame(() => {
+        summaryContainer.classList.remove('translate-y-full', 'opacity-0');
+        summaryContainer.classList.add('translate-y-0', 'opacity-100');
+    });
+
+    // Function to hide the window
+    const hideSummary = () => {
+        summaryContainer.classList.remove('translate-y-0', 'opacity-100');
+        summaryContainer.classList.add('translate-y-full', 'opacity-0');
+        // Use setTimeout to truly hide parent after transition ends
+        setTimeout(() => {
+             summaryWindow.classList.add('hidden');
+             // Destroy chart when hiding
+             if (summaryChart) {
+                 summaryChart.destroy();
+                 summaryChart = null;
+             }
+        }, 500); // Match transition duration
+        // Clear auto-hide timeout if closed manually
+        if (summaryTimeout) {
+             clearTimeout(summaryTimeout);
+             summaryTimeout = null;
+        }
+    };
+
+    // Add event listener to close button (only once)
+    // Remove previous listener if it exists to avoid duplicates
+    closeButton.replaceWith(closeButton.cloneNode(true)); // Simple way to remove listeners
+    document.getElementById('close_summary_button').addEventListener('click', hideSummary);
+
+    // Optional timeout to auto-hide the summary after a certain period
+    // summaryTimeout = setTimeout(hideSummary, 30000); // Example: Hide after 30 seconds
+}
+window.handleSessionSummary = handleSessionSummary;
