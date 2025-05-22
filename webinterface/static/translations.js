@@ -13,6 +13,9 @@ function translateStaticContent() {
     // Set the lang attribute on the <html> element
     document.documentElement.setAttribute('lang', language);
 
+    // Set the lang attribute on the <html> element
+    document.documentElement.setAttribute('lang', language);
+
     // Translate text content
     const textElements = document.querySelectorAll('[data-translate]');
     textElements.forEach((element) => {
@@ -292,6 +295,26 @@ const translations = {
         incorrect_password: "If an incorrect password is entered, it might take a few minutes for the hotspot to be reestablished.",
         if_the_hotspot: "If the Hotspot doesn't appear after 5 minutes, please restart the device",
         connect: "Connect",
+        session_summary: "Game Summary",
+        right_hand_mistakes: "Right Hand Mistakes",
+        right_hand_delay: "Note Response Time - Right Hand",
+        left_hand_mistakes: "Left Hand Mistakes",
+        left_hand_delay: "Note Response Time - Left Hand",
+        right_hand_notes: "Right Hand Notes",
+        left_hand_notes: "Left Hand Notes",
+        right_hand_mistakes: "Right Hand Errors",
+        left_hand_mistakes: "Left Hand Errors",
+        note_timing_vs_delay: "Note Timing vs Delay",
+        chart_tooltip_label_delay: "Delay",
+        chart_tooltip_label_at_time: "At",
+        mistakes: "Timing Mistake",
+        max_acceptaple_delay: "Maximum Allowable Delay",
+        time: "MIDI Time (seconds)",
+        delay: "Delay (seconds)",
+        reset_zoom: "Reset",
+        learning_status: "Start Learning"
+        
+        
 
 
     },
@@ -530,6 +553,30 @@ const translations = {
         incorrect_password: "Jeśli wprowadzone zostało niepoprawne hasło, może minąć kilka minut zanim hotspot zostanie ponownie utworzony." ,
         if_the_hotspot: "Jeśli Hotspot nie pojawi się po 5 minutach, proszę zrestartować urządzenie",
         connect: "Połącz",
+        session_summary: "Podsumowanie Gry",
+        right_hand_mistakes: "Błędy Prawej Ręki",
+        right_hand_delay: "Czas Reakcji na Nutę - Prawa Ręka",
+        left_hand_mistakes: "Błędy Lewej Ręki",
+        left_hand_delay: "Czas Reakcji na Nutę - Lewa Ręka",
+        right_hand_notes: "Nuty Prawej Ręki",
+        left_hand_notes: "Nuty Lewej Ręki",
+        right_hand_mistakes: "Błędy Prawej Ręki",
+        left_hand_mistakes: "Błędy Lewej Ręki",
+        note_timing_vs_delay: "Synchronizacja Nut vs Opóźnienie",
+        chart_tooltip_label_delay: "Opóźnienie",
+        chart_tooltip_label_at_time: "O",
+        mistakes: "Błąd Czasowy",
+        max_acceptaple_delay: "Maksymalne Dozwolone Opóźnienie",
+        time: "Czas MIDI (sekundy)",
+        delay: "Opóźnienie (sekundy)",
+        reset_zoom: "Resetuj",
+        learning_status: "Rozpocznij Nauczanie",
+
+        //score
+        score: "Wynik",
+        combo: "Kombo",
+        multiplier: "Mnożnik",
+        
     },
 
     fr: {
@@ -767,6 +814,33 @@ const translations = {
         incorrect_password: "Si un mot de passe incorrect est entré, il peut falloir quelques minutes pour que le hotspot soit rétabli.",
         if_the_hotspot: "Si le hotspot n'apparaît pas après 5 minutes, veuillez redémarrer l'appareil",
         connect: "Connecter",
+        
+        
+        
+        session_summary: "Résumé de la Partie",
+        right_hand_mistakes: "Erreurs de la Main Droite",
+        right_hand_delay: "Temps de Réponse à la Note - Main Droite",
+        left_hand_mistakes: "Erreurs de la Main Gauche",
+        left_hand_delay: "Temps de Réponse à la Note - Main Gauche",
+        right_hand_notes: "Notes de la Main Droite",
+        left_hand_notes: "Notes de la Main Gauche",
+        right_hand_mistakes: "Erreurs de la Main Droite",
+        left_hand_mistakes: "Erreurs de la Main Gauche",
+        note_timing_vs_delay: "Synchronisation des Notes vs Délai",
+        chart_tooltip_label_delay: "Délai",
+        chart_tooltip_label_at_time: "À",
+        mistakes: "Erreur de Synchronisation",
+        max_acceptaple_delay: "Délai Maximum Autorisé",
+        time: "Temps MIDI (secondes)",
+        delay: "Délai (secondes)",
+        reset_zoom: "Réinitialiser",
+        learning_status: "Commencer l'Apprentissage",
+
+        //score
+        score: "Résultat",
+        combo: "Combo",
+        multiplier: "Multiplicateur",
+        
     },
 
     de: {
@@ -1003,6 +1077,32 @@ const translations = {
         incorrect_password: "Wenn ein falsches Passwort eingegeben wird, kann es einige Minuten dauern, bis der Hotspot wieder hergestellt ist.",
         if_the_hotspot: "Wenn der Hotspot nach 5 Minuten nicht erscheint, starten Sie bitte das Gerät neu",
         connect: "Verbinden",
+
+
+        session_summary: "Spiels Zusammenfassung",
+        right_hand_mistakes: "Fehler der rechten Hand",
+        right_hand_delay: "Antwortzeit auf Note - Rechte Hand",
+        left_hand_mistakes: "Fehler der linken Hand",
+        left_hand_delay: "Antwortzeit auf Note - Linke Hand",
+        right_hand_notes: "Noten der rechten Hand",
+        left_hand_notes: "Noten der linken Hand",
+        right_hand_mistakes: "Fehler der rechten Hand",
+        left_hand_mistakes: "Fehler der linken Hand",
+        note_timing_vs_delay: "Notensynchronisation vs Verzögerung",
+        chart_tooltip_label_delay: "Verzögerung",
+        chart_tooltip_label_at_time: "Bei",
+        mistakes: "Zeitfehler",
+        max_acceptaple_delay: "Maximale zulässige Verzögerung",
+        time: "MIDI-Zeit (Sekunden)",
+        delay: "Verzögerung (Sekunden)",
+        reset_zoom: "Zurücksetzen",
+        learning_status: "Lernen starten",
+
+        //score
+        score: "Ergebnis",
+        combo: "Combo",
+        multiplier: "Multiplikator",
+        
     },
 
     es: {
@@ -1239,6 +1339,32 @@ const translations = {
         incorrect_password: "Si se introduce una contraseña incorrecta, puede llevar unos minutos restablecer el punto de acceso.",
         if_the_hotspot: "Si el punto de acceso no aparece después de 5 minutos, reinicia el dispositivo, por favor.",
         connect: "Conectar",
+
+
+        session_summary: "Resumen del Juego",
+        right_hand_mistakes: "Errores de la Mano Derecha",
+        right_hand_delay: "Tiempo de Respuesta a la Nota - Mano Derecha",
+        left_hand_mistakes: "Errores de la Mano Izquierda",
+        left_hand_delay: "Tiempo de Respuesta a la Nota - Mano Izquierda",
+        right_hand_notes: "Notas de la Mano Derecha",
+        left_hand_notes: "Notas de la Mano Izquierda",
+        right_hand_mistakes: "Errores de la Mano Derecha",
+        left_hand_mistakes: "Errores de la Mano Izquierda",
+        note_timing_vs_delay: "Sincronización de Notas vs Retraso",
+        chart_tooltip_label_delay: "Retraso",
+        chart_tooltip_label_at_time: "En",
+        mistakes: "Error de Tiempo",
+        max_acceptaple_delay: "Retraso Máximo Permitido",
+        time: "Tiempo MIDI (segundos)",
+        delay: "Retraso (segundos)",
+        reset_zoom: "Restablecer",
+        learning_status: "Iniciar Aprendizaje",
+
+        //score
+        score: "Resultado",
+        combo: "Combo",
+        multiplier: "Multiplicador",
+        
     },
 
     zh: {
@@ -1475,6 +1601,32 @@ const translations = {
         incorrect_password: "如果输入的密码不正确，可能需要几分钟才能重新建立热点。",
         if_the_hotspot: "如果热点在5分钟后仍未出现，请重新启动设备",
         connect: "连接",
+
+
+        session_summary: "游戏总结",
+        right_hand_mistakes: "右手错误",
+        right_hand_delay: "音符反应时间 - 右手",
+        left_hand_mistakes: "左手错误",
+        left_hand_delay: "音符反应时间 - 左手",
+        right_hand_notes: "右手音符",
+        left_hand_notes: "左手音符",
+        right_hand_mistakes: "右手错误",
+        left_hand_mistakes: "左手错误",
+        note_timing_vs_delay: "音符时序与延迟",
+        chart_tooltip_label_delay: "延迟",
+        chart_tooltip_label_at_time: "在",
+        mistakes: "时间错误",
+        max_acceptaple_delay: "最大允许延迟",
+        time: "MIDI时间（秒）",
+        delay: "延迟（秒）",
+        reset_zoom: "重置",
+        learning_status: "开始学习",
+
+        //score
+        score: "得分",
+        combo: "连击",
+        multiplier: "倍率",
+        
     },
 
     hi: {
@@ -1709,6 +1861,33 @@ const translations = {
         incorrect_password: "यदि गलत पासवर्ड दर्ज किया जाता है, तो हास्पॉट को फिर से स्थापित करने में कुछ मिनट लग सकते हैं।",
         if_the_hotspot: "यदि हॉटस्पॉट 5 मिनट बाद भी प्रकट नहीं होता है, तो कृपया उपकरण को पुनः आरंभ करें",
         connect: "जुड़ने",
+
+
+
+        session_summary: "गेम सारांश",
+        right_hand_mistakes: "दाहिनी हाथ की गलतियाँ",
+        right_hand_delay: "नोट प्रतिक्रिया समय - दाहिनी हाथ",
+        left_hand_mistakes: "बाईं हाथ की गलतियाँ",
+        left_hand_delay: "नोट प्रतिक्रिया समय - बाईं हाथ",
+        right_hand_notes: "दाहिनी हाथ की नोट्स",
+        left_hand_notes: "बाईं हाथ की नोट्स",
+        right_hand_mistakes: "दाहिनी हाथ की गलतियाँ",
+        left_hand_mistakes: "बाईं हाथ की गलतियाँ",
+        note_timing_vs_delay: "नोट समय और देरी",
+        chart_tooltip_label_delay: "देरी",
+        chart_tooltip_label_at_time: "पर",
+        mistakes: "समय त्रुटि",
+        max_acceptaple_delay: "अधिकतम अनुमेय देरी",
+        time: "MIDI समय (सेकंड)",
+        delay: "देरी (सेकंड)",
+        reset_zoom: "रीसेट करें",
+        learning_status: "शिक्षा शुरू करें",
+
+        //score
+        score: "स्कोर",
+        combo: "कॉम्बो",
+        multiplier: "गुणाकार"
+        
     },
 
     pt: {
@@ -1946,6 +2125,32 @@ const translations = {
         incorrect_password: "Se uma senha incorreta for inserida, pode levar alguns minutos para que o hotspot seja restabelecido.",
         if_the_hotspot: "Se o Hotspot não aparecer após 5 minutos, reinicie o dispositivo",
         connect: "Conectar",
+
+
+        session_summary: "Resumo do Jogo",
+        right_hand_mistakes: "Erros da Mão Direita",
+        right_hand_delay: "Tempo de Resposta à Nota - Mão Direita",
+        left_hand_mistakes: "Erros da Mão Esquerda",
+        left_hand_delay: "Tempo de Resposta à Nota - Mão Esquerda",
+        right_hand_notes: "Notas da Mão Direita",
+        left_hand_notes: "Notas da Mão Esquerda",
+        right_hand_mistakes: "Erros da Mão Direita",
+        left_hand_mistakes: "Erros da Mão Esquerda",
+        note_timing_vs_delay: "Sincronização de Notas vs Atraso",
+        chart_tooltip_label_delay: "Atraso",
+        chart_tooltip_label_at_time: "Em",
+        mistakes: "Erro de Tempo",
+        max_acceptaple_delay: "Atraso Máximo Permitido",
+        time: "Tempo MIDI (segundos)",
+        delay: "Atraso (segundos)",
+        reset_zoom: "Reiniciar",
+        learning_status: "Iniciar Aprendizado",
+
+        //score
+        score: "Pontuação",
+        combo: "Sequência",
+        multiplier: "Multiplicador"
+        
     },
 
     ja: {
@@ -2181,6 +2386,32 @@ const translations = {
         incorrect_password: "パスワードが間違っている場合、ホットスポットが再設定されるまでに数分かかることがあります。",
         if_the_hotspot: "ホットスポットが5分後に表示されない場合は、デバイスを再起動してください",
         connect: "接続",
+
+        session_summary: "ゲームの概要",
+        right_hand_mistakes: "右手のミス",
+        right_hand_delay: "ノート反応時間 - 右手",
+        left_hand_mistakes: "左手のミス",
+        left_hand_delay: "ノート反応時間 - 左手",
+        right_hand_notes: "右手のノート",
+        left_hand_notes: "左手のノート",
+        right_hand_mistakes: "右手のエラー",
+        left_hand_mistakes: "左手のエラー",
+        note_timing_vs_delay: "ノートのタイミングと遅延",
+        chart_tooltip_label_delay: "遅延",
+        chart_tooltip_label_at_time: "時点で",
+        mistakes: "タイミングミス",
+        max_acceptaple_delay: "最大許容遅延",
+        time: "MIDI時間（秒）",
+        delay: "遅延（秒）",
+        reset_zoom: "リセット",
+        learning_status: "学習を開始",
+
+
+        //score
+        score: "スコア",
+        combo: "コンボ",
+        multiplier: "倍率"
+        
     },
 
     ko: {
@@ -2416,6 +2647,32 @@ const translations = {
     incorrect_password: "잘못된 비밀번호를 입력한 경우 핫스팟이 다시 설정되는 데 몇 분이 걸릴 수 있습니다.",
     if_the_hotspot: "5분 후에도 핫스팟이 나타나지 않으면 기기를 재시작하세요",
     connect: "연결",
+
+    
+    session_summary: "게임 요약",
+    right_hand_mistakes: "오른손 실수",
+    right_hand_delay: "음표 반응 시간 - 오른손",
+    left_hand_mistakes: "왼손 실수",
+    left_hand_delay: "음표 반응 시간 - 왼손",
+    right_hand_notes: "오른손 음표",
+    left_hand_notes: "왼손 음표",
+    right_hand_mistakes: "오른손 오류",
+    left_hand_mistakes: "왼손 오류",
+    note_timing_vs_delay: "음표 타이밍 vs 지연",
+    chart_tooltip_label_delay: "지연",
+    chart_tooltip_label_at_time: "에서",
+    mistakes: "타이밍 오류",
+    max_acceptaple_delay: "최대 허용 지연",
+    time: "MIDI 시간 (초)",
+    delay: "지연 (초)",
+    reset_zoom: "리셋",
+    learning_status: "학습 시작",
+    
+    //score
+    score: "점수",
+    combo: "콤보",
+    multiplier: "배수"  
+        
 },
 he: {
     //index
@@ -2501,7 +2758,6 @@ he: {
     or_click_to_choose: "או לחץ לבחירה",
     play_on_piano: "נגן על הפסנתר",
     stop: "עצור",
-    learning_status: "התחל למידה",
     stop_learning: "עצור למידה",
     loop: "לולאה",
     practice: "תרגול",
@@ -2900,5 +3156,5 @@ ar:{
     score: "النتيجة",
     combo: "سلسلة",
     multiplier: "مضاعف"
-}
+},
 };
