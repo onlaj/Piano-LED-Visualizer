@@ -657,49 +657,46 @@
             </div>
               <!-- Score display -->
               <div id="score_display" class="text-center text-xl font-bold text-gray-600 dark:text-gray-400">
-                Score: <span id="score_value">0</span>
-                <span class="text-lg ml-4">Combo: <span id="combo_value">0</span>x</span>
-                <span class="text-lg ml-4">Multiplier: <span id="multiplier_value">1</span>x</span>
+                <bdi><span data-translate="Score">Score</span>: <span id="score_value">0</span>
+                <span class="text-lg ml-4"><span data-translate="Combo">Combo</span>: <span id="combo_value">0</span>x</span>
+                <span class="text-lg ml-4"><span data-translate="Multiplier">Multiplier</span>: <span id="multiplier_value">1</span>x</span></bdi>
                 <span id="score_update_feedback" class="ml-2 text-lg font-bold"></span>
             </div>
 
-            <!-- Added: Session Summary Window -->
+            <!-- Session Summary Window -->
             <div id="session_summary_window" 
                  class="fixed inset-0 flex items-center justify-center z-50 hidden 
                         bg-black bg-opacity-50 dark:bg-opacity-70">
-                 <div class="relative p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xl 
+                 <div class="relative p-12 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xl 
                              border border-gray-300 dark:border-gray-600 
-                             w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 h-auto max-h-[85vh] 
+                             w-full md:w-full lg:w-full xl:w-full h-auto max-h-[95vh] 
                              flex flex-col 
                              transform translate-y-full opacity-0 transition-all duration-500 ease-in-out">
-                    <div class="flex justify-between items-center mb-3 flex-shrink-0">
-                        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300" data-translate="session_summary">Session Summary</h3>
+                    <div class="flex justify-between items-center mb-6 flex-shrink-0">
+                        <h3 class="text-3xl font-semibold text-gray-700 dark:text-gray-300" data-translate="session_summary">Session Summary</h3>
                         <button id="close_summary_button" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1 mb-4 flex-shrink-0 grid grid-cols-2 gap-x-4">
+                    <div class="text-lg text-gray-600 dark:text-gray-400 space-y-2 mb-8 flex-shrink-0 grid grid-cols-2 gap-x-8">
+                        <p><strong data-translate="left_hand_mistakes">Left Hand Mistakes:</strong> <span id="summary_mistakes_l_count">0</span></p>
                          <p><strong data-translate="right_hand_mistakes">Right Hand Mistakes:</strong> <span id="summary_mistakes_r_count">0</span></p>
-                         <p><strong data-translate="right_hand_delay">Right Hand Max Delay Count:</strong> <span id="summary_delay_r">0</span></p>
-                         <p><strong data-translate="left_hand_mistakes">Left Hand Mistakes:</strong> <span id="summary_mistakes_l_count">0</span></p>
                          <p><strong data-translate="left_hand_delay">Left Hand Max Delay Count:</strong> <span id="summary_delay_l">0</span></p>
+                         <p><strong data-translate="right_hand_delay">Right Hand Max Delay Count:</strong> <span id="summary_delay_r">0</span></p>
                     </div>
                     <!-- Graph Canvas -->
                     <div class="flex-grow relative min-h-[300px]">
-                         <!-- Added Zoom Buttons -->
-                         <div class="absolute top-0 right-0 z-10 p-1 space-x-1">
-                              <button id="summary_zoom_in" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-lg font-bold hover:bg-gray-300 dark:hover:bg-gray-600">+</button>
-                              <button id="summary_zoom_out" class="px-2.5 py-1 bg-gray-200 dark:bg-gray-700 rounded text-lg font-bold hover:bg-gray-300 dark:hover:bg-gray-600">-</button>
-                              <button id="summary_zoom_reset" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm hover:bg-gray-300 dark:hover:bg-gray-600" data-translate="reset">Reset</button> <!-- Added Reset Button -->
-                         </div>
-                         <!-- End Zoom Buttons -->
                          <canvas id="summary_graph_canvas"></canvas>
+                         <button id="reset_zoom_button" 
+                                 class="absolute top-2 right-2 z-20 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 px-6 rounded-md text-base shadow"
+                                 data-translate="reset_zoom">
+                             Reset Zoom
+                         </button>
                     </div>
                 </div>
             </div>
-            <!-- End Added Section -->
 
             <div id="sheet_wrapper" style="height:80vh; margin-bottom: 100px;">
                 {% include 'sheet_music.html' %}
