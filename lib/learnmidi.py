@@ -19,15 +19,15 @@ from lib.score_manager import ScoreManager
 import logging
 
 # Create a score logger
-score_logger = logging.getLogger("custom_logger")
+score_logger = logging.getLogger("score_logger")
 score_logger.setLevel(logging.DEBUG)
 score_logger.propagate = False
-file_handler = logging.FileHandler("custom_log.txt")
+file_handler = logging.FileHandler("score_log.txt")
 file_handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 file_handler.setFormatter(formatter)
 score_logger.addHandler(file_handler)
-score_logger.info("This is an info message.")
+score_logger.info("Score logger initialized.")
 
 
 def find_nearest(array, target):
@@ -104,8 +104,6 @@ class LearnMIDI:
         self.delay_countR = 0
         self.delay_countL = 0
         self.awaiting_restart_loop = False
-        ##self.score = 0 
-        ##self.combo = 0
         self.score_manager = ScoreManager()
         self.right_hand_timing = []
         self.left_hand_timing = []
@@ -343,9 +341,9 @@ class LearnMIDI:
                         self.ledstrip.strip.setPixelColor(expected_note, Color(red, green, blue))
                  
                 # Wrong note penalty
-                self.score_manager.penalize_for_wrong_note()  #illumino
+                self.score_manager.penalize_for_wrong_note()
                 score_logger.debug("wrong note - score:" +str(self.score_manager.get_score()))
-                score_logger.debug("panelty" +str(self.score_manager.get_last_score_update()))
+                score_logger.debug("panelty:" +str(self.score_manager.get_last_score_update()))
 
                 # # Send score update to frontend
                 self.socket_send.append(json.dumps({
@@ -423,7 +421,7 @@ class LearnMIDI:
                 "score": self.score_manager.get_score(),
                 "combo": self.score_manager.get_combo(),
                 "multiplier": self.score_manager.get_multiplier(),
-                "last_update": 0 # Reset last update as well
+                "last_update": 0
             }))
             try:
                 fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
@@ -488,9 +486,6 @@ class LearnMIDI:
                                         wrong_notes.append(msg_in)
                                         # Clear pending software notes if wrong key is pressed
                                         if velocity > 0:
-                                            
-                                            # score_logger.debug("worng note pressed" + str(self.score))
-                                            # self.combo = 0
                                             if msg.channel == 1:
                                                 self.right_hand_mistakes.append(midi_time)
                                                 score_logger.debug("right hand mistakes: %s", self.right_hand_mistakes)
@@ -504,9 +499,6 @@ class LearnMIDI:
                                     if velocity > 0:
                                         if note not in notes_pressed:
                                             notes_pressed.append(note)
-                                            # self.score += 1
-                                            # self.combo += 1
-                                            # score_logger.debug("score: velocity line 428 " + str(self.score))
  
                                             # Calculate delay from ideal hit time
                                             current_time = time.time()
@@ -516,12 +508,10 @@ class LearnMIDI:
                                                 
                                                 # Add score for correct note
                                                 self.score_manager.add_score_for_correct_note(delay)
-                                                # score_logger.debug("valocity - correct note - score:" + str(self.score_manager.get_score()))
-                                                # score_logger.debug("increment" +str(self.score_manager.get_last_score_update()))
-                                                # score_logger.debug("combo" +str(self.score_manager.get_combo()))
+
                                                 note_timing = (midi_time, delay)
                                                
-                                                score_logger.debug("midi_time" +str(midi_time)) ####
+                                                score_logger.debug("midi_time" +str(midi_time))
                                                 if msg.channel == 1: 
                                                     score_logger.debug("channel 1")
                                                     score_logger.debug("right hand timing note timimg: %s", self.right_hand_timing)
