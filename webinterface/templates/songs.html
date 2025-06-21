@@ -655,6 +655,37 @@
                     </div>
                 </div>
             </div>
+            <div class="flex justify-center items-center my-2">
+                <label class="inline-flex items-center">
+                    <input id="show_score_checkbox" type="checkbox" class="w-4 h-4 mr-2 border border-gray-300 rounded" onchange="document.getElementById('score_display').classList.toggle('hidden', !this.checked); setCookie('show_score', this.checked ? '1' : '0', 365);" checked>
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400" data-translate="show_score">Show Score</span>
+                </label>
+                <label class="inline-flex items-center ml-6">
+                    <input id="show_summary_popup" type="checkbox" class="w-4 h-4 mr-2 border border-gray-300 rounded" onchange="setCookie('show_summary_popup', this.checked ? '1' : '0', 365)" checked>
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Show Summery</span>
+                </label>
+            </div>
+            <script>
+                // Initialize the checkboxes from cookies (default: enabled)
+                (function(){
+                    try {
+                        var summaryPref = (typeof getCookie === 'function') ? getCookie('show_summary_popup') : null;
+                        var scorePref = (typeof getCookie === 'function') ? getCookie('show_score') : null;
+
+                        var summaryEl = document.getElementById('show_summary_popup');
+                        if (summaryEl && summaryPref !== null) summaryEl.checked = (summaryPref === '1');
+
+                        var scoreEl = document.getElementById('show_score_checkbox');
+                        if (scoreEl && scorePref !== null) scoreEl.checked = (scorePref === '1');
+
+                        // Ensure score display visibility reflects saved preference
+                        var scoreDisplay = document.getElementById('score_display');
+                        if (scoreEl && scoreDisplay) {
+                            scoreDisplay.classList.toggle('hidden', !scoreEl.checked);
+                        }
+                    } catch (e) { /* no-op */ }
+                })();
+            </script>
               <!-- Score display -->
               <div id="score_display" class="text-center text-xl font-bold text-gray-600 dark:text-gray-400">
                 <bdi><span data-translate="Score">Score</span>: <span id="score_value">0</span>
