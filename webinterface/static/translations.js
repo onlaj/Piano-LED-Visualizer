@@ -295,7 +295,7 @@ const translations = {
         incorrect_password: "If an incorrect password is entered, it might take a few minutes for the hotspot to be reestablished.",
         if_the_hotspot: "If the Hotspot doesn't appear after 5 minutes, please restart the device",
         connect: "Connect",
-        session_summary: "Game Summary",
+        session_summary: "session Summary",
         right_hand_mistakes: "Right Hand Mistakes",
         right_hand_delay: "Note Response Time - Right Hand",
         left_hand_mistakes: "Left Hand Mistakes",
@@ -2893,7 +2893,7 @@ he: {
 
     
     //Summary
-    session_summary: "סיכום משחק",
+    session_summary: "סיכום ביצוע",
     right_hand_mistakes: "טעויות יד ימין",
     right_hand_delay: "זמן תגובה לתו - יד ימין",
     left_hand_mistakes: "טעויות יד שמאל",
