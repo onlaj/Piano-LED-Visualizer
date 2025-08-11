@@ -356,3 +356,54 @@ input[type=number]::-webkit-outer-spin-button {
   visibility: visible;
   z-index: 100;
 }
+
+/* RTL Language Support */
+[lang="he"], [lang="ar"] {
+    text-align: right;
+}
+
+/* Preserve layout of key UI elements in RTL */
+[lang="he"] .flex.items-center.justify-between.p-2,
+[lang="ar"] .flex.items-center.justify-between.p-2 {
+    flex-direction: row;
+}
+
+[lang="he"] aside,
+[lang="ar"] aside {
+    left: 0;
+    right: auto;
+}
+
+[lang="he"] .flex.items-center.space-x-3,
+[lang="ar"] .flex.items-center.space-x-3 {
+    flex-direction: row;
+}
+
+[lang="he"] .flex.items-center.space-x-1,
+[lang="ar"] .flex.items-center.space-x-1 {
+    flex-direction: row;
+}
+
+/* RTL text alignment for content areas */
+[lang="he"] main,
+[lang="ar"] main {
+    text-align: right;
+}
+
+[lang="he"] .p-2,
+[lang="ar"] .p-2 {
+    text-align: right;
+}
+
+/* Preserve dropdown menu positioning */
+[lang="he"] #dropdown-content,
+[lang="ar"] #dropdown-content {
+    right: 0;
+    left: auto;
+}
+
+/* Preserve footer layout */
+[lang="he"] footer,
+[lang="ar"] footer {
+    flex-direction: row;
+}
