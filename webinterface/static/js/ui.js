@@ -1816,3 +1816,52 @@ function handleSessionSummary(data, retries = 5) {
     // summaryTimeout = setTimeout(hideSummary, 30000); // Example: Hide after 30 seconds
 }
 window.handleSessionSummary = handleSessionSummary;
+
+// --- Initialize persisted preferences for Songs page toggles ---
+function initSongPagePreferences() {
+    try {
+        // Read cookie preferences (default to enabled if not set)
+        const summaryPref = (typeof getCookie === 'function') ? getCookie('show_summary_popup') : null;
+        const scorePref = (typeof getCookie === 'function') ? getCookie('show_score') : null;
+
+        // Apply to summary checkbox if present
+        const summaryEl = document.getElementById('show_summary_popup');
+        if (summaryEl && summaryPref !== null) {
+            summaryEl.checked = (summaryPref === '1');
+        }
+
+        // Apply to score checkbox if present and sync the score display visibility
+        const scoreEl = document.getElementById('show_score_checkbox');
+        const scoreDisplay = document.getElementById('score_display');
+        if (scoreEl) {
+            if (scorePref !== null) {
+                scoreEl.checked = (scorePref === '1');
+            }
+            if (scoreDisplay) {
+                scoreDisplay.classList.toggle('hidden', !scoreEl.checked);
+            }
+        }
+    } catch (e) {
+        // Fail silently; preferences will remain default
+    }
+}
+
+// Run once after DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSongPagePreferences);
+} else {
+    initSongPagePreferences();
+}
+
+// Observe dynamic injections (e.g., when songs.html content is loaded via AJAX)
+const __songsPrefsObserver = new MutationObserver(() => {
+    const hasTargets = document.getElementById('show_score_checkbox') || document.getElementById('show_summary_popup');
+    if (hasTargets) {
+        initSongPagePreferences();
+    }
+});
+try {
+    __songsPrefsObserver.observe(document.body || document.documentElement, { childList: true, subtree: true });
+} catch (e) {
+    // ignore
+}
