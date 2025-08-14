@@ -94,6 +94,11 @@
                             console.log("window.handleScoreUpdate is not defined.");
                         }
                         break;
+                    case "highscore_update":
+                        if (typeof window.handleHighscoreUpdate === 'function') {
+                            window.handleHighscoreUpdate(data);
+                        }
+                        break;
                     case "learning_note_index": // For sheet music sync
                         window.handleTimeUpdate(data.current_note_index); 
                         break;

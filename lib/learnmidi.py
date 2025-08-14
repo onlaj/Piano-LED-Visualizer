@@ -15,6 +15,7 @@ import numpy as np
 import pickle
 from lib.log_setup import logger
 from lib.score_manager import ScoreManager
+from webinterface import app_state
 
 import logging
 
@@ -208,6 +209,11 @@ class LearnMIDI:
 
         self.is_loaded_midi.clear()
         self.is_loaded_midi[song_path] = True
+        # Remember currently loaded song for highscore tracking
+        try:
+            self.current_song_name = song_path
+        except Exception:
+            self.current_song_name = song_path
         self.loading = 1  # 1 = Load..
         self.is_started_midi = False  # Stop current learning song
         self.t = threading.currentThread()
@@ -649,6 +655,28 @@ class LearnMIDI:
 
             if not self.is_loop_active or self.is_started_midi is False:
                 keep_looping = False
+
+            # Update profile highscore
+            try:
+                profile_id = getattr(app_state, 'current_profile_id', None)
+                # Only update if a profile is selected and we know the song name
+                if profile_id and hasattr(self, 'current_song_name') and self.current_song_name:
+                    # new_score is the final session score
+                    new_score = int(self.score_manager.get_score())
+                    # Use ProfileManager directly if available
+                    pm = getattr(app_state, 'profile_manager', None)
+                    if pm:
+                        updated = pm.update_highscore(int(profile_id), self.current_song_name, new_score)
+                        if updated:
+                            # Notify UI via websocket to update the highscore cell dynamically
+                            self.socket_send.append(json.dumps({
+                                "type": "highscore_update",
+                                "song_name": self.current_song_name,
+                                "score": new_score,
+                                "profile_id": int(profile_id)
+                            }))
+            except Exception as e:
+                logger.warning(f"Failed to update highscore: {e}")
 
             # Send session summary data
             if not keep_looping:

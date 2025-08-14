@@ -32,6 +32,8 @@ class AppState:
         self.platform = None
         self.ledemu_clients = set()  # Track active LED emulator clients
         self.ledemu_pause = False
+        self.current_profile_id = None
+        # Currently selected profile id (set by web UI); None if not selected
 
 
 # Create a single instance of AppState

@@ -1288,7 +1288,43 @@ function get_songs() {
                 document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
                 document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
             }
-
+            // Populate highscores; ensure currentProfileId is ready first
+            const applyHighscores = (pid) => {
+                if(!pid) return;
+                fetch('/api/get_highscores?profile_id=' + pid)
+                    .then(r=>r.json())
+                    .then(data=>{
+                        if(!data.success) return;
+                        const hs = data.highscores || {};
+                        document.querySelectorAll('.song_highscore_cell').forEach(cell=>{
+                            const song = cell.getAttribute('data-song');
+                            const val = hs.hasOwnProperty(song) ? hs[song] : 0;
+                            const span = cell.querySelector('.song_highscore_value');
+                            if(span) span.textContent = val;
+                        });
+                    })
+                    .catch(()=>{});
+            };
+            const pid = window.currentProfileId;
+            if(pid){
+                applyHighscores(pid);
+            } else {
+                // Try to restore from cookie or backend and then apply
+                let restored = null;
+                try { if(typeof getCookie === 'function') restored = getCookie('currentProfileId'); } catch(e) {}
+                if(restored){
+                    window.currentProfileId = parseInt(restored);
+                    applyHighscores(window.currentProfileId);
+                } else {
+                    // As a last resort, query backend for current profile once
+                    fetch('/api/get_current_profile')
+                        .then(r=>r.json())
+                        .then(d=>{
+                            if(d && d.profile_id){ window.currentProfileId = d.profile_id; applyHighscores(window.currentProfileId); }
+                        })
+                        .catch(()=>{});
+                }
+            }
         }
         translateStaticContent();
     };
@@ -1559,6 +1595,18 @@ function handleScoreUpdate(data) {
              feedbackElement.className = `ml-2 text-lg font-bold opacity-0`;
          }
     }
+}
+
+function handleHighscoreUpdate(data){
+    if(data.type !== 'highscore_update') return;
+    // Only update if current profile matches
+    if(window.currentProfileId && parseInt(window.currentProfileId) !== parseInt(data.profile_id)){
+        return;
+    }
+    // Find the highscore cell for this song and update its value
+    const selector = `.song_highscore_cell[data-song="${CSS.escape(data.song_name)}"] .song_highscore_value`;
+    const span = document.querySelector(selector);
+    if(span){ span.textContent = data.score; }
 }
 
 let summaryTimeout = null; // To store the timeout ID
