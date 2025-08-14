@@ -1568,6 +1568,19 @@ function handleSessionSummary(data, retries = 5) {
 
     console.log(`Attempting to handle session summary (Retries left: ${retries})`, data);
 
+    // Respect user preference for showing summary popup
+    try {
+        const prefCookie = (typeof getCookie === 'function') ? getCookie('show_summary_popup') : null;
+        // Also check the checkbox state on the page if present
+        const prefCheckbox = document.getElementById('show_summary_popup');
+        const isAllowed = (prefCookie === null ? (prefCheckbox ? prefCheckbox.checked : true) : prefCookie === '1');
+        if (!isAllowed) {
+            console.log('Session summary popup disabled by user preference.');
+            return; // Do not open the popup
+        }
+    } catch (e) {
+        // If anything goes wrong, default to showing the popup
+    }
     const summaryWindow = document.getElementById('session_summary_window');
     const summaryContainer = summaryWindow ? summaryWindow.querySelector(':scope > div') : null; // Get the inner container for transform
     const delayR_el = document.getElementById('summary_delay_r');
