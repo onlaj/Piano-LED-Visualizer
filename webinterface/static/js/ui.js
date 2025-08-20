@@ -1616,7 +1616,7 @@ function handleSessionSummary(data, retries = 5) {
 
     console.log(`Attempting to handle session summary (Retries left: ${retries})`, data);
 
-    // Respect user preference for showing summary popup
+        // Respect user preference for showing summary popup
     try {
         const prefCookie = (typeof getCookie === 'function') ? getCookie('show_summary_popup') : null;
         // Also check the checkbox state on the page if present
