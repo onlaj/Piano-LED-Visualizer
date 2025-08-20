@@ -24,7 +24,7 @@
                 </svg>
             </div>
         </th>
-        <th class="p-3 text-left">
+    <th class="p-3 text-left">
             <div class="flex" id="sort_by_date" data-translate="date">
                 Date
                 <svg onclick="this.nextElementSibling.classList.remove('hidden');
@@ -47,7 +47,8 @@
                 </svg>
             </div>
         </th>
-        <th class="p-3 text-center w-[184px]" data-translate="action">Action</th>
+    <th class="p-3 text-left" data-translate="highscore">Highscore</th>
+    <th class="p-3 text-center w-[184px]" data-translate="action">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -94,8 +95,9 @@
                 </svg>
             </div>
         </td>
-        <td class="p-3 song_date text-xs">{{ segment }}</td>
-        <td class="p-3 flex flex-wrap justify-between">
+    <td class="p-3 song_date text-xs">{{ segment }}</td>
+    <td class="p-3 song_highscore_cell" data-song="{{key}}"><span class="song_highscore_value">0</span></td>
+    <td class="p-3 flex flex-wrap justify-between">
             <svg onclick="document.getElementById('midi_player').src =
             'api/change_setting?setting_name=download_song&value={{key}}';
             document.getElementById('midi_player_wrapper').classList.remove('hidden');

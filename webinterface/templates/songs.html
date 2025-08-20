@@ -1,4 +1,14 @@
 <div class="transition duration-300 slide-in-content grid grid-cols-1 gap-6 w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto">
+    <!-- Profiles Section -->
+    <div id="profiles_section" class="flex-1 bg-gray-200 dark:bg-gray-700 shadow-md rounded-lg p-4">
+        <div class="flex flex-wrap items-center gap-3 mb-2">
+            <label for="profile_select" class="text-sm font-semibold text-gray-600 dark:text-gray-300" data-translate="profile_label">Profile</label>
+            <select id="profile_select" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm text-gray-700 dark:text-gray-200 min-w-[160px]"></select>
+            <input id="profile_name_input" type="text" placeholder="New profile" data-translate-placeholder="new_profile" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 w-40" />
+            <button id="create_profile_btn" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-3 py-1 rounded" data-translate="create_profile">Create</button>
+        </div>
+        <div id="profile_message" class="text-xs text-gray-500 dark:text-gray-400"></div>
+    </div>
     <div class="flex-1 bg-gray-200 dark:bg-gray-700">
         <div class="flex m-4">
             <div class="flex w-1/2">
@@ -662,7 +672,7 @@
                 </label>
                 <label class="inline-flex items-center ml-6">
                     <input id="show_summary_popup" type="checkbox" class="w-4 h-4 mr-2 border border-gray-300 rounded" onchange="setCookie('show_summary_popup', this.checked ? '1' : '0', 365)" checked>
-                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Show Summery</span>
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400" data-translate="show_summary">Show Summary</span>
                 </label>
             </div>
             <script>

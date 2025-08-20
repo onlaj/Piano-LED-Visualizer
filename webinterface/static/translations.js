@@ -572,10 +572,18 @@ const translations = {
         reset_zoom: "Resetuj",
         learning_status: "Rozpocznij Nauczanie",
 
-        //score
+        // score and profiles
         score: "Wynik",
         combo: "Kombo",
         multiplier: "Mnożnik",
+
+        profile_label: "Profil",
+        create_profile: "Utwórz profil",
+        show_score: "Pokaż wynik",
+        show_summary: "Pokaż podsumowanie",
+        highscore: "Najwyższy wynik",
+        new_profile: "profil nowy", 
+
         
     },
 
@@ -836,10 +844,18 @@ const translations = {
         reset_zoom: "Réinitialiser",
         learning_status: "Commencer l'Apprentissage",
 
-        //score
+        // score and profiles
         score: "Résultat",
         combo: "Combo",
         multiplier: "Multiplicateur",
+
+        profile_label: "Profil",
+        create_profile: "Créer un profil",
+        show_score: "Afficher le score",
+        show_summary: "Afficher le résumé",
+        highscore: "Meilleur score",
+        new_profile: "nouveau profil"
+
         
     },
 
@@ -1098,10 +1114,17 @@ const translations = {
         reset_zoom: "Zurücksetzen",
         learning_status: "Lernen starten",
 
-        //score
+        // score and profiles
         score: "Ergebnis",
         combo: "Combo",
         multiplier: "Multiplikator",
+
+        profile_label: "Profil",
+        create_profile: "Profil erstellen",
+        show_score: "Punktzahl anzeigen",
+        show_summary: "Zusammenfassung anzeigen",
+        highscore: "Bestpunktzahl",
+        new_profile: "neues Profil",
         
     },
 
@@ -1360,10 +1383,17 @@ const translations = {
         reset_zoom: "Restablecer",
         learning_status: "Iniciar Aprendizaje",
 
-        //score
+        // score and profiles
         score: "Resultado",
         combo: "Combo",
         multiplier: "Multiplicador",
+
+        profile_label: "Perfil",
+        create_profile: "Crear perfil",
+        show_score: "Mostrar puntuación",
+        show_summary: "Mostrar resumen",
+        highscore: "Puntuación más alta",
+        new_profile: "nuevo perfil",
         
     },
 
@@ -1622,10 +1652,18 @@ const translations = {
         reset_zoom: "重置",
         learning_status: "开始学习",
 
-        //score
+        // score and profiles
         score: "得分",
         combo: "连击",
         multiplier: "倍率",
+
+        profile_label: "个人资料",
+        create_profile: "创建个人资料",
+        show_score: "显示得分",
+        show_summary: "显示总结",
+        highscore: "最高分",
+        new_profile: "新个人资料", 
+
         
     },
 
@@ -1883,10 +1921,17 @@ const translations = {
         reset_zoom: "रीसेट करें",
         learning_status: "शिक्षा शुरू करें",
 
-        //score
+        // score and profiles
         score: "स्कोर",
         combo: "कॉम्बो",
-        multiplier: "गुणाकार"
+        multiplier: "गुणाकार",
+
+        profile_label: "प्रोफ़ाइल",
+        create_profile: "प्रोफ़ाइल बनाएँ",
+        show_score: "स्कोर दिखाएँ",
+        show_summary: "सारांश दिखाएँ",
+        highscore: "उच्चतम स्कोर",
+        new_profile: "नया प्रोफ़ाइल",
         
     },
 
@@ -2146,10 +2191,18 @@ const translations = {
         reset_zoom: "Reiniciar",
         learning_status: "Iniciar Aprendizado",
 
-        //score
+        // score and profiles
         score: "Pontuação",
         combo: "Sequência",
-        multiplier: "Multiplicador"
+        multiplier: "Multiplicador",
+
+        profile_label: "Perfil",
+        create_profile: "Criar perfil",
+        show_score: "Mostrar pontuação",
+        show_summary: "Mostrar resumo",
+        highscore: "Pontuação mais alta",
+        new_profile: "novo perfil", 
+
         
     },
 
@@ -2407,10 +2460,17 @@ const translations = {
         learning_status: "学習を開始",
 
 
-        //score
+        // score and profiles
         score: "スコア",
         combo: "コンボ",
-        multiplier: "倍率"
+        multiplier: "倍率",
+
+        profile_label: "プロフィール",
+        create_profile: "プロフィールを作成",
+        show_score: "スコアを表示",
+        show_summary: "概要を表示",
+        highscore: "ハイスコア",
+        new_profile: "新しいプロフィール",
         
     },
 
@@ -2667,11 +2727,18 @@ const translations = {
     delay: "지연 (초)",
     reset_zoom: "리셋",
     learning_status: "학습 시작",
-    
-    //score
+
+    // Score and profiles
     score: "점수",
     combo: "콤보",
-    multiplier: "배수"  
+    multiplier: "배수",
+
+    profile_label: "프로필",
+    create_profile: "프로필 만들기",
+    show_score: "점수 표시",
+    show_summary: "요약 표시",
+    highscore: "최고 점수",
+    new_profile: "새 프로필",
         
 },
 he: {
@@ -2912,11 +2979,17 @@ he: {
     reset_zoom:"איפוס",
     learning_status: "התחל למידה",
 
-    //score
+    // Score and profiles
     score: "ניקוד",
     combo: "רצף",
     multiplier: "מכפלה",
 
+    profile_label: "פרופיל",
+    create_profile: "צור פרופיל",
+    show_score: "הצג ניקוד",
+    show_summary: "הצג סיכום",
+    highscore: "שיא",
+    new_profile: "פרופיל חדש",
     
 },
 ar:{
@@ -3153,8 +3226,16 @@ ar:{
     reset_zoom: "إعادة الضبط",
     learning_status: "ابدأ التعلم",
 
+    // score and profiles
     score: "النتيجة",
     combo: "سلسلة",
-    multiplier: "مضاعف"
+    multiplier: "مضاعف",
+
+    profile_label: "الملف الشخصي",
+    create_profile: "إنشاء ملف شخصي",
+    show_score: "عرض النتيجة",
+    show_summary: "عرض الملخص",
+    highscore: "أعلى نتيجة",
+    new_profile: "ملف شخصي جديد"
 },
 };

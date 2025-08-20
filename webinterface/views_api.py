@@ -19,6 +19,7 @@ import json
 import ast
 from lib.rpi_drivers import GPIO
 from lib.log_setup import logger
+from flask import abort
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
