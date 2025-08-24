@@ -153,7 +153,7 @@ class MIDIEventProcessor:
         
         # Calculate brightness based on velocity if in velocity mode
         if self.ledsettings.mode == "Velocity":
-            brightness = (100 / (float(velocity) / 127)) / 100
+            brightness = velocity / 127.0  # Linear mapping: 0-127 velocity -> 0-1 brightness
         else:
             brightness = 1
 
@@ -162,8 +162,8 @@ class MIDIEventProcessor:
             # 1001 indicates the key is active and will start fading when released
             self.ledstrip.keylist[note_position] = 1001
         elif self.ledsettings.mode == "Velocity":
-            # Brightness varies with velocity (999/brightness)
-            self.ledstrip.keylist[note_position] = 999 / float(brightness)
+            # Brightness varies with velocity (999 * brightness for linear scaling)
+            self.ledstrip.keylist[note_position] = 999 * brightness
         elif self.ledsettings.mode == "Normal":
             # Standard mode - full brightness while key is pressed
             self.ledstrip.keylist[note_position] = 1000
