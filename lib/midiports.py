@@ -8,8 +8,8 @@ class MidiPorts:
     def __init__(self, usersettings):
         self.usersettings = usersettings
         # midi queues will contain a tuple (midi_msg, timestamp)
-        self.midifile_queue = deque()
-        self.midi_queue = deque()
+        self.midifile_queue = deque(maxlen=500)
+        self.midi_queue = deque(maxlen=1000)
         self.last_activity = 0
         self.inport = None
         self.playport = None
