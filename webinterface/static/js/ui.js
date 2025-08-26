@@ -1213,7 +1213,6 @@ function get_learning_status(loop_call = false) {
     xhttp.send();
 }
 
-
 function get_songs() {
     let page;
     let max_page;
@@ -1224,6 +1223,8 @@ function get_songs() {
         if (this.readyState === 4 && this.status === 200) {
             response = JSON.parse(this.responseText);  
             length = response["songs_per_page"]; 
+            let sortby = response["sort_by"]; 
+            document.getElementById("sort_by").value = sortby;
             if (document.getElementById("songs_page")) {
                 page = parseInt(document.getElementById("songs_page").value);
                 let max_page = parseInt(document.getElementById("songs_page").max);
@@ -1243,8 +1244,7 @@ function get_songs() {
                 return false;
             }
             document.getElementById("songs_list_table").classList.add("animate-pulse", "pointer-events-none");
-        
-            let sortby = document.getElementById("sort_by").value;
+       
             if (document.getElementById("songs_per_page")) {
                 length = document.getElementById("songs_per_page").value;
                 change_setting("songs_per_page", length)
@@ -1302,7 +1302,7 @@ function get_songs() {
             xhttp.send();
         }
     };
-    xhttp_spp.open("GET", "/api/get_songs_per_page", true);
+    xhttp_spp.open("GET", "/api/get_song_list_setting", true);
     xhttp_spp.send();
 }
 
