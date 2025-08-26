@@ -38,6 +38,7 @@ class LearnMIDI:
         self.ledstrip = ledstrip
 
         self.loading = 0
+        self.songs_per_page = int(usersettings.get_setting_value("songs_per_page"))
         self.practice = int(usersettings.get_setting_value("practice"))
         self.hands = int(usersettings.get_setting_value("hands"))
         self.mute_hand = int(usersettings.get_setting_value("mute_hand"))
