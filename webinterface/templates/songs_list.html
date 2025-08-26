@@ -2,8 +2,8 @@
     <thead class="bg-gray-100 dark:bg-gray-600 hidden md:table-header-group">
     <tr>
         <th class="p-3 text-left">
-            <div class="flex" id="sort_by_name" data-translate="name">
-                Name
+            <div class="flex" id="sort_by_name">
+                <div data-translate="name">Name</div>
                 <svg onclick="this.nextElementSibling.classList.remove('hidden');
                 this.classList.add('hidden');
                 document.getElementById('sort_by').value = 'nameDesc';
@@ -25,8 +25,8 @@
             </div>
         </th>
         <th class="p-3 text-left">
-            <div class="flex" id="sort_by_date" data-translate="date">
-                Date
+            <div class="flex" id="sort_by_date">
+                <div data-translate="date">Date</div>
                 <svg onclick="this.nextElementSibling.classList.remove('hidden');
                 this.classList.add('hidden');
                 document.getElementById('sort_by').value = 'dateDesc';
