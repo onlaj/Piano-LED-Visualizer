@@ -42,11 +42,15 @@ class LEDEffectsProcessor:
                 led_changed = True
 
             if self.ledsettings.mode == "Velocity" or self.ledsettings.mode == "Pedal":
-                if int(self.last_sustain) >= self.pedal_deadzone and self.ledstrip.keylist_status[n] == 0:
-                    # Keep the lights on when the pedal is pressed
+                # Check if key is pressed or sustained
+                key_active = self.ledstrip.keylist_status[n] == 1 or self.ledstrip.keylist_sustained[n] == 1
+                
+                if int(self.last_sustain) >= self.pedal_deadzone and not key_active:
+                    # Keep the lights on when the pedal is pressed and key was released
                     self.ledstrip.keylist[n] = 1000
                     led_changed = True
-                elif int(self.last_sustain) < self.pedal_deadzone and self.ledstrip.keylist_status[n] == 0:
+                elif int(self.last_sustain) < self.pedal_deadzone and self.ledstrip.keylist_status[n] == 0 and self.ledstrip.keylist_sustained[n] == 0:
+                    # Turn off if pedal is not pressed and key is not active or sustained
                     self.ledstrip.keylist[n] = 0
                     red, green, blue = (0, 0, 0)
                     led_changed = True

@@ -91,16 +91,25 @@ class MIDIEventProcessor:
         velocity = 0
         self.ledstrip.keylist_status[note_position] = 0
 
-        # Apply different effects based on the current LED mode
-        if self.ledsettings.mode == "Fading":
-            # Set to fading state (1000+ indicates fading)
-            self.ledstrip.keylist[note_position] = 1000
-        elif self.ledsettings.mode == "Normal":
-            # Turn off immediately
-            self.ledstrip.keylist[note_position] = 0
-        elif self.ledsettings.mode == "Pedal":
-            # Gradually reduce brightness based on pedal settings
-            self.ledstrip.keylist[note_position] *= (100 - self.ledsettings.fadepedal_notedrop) / 100
+        # Check if sustain pedal is active for Velocity and Pedal modes
+        pedal_deadzone = 10  # Standard MIDI deadzone for sustain pedal
+        sustain_active = (self.ledsettings.mode in ["Velocity", "Pedal"] and 
+                         self.last_sustain >= pedal_deadzone)
+
+        if sustain_active:
+            # Mark note as sustained instead of turning off
+            self.ledstrip.keylist_sustained[note_position] = 1
+        else:
+            # Apply different effects based on the current LED mode
+            if self.ledsettings.mode == "Fading":
+                # Set to fading state (1000+ indicates fading)
+                self.ledstrip.keylist[note_position] = 1000
+            elif self.ledsettings.mode == "Normal":
+                # Turn off immediately
+                self.ledstrip.keylist[note_position] = 0
+            elif self.ledsettings.mode == "Pedal":
+                # Gradually reduce brightness based on pedal settings
+                self.ledstrip.keylist[note_position] *= (100 - self.ledsettings.fadepedal_notedrop) / 100
 
         # If LED is completely off, set appropriate color
         if self.ledstrip.keylist[note_position] <= 0:
@@ -148,12 +157,13 @@ class MIDIEventProcessor:
         # Store the note color
         self.ledstrip.keylist_color[note_position] = [red, green, blue]
 
-        # Set this key as active
+        # Set this key as active and clear sustained status
         self.ledstrip.keylist_status[note_position] = 1
+        self.ledstrip.keylist_sustained[note_position] = 0
         
         # Calculate brightness based on velocity if in velocity mode
         if self.ledsettings.mode == "Velocity":
-            brightness = (100 / (float(velocity) / 127)) / 100
+            brightness = velocity / 127.0  # Linear mapping: 0-127 velocity -> 0-1 brightness
         else:
             brightness = 1
 
@@ -162,8 +172,8 @@ class MIDIEventProcessor:
             # 1001 indicates the key is active and will start fading when released
             self.ledstrip.keylist[note_position] = 1001
         elif self.ledsettings.mode == "Velocity":
-            # Brightness varies with velocity (999/brightness)
-            self.ledstrip.keylist[note_position] = 999 / float(brightness)
+            # Brightness varies with velocity (999 * brightness for linear scaling)
+            self.ledstrip.keylist[note_position] = 999 * brightness
         elif self.ledsettings.mode == "Normal":
             # Standard mode - full brightness while key is pressed
             self.ledstrip.keylist[note_position] = 1000
@@ -219,6 +229,34 @@ class MIDIEventProcessor:
         # Track sustain pedal state (MIDI CC 64)
         if control == 64:  # Sustain pedal
             self.last_sustain = value
+            
+            # Handle sustain pedal release - clear all sustained notes
+            pedal_deadzone = 10  # Standard MIDI deadzone for sustain pedal
+            if value < pedal_deadzone and self.ledsettings.mode in ["Velocity", "Pedal"]:
+                for i in range(len(self.ledstrip.keylist_sustained)):
+                    if self.ledstrip.keylist_sustained[i] == 1:
+                        # Clear sustained status
+                        self.ledstrip.keylist_sustained[i] = 0
+                        # If key is not currently pressed, turn it off
+                        if self.ledstrip.keylist_status[i] == 0:
+                            self.ledstrip.keylist[i] = 0  # Turn off immediately
+                            
+                            # Apply appropriate LED color (backlight or off)
+                            if self.ledsettings.backlight_brightness > 0 and self.menu.screensaver_is_running is not True:
+                                # Apply backlight color if backlight is enabled
+                                red_backlight = int(
+                                    self.ledsettings.get_backlight_color("Red")) * self.ledsettings.backlight_brightness_percent / 100
+                                green_backlight = int(
+                                    self.ledsettings.get_backlight_color("Green")) * self.ledsettings.backlight_brightness_percent / 100
+                                blue_backlight = int(
+                                    self.ledsettings.get_backlight_color("Blue")) * self.ledsettings.backlight_brightness_percent / 100
+                                color_backlight = Color(int(red_backlight), int(green_backlight), int(blue_backlight))
+                                self.ledstrip.strip.setPixelColor(i, color_backlight)
+                                self.ledstrip.set_adjacent_colors(i, color_backlight, True)
+                            else:
+                                # Turn LED completely off
+                                self.ledstrip.strip.setPixelColor(i, Color(0, 0, 0))
+                                self.ledstrip.set_adjacent_colors(i, Color(0, 0, 0), False)
 
         current_time = time.time()
         # Handle sequence advancement based on control values
