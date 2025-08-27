@@ -1692,7 +1692,8 @@ function handleSessionSummary(data, retries = 5) {
     }
 
     // Mistake markers: place at baseline (small epsilon so they are visible on the axis line)
-    const mistakeBaseline = 0; // Keep strictly positive domain (no negatives)
+    // Place mistake markers slightly above zero so X symbols are not clipped by the axis line.
+    const mistakeBaseline = Math.max(0.002, maxYAxis * 0.01); // 1% of range or small epsilon
     const mistakeDataR = data.mistakes_r_times.map(time => ({ x: time, y: mistakeBaseline }));
     const mistakeDataL = data.mistakes_l_times.map(time => ({ x: time, y: mistakeBaseline }));
 
@@ -1719,8 +1720,22 @@ function handleSessionSummary(data, retries = 5) {
                     data: mistakeDataR,
                     backgroundColor: data.color_r,
                     borderColor: data.color_r,
-                    pointStyle: 'crossRot',
-                    radius: 8, 
+                    pointStyle: (ctx) => {
+                        // Custom draw: larger X centered; Chart.js built-in may clip at baseline
+                        const {chart} = ctx;
+                        const size = 8;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = canvas.height = size;
+                        const c = canvas.getContext('2d');
+                        c.strokeStyle = data.color_r;
+                        c.lineWidth = 2;
+                        c.beginPath();
+                        c.moveTo(1,1); c.lineTo(size-1,size-1);
+                        c.moveTo(size-1,1); c.lineTo(1,size-1);
+                        c.stroke();
+                        return canvas;
+                    },
+                    radius: 8,
                     showLine: false
                 },
                 {
@@ -1728,7 +1743,19 @@ function handleSessionSummary(data, retries = 5) {
                     data: mistakeDataL,
                     backgroundColor: data.color_l,
                     borderColor: data.color_l,
-                    pointStyle: 'crossRot',
+                    pointStyle: (ctx) => {
+                        const size = 8;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = canvas.height = size;
+                        const c = canvas.getContext('2d');
+                        c.strokeStyle = data.color_l;
+                        c.lineWidth = 2;
+                        c.beginPath();
+                        c.moveTo(1,1); c.lineTo(size-1,size-1);
+                        c.moveTo(size-1,1); c.lineTo(1,size-1);
+                        c.stroke();
+                        return canvas;
+                    },
                     radius: 8,
                     showLine: false
                 }
