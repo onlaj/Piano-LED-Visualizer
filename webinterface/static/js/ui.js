@@ -1676,19 +1676,25 @@ function handleSessionSummary(data, retries = 5) {
         summaryChart = null;
     }
 
-    // Prepare chart data
-    const timingDataR = data.timing_r.map(item => ({ x: item[0], y: item[1] }));
-    const timingDataL = data.timing_l.map(item => ({ x: item[0], y: item[1] }));
+    // Prepare chart data (filter out negative delays; graph shows only positive values)
+    const rawTimingDataR = data.timing_r.map(item => ({ x: item[0], y: item[1] }));
+    const rawTimingDataL = data.timing_l.map(item => ({ x: item[0], y: item[1] }));
+    const timingDataR = rawTimingDataR.filter(p => p.y >= 0);
+    const timingDataL = rawTimingDataL.filter(p => p.y >= 0);
 
-    // Find min/max for axes scaling (adjust y slightly for markers)
-    const allDelays = timingDataR.map(p => p.y).concat(timingDataL.map(p => p.y));
-    const minY = allDelays.length > 0 ? Math.min(...allDelays) : -0.1;
-    const maxY = allDelays.length > 0 ? Math.max(...allDelays, data.max_delay) : data.max_delay + 0.1;
-    const minYAxis = minY - (maxY - minY) * 0.1; // Add 10% padding below
-    const maxYAxis = maxY + (maxY - minY) * 0.1; // Add 10% padding above
+    // Determine y-axis max from positive delays (fallback to data.max_delay)
+    const allPositiveDelays = timingDataR.map(p => p.y).concat(timingDataL.map(p => p.y));
+    const maxPositiveDelay = allPositiveDelays.length > 0 ? Math.max(...allPositiveDelays, data.max_delay) : data.max_delay;
+    const minYAxis = 0; // Enforce non-negative axis
+    let maxYAxis = maxPositiveDelay * 1.1; // 10% headroom
+    if (maxYAxis <= 0) {
+        maxYAxis = 0.5; // fallback so chart has visible range
+    }
 
-    const mistakeDataR = data.mistakes_r_times.map(time => ({ x: time, y: minYAxis }));
-    const mistakeDataL = data.mistakes_l_times.map(time => ({ x: time, y: minYAxis }));
+    // Mistake markers: place at baseline (small epsilon so they are visible on the axis line)
+    const mistakeBaseline = 0; // Keep strictly positive domain (no negatives)
+    const mistakeDataR = data.mistakes_r_times.map(time => ({ x: time, y: mistakeBaseline }));
+    const mistakeDataL = data.mistakes_l_times.map(time => ({ x: time, y: mistakeBaseline }));
 
     summaryChart = new Chart(ctx, {
         type: 'scatter',
@@ -1777,20 +1783,41 @@ function handleSessionSummary(data, retries = 5) {
                     }
                 },
                 zoom: {
+                    // Pan (mouse drag or single-finger touch drag)
                     pan: {
                         enabled: true,
                         mode: 'xy',
-                        modifierKey: null, // Ensures no modifier key is needed for panning
-                        threshold: 5       // Panning starts after dragging 5 pixels
+                        modifierKey: null,
+                        threshold: 5,
+                        onPan: ({chart}) => {
+                            // Prevent panning into negative Y territory
+                            const y = chart.scales.y;
+                            if (y.min < 0) {
+                                y.options.min = 0;
+                                if (y.max <= 0) y.options.max = 0.5;
+                                chart.update('none');
+                            }
+                        }
                     },
+                    // Zoom (wheel, pinch, drag selection)
                     zoom: {
-                        wheel: {
-                            enabled: true,
-                        },
-                        pinch: {
-                            enabled: true
-                        },
+                        wheel: { enabled: true },
+                        pinch: { enabled: true },
+                        drag: { enabled: false }, // keep disabled to favor pan on drag
                         mode: 'xy',
+                        onZoom: ({chart}) => {
+                            const y = chart.scales.y;
+                            if (y.min < 0) {
+                                y.options.min = 0;
+                                if (y.max <= 0) y.options.max = 0.5;
+                                chart.update('none');
+                            }
+                        }
+                    },
+                    // Enforce hard limits
+                    limits: {
+                        y: { min: 0 },
+                        x: { min: 0 }
                     }
                 }
             },
@@ -1802,7 +1829,10 @@ function handleSessionSummary(data, retries = 5) {
                         display: true,
                         text: translate('time')
                     },
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (val) => val.toFixed(2)
+                    }
                 },
                 y: {
                     title: {
@@ -1810,11 +1840,65 @@ function handleSessionSummary(data, retries = 5) {
                         text: translate('delay')
                     },
                     min: minYAxis,
-                    max: maxYAxis
+                    max: maxYAxis,
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (val) => val.toFixed(3)
+                    }
                 }
             }
         }
     });
+
+    // Fallback manual panning if plugin pan is somehow blocked (e.g. overlay issues)
+    (function attachManualPan(chart){
+        const canvasEl = chart.canvas;
+        if (!canvasEl) return;
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let startXMin, startXMax, startYMin, startYMax;
+        const getPos = evt => {
+            if (evt.touches && evt.touches.length) {
+                return {x: evt.touches[0].clientX, y: evt.touches[0].clientY};
+            }
+            return {x: evt.clientX, y: evt.clientY};
+        };
+        const down = (evt) => {
+            if (evt.button !== undefined && evt.button !== 0) return; // left only
+            isDragging = true;
+            const pos = getPos(evt);
+            startX = pos.x; startY = pos.y;
+            const x = chart.scales.x; const y = chart.scales.y;
+            startXMin = x.min; startXMax = x.max; startYMin = y.min; startYMax = y.max;
+        };
+        const move = (evt) => {
+            if (!isDragging) return;
+            const pos = getPos(evt);
+            const dx = pos.x - startX;
+            const dy = pos.y - startY;
+            const x = chart.scales.x; const y = chart.scales.y;
+            const xRange = startXMax - startXMin;
+            const yRange = startYMax - startYMin;
+            const pixelsPerX = chart.chartArea.width / xRange;
+            const pixelsPerY = chart.chartArea.height / yRange;
+            const shiftX = dx / pixelsPerX;
+            const shiftY = dy / pixelsPerY;
+            // Apply (invert Y due to screen coords)
+            x.options.min = Math.max(0, startXMin - shiftX);
+            x.options.max = x.options.min + xRange;
+            const newYMin = Math.max(0, startYMin + shiftY); // dragging down increases y
+            y.options.min = newYMin;
+            y.options.max = newYMin + yRange;
+            chart.update('none');
+        };
+        const up = () => { isDragging = false; };
+        canvasEl.addEventListener('mousedown', down);
+        window.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', up);
+        canvasEl.addEventListener('touchstart', down, {passive:true});
+        canvasEl.addEventListener('touchmove', move, {passive:true});
+        canvasEl.addEventListener('touchend', up);
+    })(summaryChart);
 
     // Add event listener for the reset zoom button
     const resetZoomButton = document.getElementById('reset_zoom_button');
