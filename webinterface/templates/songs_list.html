@@ -2,11 +2,11 @@
     <thead class="bg-gray-100 dark:bg-gray-600 hidden md:table-header-group">
     <tr>
         <th class="p-3 text-left">
-            <div class="flex" id="sort_by_name" data-translate="name">
-                Name
+            <div class="flex" id="sort_by_name">
+                <div data-translate="name">Name</div>
                 <svg onclick="this.nextElementSibling.classList.remove('hidden');
                 this.classList.add('hidden');
-                document.getElementById('sort_by').value = 'nameDesc';
+                change_setting('sort_by', 'nameDesc');
                 get_songs();"
                      id="sort_icon_nameAsc" xmlns="http://www.w3.org/2000/svg"
                      class="ml-2 h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -15,7 +15,7 @@
                 </svg>
                 <svg onclick="this.previousElementSibling.classList.remove('hidden');
                 this.classList.add('hidden');
-                document.getElementById('sort_by').value = 'nameAsc';
+                change_setting('sort_by', 'nameAsc');
                 get_songs();"
                      id="sort_icon_nameDesc" xmlns="http://www.w3.org/2000/svg"
                      class="ml-2 h-6 w-6 cursor-pointer hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,11 +25,11 @@
             </div>
         </th>
         <th class="p-3 text-left">
-            <div class="flex" id="sort_by_date" data-translate="date">
-                Date
+            <div class="flex" id="sort_by_date">
+                <div data-translate="date">Date</div>
                 <svg onclick="this.nextElementSibling.classList.remove('hidden');
                 this.classList.add('hidden');
-                document.getElementById('sort_by').value = 'dateDesc';
+                change_setting('sort_by', 'dateDesc');
                 get_songs();"
                      id="sort_icon_dateAsc" xmlns="http://www.w3.org/2000/svg"
                      class="ml-2 h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -38,7 +38,7 @@
                 </svg>
                 <svg onclick="this.previousElementSibling.classList.remove('hidden');
                 this.classList.add('hidden');
-                document.getElementById('sort_by').value = 'dateAsc';
+                change_setting('sort_by', 'dateAsc');
                 get_songs();"
                      id="sort_icon_dateDesc" xmlns="http://www.w3.org/2000/svg"
                      class="ml-2 h-6 w-6 cursor-pointer hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">

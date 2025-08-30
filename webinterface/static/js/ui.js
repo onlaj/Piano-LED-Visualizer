@@ -1213,87 +1213,97 @@ function get_learning_status(loop_call = false) {
     xhttp.send();
 }
 
-
 function get_songs() {
     let page;
     let max_page;
-    if (document.getElementById("songs_page")) {
-        page = parseInt(document.getElementById("songs_page").value);
-        let max_page = parseInt(document.getElementById("songs_page").max);
-    } else {
-        page = 1;
-        max_page = 1;
-    }
-    if (max_page === 0) {
-        max_page = 1;
-    }
-    if (page > max_page) {
-        document.getElementById("songs_page").value = max_page;
-        return false;
-    }
-    if (page < 1) {
-        document.getElementById("songs_page").value = 1;
-        return false;
-    }
-    document.getElementById("songs_list_table").classList.add("animate-pulse", "pointer-events-none");
-
-    let sortby = document.getElementById("sort_by").value;
-    if (document.getElementById("songs_per_page")) {
-        length = document.getElementById("songs_per_page").value;
-    } else {
-        length = 10;
-    }
-
-    let search = document.getElementById("song_search").value;
-
-    const xhttp = new XMLHttpRequest();
-    xhttp.timeout = 5000;
-    xhttp.onreadystatechange = function () {
+    const xhttp_spp = new XMLHttpRequest();
+    xhttp_spp.timeout = 5000;
+    xhttp_spp.onreadystatechange = function () {          
+        let response;
         if (this.readyState === 4 && this.status === 200) {
-            document.getElementById("songs_list_table").innerHTML = this.responseText;
-            const dates = document.getElementsByClassName("song_date");
-            for (let i = 0; i < dates.length; i++) {
-                dates.item(i).innerHTML = new Date(dates.item(i).innerHTML * 1000).toISOString().slice(0, 19).replace('T', ' ');
+            response = JSON.parse(this.responseText);  
+            length = response["songs_per_page"]; 
+            let sortby = response["sort_by"]; 
+            document.getElementById("sort_by").value = sortby;
+            if (document.getElementById("songs_page")) {
+                page = parseInt(document.getElementById("songs_page").value);
+                let max_page = parseInt(document.getElementById("songs_page").max);
+            } else {
+                page = 1;
+                max_page = 1;
             }
-            const names = document.getElementsByClassName("song_name");
-            for (let i = 0; i < names.length; i++) {
-                names.item(i).value = names.item(i).value.replace('.mid', '');
+            if (max_page === 0) {
+                max_page = 1;
             }
-            document.getElementById("songs_list_table").classList.remove("animate-pulse", "pointer-events-none");
-
-            document.getElementById("songs_per_page").value = length;
-
-            if (sortby === "nameAsc") {
-                document.getElementById("sort_icon_nameAsc").classList.remove("hidden");
-                document.getElementById("sort_icon_nameDesc").classList.add("hidden");
-                document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
-                document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
+            if (page > max_page) {
+                document.getElementById("songs_page").value = max_page;
+                return false;
             }
-            if (sortby === "nameDesc") {
-                document.getElementById("sort_icon_nameDesc").classList.remove("hidden");
-                document.getElementById("sort_icon_nameAsc").classList.add("hidden");
-                document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
-                document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
+            if (page < 1) {
+                document.getElementById("songs_page").value = 1;
+                return false;
             }
-
-            if (sortby === "dateAsc") {
-                document.getElementById("sort_icon_dateAsc").classList.remove("hidden");
-                document.getElementById("sort_icon_dateDesc").classList.add("hidden");
-                document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
-                document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
+            document.getElementById("songs_list_table").classList.add("animate-pulse", "pointer-events-none");
+       
+            if (document.getElementById("songs_per_page")) {
+                length = document.getElementById("songs_per_page").value;
+                change_setting("songs_per_page", length)
             }
-            if (sortby === "dateDesc") {
-                document.getElementById("sort_icon_dateDesc").classList.remove("hidden");
-                document.getElementById("sort_icon_dateAsc").classList.add("hidden");
-                document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
-                document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
-            }
-
+        
+            let search = document.getElementById("song_search").value;
+        
+            const xhttp = new XMLHttpRequest();
+            xhttp.timeout = 5000;
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    document.getElementById("songs_list_table").innerHTML = this.responseText;
+                    const dates = document.getElementsByClassName("song_date");
+                    for (let i = 0; i < dates.length; i++) {
+                        dates.item(i).innerHTML = new Date(dates.item(i).innerHTML * 1000).toISOString().slice(0, 19).replace('T', ' ');
+                    }
+                    const names = document.getElementsByClassName("song_name");
+                    for (let i = 0; i < names.length; i++) {
+                        names.item(i).value = names.item(i).value.replace('.mid', '');
+                    }
+                    document.getElementById("songs_list_table").classList.remove("animate-pulse", "pointer-events-none");
+        
+                    document.getElementById("songs_per_page").value = length;
+        
+                    if (sortby === "nameAsc") {
+                        document.getElementById("sort_icon_nameAsc").classList.remove("hidden");
+                        document.getElementById("sort_icon_nameDesc").classList.add("hidden");
+                        document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
+                        document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
+                    }
+                    if (sortby === "nameDesc") {
+                        document.getElementById("sort_icon_nameDesc").classList.remove("hidden");
+                        document.getElementById("sort_icon_nameAsc").classList.add("hidden");
+                        document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
+                        document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
+                    }
+        
+                    if (sortby === "dateAsc") {
+                        document.getElementById("sort_icon_dateAsc").classList.remove("hidden");
+                        document.getElementById("sort_icon_dateDesc").classList.add("hidden");
+                        document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
+                        document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
+                    }
+                    if (sortby === "dateDesc") {
+                        document.getElementById("sort_icon_dateDesc").classList.remove("hidden");
+                        document.getElementById("sort_icon_dateAsc").classList.add("hidden");
+                        document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
+                        document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
+                    }
+        
+                }
+                translateStaticContent();
+            };
+            xhttp.open("GET", "/api/get_songs?page=" + page + "&length=" + length + "&sortby=" + sortby + "&search=" + search, true);
+            xhttp.send();
         }
-        translateStaticContent();
     };
-    xhttp.open("GET", "/api/get_songs?page=" + page + "&length=" + length + "&sortby=" + sortby + "&search=" + search, true);
-    xhttp.send();
+    xhttp_spp.open("GET", "/api/get_song_list_setting", true);
+    xhttp_spp.send();
 }
 
 
