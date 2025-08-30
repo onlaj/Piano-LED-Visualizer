@@ -15,6 +15,13 @@
     <link href="{{ url_for('static', filename='custom.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='sheet_music.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='tailwind.css') }}" rel="stylesheet">
+
+    <!-- local links to chart plugins -->
+    <script src="{{ url_for('static', filename='js/lib/chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/chartjs-adapter-date-fns.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/chartjs-plugin-annotation.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/chartjs-plugin-zoom.js') }}"></script>
+
 </head>
 
 <body class="bg-gray-800">
@@ -29,16 +36,100 @@
             socket.send('Connection Established');
         });
         socket.addEventListener('message', function (event) {
-            if (event.data.includes("midi_event")) {
-                textarea = document.getElementById('midi_events_textarea');
-                if (typeof (textarea) != 'undefined' && textarea != null) {
-                    const d = new Date();
-                    var t = "\r\n" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "." + d.getMilliseconds() + " "
-                    textarea.value += t + event.data.replace("midi_event", "");
-                    textarea.scrollTop = textarea.scrollHeight;
+            // Define handler functions (can be moved to ui.js and attached to window)
+            if (typeof window.handleTimeUpdate !== 'function') {
+                 window.handleTimeUpdate = function(timeValue) { 
+                    // Check if go_to_time exists and call it
+                    if (typeof window.go_to_time === 'function') {
+                         // Ensure timeValue is a number
+                        const numericTime = parseFloat(timeValue);
+                        if (!isNaN(numericTime)) {
+                            window.go_to_time(numericTime);
+                        } else {
+                             console.error("handleTimeUpdate received non-numeric value:", timeValue);
+                        }
+                    } else {
+                        console.log("window.go_to_time is not defined, cannot update time."); 
+                    }
+                 }; 
+            }
+            if (typeof window.handleMidiEvent !== 'function') {
+                window.handleMidiEvent = function(rawData) {
+                     let textarea = document.getElementById('midi_events_textarea');
+                     if (typeof (textarea) != 'undefined' && textarea != null) {
+                        const d = new Date();
+                        var t = "\r\n" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "." + d.getMilliseconds() + " "
+                        textarea.value += t + rawData.replace("midi_event", ""); 
+                        textarea.scrollTop = textarea.scrollHeight;
+                    }
+                 };
+            }
+
+            let data;
+            try {
+                // First check if it's a midi_event string before trying JSON parse
+                if (typeof event.data === 'string' && event.data.startsWith("midi_event")) {
+                     window.handleMidiEvent(event.data);
+                    return;
+                }
+                data = JSON.parse(event.data);
+            } catch (e) {
+                // Attempt to handle as old time update format if not JSON and not midi_event
+                 if (typeof event.data === 'string' && !isNaN(parseFloat(event.data))) {
+                    console.log("Received string number message, assuming time update:", event.data);
+                    window.handleTimeUpdate(event.data);
+                 } else {
+                    console.log("Received non-JSON message or parse error:", event.data);
+                 }
+                return;
+            }
+
+            // Handle known JSON message types
+            if (data && data.type) {
+                switch (data.type) {
+                    case "score_update":
+                        if (typeof window.handleScoreUpdate === 'function') {
+                            window.handleScoreUpdate(data);
+                        } else {
+                            console.log("window.handleScoreUpdate is not defined.");
+                        }
+                        break;
+                    case "highscore_update":
+                        if (typeof window.handleHighscoreUpdate === 'function') {
+                            window.handleHighscoreUpdate(data);
+                        }
+                        break;
+                    case "learning_note_index": // For sheet music sync
+                        window.handleTimeUpdate(data.current_note_index); 
+                        break;
+                    case "session_summary":
+                        function tryHandleSummary(summaryData, retryCount = 5) {
+                            if (typeof Chart !== 'undefined' && typeof window.handleSessionSummary === 'function') {
+                                console.log("Chart and handleSessionSummary are defined. Calling handler.");
+                                window.handleSessionSummary(summaryData);
+                            } else if (retryCount > 0) {
+                                console.log(`Chart or handleSessionSummary not ready, retrying (${retryCount} left)...`);
+                                setTimeout(() => tryHandleSummary(summaryData, retryCount - 1), 100);
+                            } else {
+                                console.error("Failed to call handleSessionSummary after multiple retries. Chart or function not defined.");
+                            }
+                        }
+                        tryHandleSummary(data);
+                        break;
+                    // Removed midi_event case as it's handled before JSON parsing
+                    default:
+                        console.log("Received unknown JSON message type:", data.type, data);
+                        // Optional fallback for time update if payload looks numeric
+                         if (typeof data.payload === 'number' || (typeof data.payload === 'string' && !isNaN(parseFloat(data.payload)))) {
+                             window.handleTimeUpdate(data.payload);
+                         }
                 }
             } else {
-                window.go_to_time(parseFloat(event.data));
+                 console.log("Received message without type or unrecognized format:", event.data);
+                 // Fallback for simple numeric string time update?
+                 if (typeof event.data === 'string' && !isNaN(parseFloat(event.data))) {
+                    window.handleTimeUpdate(event.data);
+                 } 
             }
         });
         socket.addEventListener('close', function (event) {
@@ -360,6 +451,12 @@
                                     <a id="en" href="#"
                                        class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
                                        role="menuitem">English</a>
+                                    <a id="he" href="#"
+                                       class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
+                                       role="menuitem">עברית</a>
+                                    <a id="ar" href="#"
+                                       class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
+                                       role="menuitem">العربية (AI translation)</a>                                        
                                     <a id="pl" href="#"
                                        class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
                                        role="menuitem">Polski</a>
@@ -386,13 +483,7 @@
                                        role="menuitem">日本語 (AI translation)</a>
                                     <a id="ko" href="#"
                                        class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
-                                       role="menuitem">한국어 (AI translation)</a>
-                                    <a id="he" href="#"
-                                       class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
-                                       role="menuitem">עברית</a>
-                                    <a id="ar" href="#"
-                                       class="block px-3 py-2 text-sm text-white hover:bg-gray-700 hover:text-gray-200"
-                                       role="menuitem">العربية (AI translation)</a>                                                                           
+                                       role="menuitem">한국어 (AI translation)</a>                                                                          
                                 </div>
                             </div>
                         </div>
@@ -495,19 +586,23 @@
     </footer>
 </div>
 
+<!-- Load External Libraries -->
 <script src="../static/alpine.min.js" defer></script>
+<script src="../static/jquery-1.11.1.min.js" defer></script>
+<script src="../static/html-midi-player.js" defer></script>
+<script src="../static/abc2svg-1.js" defer></script>
+<script src="../static/abc2web.js" defer></script>
+<script src="../static/xml2abc.js" defer></script>
+
+<!-- Application Scripts -->
 <script src="../static/translations.js" defer></script>
 <script src="../static/js/files.js" defer></script>
 <script src="../static/js/initialize.js" defer></script>
 <script src="../static/js/metronome.js" defer></script>
-<script src="../static/index.js" defer></script>
-<script src="../static/js/ui.js" defer></script>
 <script src="../static/js/utils.js" defer></script>
-<script src="../static/html-midi-player.js" defer></script>
-<script src="../static/jquery-1.11.1.min.js" defer></script>
-<script src="../static/abc2svg-1.js" defer></script>
-<script src="../static/abc2web.js" defer></script>
-<script src="../static/xml2abc.js" defer></script>
+<script src="../static/js/ui.js"></script>
+<script src="../static/js/profiles.js" defer></script>
+<script src="../static/index.js" defer></script>
 <script>
     var homepage_interval = null;
     var download_start = 0;

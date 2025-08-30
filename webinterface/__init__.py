@@ -32,6 +32,8 @@ class AppState:
         self.platform = None
         self.ledemu_clients = set()  # Track active LED emulator clients
         self.ledemu_pause = False
+        self.current_profile_id = None
+        # Currently selected profile id (set by web UI); None if not selected
 
 
 # Create a single instance of AppState
@@ -147,3 +149,13 @@ def stop_server(loop):
 
 # Import views after app is defined to avoid circular imports
 from webinterface import views, views_api
+from webinterface import webinterface, app_state
+
+# Attach profile manager without modifying existing AppState.__init__
+try:
+    from lib.profile_manager import ProfileManager
+    if not hasattr(app_state, 'profile_manager'):
+        app_state.profile_manager = ProfileManager()
+except Exception as e:
+    # Silent-ish failure keeps app running
+    logger.warning(f"ProfileManager init failed: {e}")

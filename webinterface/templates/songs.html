@@ -1,4 +1,14 @@
 <div class="transition duration-300 slide-in-content grid grid-cols-1 gap-6 w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto">
+    <!-- Profiles Section -->
+    <div id="profiles_section" class="flex-1 bg-gray-200 dark:bg-gray-700 shadow-md rounded-lg p-4">
+        <div class="flex flex-wrap items-center gap-3 mb-2">
+            <label for="profile_select" class="text-sm font-semibold text-gray-600 dark:text-gray-300" data-translate="profile_label">Profile</label>
+            <select id="profile_select" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm text-gray-700 dark:text-gray-200 min-w-[160px]"></select>
+            <input id="profile_name_input" type="text" placeholder="New profile" data-translate-placeholder="new_profile" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 w-40" />
+            <button id="create_profile_btn" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-3 py-1 rounded" data-translate="create_profile">Create</button>
+        </div>
+        <div id="profile_message" class="text-xs text-gray-500 dark:text-gray-400"></div>
+    </div>
     <div class="flex-1 bg-gray-200 dark:bg-gray-700">
         <div class="flex m-4">
             <div class="flex w-1/2">
@@ -669,6 +679,79 @@
                                 type="checkbox"/>
                             <div class="inline" data-translate="active">Active</div>
                         </label>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-center items-center my-2">
+                <label class="inline-flex items-center">
+                    <input id="show_score_checkbox" type="checkbox" class="w-4 h-4 mr-2 border border-gray-300 rounded" onchange="document.getElementById('score_display').classList.toggle('hidden', !this.checked); setCookie('show_score', this.checked ? '1' : '0', 365);" checked>
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400" data-translate="show_score">Show Score</span>
+                </label>
+                <label class="inline-flex items-center ml-6">
+                    <input id="show_summary_popup" type="checkbox" class="w-4 h-4 mr-2 border border-gray-300 rounded" onchange="setCookie('show_summary_popup', this.checked ? '1' : '0', 365)" checked>
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400" data-translate="show_summary">Show Summary</span>
+                </label>
+            </div>
+            <script>
+                // Initialize the checkboxes from cookies (default: enabled)
+                (function(){
+                    try {
+                        var summaryPref = (typeof getCookie === 'function') ? getCookie('show_summary_popup') : null;
+                        var scorePref = (typeof getCookie === 'function') ? getCookie('show_score') : null;
+
+                        var summaryEl = document.getElementById('show_summary_popup');
+                        if (summaryEl && summaryPref !== null) summaryEl.checked = (summaryPref === '1');
+
+                        var scoreEl = document.getElementById('show_score_checkbox');
+                        if (scoreEl && scorePref !== null) scoreEl.checked = (scorePref === '1');
+
+                        // Ensure score display visibility reflects saved preference
+                        var scoreDisplay = document.getElementById('score_display');
+                        if (scoreEl && scoreDisplay) {
+                            scoreDisplay.classList.toggle('hidden', !scoreEl.checked);
+                        }
+                    } catch (e) { /* no-op */ }
+                })();
+            </script>
+              <!-- Score display -->
+              <div id="score_display" class="text-center text-xl font-bold text-gray-600 dark:text-gray-400">
+                <bdi><span data-translate="Score">Score</span>: <span id="score_value">0</span>
+                <span class="text-lg ml-4"><span data-translate="Combo">Combo</span>: <span id="combo_value">0</span>x</span>
+                <span class="text-lg ml-4"><span data-translate="Multiplier">Multiplier</span>: <span id="multiplier_value">1</span>x</span></bdi>
+                <span id="score_update_feedback" class="ml-2 text-lg font-bold"></span>
+            </div>
+
+            <!-- Session Summary Window -->
+            <div id="session_summary_window" 
+                 class="fixed inset-0 flex items-center justify-center z-50 hidden 
+                        bg-black bg-opacity-50 dark:bg-opacity-70">
+                 <div class="relative p-12 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xl 
+                             border border-gray-300 dark:border-gray-600 
+                             w-full md:w-full lg:w-full xl:w-full h-auto max-h-[95vh] 
+                             flex flex-col 
+                             transform translate-y-full opacity-0 transition-all duration-500 ease-in-out">
+                    <div class="flex justify-between items-center mb-6 flex-shrink-0">
+                        <h3 class="text-3xl font-semibold text-gray-700 dark:text-gray-300" data-translate="session_summary">Session Summary</h3>
+                        <button id="close_summary_button" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="text-lg text-gray-600 dark:text-gray-400 space-y-2 mb-8 flex-shrink-0 grid grid-cols-2 gap-x-8">
+                        <p><strong data-translate="left_hand_mistakes">Left Hand Mistakes:</strong> <span id="summary_mistakes_l_count">0</span></p>
+                         <p><strong data-translate="right_hand_mistakes">Right Hand Mistakes:</strong> <span id="summary_mistakes_r_count">0</span></p>
+                         <p><strong data-translate="left_hand_delay">Left Hand Max Delay Count:</strong> <span id="summary_delay_l">0</span></p>
+                         <p><strong data-translate="right_hand_delay">Right Hand Max Delay Count:</strong> <span id="summary_delay_r">0</span></p>
+                    </div>
+                    <!-- Graph Canvas -->
+                    <div class="flex-grow relative min-h-[300px]">
+                         <canvas id="summary_graph_canvas"></canvas>
+                         <button id="reset_zoom_button" 
+                                 class="absolute top-2 right-2 z-20 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 px-6 rounded-md text-base shadow"
+                                 data-translate="reset_zoom">
+                             Reset Zoom
+                         </button>
                     </div>
                 </div>
             </div>
