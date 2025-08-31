@@ -101,6 +101,8 @@
 	<play_port>default</play_port>
 
 	<!-- Learn MIDI -->
+	<sort_by>dateDesc</sort_by>
+	<songs_per_page>50</songs_per_page>
 	<practice>0</practice>
 	<hands>0</hands>
 	<mute_hand>0</mute_hand>
