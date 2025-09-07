@@ -1249,9 +1249,8 @@ function get_songs() {
                 length = document.getElementById("songs_per_page").value;
                 change_setting("songs_per_page", length)
             }
-        
             let search = document.getElementById("song_search").value;
-        
+
             const xhttp = new XMLHttpRequest();
             xhttp.timeout = 5000;
             xhttp.onreadystatechange = function () {
@@ -1266,9 +1265,9 @@ function get_songs() {
                         names.item(i).value = names.item(i).value.replace('.mid', '');
                     }
                     document.getElementById("songs_list_table").classList.remove("animate-pulse", "pointer-events-none");
-        
+
                     document.getElementById("songs_per_page").value = length;
-        
+
                     if (sortby === "nameAsc") {
                         document.getElementById("sort_icon_nameAsc").classList.remove("hidden");
                         document.getElementById("sort_icon_nameDesc").classList.add("hidden");
@@ -1281,7 +1280,7 @@ function get_songs() {
                         document.getElementById("sort_by_name").classList.add("text-gray-800", "dark:text-gray-200");
                         document.getElementById("sort_by_date").classList.remove("text-gray-800", "dark:text-gray-200");
                     }
-        
+
                     if (sortby === "dateAsc") {
                         document.getElementById("sort_icon_dateAsc").classList.remove("hidden");
                         document.getElementById("sort_icon_dateDesc").classList.add("hidden");
@@ -1294,7 +1293,42 @@ function get_songs() {
                         document.getElementById("sort_by_date").classList.add("text-gray-800", "dark:text-gray-200");
                         document.getElementById("sort_by_name").classList.remove("text-gray-800", "dark:text-gray-200");
                     }
-        
+
+                    // Highscore population after table rendered
+                    const applyHighscores = (pid) => {
+                        if(!pid) return;
+                        fetch('/api/get_highscores?profile_id=' + pid)
+                            .then(r=>r.json())
+                            .then(data=>{
+                                if(!data.success) return;
+                                const hs = data.highscores || {};
+                                document.querySelectorAll('.song_highscore_cell').forEach(cell=>{
+                                    const song = cell.getAttribute('data-song');
+                                    const val = Object.prototype.hasOwnProperty.call(hs, song) ? hs[song] : 0;
+                                    const span = cell.querySelector('.song_highscore_value');
+                                    if(span) span.textContent = val;
+                                });
+                            })
+                            .catch(()=>{});
+                    };
+                    const pid = window.currentProfileId;
+                    if(pid){
+                        applyHighscores(pid);
+                    } else {
+                        let restored = null;
+                        try { if(typeof getCookie === 'function') restored = getCookie('currentProfileId'); } catch(e) {}
+                        if(restored){
+                            window.currentProfileId = parseInt(restored);
+                            applyHighscores(window.currentProfileId);
+                        } else {
+                            fetch('/api/get_current_profile')
+                                .then(r=>r.json())
+                                .then(d=>{
+                                    if(d && d.profile_id){ window.currentProfileId = d.profile_id; applyHighscores(window.currentProfileId); }
+                                })
+                                .catch(()=>{});
+                        }
+                    }
                 }
                 translateStaticContent();
             };
@@ -1533,3 +1567,540 @@ function handle_confirmation_button(element, delay = 1000) {
         element.classList.remove('pointer-events-none', "animate-pulse");
     }, delay);
 }
+// --- Added scoring & session summary features (merged) ---
+
+function handleScoreUpdate(data) {
+    if (data.type === "score_update") {
+        const scoreElement = document.getElementById('score_value');
+        const comboElement = document.getElementById('combo_value');
+        const multiplierElement = document.getElementById('multiplier_value');
+        const feedbackElement = document.getElementById('score_update_feedback');
+
+        if (scoreElement) scoreElement.textContent = data.score;
+        if (comboElement) comboElement.textContent = data.combo;
+        if (multiplierElement) multiplierElement.textContent = data.multiplier;
+
+        if (feedbackElement && data.last_update !== 0) {
+            let updateValue = data.last_update;
+            let updateColor = updateValue > 0 ? 'text-green-500' : 'text-red-500';
+            let sign = updateValue > 0 ? '+' : '';
+
+            feedbackElement.textContent = `(${sign}${updateValue})`;
+            feedbackElement.className = `ml-2 text-lg font-bold ${updateColor} opacity-100 transition-opacity duration-1000`;
+
+            // Fade out the feedback
+            setTimeout(() => {
+                feedbackElement.classList.add('opacity-0');
+            }, 100); // Start fading shortly after appearing
+            
+            // Clear the text after fade out
+             setTimeout(() => {
+                feedbackElement.textContent = '';
+            }, 1100); // Corresponds to duration-1000 + timeout delay
+        }
+         else if (feedbackElement) {
+             // Clear feedback instantly if last_update is 0 (e.g., on reset)
+             feedbackElement.textContent = '';
+             feedbackElement.className = `ml-2 text-lg font-bold opacity-0`;
+         }
+    }
+}
+
+function handleHighscoreUpdate(data){
+    if(data.type !== 'highscore_update') return;
+    // Only update if current profile matches
+    if(window.currentProfileId && parseInt(window.currentProfileId) !== parseInt(data.profile_id)){
+        return;
+    }
+    // Find the highscore cell for this song and update its value
+    const selector = `.song_highscore_cell[data-song="${CSS.escape(data.song_name)}"] .song_highscore_value`;
+    const span = document.querySelector(selector);
+    if(span){ span.textContent = data.score; }
+}
+
+let summaryTimeout = null; // To store the timeout ID
+let summaryChart = null; // To store the Chart instance
+
+function handleSessionSummary(data, retries = 5) {
+
+    console.log(`Attempting to handle session summary (Retries left: ${retries})`, data);
+
+        // Respect user preference for showing summary popup
+    try {
+        const prefCookie = (typeof getCookie === 'function') ? getCookie('show_summary_popup') : null;
+        // Also check the checkbox state on the page if present
+        const prefCheckbox = document.getElementById('show_summary_popup');
+        const isAllowed = (prefCookie === null ? (prefCheckbox ? prefCheckbox.checked : true) : prefCookie === '1');
+        if (!isAllowed) {
+            console.log('Session summary popup disabled by user preference.');
+            return; // Do not open the popup
+        }
+    } catch (e) {
+        // If anything goes wrong, default to showing the popup
+    }
+    const summaryWindow = document.getElementById('session_summary_window');
+    const summaryContainer = summaryWindow ? summaryWindow.querySelector(':scope > div') : null; // Get the inner container for transform
+    const delayR_el = document.getElementById('summary_delay_r');
+    const delayL_el = document.getElementById('summary_delay_l');
+    const mistakesR_el = document.getElementById('summary_mistakes_r_count');
+    const mistakesL_el = document.getElementById('summary_mistakes_l_count');
+    const closeButton = document.getElementById('close_summary_button');
+    const canvas = document.getElementById('summary_graph_canvas');
+
+    // Check if elements are loaded
+    if (!summaryWindow || !summaryContainer || !delayR_el || !delayL_el || !mistakesR_el || !mistakesL_el || !closeButton || !canvas) {
+        if (retries > 0) {
+            console.log("Summary elements not found, retrying...");
+            setTimeout(() => handleSessionSummary(data, retries - 1), 200); // Wait 200ms and retry
+            return;
+        } else {
+            console.error("Summary elements or canvas not found after multiple retries!");
+            return; // Give up after several retries
+        }
+    }
+
+    console.log("Summary elements found, proceeding.");
+
+    // Populate text data
+    delayR_el.textContent = data.delay_r;
+    delayL_el.textContent = data.delay_l;
+    mistakesR_el.textContent = data.mistakes_r_count;
+    mistakesL_el.textContent = data.mistakes_l_count;
+    
+    // Add translations if needed
+    translateStaticContent();
+
+    // Clear any existing timeout to prevent premature hiding
+    if (summaryTimeout) {
+        clearTimeout(summaryTimeout);
+        summaryTimeout = null;
+    }
+    
+    // --- Chart.js Setup --- 
+    const ctx = canvas.getContext('2d');
+    
+    // Destroy previous chart instance if it exists
+    if (summaryChart) {
+        summaryChart.destroy();
+        summaryChart = null;
+    }
+
+    // Prepare chart data (filter out negative delays; graph shows only positive values)
+    const rawTimingDataR = data.timing_r.map(item => ({ x: item[0], y: item[1] }));
+    const rawTimingDataL = data.timing_l.map(item => ({ x: item[0], y: item[1] }));
+    const timingDataR = rawTimingDataR.filter(p => p.y >= 0);
+    const timingDataL = rawTimingDataL.filter(p => p.y >= 0);
+
+    // Determine y-axis max from positive delays (fallback to data.max_delay)
+    const allPositiveDelays = timingDataR.map(p => p.y).concat(timingDataL.map(p => p.y));
+    const maxPositiveDelay = allPositiveDelays.length > 0 ? Math.max(...allPositiveDelays, data.max_delay) : data.max_delay;
+    const minYAxis = 0; // Enforce non-negative axis
+    let maxYAxis = maxPositiveDelay * 1.1; // 10% headroom
+    if (maxYAxis <= 0) {
+        maxYAxis = 0.5; // fallback so chart has visible range
+    }
+
+    // Mistake markers: place at baseline (small epsilon so they are visible on the axis line)
+    // Place mistake markers slightly above zero so X symbols are not clipped by the axis line.
+    const mistakeBaseline = Math.max(0.002, maxYAxis * 0.01); // 1% of range or small epsilon
+    const mistakeDataR = data.mistakes_r_times.map(time => ({ x: time, y: mistakeBaseline }));
+    const mistakeDataL = data.mistakes_l_times.map(time => ({ x: time, y: mistakeBaseline }));
+
+    summaryChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                {
+                    label: translate('right_hand_notes'),
+                    data: timingDataR,
+                    backgroundColor: data.color_r,
+                    borderColor: data.color_r,
+                    pointRadius: 5,
+                },
+                {
+                    label: translate('left_hand_notes'),
+                    data: timingDataL,
+                    backgroundColor: data.color_l,
+                    borderColor: data.color_l,
+                    pointRadius: 5,
+                },
+                {
+                    label: translate('right_hand_mistakes'),
+                    data: mistakeDataR,
+                    backgroundColor: data.color_r,
+                    borderColor: data.color_r,
+                    pointStyle: (ctx) => {
+                        // Custom draw: larger X centered; Chart.js built-in may clip at baseline
+                        const {chart} = ctx;
+                        const size = 8;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = canvas.height = size;
+                        const c = canvas.getContext('2d');
+                        c.strokeStyle = data.color_r;
+                        c.lineWidth = 2;
+                        c.beginPath();
+                        c.moveTo(1,1); c.lineTo(size-1,size-1);
+                        c.moveTo(size-1,1); c.lineTo(1,size-1);
+                        c.stroke();
+                        return canvas;
+                    },
+                    radius: 8,
+                    showLine: false
+                },
+                {
+                    label: translate('left_hand_mistakes'),
+                    data: mistakeDataL,
+                    backgroundColor: data.color_l,
+                    borderColor: data.color_l,
+                    pointStyle: (ctx) => {
+                        const size = 8;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = canvas.height = size;
+                        const c = canvas.getContext('2d');
+                        c.strokeStyle = data.color_l;
+                        c.lineWidth = 2;
+                        c.beginPath();
+                        c.moveTo(1,1); c.lineTo(size-1,size-1);
+                        c.moveTo(size-1,1); c.lineTo(1,size-1);
+                        c.stroke();
+                        return canvas;
+                    },
+                    radius: 8,
+                    showLine: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: translate('note_timing_vs_delay')
+                },
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label.includes(translate('mistakes')) || label.includes(translate('right_hand_mistakes')) || label.includes(translate('left_hand_mistakes'))) {
+                                return `${label}: ${translate('time')} ${context.parsed.x.toFixed(2)}s`;
+                            }
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += `${translate('delay')} ${context.parsed.y.toFixed(3)}s`;
+                            }
+                            if (context.parsed.x !== null) {
+                                label += ` ${translate('at')} ${context.parsed.x.toFixed(2)}s`;
+                            }
+                            return label;
+                        }
+                    }
+                },
+                annotation: {
+                    annotations: {
+                        maxDelayLine: {
+                            type: 'line',
+                            yMin: data.max_delay,
+                            yMax: data.max_delay,
+                            borderColor: 'rgb(15, 249, 78)', // Green line
+                            borderWidth: 2,
+                            borderDash: [6, 6],
+                            label: {
+                                content: translate('max_acceptable_delay'),
+                                enabled: true,
+                                position: 'start'
+                            }
+                        }
+                    }
+                },
+                zoom: {
+                    // Pan (mouse drag or single-finger touch drag)
+                    pan: {
+                        enabled: true,
+                        mode: 'xy',
+                        modifierKey: null,
+                        threshold: 5,
+                        onPan: ({chart}) => {
+                            // Prevent panning into negative Y territory
+                            const y = chart.scales.y;
+                            if (y.min < 0) {
+                                y.options.min = 0;
+                                if (y.max <= 0) y.options.max = 0.5;
+                                chart.update('none');
+                            }
+                        }
+                    },
+                    // Zoom (wheel, pinch, drag selection)
+                    zoom: {
+                        wheel: { enabled: true },
+                        pinch: { enabled: true },
+                        drag: { enabled: false }, // keep disabled to favor pan on drag
+                        mode: 'xy',
+                        onZoom: ({chart}) => {
+                            const y = chart.scales.y;
+                            if (y.min < 0) {
+                                y.options.min = 0;
+                                if (y.max <= 0) y.options.max = 0.5;
+                                chart.update('none');
+                            }
+                        }
+                    },
+                    // Enforce hard limits
+                    limits: {
+                        y: { min: 0 },
+                        x: { min: 0 }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    title: {
+                        display: true,
+                        text: translate('time')
+                    },
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (val) => val.toFixed(2)
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: translate('delay')
+                    },
+                    min: minYAxis,
+                    max: maxYAxis,
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (val) => val.toFixed(3)
+                    }
+                }
+            }
+        }
+    });
+
+    // Fallback manual panning if plugin pan is somehow blocked (e.g. overlay issues)
+    (function attachManualPan(chart){
+        const canvasEl = chart.canvas;
+        if (!canvasEl) return;
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let startXMin, startXMax, startYMin, startYMax;
+        const getPos = evt => {
+            if (evt.touches && evt.touches.length) {
+                return {x: evt.touches[0].clientX, y: evt.touches[0].clientY};
+            }
+            return {x: evt.clientX, y: evt.clientY};
+        };
+        const down = (evt) => {
+            if (evt.button !== undefined && evt.button !== 0) return; // left only
+            isDragging = true;
+            const pos = getPos(evt);
+            startX = pos.x; startY = pos.y;
+            const x = chart.scales.x; const y = chart.scales.y;
+            startXMin = x.min; startXMax = x.max; startYMin = y.min; startYMax = y.max;
+        };
+        const move = (evt) => {
+            if (!isDragging) return;
+            const pos = getPos(evt);
+            const dx = pos.x - startX;
+            const dy = pos.y - startY;
+            const x = chart.scales.x; const y = chart.scales.y;
+            const xRange = startXMax - startXMin;
+            const yRange = startYMax - startYMin;
+            const pixelsPerX = chart.chartArea.width / xRange;
+            const pixelsPerY = chart.chartArea.height / yRange;
+            const shiftX = dx / pixelsPerX;
+            const shiftY = dy / pixelsPerY;
+            // Apply (invert Y due to screen coords)
+            x.options.min = Math.max(0, startXMin - shiftX);
+            x.options.max = x.options.min + xRange;
+            const newYMin = Math.max(0, startYMin + shiftY); // dragging down increases y
+            y.options.min = newYMin;
+            y.options.max = newYMin + yRange;
+            chart.update('none');
+        };
+        const up = () => { isDragging = false; };
+        canvasEl.addEventListener('mousedown', down);
+        window.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', up);
+        canvasEl.addEventListener('touchstart', down, {passive:true});
+        canvasEl.addEventListener('touchmove', move, {passive:true});
+        canvasEl.addEventListener('touchend', up);
+    })(summaryChart);
+
+    // Add event listener for the reset zoom button
+    const resetZoomButton = document.getElementById('reset_zoom_button');
+    if (resetZoomButton && summaryChart) {
+        resetZoomButton.addEventListener('click', () => {
+            summaryChart.resetZoom();
+        });
+    } else {
+        if (!resetZoomButton) console.warn("Reset zoom button (reset_zoom_button) not found in the DOM.");
+        // summaryChart might not be initialized if canvas wasn't found, which is handled earlier
+    }
+
+    // Show and animate the window (slide from bottom)
+    summaryWindow.classList.remove('hidden'); // Make parent visible first
+    // Wait a tick for display change, then trigger animation
+    requestAnimationFrame(() => {
+        summaryContainer.classList.remove('translate-y-full', 'opacity-0');
+        summaryContainer.classList.add('translate-y-0', 'opacity-100');
+    });
+
+    // Function to hide the window
+    const hideSummary = () => {
+        summaryContainer.classList.remove('translate-y-0', 'opacity-100');
+        summaryContainer.classList.add('translate-y-full', 'opacity-0');
+        // Use setTimeout to truly hide parent after transition ends
+        setTimeout(() => {
+             summaryWindow.classList.add('hidden');
+             // Destroy chart when hiding
+             if (summaryChart) {
+                 summaryChart.destroy();
+                 summaryChart = null;
+             }
+        }, 500); // Match transition duration
+        // Clear auto-hide timeout if closed manually
+        if (summaryTimeout) {
+             clearTimeout(summaryTimeout);
+             summaryTimeout = null;
+        }
+    };
+
+    // Add event listener to close button (only once)
+    // Remove previous listener if it exists to avoid duplicates
+    closeButton.replaceWith(closeButton.cloneNode(true)); // Simple way to remove listeners
+    document.getElementById('close_summary_button').addEventListener('click', hideSummary);
+
+    // Optional timeout to auto-hide the summary after a certain period
+    // summaryTimeout = setTimeout(hideSummary, 30000); // Example: Hide after 30 seconds
+}
+window.handleSessionSummary = handleSessionSummary;
+
+// --- Initialize persisted preferences for Songs page toggles ---
+function initSongPagePreferences() {
+    try {
+        // Read cookie preferences (default to enabled if not set)
+        const summaryPref = (typeof getCookie === 'function') ? getCookie('show_summary_popup') : null;
+        const scorePref = (typeof getCookie === 'function') ? getCookie('show_score') : null;
+
+        // Apply to summary checkbox if present
+        const summaryEl = document.getElementById('show_summary_popup');
+        if (summaryEl && summaryPref !== null) {
+            summaryEl.checked = (summaryPref === '1');
+        }
+
+        // Apply to score checkbox if present and sync the score display visibility
+        const scoreEl = document.getElementById('show_score_checkbox');
+        const scoreDisplay = document.getElementById('score_display');
+        if (scoreEl) {
+            if (scorePref !== null) {
+                scoreEl.checked = (scorePref === '1');
+            }
+            if (scoreDisplay) {
+                scoreDisplay.classList.toggle('hidden', !scoreEl.checked);
+            }
+        }
+    } catch (e) {
+        // Fail silently; preferences will remain default
+    }
+}
+
+// Run once after DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSongPagePreferences);
+} else {
+    initSongPagePreferences();
+}
+
+// Observe dynamic injections (e.g., when songs.html content is loaded via AJAX)
+const __songsPrefsObserver = new MutationObserver(() => {
+    const hasTargets = document.getElementById('show_score_checkbox') || document.getElementById('show_summary_popup');
+    if (hasTargets) {
+        initSongPagePreferences();
+    }
+});
+try {
+    __songsPrefsObserver.observe(document.body || document.documentElement, { childList: true, subtree: true });
+} catch (e) {
+    // ignore
+}
+
+// --- Practice mode dependent UI (score & summary visibility) ---
+// Hide score display and session summary popup when practice mode is not Melody (value '0').
+function updatePracticeModeUI() {
+    try {
+        const practiceSelect = document.getElementById('practice');
+        const scoreDisplay = document.getElementById('score_display');
+        const summaryWindow = document.getElementById('session_summary_window');
+        const toggleWrapper = document.getElementById('score_summary_toggle_wrapper');
+        if (!practiceSelect || !scoreDisplay) return; // Not on page yet
+        if (practiceSelect.value === '0') { // Melody
+            // Only show if user preference isn't hiding it
+            const scoreCheckbox = document.getElementById('show_score_checkbox');
+            const showScore = !scoreCheckbox || scoreCheckbox.checked;
+            if (showScore) scoreDisplay.classList.remove('hidden');
+            if (toggleWrapper) toggleWrapper.classList.remove('hidden');
+        } else {
+            scoreDisplay.classList.add('hidden');
+            if (summaryWindow) summaryWindow.classList.add('hidden');
+            if (toggleWrapper) toggleWrapper.classList.add('hidden');
+        }
+    } catch (e) { /* no-op */ }
+}
+window.updatePracticeModeUI = updatePracticeModeUI;
+
+// Listen for practice mode changes
+document.addEventListener('change', function (e) {
+    if (e.target && e.target.id === 'practice') {
+        updatePracticeModeUI();
+    }
+});
+
+// Initial invocation when DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updatePracticeModeUI);
+} else {
+    updatePracticeModeUI();
+}
+
+// Wrap session summary handler to respect practice mode
+(function(){
+    try {
+        if (window.handleSessionSummary && !window.__wrappedHandleSessionSummary) {
+            const original = window.handleSessionSummary;
+            window.handleSessionSummary = function(data, retries) {
+                const practiceSelect = document.getElementById('practice');
+                if (practiceSelect && practiceSelect.value !== '0') {
+                    const summaryWindow = document.getElementById('session_summary_window');
+                    if (summaryWindow) summaryWindow.classList.add('hidden');
+                    return; // Skip showing summary
+                }
+                return original.call(this, data, retries);
+            };
+            window.__wrappedHandleSessionSummary = true;
+        }
+        if (window.handleScoreUpdate && !window.__wrappedHandleScoreUpdate) {
+            const originalScore = window.handleScoreUpdate;
+            window.handleScoreUpdate = function(data) {
+                const practiceSelect = document.getElementById('practice');
+                if (practiceSelect && practiceSelect.value !== '0') {
+                    const scoreDisplay = document.getElementById('score_display');
+                    if (scoreDisplay) scoreDisplay.classList.add('hidden');
+                    return; // Suppress score updates visually
+                }
+                return originalScore.call(this, data);
+            };
+            window.__wrappedHandleScoreUpdate = true;
+        }
+    } catch (e) { /* no-op */ }
+})();
+
