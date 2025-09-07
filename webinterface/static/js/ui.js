@@ -2033,3 +2033,74 @@ try {
 } catch (e) {
     // ignore
 }
+
+// --- Practice mode dependent UI (score & summary visibility) ---
+// Hide score display and session summary popup when practice mode is not Melody (value '0').
+function updatePracticeModeUI() {
+    try {
+        const practiceSelect = document.getElementById('practice');
+        const scoreDisplay = document.getElementById('score_display');
+        const summaryWindow = document.getElementById('session_summary_window');
+        const toggleWrapper = document.getElementById('score_summary_toggle_wrapper');
+        if (!practiceSelect || !scoreDisplay) return; // Not on page yet
+        if (practiceSelect.value === '0') { // Melody
+            // Only show if user preference isn't hiding it
+            const scoreCheckbox = document.getElementById('show_score_checkbox');
+            const showScore = !scoreCheckbox || scoreCheckbox.checked;
+            if (showScore) scoreDisplay.classList.remove('hidden');
+            if (toggleWrapper) toggleWrapper.classList.remove('hidden');
+        } else {
+            scoreDisplay.classList.add('hidden');
+            if (summaryWindow) summaryWindow.classList.add('hidden');
+            if (toggleWrapper) toggleWrapper.classList.add('hidden');
+        }
+    } catch (e) { /* no-op */ }
+}
+window.updatePracticeModeUI = updatePracticeModeUI;
+
+// Listen for practice mode changes
+document.addEventListener('change', function (e) {
+    if (e.target && e.target.id === 'practice') {
+        updatePracticeModeUI();
+    }
+});
+
+// Initial invocation when DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updatePracticeModeUI);
+} else {
+    updatePracticeModeUI();
+}
+
+// Wrap session summary handler to respect practice mode
+(function(){
+    try {
+        if (window.handleSessionSummary && !window.__wrappedHandleSessionSummary) {
+            const original = window.handleSessionSummary;
+            window.handleSessionSummary = function(data, retries) {
+                const practiceSelect = document.getElementById('practice');
+                if (practiceSelect && practiceSelect.value !== '0') {
+                    const summaryWindow = document.getElementById('session_summary_window');
+                    if (summaryWindow) summaryWindow.classList.add('hidden');
+                    return; // Skip showing summary
+                }
+                return original.call(this, data, retries);
+            };
+            window.__wrappedHandleSessionSummary = true;
+        }
+        if (window.handleScoreUpdate && !window.__wrappedHandleScoreUpdate) {
+            const originalScore = window.handleScoreUpdate;
+            window.handleScoreUpdate = function(data) {
+                const practiceSelect = document.getElementById('practice');
+                if (practiceSelect && practiceSelect.value !== '0') {
+                    const scoreDisplay = document.getElementById('score_display');
+                    if (scoreDisplay) scoreDisplay.classList.add('hidden');
+                    return; // Suppress score updates visually
+                }
+                return originalScore.call(this, data);
+            };
+            window.__wrappedHandleScoreUpdate = true;
+        }
+    } catch (e) { /* no-op */ }
+})();
+

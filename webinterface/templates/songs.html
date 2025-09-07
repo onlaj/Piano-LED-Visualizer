@@ -682,7 +682,7 @@
                     </div>
                 </div>
             </div>
-            <div class="flex justify-center items-center my-2">
+            <div id="score_summary_toggle_wrapper" class="flex justify-center items-center my-2">
                 <label class="inline-flex items-center">
                     <input id="show_score_checkbox" type="checkbox" class="w-4 h-4 mr-2 border border-gray-300 rounded" onchange="document.getElementById('score_display').classList.toggle('hidden', !this.checked); setCookie('show_score', this.checked ? '1' : '0', 365);" checked>
                     <span class="text-sm font-medium text-gray-600 dark:text-gray-400" data-translate="show_score">Show Score</span>
