@@ -572,6 +572,24 @@
                         </div>
 
                     </label>
+                        <svg onclick="document.getElementById('learning_start_point').stepDown();
+                        document.getElementById('learning_start_point').dispatchEvent(new Event('change'));
+                        document.getElementById('learning_start_point').dispatchEvent(new Event('input'));
+                    " xmlns="http://www.w3.org/2000/svg"
+                             class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <svg onclick="document.getElementById('learning_end_point').stepUp();
+                        document.getElementById('learning_end_point').dispatchEvent(new Event('change'));
+                        document.getElementById('learning_end_point').dispatchEvent(new Event('input'));
+                        " xmlns="http://www.w3.org/2000/svg"
+                             class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
                     <label class="w-1/2 float-right text-xs text-right block text-gray-600 dark:text-gray-400">
                         <div data-translate="end_point">End point</div>
                         (<b id="end_point">0</b>%)</b>
@@ -591,7 +609,6 @@
                         </div>
                     </label>
                 </div>
-
             </div>
 
             <div class="flex flex-wrap w-full md:w-1/2 m-auto">

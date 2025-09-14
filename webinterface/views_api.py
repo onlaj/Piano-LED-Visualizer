@@ -1007,6 +1007,18 @@ def change_setting():
         app_state.saving.save(current_date)
         return jsonify(success=True, reload_songs=True)
 
+    if setting_name == "songs_per_page":
+        value = int(value)
+        app_state.usersettings.change_setting_value("songs_per_page", value)
+        app_state.learning.songs_per_page = value
+        return jsonify(success=True)
+
+    if setting_name == "sort_by":
+        new_sort = str(value)
+        app_state.usersettings.change_setting_value("sort_by", new_sort)
+        app_state.learning.sort_by = new_sort
+        return jsonify(success=True)
+
     if setting_name == "change_song_name":
         if os.path.exists("Songs/" + second_value):
             return jsonify(success=False, reload_songs=True, error=second_value + " already exists")
@@ -1554,6 +1566,12 @@ def get_learning_status():
 
     return jsonify(response)
 
+@webinterface.route('/api/get_song_list_setting', methods=['GET'])
+def get_song_list_setting():
+    response = {"songs_per_page": app_state.usersettings.get_setting_value("songs_per_page"),
+                "sort_by": app_state.usersettings.get_setting_value("sort_by")
+    }
+    return jsonify(response)
 
 @webinterface.route('/api/get_songs', methods=['GET'])
 def get_songs():
