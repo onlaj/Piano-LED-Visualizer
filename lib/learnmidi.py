@@ -1,6 +1,7 @@
 import ast
 import threading
 import time
+import json
 
 import mido
 import subprocess
@@ -13,6 +14,21 @@ from lib.rpi_drivers import Color
 import numpy as np
 import pickle
 from lib.log_setup import logger
+from lib.score_manager import ScoreManager
+from webinterface import app_state
+
+import logging
+
+# Create a score logger
+score_logger = logging.getLogger("score_logger")
+score_logger.setLevel(logging.DEBUG)
+score_logger.propagate = False
+file_handler = logging.FileHandler("score_log.txt")
+file_handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+file_handler.setFormatter(formatter)
+score_logger.addHandler(file_handler)
+score_logger.info("Score logger initialized.")
 
 
 def find_nearest(array, target):
@@ -36,6 +52,8 @@ class LearnMIDI:
         self.ledsettings = ledsettings
         self.midiports = midiports
         self.ledstrip = ledstrip
+        
+        # Initialize the score manager
 
         self.loading = 0
         self.songs_per_page = int(usersettings.get_setting_value("songs_per_page"))
@@ -86,7 +104,15 @@ class LearnMIDI:
 
         self.mistakes_count = 0
         self.number_of_mistakes = int(usersettings.get_setting_value("number_of_mistakes"))
+        self.delay_countR = 0
+        self.delay_countL = 0
         self.awaiting_restart_loop = False
+        self.score_manager = ScoreManager()
+        self.right_hand_timing = []
+        self.left_hand_timing = []
+        self.right_hand_mistakes = []
+        self.left_hand_mistakes = []
+
 
     def add_instance(self, menu):
         self.menu = menu
@@ -185,6 +211,11 @@ class LearnMIDI:
 
         self.is_loaded_midi.clear()
         self.is_loaded_midi[song_path] = True
+        # Remember currently loaded song for highscore tracking
+        try:
+            self.current_song_name = song_path
+        except Exception:
+            self.current_song_name = song_path
         self.loading = 1  # 1 = Load..
         self.is_started_midi = False  # Stop current learning song
         self.t = threading.currentThread()
@@ -316,6 +347,20 @@ class LearnMIDI:
                     for expected_note in hand_hint_notesR:
                         red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.prev_hand_colorR]]
                         self.ledstrip.strip.setPixelColor(expected_note, Color(red, green, blue))
+                 
+                # Wrong note penalty
+                self.score_manager.penalize_for_wrong_note()
+                score_logger.debug("wrong note - score:" +str(self.score_manager.get_score()))
+                score_logger.debug("panelty:" +str(self.score_manager.get_last_score_update()))
+
+                # # Send score update to frontend
+                self.socket_send.append(json.dumps({
+                    "type": "score_update",
+                    "score": self.score_manager.get_score(),
+                    "combo": self.score_manager.get_combo(),
+                    "multiplier": self.score_manager.get_multiplier(),
+                    "last_update": self.score_manager.get_last_score_update()
+                }))
             else:
                 self.ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
 
@@ -339,6 +384,25 @@ class LearnMIDI:
                 time.sleep(0.1)
         if self.loading == 4:
             self.is_started_midi = True  # Prevent restarting the Thread
+            # Reset the score when starting a new learning session
+            self.score_manager.reset()
+            self.right_hand_timing.clear()
+            self.left_hand_timing.clear()
+            self.right_hand_mistakes.clear()
+            self.left_hand_mistakes.clear()
+            midi_time = 0
+            self.delay_countR = 0
+            self.delay_countL = 0
+            score_logger.debug("score reset" +str(self.score_manager.get_score()))
+                  
+            # Send score update to frontend
+            self.socket_send.append(json.dumps({
+                "type": "score_update",
+                "score": self.score_manager.get_score(),
+                "combo": self.score_manager.get_combo(),
+                "multiplier": self.score_manager.get_multiplier(),
+                "last_update": 0 # Reset last update as well
+            }))
         elif self.loading == 5:
             self.is_started_midi = False  # Allow restarting the Thread
             return
@@ -350,6 +414,23 @@ class LearnMIDI:
         keep_looping = True
         while keep_looping:
             time.sleep(1)
+            self.score_manager.reset()
+            self.right_hand_timing.clear()
+            self.left_hand_timing.clear()
+            self.right_hand_mistakes.clear()
+            self.left_hand_mistakes.clear()
+            self.delay_countR = 0
+            self.delay_countL = 0
+            midi_time = 0
+            score_logger.debug("midi_time  - reset" +str(midi_time))
+            score_logger.debug("score reset keep looping" +str(self.score_manager.get_score()))
+            self.socket_send.append(json.dumps({
+                "type": "score_update",
+                "score": self.score_manager.get_score(),
+                "combo": self.score_manager.get_combo(),
+                "multiplier": self.score_manager.get_multiplier(),
+                "last_update": 0
+            }))
             try:
                 fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
                 time_prev = time.time()
@@ -391,6 +472,7 @@ class LearnMIDI:
                             # Store timing information for next note
                             self.next_note_time = time.time() + tDelay
                             self.next_note_delay = tDelay
+                            midi_time += tDelay
 
                             while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
                                 if self.awaiting_restart_loop:
@@ -407,17 +489,61 @@ class LearnMIDI:
                                     else:
                                         velocity = int(find_between(str(msg_in), "velocity=", " "))
 
-                                    # check if note is in the list of notes to press
+                                    # check if note is NOT in the list of notes to press
                                     if note not in notes_to_press:
                                         wrong_notes.append(msg_in)
                                         # Clear pending software notes if wrong key is pressed
                                         if velocity > 0:
+                                            if msg.channel == 1:
+                                                self.right_hand_mistakes.append(midi_time)
+                                                score_logger.debug("right hand mistakes: %s", self.right_hand_mistakes)
+                                            if msg.channel == 2:
+                                                self.left_hand_mistakes.append(midi_time)
+                                                score_logger.debug("left hand mistakes: %s", self.left_hand_mistakes)
                                             self.pending_software_notes.clear()
                                         continue
-
+                                    
+                                    # check if note is in the list of notes to press
                                     if velocity > 0:
                                         if note not in notes_pressed:
                                             notes_pressed.append(note)
+ 
+                                            # Calculate delay from ideal hit time
+                                            current_time = time.time()
+                                            if self.next_note_time:
+                                                # Get delay in seconds
+                                                delay = current_time - self.next_note_time
+                                                
+                                                # Add score for correct note
+                                                self.score_manager.add_score_for_correct_note(delay)
+
+                                                note_timing = (midi_time, delay)
+                                               
+                                                score_logger.debug("midi_time" +str(midi_time))
+                                                if msg.channel == 1: 
+                                                    score_logger.debug("channel 1")
+                                                    score_logger.debug("right hand timing note timimg: %s", self.right_hand_timing)
+                                                    self.right_hand_timing.append(note_timing)
+                                                    if delay >= self.score_manager.max_delay:
+                                                        self.delay_countR += 1
+                                                if msg.channel == 2:
+                                                    score_logger.debug("channel- 2")
+                                                    score_logger.debug("left hand timing note timimg: %s", self.left_hand_timing)
+                                                    self.left_hand_timing.append(note_timing)
+                                                    if delay >= self.score_manager.max_delay:
+                                                        self.delay_countR += 1
+
+                                                # send score update to frontend
+                                                self.socket_send.append(json.dumps({
+                                                    "type": "score_update",
+                                                    "score": self.score_manager.get_score(),
+                                                    "combo": self.score_manager.get_combo(),
+                                                    "multiplier": self.score_manager.get_multiplier(),
+                                                    "last_update": self.score_manager.get_last_score_update()
+                                                }))
+
+
+
                                     else:
                                         try:
                                             notes_pressed.remove(note)
@@ -532,6 +658,56 @@ class LearnMIDI:
             if not self.is_loop_active or self.is_started_midi is False:
                 keep_looping = False
 
+            # Update profile highscore
+            try:
+                profile_id = getattr(app_state, 'current_profile_id', None)
+                # Only update if a profile is selected and we know the song name
+                if profile_id and hasattr(self, 'current_song_name') and self.current_song_name:
+                    # new_score is the final session score
+                    new_score = int(self.score_manager.get_score())
+                    # Use ProfileManager directly if available
+                    pm = getattr(app_state, 'profile_manager', None)
+                    if pm:
+                        updated = pm.update_highscore(int(profile_id), self.current_song_name, new_score)
+                        if updated:
+                            # Notify UI via websocket to update the highscore cell dynamically
+                            self.socket_send.append(json.dumps({
+                                "type": "highscore_update",
+                                "song_name": self.current_song_name,
+                                "score": new_score,
+                                "profile_id": int(profile_id)
+                            }))
+            except Exception as e:
+                logger.warning(f"Failed to update highscore: {e}")
+
+            # Send session summary data
+            if not keep_looping:
+                try:
+                    # Get actual RGB colors
+                    color_r_rgb = self.hand_colorList[self.hand_colorR]
+                    color_l_rgb = self.hand_colorList[self.hand_colorL]
+
+                    summary_data = {
+                        "type": "session_summary",
+                        # Basic stats
+                        "delay_r": self.delay_countR,
+                        "delay_l": self.delay_countL,
+                        "mistakes_r_count": len(self.right_hand_mistakes),
+                        "mistakes_l_count": len(self.left_hand_mistakes),
+                        # Data for graph
+                        "timing_r": self.right_hand_timing,
+                        "timing_l": self.left_hand_timing,
+                        "mistakes_r_times": self.right_hand_mistakes,
+                        "mistakes_l_times": self.left_hand_mistakes,
+                        "max_delay": self.score_manager.max_delay,
+                        "color_r": f'rgb({color_r_rgb[0]}, {color_r_rgb[1]}, {color_r_rgb[2]})',
+                        "color_l": f'rgb({color_l_rgb[0]}, {color_l_rgb[1]}, {color_l_rgb[2]})'
+                    }
+                    self.socket_send.append(json.dumps(summary_data))
+                    score_logger.info(f"Sent session summary (length: {len(json.dumps(summary_data))})") # Log length for debugging if needed
+                except Exception as e:
+                    score_logger.error(f"Error preparing/sending session summary: {e}")
+
     def convert_midi_to_abc(self, midi_file):
         if not os.path.isfile('Songs/' + midi_file.replace(".mid", ".abc")):
             # subprocess.call(['midi2abc',  'Songs/' + midi_file, '-o', 'Songs/' + midi_file.replace(".mid", ".abc")])
@@ -543,4 +719,4 @@ class LearnMIDI:
                 if 'No such file or directory' in str(e):
                     logger.info("midi2abc not found")
         else:
-            logger.info("file already converted")
+            logger.info("file already converted")
