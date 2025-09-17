@@ -176,11 +176,12 @@ class ProfileManager:
                 "SELECT start_point, end_point FROM learning WHERE profile_id=? AND song_name=?",
                 (profile_id, song_name)
             )
-            rows = cur.fetchall()
-        ret_dict = {
-            "start": rows[0][0],
-            "end": rows[0][1]
-        }
+           row = cur.fetchone()
+        if row:
+            ret_dict = {"start": row[0], "end": row[1]}
+        else:
+            logger.warning(f"No learning section found for profile {profile_id} and song {song_name}. Returning defaults.")
+            ret_dict = {"start": 0, "end": 100}
         return ret_dict
 
     def update_learning_section(self, profile_id: int, song_name: str, new_start: int, new_end: int) -> bool:

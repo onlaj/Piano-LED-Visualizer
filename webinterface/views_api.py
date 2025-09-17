@@ -1886,41 +1886,6 @@ def api_update_highscore():
     changed = app_state.profile_manager.update_highscore(profile_id, song_name, new_score)
     return jsonify(success=True, updated=changed)
 
-@webinterface.route('/api/get_learning', methods=['GET'])
-def api_get_learning():
-    if not hasattr(app_state, 'profile_manager'):
-        abort(500, description="Profile manager not initialized")
-    profile_id = request.args.get('profile_id')
-    song_name = request.args.get('song_name')
-    if not song_name:
-        return jsonify(success=False, error="song_name required"), 400
-    if not profile_id:
-        return jsonify(success=False, error="profile_id required"), 400
-    try:
-        profile_id = int(profile_id)
-    except ValueError:
-        return jsonify(success=False, error="profile_id must be integer"), 400
-    ret_val = app_state.profile_manager.get_learning_section(profile_id,song_name)
-    return jsonify(success=True, points=ret_val)
-
-@webinterface.route('/api/update_learning', methods=['GET'])
-def api_update_learning():
-    if not hasattr(app_state, 'profile_manager'):
-        abort(500, description="Profile manager not initialized")
-    song_name = request.args.get('song_name')
-    profile_id = request.args.get('profile_id')
-    start_point = request.args.get('start_point')
-    end_point = request.args.get('end_point')
-    try:
-        profile_id = int(profile_id)
-        start_point = float(start_point)
-        end_point = float(end_point)
-    except (TypeError, ValueError):
-        return jsonify(success=False, error="Invalid payload"), 400
-    changed = app_state.profile_manager.update_learning_section(profile_id, song_name, start_point, end_point)
-    changed = 1
-    return jsonify(success=True, updated=changed)
-
 def pretty_print(dom):
     return '\n'.join([line for line in dom.toprettyxml(indent=' ' * 4).split('\n') if line.strip()])
 
