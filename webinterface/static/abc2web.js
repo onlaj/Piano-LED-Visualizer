@@ -1858,6 +1858,36 @@ var opt, onYouTubeIframeAPIReady, msc_credits, media_height, times_arr, offset_j
 
         load_sheet_file(filename);
 
+        // Get song based learning start and end points
+        const set_learning_section = (pid) => {
+            if(!pid) return;
+            fetch('/api/get_learning?profile_id=' + pid + '&song_name=' + filename)
+                .then(r=>r.json())
+                .then(data=>{
+                    if(!data.success) return;
+                    const start_point = data.points.start || {};
+                    const end_point = data.points.end || {};
+                })
+                .catch(()=>{});
+        };
+        const pid = window.currentProfileId;
+        if(pid){
+            set_learning_section(pid);
+        } else {
+            let restored = null;
+            try { if(typeof getCookie === 'function') restored = getCookie('currentProfileId'); } catch(e) {}
+            if(restored){
+                window.currentProfileId = parseInt(restored);
+                set_learning_section(window.currentProfileId);
+            } else {
+                fetch('/api/get_current_profile')
+                    .then(r=>r.json())
+                    .then(d=>{
+                        if(d && d.profile_id){ window.currentProfileId = d.profile_id; set_learning_section(window.currentProfileId); }
+                    })
+                    .catch(()=>{});
+            }
+        }
 
         $('#fknp').change(function () {
             readLocalFile('btn', []);
