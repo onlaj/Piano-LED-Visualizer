@@ -1857,6 +1857,7 @@ var opt, onYouTubeIframeAPIReady, msc_credits, media_height, times_arr, offset_j
         }
 
         load_sheet_file(filename);
+        
 
         $('#fknp').change(function () {
             readLocalFile('btn', []);
