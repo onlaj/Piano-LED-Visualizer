@@ -176,7 +176,7 @@ class ProfileManager:
                 "SELECT start_point, end_point FROM learning WHERE profile_id=? AND song_name=?",
                 (profile_id, song_name)
             )
-           row = cur.fetchone()
+        row = cur.fetchone()
         if row:
             ret_dict = {"start": row[0], "end": row[1]}
         else:
