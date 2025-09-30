@@ -603,7 +603,7 @@ function update_mobile_connections() {
                             <svg xmlns="http://www.w3.org/2000/svg" style="width: 15px; height: 15px; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
-                            <span class="font-semibold">Sending to:</span>
+                            <span class="font-semibold">${translate('sending_to')}</span>
                         </div>
                         ${connections.map(destId => {
                             const destPort = portConnectionState.availablePorts.all.find(p => p.id === destId);
@@ -629,7 +629,7 @@ function update_mobile_connections() {
                             <svg xmlns="http://www.w3.org/2000/svg" style="width: 15px; height: 15px; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
                             </svg>
-                            <span class="font-semibold">Receiving from:</span>
+                            <span class="font-semibold">${translate('receiving_from')}</span>
                         </div>
                         ${connections.map(sourceId => {
                             const sourcePort = portConnectionState.availablePorts.all.find(p => p.id === sourceId);
