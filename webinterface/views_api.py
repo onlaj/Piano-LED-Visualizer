@@ -1837,15 +1837,16 @@ def parse_aconnect_connections(output):
                 current_port_name = port_match.group(2)
                 continue
         
-        # Match connection lines: "\tConnecting To: 130:0"
+        # Match connection lines: "\tConnecting To: 130:0" or "\tConnecting To: 130:0, 131:0, 132:0"
         if current_client and current_port and '\t' in line:
-            conn_match = re.search(r"(\d+):(\d+)", line_stripped)
-            if conn_match and "Connecting To:" in line or "Connected From:" in line:
+            # Only process "Connecting To:" to avoid duplicates
+            if "Connecting To:" in line:
+                # Find all port connections in the line (handles multiple connections)
+                conn_matches = re.findall(r"(\d+):(\d+)", line_stripped)
                 source_id = f"{current_client}:{current_port}"
-                dest_id = f"{conn_match.group(1)}:{conn_match.group(2)}"
                 
-                # Only add if this is "Connecting To" to avoid duplicates
-                if "Connecting To:" in line:
+                for conn_match in conn_matches:
+                    dest_id = f"{conn_match[0]}:{conn_match[1]}"
                     connections.append({
                         'source': source_id,
                         'destination': dest_id,
