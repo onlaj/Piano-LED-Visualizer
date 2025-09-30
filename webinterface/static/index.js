@@ -422,13 +422,13 @@ function handle_port_click(port, type) {
         // Select sender port
         portConnectionState.selectedSource = port;
         update_port_selection_ui();
-        update_connection_status(`<strong>Sender selected:</strong> ${port.full_name}<br><small>Now click a receiver port (right side) to create connection →</small>`);
+        update_connection_status(`<strong>${translate('sender_selected')}</strong> ${port.full_name}<br><small>${translate('click_receiver_to_connect')}</small>`);
     } else {
         // Receiver port clicked
         if (portConnectionState.selectedSource) {
             // Prevent self-connection
             if (portConnectionState.selectedSource.id === port.id) {
-                update_connection_status('❌ <strong>Cannot connect a port to itself!</strong><br><small>Please select a different receiver port.</small>');
+                update_connection_status(`❌ <strong>${translate('cannot_connect_to_self')}</strong><br><small>${translate('select_different_receiver')}</small>`);
                 return;
             }
             
@@ -448,7 +448,7 @@ function handle_port_click(port, type) {
             portConnectionState.selectedSource = null;
             update_port_selection_ui();
         } else {
-            update_connection_status('<small>⚠️ Please select a sender port (left side) first.</small>');
+            update_connection_status(`<small>⚠️ ${translate('select_sender_first')}</small>`);
         }
     }
 }
@@ -462,16 +462,16 @@ function create_port_connection(source, destination) {
     .then(response => response.json())
         .then(data => {
             if (data.success) {
-                update_connection_status('✅ <strong>Connection created!</strong> Data will flow from sender → receiver.');
+                update_connection_status(`✅ <strong>${translate('connection_created')}</strong> ${translate('connection_data_flow')}`);
                 refresh_all_ports();
             } else {
-                const errorMsg = data.error || 'Failed to create connection';
+                const errorMsg = data.error || translate('connection_create_failed');
                 update_connection_status(`❌ <strong>${errorMsg}</strong>`);
             }
         })
         .catch(error => {
             console.error('Error creating connection:', error);
-            update_connection_status('❌ Error creating connection.');
+            update_connection_status(`❌ ${translate('connection_create_failed')}`);
         });
 }
 
@@ -484,15 +484,15 @@ function delete_port_connection(source, destination) {
     .then(response => response.json())
         .then(data => {
             if (data.success) {
-                update_connection_status('✅ Connection deleted successfully!');
+                update_connection_status(`✅ <strong>${translate('connection_deleted')}</strong>`);
                 refresh_all_ports();
             } else {
-                update_connection_status('❌ Failed to delete connection.');
+                update_connection_status(`❌ <strong>${translate('connection_delete_failed')}</strong>`);
             }
         })
         .catch(error => {
             console.error('Error deleting connection:', error);
-            update_connection_status('❌ Error deleting connection.');
+            update_connection_status(`❌ ${translate('connection_delete_failed')}`);
         });
 }
 
