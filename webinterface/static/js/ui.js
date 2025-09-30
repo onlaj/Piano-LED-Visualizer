@@ -972,57 +972,57 @@ function set_step_properties(sequence, step) {
 }
 
 function get_ports() {
-    const refresh_ports_button = document.getElementById("refresh-ports");
-    refresh_ports_button.classList.add("animate-spin", "pointer-events-none");
-
     const xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200 && document.getElementById('active_input') != null) {
-            const active_input_select = document.getElementById('active_input');
-            const secondary_input_select = document.getElementById('secondary_input');
-            const playback_select = document.getElementById('playback_input');
+        if (this.readyState === 4 && this.status === 200) {
             let response = JSON.parse(this.responseText);
-            const length = active_input_select.options.length;
-            for (let i = length - 1; i >= 0; i--) {
-                active_input_select.options[i] = null;
-                secondary_input_select.options[i] = null;
-                playback_select.options[i] = null;
+            
+            // Update old dropdowns if they exist
+            if (document.getElementById('active_input') != null) {
+                const active_input_select = document.getElementById('active_input');
+                const secondary_input_select = document.getElementById('secondary_input');
+                const playback_select = document.getElementById('playback_input');
+                const length = active_input_select.options.length;
+                for (let i = length - 1; i >= 0; i--) {
+                    active_input_select.options[i] = null;
+                    secondary_input_select.options[i] = null;
+                    playback_select.options[i] = null;
+                }
+                response["ports_list"].forEach(function (item, index) {
+                    const opt = document.createElement('option');
+                    const opt2 = document.createElement('option');
+                    const opt3 = document.createElement('option');
+                    opt.appendChild(document.createTextNode(item));
+                    opt2.appendChild(document.createTextNode(item));
+                    opt3.appendChild(document.createTextNode(item));
+                    opt.value = item;
+                    opt2.value = item;
+                    opt3.value = item;
+                    active_input_select.appendChild(opt);
+                    secondary_input_select.appendChild(opt2);
+                    playback_select.appendChild(opt3);
+                });
+                active_input_select.value = response["input_port"];
+                secondary_input_select.value = response["secondary_input_port"];
+                playback_select.value = response["play_port"];
             }
-            response["ports_list"].forEach(function (item, index) {
-                const opt = document.createElement('option');
-                const opt2 = document.createElement('option');
-                const opt3 = document.createElement('option');
-                opt.appendChild(document.createTextNode(item));
-                opt2.appendChild(document.createTextNode(item));
-                opt3.appendChild(document.createTextNode(item));
-                opt.value = item;
-                opt2.value = item;
-                opt3.value = item;
-                active_input_select.appendChild(opt);
-                secondary_input_select.appendChild(opt2);
-                playback_select.appendChild(opt3);
-            });
-            active_input_select.value = response["input_port"];
-            secondary_input_select.value = response["secondary_input_port"];
-            playback_select.value = response["play_port"];
-            let connected_ports = response["connected_ports"];
-            connected_ports = connected_ports.replaceAll("\\n", "&#10;")
-            connected_ports = connected_ports.replaceAll("\\t", "        ")
-            connected_ports = connected_ports.replaceAll("b\"", "")
-            document.getElementById('connect_all_textarea').innerHTML = connected_ports;
+            
+            // Update raw textarea
+            if (document.getElementById('connect_all_textarea') != null) {
+                let connected_ports = response["connected_ports"];
+                connected_ports = connected_ports.replaceAll("\\n", "&#10;")
+                connected_ports = connected_ports.replaceAll("\\t", "        ")
+                connected_ports = connected_ports.replaceAll("b\"", "")
+                document.getElementById('connect_all_textarea').innerHTML = connected_ports;
+            }
+            
             if (response["midi_logging"] === "1") {
-                document.getElementById("midi_events_checkbox").checked = true;
+                const checkbox = document.getElementById("midi_events_checkbox");
+                if (checkbox) checkbox.checked = true;
             }
-            refresh_ports_button.classList.remove("animate-spin", "pointer-events-none");
         }
     };
-    xhttp.onerror = function () {
-        refresh_ports_button.classList.remove("animate-spin", "pointer-events-none");
-    }
-    xhttp.ontimeout = function () {
-        refresh_ports_button.classList.remove("animate-spin", "pointer-events-none");
-    }
     xhttp.open("GET", "/api/get_ports", true);
     xhttp.send();
 }

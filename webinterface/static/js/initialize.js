@@ -248,7 +248,11 @@ function initialize_sequences() {
 }
 
 function initialize_ports_settings() {
-    get_ports()
+    get_ports();
+    // Initialize the visual port connection manager if it exists
+    if (typeof initialize_port_connection_manager === 'function') {
+        initialize_port_connection_manager();
+    }
     document.getElementById('switch_ports').onclick = function () {
         document.getElementById('switch_ports').disabled = true;
         document.getElementById('switch_ports_sidebar').disabled = true;
