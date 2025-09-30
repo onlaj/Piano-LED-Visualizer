@@ -426,6 +426,12 @@ function handle_port_click(port, type) {
     } else {
         // Receiver port clicked
         if (portConnectionState.selectedSource) {
+            // Prevent self-connection
+            if (portConnectionState.selectedSource.id === port.id) {
+                update_connection_status('❌ <strong>Cannot connect a port to itself!</strong><br><small>Please select a different receiver port.</small>');
+                return;
+            }
+            
             // Check if connection already exists
             const existingConn = portConnectionState.connections.find(
                 c => c.source === portConnectionState.selectedSource.id && c.destination === port.id
@@ -459,7 +465,8 @@ function create_port_connection(source, destination) {
                 update_connection_status('✅ <strong>Connection created!</strong> Data will flow from sender → receiver.');
                 refresh_all_ports();
             } else {
-                update_connection_status('❌ Failed to create connection.');
+                const errorMsg = data.error || 'Failed to create connection';
+                update_connection_status(`❌ <strong>${errorMsg}</strong>`);
             }
         })
         .catch(error => {

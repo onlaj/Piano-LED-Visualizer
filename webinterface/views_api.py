@@ -1947,6 +1947,10 @@ def create_port_connection():
     if not source or not destination:
         return jsonify({'success': False, 'error': 'Missing source or destination'}), 400
     
+    # Prevent self-connection
+    if source == destination:
+        return jsonify({'success': False, 'error': 'Cannot connect a port to itself'}), 400
+    
     success = create_midi_port_connection(source, destination)
     return jsonify({'success': success})
 
