@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+set -e # quits this file if a process returns a non-zero exit code
+set -o pipefail # sets the exit code of a pipeline to the rightmost non-zero exit code
+set -u # treat unset variables as an error
+set -x # print the commands being executed
+
 # Function to display error message and exit
 display_error() {
   echo "Error: $1" >&2
@@ -8,7 +13,9 @@ display_error() {
 
 # Function to execute a command and handle errors, with optional internet connectivity check
 execute_command() {
+  set +u # allow this unset variable to not error out
   local check_internet="$2"  # Check for internet if this argument is provided
+  set -u # treat unset variables as an error
 
   echo "Executing: $1"
 
