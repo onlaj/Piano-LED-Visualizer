@@ -87,8 +87,15 @@ You can also connect Raspberry Pi to your network [manually](https://github.com/
 [Instructions](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
 
 ## Connecting LED Strip to Raspberry Pi
-There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*.
-Double check how your LED strip is wired. Most strips use G-D-V (ground, data, voltage), however in the wiring diagram shown in the tutorial the voltage and data lines are swapped.
+There is no point to reinvent the wheel again, so here is a nice [diagram](https://web.archive.org/web/20230319222537/https://tutorials-raspberrypi.com/wp-content/uploads/2017/03/Raspberry-Pi-WS2812-Steckplatine.png).
+
+The wires of the LED strip are connected like this:
+
+- DIN (data) to pin 18 on the Pi
+- GRD to GRD on the Pi and the negative of the power supply
+- +5V to the positive of the power supply (not the Pi)
+
+Double check how your LED strip is wired. Most strips use G-D-V (ground, data, voltage), however in the wiring diagram the voltage and data lines are swapped.
 Connecting voltage directly to your data pin might seriously damage or kill your Raspberry!
 
 Optionally, you can connect a switch to BCM pin 12 and GND. Attach the switch to the key cover, if available. When it is closed, the animations are automatically switched off.
