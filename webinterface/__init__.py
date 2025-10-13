@@ -114,9 +114,9 @@ def start_server(loop):
 
     async def handler(websocket):
         try:
-            if websocket.path == "/learning":
+            if websocket.request.path == "/learning":
                 await learning(websocket)
-            elif websocket.path == "/ledemu":
+            elif websocket.request.path == "/ledemu":
                 await asyncio.gather(ledemu(websocket), ledemu_recv(websocket))
             else:
                 # No handler for this path; close the connection.
