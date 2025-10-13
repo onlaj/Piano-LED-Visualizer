@@ -130,8 +130,15 @@ def start_server(loop):
                     f"LED emulator client disconnected (handler cleanup). Active clients: {len(app_state.ledemu_clients)}")
 
     async def main():
-        logger.info("WebSocket listening on: " + str(get_ip_address()) + ":8765")
-        async with websockets.serve(handler, "0.0.0.0", 8765):
+        listen_ip = app_state.usersettings.get_setting_value("web_listen_ip")
+        if listen_ip and listen_ip != "0.0.0.0":
+            show_ip = listen_ip
+        else:
+            show_ip = str(get_ip_address())
+            listen_ip = "0.0.0.0"
+
+        logger.info("WebSocket listening on: " + show_ip + ":8765")
+        async with websockets.serve(handler, listen_ip, 8765):
             await asyncio.Future()
 
     asyncio.set_event_loop(loop)
