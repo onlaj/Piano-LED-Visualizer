@@ -107,8 +107,14 @@ If you don't have a 3d printer, try to find some company or private person who w
 
 ## Web interface
 The visualizer comes with a web interface with which you can control the colors of the LED strip, change port settings, run animations of the strip, control sequences and manage midi files, including downloading, uploading, renaming, deleting, and playing.
-To connect to the web interface, type the local address of your raspberry pi in the browser, for example [http:/192.168.1.10](http:/192.168.1.10)
-Both devices must be connected to the same network. By default, web interface works on port 80, but if needed it can be changed with the script's argument `--port`
+
+To connect to the web interface, type the local address of your raspberry pi in the browser, for example [http://192.168.1.10](http://192.168.1.10)
+Both devices must be connected to the same network. By default, web interface works on port 80 through any available IP address, but if needed it can be changed in `config/settings.xml`:
+
+    <web_listen_ip>192.168.1.10</web_listen_ip>
+    <web_listen_port>80</web_listen_port>
+
+ The port can also be changed with the script's argument `--port`
 
     sudo python3 /home/Piano-LED-Visualizer/visualizer.py --port 5000
 
