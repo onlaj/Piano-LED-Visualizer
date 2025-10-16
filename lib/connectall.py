@@ -98,8 +98,26 @@ def connectall(usersettings=None):
         # Two-way connection: input -> secondary and secondary -> input
         result1 = subprocess.call(f"aconnect {input_port_id} {secondary_input_port_id}", shell=True)
         result2 = subprocess.call(f"aconnect {secondary_input_port_id} {input_port_id}", shell=True)
+
+        # Get available output ports
+        out_ports = subprocess.check_output(["aconnect", "-o"], text=True)
+        rt_midi_in_port = None
+        for line in str(out_ports).splitlines():
+            if line.startswith("client "):
+                client = line[7:].split(":", 2)[0]
+            elif "RtMidi input" in line:
+                rt_midi_in_port = client + ":" + line.split()[0]  # Get the client_id:port_id
+                print("Found RtMidi input port:", rt_midi_in_port)
+                break
         
-        if result1 == 0 and result2 == 0:
+        if rt_midi_in_port:
+            result3 = subprocess.call(f"aconnect {input_port_id} {rt_midi_in_port}", shell=True)
+            result4 = subprocess.call(f"aconnect {secondary_input_port_id} {rt_midi_in_port}", shell=True)
+        else:
+            result3 = 0
+            result4 = 0
+
+        if result1 == 0 and result2 == 0 and result3 == 0 and result4 == 0:
             print("Connection established successfully")
         else:
             print("Warning: Some connections may have failed")
