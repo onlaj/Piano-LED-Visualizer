@@ -3,6 +3,7 @@
 import sys
 import os
 import fcntl
+import signal
 import time
 
 from lib.argument_parser import ArgumentParser
@@ -29,6 +30,7 @@ def restart_script():
 
 class VisualizerApp:
     def __init__(self):
+        signal.signal(signal.SIGTERM, self.handle_sigterm)
         self.fh = None
         self.ensure_singleton()
         os.chdir(sys.path[0])
@@ -86,6 +88,12 @@ class VisualizerApp:
         self.screen_hold_time = 16
         self.ledshow_timestamp = time.time()
 
+    def handle_sigterm(self, signum, frame):
+        print("SIGTERM received, shutting down gracefully...")
+        # Turn off all LEDs before shutting down
+        fastColorWipe(self.component_initializer.ledstrip.strip, True, self.component_initializer.ledsettings)
+        sys.exit(0)
+    
     def ensure_singleton(self):
         self.fh = open(os.path.realpath(__file__), 'r')
         try:
