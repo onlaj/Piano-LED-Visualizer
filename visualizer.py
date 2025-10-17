@@ -30,7 +30,8 @@ def restart_script():
 
 class VisualizerApp:
     def __init__(self):
-        signal.signal(signal.SIGTERM, self.handle_sigterm)
+        signal.signal(signal.SIGTERM, self.handle_shutdown)
+        signal.signal(signal.SIGINT, self.handle_shutdown)
         self.fh = None
         self.ensure_singleton()
         os.chdir(sys.path[0])
@@ -88,8 +89,7 @@ class VisualizerApp:
         self.screen_hold_time = 16
         self.ledshow_timestamp = time.time()
 
-    def handle_sigterm(self, signum, frame):
-        print("SIGTERM received, shutting down gracefully...")
+    def handle_shutdown(self, signum, frame):
         # Turn off all LEDs before shutting down
         fastColorWipe(self.component_initializer.ledstrip.strip, True, self.component_initializer.ledsettings)
         sys.exit(0)
