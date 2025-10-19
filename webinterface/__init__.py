@@ -114,9 +114,15 @@ def start_server(loop):
 
     async def handler(websocket):
         try:
-            if websocket.path == "/learning":
+            # Support both newer (websocket.request.path) and older (websocket.path) versions
+            try:
+                path = websocket.request.path
+            except AttributeError:
+                path = websocket.path
+            
+            if path == "/learning":
                 await learning(websocket)
-            elif websocket.path == "/ledemu":
+            elif path == "/ledemu":
                 await asyncio.gather(ledemu(websocket), ledemu_recv(websocket))
             else:
                 # No handler for this path; close the connection.
