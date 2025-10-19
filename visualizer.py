@@ -3,12 +3,13 @@
 import sys
 import os
 import fcntl
+import signal
 import time
 
 from lib.argument_parser import ArgumentParser
 from lib.component_initializer import ComponentInitializer
 from lib.functions import fastColorWipe, screensaver, \
-    manage_idle_animation
+    manage_idle_animation, stop_animations
 from lib.gpio_handler import GPIOHandler
 from lib.led_effects_processor import LEDEffectsProcessor
 from lib.ledsettings import LedSettings
@@ -29,6 +30,8 @@ def restart_script():
 
 class VisualizerApp:
     def __init__(self):
+        signal.signal(signal.SIGTERM, self.handle_shutdown)
+        signal.signal(signal.SIGINT, self.handle_shutdown)
         self.fh = None
         self.ensure_singleton()
         os.chdir(sys.path[0])
@@ -86,6 +89,12 @@ class VisualizerApp:
         self.screen_hold_time = 16
         self.ledshow_timestamp = time.time()
 
+    def handle_shutdown(self, signum, frame):
+        # Turn off all LEDs before shutting down
+        stop_animations(self.component_initializer.menu)
+        fastColorWipe(self.component_initializer.ledstrip.strip, True, self.component_initializer.ledsettings)
+        sys.exit(0)
+    
     def ensure_singleton(self):
         self.fh = open(os.path.realpath(__file__), 'r')
         try:
