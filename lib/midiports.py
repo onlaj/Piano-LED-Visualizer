@@ -42,7 +42,7 @@ class MidiPorts:
             # if not, try to find the new midi port
             try:
                 for port in mido.get_input_names():
-                    if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
+                    if "Through" not in port and "RPi" not in port and "RtMidi" not in port and "USB-USB" not in port:
                         self.inport = mido.open_input(port, callback=self.msg_callback)
                         self.usersettings.change_setting_value("input_port", port)
                         logger.info("Inport set to " + port)
@@ -61,7 +61,7 @@ class MidiPorts:
             # if not, try to find the new midi port
             try:
                 for port in mido.get_output_names():
-                    if "Through" not in port and "RPi" not in port and "RtMidOut" not in port and "USB-USB" not in port:
+                    if "Through" not in port and "RPi" not in port and "RtMidi" not in port and "USB-USB" not in port:
                         self.playport = mido.open_output(port)
                         self.usersettings.change_setting_value("play_port", port)
                         logger.info("Playport set to " + port)
@@ -72,9 +72,8 @@ class MidiPorts:
         self.portname = "inport"
 
     def connectall(self):
-        # Reconnect the input and playports on a connectall
-        self.reconnect_ports()
-        # Now connect the input and secondary input ports
+        # Only manage aconnect connections, don't touch mido ports
+        # This prevents mido from losing connection
         connectall.connectall(self.usersettings)
 
     def add_instance(self, menu):
@@ -138,53 +137,49 @@ class MidiPorts:
         logger.info("MIDI device monitor stopped")
     
     def _monitor_midi_devices(self):
-        """Monitor for MIDI device changes and auto-connect configured ports - optimized for weak devices"""
+        """Monitor for MIDI device changes and auto-connect configured ports - only when needed"""
         last_port_count = 0
-        check_interval = 10  # Check every 10 seconds
+        check_interval = 30  # Check every 30 seconds
         consecutive_checks = 0
-        connection_exists = False
         
         while self.monitor_running:
             try:
-                # Only check if we haven't checked recently or if it's been a while
-                if consecutive_checks == 0 or consecutive_checks % 6 == 0:  # Every minute
-                    # Use a lighter approach - just check if aconnect command works
-                    result = subprocess.run(['aconnect', '-l'], capture_output=True, text=True, timeout=3)
-                    if result.returncode == 0:
-                        # Simple port count - just count non-empty lines that aren't client headers
-                        lines = [line for line in result.stdout.splitlines() if line.strip() and not line.startswith('client') and not line.startswith('\t')]
-                        current_port_count = len(lines)
+                # Check if aconnect command works
+                result = subprocess.run(['aconnect', '-l'], capture_output=True, text=True, timeout=3)
+                if result.returncode == 0:
+                    # Count non-empty lines that aren't client headers
+                    lines = [line for line in result.stdout.splitlines() if line.strip() and not line.startswith('client') and not line.startswith('\t')]
+                    current_port_count = len(lines)
+                    
+                    # Check if our desired connection exists
+                    connection_exists = self._check_desired_connection_exists(result.stdout)
+                    
+                    # Only act if port count changed AND connection doesn't exist
+                    if abs(current_port_count - last_port_count) > 0 and not connection_exists:
+                        logger.info(f"MIDI port count changed from {last_port_count} to {current_port_count}")
+                        last_port_count = current_port_count
                         
-                        # Check if our desired connection already exists
-                        connection_exists = self._check_desired_connection_exists(result.stdout)
-                        
-                        # If port count changed significantly, try to connect
-                        if abs(current_port_count - last_port_count) > 0:
-                            logger.info(f"MIDI port count changed from {last_port_count} to {current_port_count}")
-                            last_port_count = current_port_count
-                            
+                        # Check if configured ports are still available
+                        if self._are_configured_ports_available(result.stdout):
                             # Wait a bit for ports to stabilize
                             time.sleep(3)
                             
-                            # Try to connect configured ports
+                            # Only connect if configured ports are available
+                            logger.info("Configured ports are available, attempting connection...")
                             self.connectall()
-                            connection_exists = True  # Assume connection was created
+                        else:
+                            logger.info("Configured ports not available, skipping connection")
+                    elif abs(current_port_count - last_port_count) > 0:
+                        logger.info(f"MIDI port count changed from {last_port_count} to {current_port_count}, but connection already exists")
+                        last_port_count = current_port_count
                 
                 consecutive_checks += 1
                 
-                # Adaptive sleep based on connection status
-                if connection_exists:
-                    # If connection exists, check much less frequently
-                    if consecutive_checks > 5:  # After 50 seconds of stable connection
-                        check_interval = 120  # Check every 2 minutes
-                    else:
-                        check_interval = 30  # Check every 30 seconds
+                # Adaptive sleep - check less frequently if everything is stable
+                if consecutive_checks > 10:  # After 5 minutes of stable operation
+                    check_interval = 120  # Check every 2 minutes
                 else:
-                    # If no connection, check more frequently
-                    if consecutive_checks > 10:  # After 100 seconds of no changes
-                        check_interval = 30  # Check every 30 seconds
-                    else:
-                        check_interval = 10  # Check every 10 seconds
+                    check_interval = 30  # Check every 30 seconds
                 
                 time.sleep(check_interval)
                 
@@ -222,4 +217,36 @@ class MidiPorts:
             
         except Exception as e:
             logger.warning(f"Error checking desired connection: {e}")
+            return False
+    
+    def _are_configured_ports_available(self, aconnect_output):
+        """Check if the configured input and secondary input ports are available in the system"""
+        try:
+            # Get configured ports
+            input_port = self.usersettings.get_setting_value("input_port")
+            secondary_input_port = self.usersettings.get_setting_value("secondary_input_port")
+            
+            # Skip if ports are not configured
+            if input_port == "default" or secondary_input_port == "default":
+                return False
+            
+            # Extract port IDs
+            input_port_id = input_port.split()[-1]  # Get the last part (client_id:port_id)
+            secondary_input_port_id = secondary_input_port.split()[-1]  # Get the last part (client_id:port_id)
+            
+            # Check if both ports exist in the aconnect output
+            lines = aconnect_output.splitlines()
+            input_found = False
+            secondary_found = False
+            
+            for line in lines:
+                if input_port_id in line and not line.startswith('client'):
+                    input_found = True
+                if secondary_input_port_id in line and not line.startswith('client'):
+                    secondary_found = True
+            
+            return input_found and secondary_found
+            
+        except Exception as e:
+            logger.warning(f"Error checking port availability: {e}")
             return False

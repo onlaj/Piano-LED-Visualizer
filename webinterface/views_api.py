@@ -1783,7 +1783,7 @@ def parse_aconnect_ports(output, port_type="input"):
             current_client_name = client_match.group(2)
             
             # Skip special clients
-            if current_client == "0" or "Through" in current_client_name:
+            if current_client == "0" or "Through" in current_client_name or "RtMidi" in current_client_name:
                 current_client = None
             continue
         

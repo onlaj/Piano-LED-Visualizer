@@ -32,7 +32,6 @@ class ComponentInitializer:
 
     def setup_components(self):
         if not self.args.skipupdate:
-            self.platform.copy_connectall_script()
             # Disable system MIDI scripts that use the old connectall behavior
             self.platform.disable_system_midi_scripts()
 

@@ -58,7 +58,7 @@ def connectall(usersettings=None):
     for line in str(ports).splitlines():
         if line.startswith("client "):
             client = line[7:].split(":", 2)[0]
-            if client == "0" or "Through" in line:
+            if client == "0" or "Through" in line or "RtMidi" in line:
                 client = "0"
         else:
             if client == "0" or line.startswith('\t'):
@@ -90,25 +90,48 @@ def connectall(usersettings=None):
     
     # Connect the ports if both are found
     if input_port_id and secondary_input_port_id:
-        print(f"Disconnecting all existing MIDI connections...")
-        # First disconnect all existing connections
-        subprocess.call("aconnect -x", shell=True)
+        # Check if the desired connection already exists before doing anything
+        aconnect_output = subprocess.check_output(["aconnect", "-l"], text=True)
+        connection_exists = _check_connection_exists(aconnect_output, input_port_id, secondary_input_port_id)
         
-        print(f"Connecting {input_port} ({input_port_id}) to {secondary_input_port} ({secondary_input_port_id})")
-        # Two-way connection: input -> secondary and secondary -> input
-        result1 = subprocess.call(f"aconnect {input_port_id} {secondary_input_port_id}", shell=True)
-        result2 = subprocess.call(f"aconnect {secondary_input_port_id} {input_port_id}", shell=True)
-        
-        if result1 == 0 and result2 == 0:
-            print("Connection established successfully")
+        if connection_exists:
+            print(f"Connection between {input_port} and {secondary_input_port} already exists, skipping")
         else:
-            print("Warning: Some connections may have failed")
+            print(f"Connecting {input_port} ({input_port_id}) to {secondary_input_port} ({secondary_input_port_id})")
+            # Two-way connection: input -> secondary and secondary -> input
+            result1 = subprocess.call(f"aconnect {input_port_id} {secondary_input_port_id}", shell=True)
+            result2 = subprocess.call(f"aconnect {secondary_input_port_id} {input_port_id}", shell=True)
+            
+            if result1 == 0 and result2 == 0:
+                print("Connection established successfully")
+            else:
+                print("Warning: Some connections may have failed")
     else:
         print(f"Could not find ports: input_port='{input_port}', secondary_input_port='{secondary_input_port}'")
         if not input_port_id:
             print(f"Input port '{input_port}' not found")
         if not secondary_input_port_id:
             print(f"Secondary input port '{secondary_input_port}' not found")
+
+
+def _check_connection_exists(aconnect_output, input_port_id, secondary_input_port_id):
+    """Check if the desired two-way connection already exists"""
+    try:
+        lines = aconnect_output.splitlines()
+        input_to_secondary = False
+        secondary_to_input = False
+        
+        for line in lines:
+            if f"Connecting To: {secondary_input_port_id}" in line and input_port_id in line:
+                input_to_secondary = True
+            if f"Connecting To: {input_port_id}" in line and secondary_input_port_id in line:
+                secondary_to_input = True
+        
+        return input_to_secondary and secondary_to_input
+        
+    except Exception as e:
+        print(f"Error checking connection existence: {e}")
+        return False
 
 
 if __name__ == '__main__':

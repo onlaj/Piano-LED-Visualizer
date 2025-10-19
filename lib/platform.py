@@ -51,14 +51,6 @@ class PlatformRasp(PlatformBase):
             logger.warning(f"Error checking SPI status: {e}")
             return False
 
-    @staticmethod
-    def copy_connectall_script():
-        # make sure connectall.py file exists and is updated
-        if not os.path.exists('/usr/local/bin/connectall.py') or \
-                filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
-            logger.info("connectall.py script is outdated, updating...")
-            copyfile('lib/connectall.py', '/usr/local/bin/connectall.py')
-            os.chmod('/usr/local/bin/connectall.py', 493)
     
     @staticmethod
     def disable_system_midi_scripts():
