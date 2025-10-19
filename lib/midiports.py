@@ -208,10 +208,19 @@ class MidiPorts:
             secondary_to_input = False
             
             for line in lines:
-                if f"Connecting To: {secondary_input_port_id}" in line and input_port_id in line:
-                    input_to_secondary = True
-                if f"Connecting To: {input_port_id}" in line and secondary_input_port_id in line:
-                    secondary_to_input = True
+                # Look for "Connecting To:" lines that contain both port IDs
+                if "Connecting To:" in line:
+                    if input_port_id in line and secondary_input_port_id in line:
+                        # This line shows a connection between our two ports
+                        input_to_secondary = True
+                        secondary_to_input = True
+                        break
+                # Also check for "Connected From:" lines for completeness
+                elif "Connected From:" in line:
+                    if input_port_id in line and secondary_input_port_id in line:
+                        input_to_secondary = True
+                        secondary_to_input = True
+                        break
             
             return input_to_secondary and secondary_to_input
             

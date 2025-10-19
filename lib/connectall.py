@@ -38,17 +38,17 @@ def connectall(usersettings=None):
                 continue
         
         if not settings_found:
-            print("Error reading settings file from any location, using defaults")
+            print("ERROR: Could not read settings file from any location, using defaults")
             input_port = "default"
             secondary_input_port = "default"
     
     # Check if both ports are set and not default
     if input_port == "default" or secondary_input_port == "default":
-        print("Input port or secondary input port not set, skipping connection")
+        print("INFO: Input port or secondary input port not set, skipping connection")
         return
     
     if input_port == secondary_input_port:
-        print("Input and secondary input ports are the same, skipping connection")
+        print("INFO: Input and secondary input ports are the same, skipping connection")
         return
     
     # Get available ports
@@ -76,16 +76,16 @@ def connectall(usersettings=None):
         input_port_id = input_port.split()[-1]  # Get the last part (client_id:port_id)
         secondary_input_port_id = secondary_input_port.split()[-1]  # Get the last part (client_id:port_id)
     except:
-        print("Error parsing configured port names")
+        print("ERROR: Failed to parse configured port names")
         return
     
     # Verify the ports exist in the available port list
     if input_port_id not in port_list:
-        print(f"Input port ID '{input_port_id}' not found in available ports")
+        print(f"ERROR: Input port ID '{input_port_id}' not found in available ports")
         input_port_id = None
     
     if secondary_input_port_id not in port_list:
-        print(f"Secondary input port ID '{secondary_input_port_id}' not found in available ports")
+        print(f"ERROR: Secondary input port ID '{secondary_input_port_id}' not found in available ports")
         secondary_input_port_id = None
     
     # Connect the ports if both are found
@@ -95,23 +95,35 @@ def connectall(usersettings=None):
         connection_exists = _check_connection_exists(aconnect_output, input_port_id, secondary_input_port_id)
         
         if connection_exists:
-            print(f"Connection between {input_port} and {secondary_input_port} already exists, skipping")
+            print(f"SUCCESS: Connection between {input_port} and {secondary_input_port} already exists, skipping")
         else:
-            print(f"Connecting {input_port} ({input_port_id}) to {secondary_input_port} ({secondary_input_port_id})")
+            print(f"INFO: Attempting to connect {input_port} ({input_port_id}) to {secondary_input_port} ({secondary_input_port_id})")
             # Two-way connection: input -> secondary and secondary -> input
-            result1 = subprocess.call(f"aconnect {input_port_id} {secondary_input_port_id}", shell=True)
-            result2 = subprocess.call(f"aconnect {secondary_input_port_id} {input_port_id}", shell=True)
+            result1 = subprocess.run(f"aconnect {input_port_id} {secondary_input_port_id}", shell=True, capture_output=True, text=True)
+            result2 = subprocess.run(f"aconnect {secondary_input_port_id} {input_port_id}", shell=True, capture_output=True, text=True)
             
-            if result1 == 0 and result2 == 0:
-                print("Connection established successfully")
+            # Check results and provide detailed feedback
+            success1 = result1.returncode == 0 or "Connection is already subscribed" in result1.stderr
+            success2 = result2.returncode == 0 or "Connection is already subscribed" in result2.stderr
+            
+            if success1 and success2:
+                if result1.returncode == 0 and result2.returncode == 0:
+                    print("SUCCESS: Connection established successfully")
+                else:
+                    print("SUCCESS: Connection already exists (both directions)")
             else:
-                print("Warning: Some connections may have failed")
+                # Report specific failures
+                if not success1:
+                    print(f"ERROR: Failed to connect {input_port_id} -> {secondary_input_port_id}: {result1.stderr.strip()}")
+                if not success2:
+                    print(f"ERROR: Failed to connect {secondary_input_port_id} -> {input_port_id}: {result2.stderr.strip()}")
+                print("WARNING: Some connections may have failed")
     else:
-        print(f"Could not find ports: input_port='{input_port}', secondary_input_port='{secondary_input_port}'")
+        print(f"ERROR: Could not find ports: input_port='{input_port}', secondary_input_port='{secondary_input_port}'")
         if not input_port_id:
-            print(f"Input port '{input_port}' not found")
+            print(f"ERROR: Input port '{input_port}' not found")
         if not secondary_input_port_id:
-            print(f"Secondary input port '{secondary_input_port}' not found")
+            print(f"ERROR: Secondary input port '{secondary_input_port}' not found")
 
 
 def _check_connection_exists(aconnect_output, input_port_id, secondary_input_port_id):
@@ -122,15 +134,24 @@ def _check_connection_exists(aconnect_output, input_port_id, secondary_input_por
         secondary_to_input = False
         
         for line in lines:
-            if f"Connecting To: {secondary_input_port_id}" in line and input_port_id in line:
-                input_to_secondary = True
-            if f"Connecting To: {input_port_id}" in line and secondary_input_port_id in line:
-                secondary_to_input = True
+            # Look for "Connecting To:" lines that contain both port IDs
+            if "Connecting To:" in line:
+                if input_port_id in line and secondary_input_port_id in line:
+                    # This line shows a connection between our two ports
+                    input_to_secondary = True
+                    secondary_to_input = True
+                    break
+            # Also check for "Connected From:" lines for completeness
+            elif "Connected From:" in line:
+                if input_port_id in line and secondary_input_port_id in line:
+                    input_to_secondary = True
+                    secondary_to_input = True
+                    break
         
         return input_to_secondary and secondary_to_input
         
     except Exception as e:
-        print(f"Error checking connection existence: {e}")
+        print(f"ERROR: Failed to check connection existence: {e}")
         return False
 
 
