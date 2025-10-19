@@ -9,7 +9,7 @@ import time
 from lib.argument_parser import ArgumentParser
 from lib.component_initializer import ComponentInitializer
 from lib.functions import fastColorWipe, screensaver, \
-    manage_idle_animation
+    manage_idle_animation, stop_animations
 from lib.gpio_handler import GPIOHandler
 from lib.led_effects_processor import LEDEffectsProcessor
 from lib.ledsettings import LedSettings
@@ -91,6 +91,7 @@ class VisualizerApp:
 
     def handle_shutdown(self, signum, frame):
         # Turn off all LEDs before shutting down
+        stop_animations(self.component_initializer.menu)
         fastColorWipe(self.component_initializer.ledstrip.strip, True, self.component_initializer.ledsettings)
         sys.exit(0)
     
