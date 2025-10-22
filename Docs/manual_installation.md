@@ -21,11 +21,11 @@ This configuration will make it easier to connect to your Raspberry Pi using SSH
 
 Install [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/) on your SD card.
 
-If you are not able to connect your monitor, mouse and keyboard to RPi you can connect to it using SSH over [Wi-Fi](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
+If you are not able to connect your monitor, mouse and keyboard to RPi you can connect to it using SSH over [Wi-Fi](https://github.com/MrFanfo/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
 
 Run installation script:
 
-`sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/autoinstall.sh)"`
+`sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/MrFanfo/Piano-LED-Visualizer/master/autoinstall.sh)"`
 
 **or follow those steps:**
  
@@ -99,7 +99,7 @@ We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://githu
 
 - GIT clone repository
 
-`sudo git clone https://github.com/onlaj/Piano-LED-Visualizer`
+`sudo git clone https://github.com/MrFanfo/Piano-LED-Visualizer`
 
 `cd Piano-LED-Visualizer`
 - Install required libraries
