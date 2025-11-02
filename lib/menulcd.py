@@ -48,11 +48,6 @@ class UITheme:
         self.value_right_margin = 5  # Right margin for values
         self.value_gap = 5  # Gap between label and value
 
-        self.marquee_enabled = True
-        self.marquee_selected_only = True   # set False if you want all rows to scroll
-        self.marquee_speed_px_s = 15       # slow scroll speed
-        self.marquee_pause_start_s = 1.0    # 1s pause at the start
-        self.marquee_pause_end_s = 1.0      # 1s pause at the end
 
 class MenuLCD:
     def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot, platform):
@@ -496,75 +491,47 @@ class MenuLCD:
         while text and self.draw.textlength(text + ellipsis, font=font) > max_width:
             text = text[:-1]
         return text + ellipsis
-    
-    def _draw_text_marquee(self, text, x, y, max_w, font, is_selected):
-        """
-        One-way marquee with start/end pauses:
-        - waits at the beginning (text at normal position),
-        - scrolls left until the end is fully visible,
-        - waits at the end, then snaps back to start.
 
-        Vertical alignment remains identical to static rendering by using the
-        real text bounding box (no descender clipping, no vertical jump).
-        """
-        # Pillow requires ints
-        try:
-            max_w = int(max(1, round(max_w)))
-        except Exception:
-            max_w = int(max(1, max_w))
-        x = int(round(x))
-        y = int(round(y))
-
-        # Measure text width (textlength may return float)
-        try:
-            text_w = int(round(self.draw.textlength(text, font=font)))
-        except Exception:
-            bb_text = self.draw.textbbox((0, 0), text, font=font)
-            text_w = int(bb_text[2] - bb_text[0])
-
-        # No overflow → draw normally
-        if text_w <= max_w:
-            self.draw.text((x, y), text, fill=self.text_color, font=font)
+    def _draw_label_with_legacy_scroll(self, text, x, y, max_w, font, is_selected, refresh):
+        """Legacy character-based scrolling (exactly like menulcd(old).py).
+        Fixed 18-char window; only selected row scrolls; cut_count/scroll_hold; start delay -6; end hold 8 ticks.
+        max_w is intentionally ignored to keep legacy behavior."""
+        if text is None:
             return
+        s = str(text)
+        window_len = 18
+        cut = 0
+        to_be_continued = ""
 
-        # Marquee disabled or only-for-selected item → fall back to ellipsis
-        if not getattr(self.theme, "marquee_enabled", False) or (
-            getattr(self.theme, "marquee_selected_only", True) and not is_selected
-        ):
-            clipped = self._truncate_text(text, max_w, font)
-            self.draw.text((x, y), clipped, fill=self.text_color, font=font)
-            return
+        if is_selected and len(s) > window_len:
+            to_be_continued = ".."
+            if refresh == 1:
+                try:
+                    self.cut_count += 1
+                except Exception:
+                    self.cut_count = -6
+            else:
+                cut = 0
+                self.cut_count = -6
 
-        # Stable vertical alignment using the REAL text bounding box
-        bb_text = self.draw.textbbox((0, 0), text, font=font)
-        top_text, bottom_text = bb_text[1], bb_text[3]
-        h = int(max(1, round(bottom_text - top_text+5)))
-        y_offset = int(-top_text+5)  # shift so top of bbox maps to y=0 in the temp image
-
-        # Motion profile: start pause + travel + end pause
-        D = int(max(1, text_w - max_w))  # pixels to travel
-        speed   = float(getattr(self.theme, "marquee_speed_px_s",     6.0))
-        p_start = float(getattr(self.theme, "marquee_pause_start_s",  1.0))
-        p_end   = float(getattr(self.theme, "marquee_pause_end_s",    1.0))
-
-        travel = D / max(speed, 0.1)                 # seconds for 0 → D
-        period = p_start + travel + p_end            # full cycle duration
-        t = time.time() % period
-
-        if t < p_start:
-            off = 0                                  # wait at start
-        elif t < p_start + travel:
-            off = int(round((t - p_start) * speed))  # moving
+            if self.cut_count > (len(s) - 16):
+                if getattr(self, "scroll_hold", 0) < 8:
+                    self.cut_count -= 1
+                    self.scroll_hold = getattr(self, "scroll_hold", 0) + 1
+                    to_be_continued = ""
+                else:
+                    self.cut_count = -6
+                    self.scroll_hold = 0
+                cut = self.cut_count
+            else:
+                cut = self.cut_count if self.cut_count >= 0 else 0
         else:
-            off = D                                  # wait at end
+            cut = 0
+            to_be_continued = ""
 
-        # Render into a clipped buffer (no duplication, no gap)
-        tmp = Image.new("RGBA", (max_w, h), (0, 0, 0, 0))
-        td = ImageDraw.Draw(tmp)
-        td.text((-off, y_offset), text, fill=self.text_color, font=font)
-        self.image.paste(tmp, (x, y), tmp)
-
-
+        visible = s[cut:cut + window_len] + to_be_continued
+        self.draw.text((int(x), int(y)), visible, fill=self.text_color, font=font)
+    
 
     def _get_item_value(self, location, choice):
             """Get the display value for a menu item if it has an adjustable value"""
@@ -991,7 +958,7 @@ class MenuLCD:
                 # Truncate label if needed
                 label_text = self._truncate_text(sid, label_max_width, self.font)
                 # Draw label
-                self._draw_text_marquee(sid, text_x, text_y, label_max_width, self.font, is_selected)
+                self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh)
 
                 # Calculate value position, accounting for color box if needed
                 value_right_margin = self.scale(self.theme.value_right_margin)
@@ -1003,7 +970,7 @@ class MenuLCD:
                 # Just draw label centered vertically
                 label_max_width = item_x1 - item_x0 - self.scale(self.theme.item_padding_h * 2)
                 label_text = self._truncate_text(sid, label_max_width, self.font)
-                self._draw_text_marquee(sid, text_x, text_y, label_max_width, self.font, is_selected)
+                self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh)
 
             current_y += total_item_height
         
