@@ -169,6 +169,30 @@ class VisualizerApp:
                 self.backlight_cleared = False
 
     def update_display(self, elapsed_time):
+        # Periodic menu tick to drive legacy text scrolling (cut_count/scroll_hold)
+        now = time.monotonic()
+        tick_interval = 0.10  # ~10 fps, light on CPU (RPi Zero friendly)
+        if not hasattr(self, '_last_menu_tick'):
+            self._last_menu_tick = 0.0
+        if now - self._last_menu_tick >= tick_interval:
+            try:
+                menu = self.component_initializer.menu
+                # Only tick when a long label is selected (legacy rule: >18 chars)
+                needs = True
+                try:
+                    needs = (0 <= menu.pointer_position <= menu.list_count and
+                             isinstance(menu.list[menu.pointer_position], str) and
+                             len(menu.list[menu.pointer_position]) > 18)
+                except Exception:
+                    needs = True
+                if getattr(menu, 'screen_on', 1) == 1 and needs:
+                    menu.update()  # calls show('default') -> refresh==1, advances scroll
+            except Exception as e:
+                try:
+                    logger.debug('menu.update() tick skipped: %s', e)
+                except Exception:
+                    pass
+            self._last_menu_tick = now
         if self.display_cycle >= 3:
             self.display_cycle = 0
             if elapsed_time > self.screen_hold_time:
