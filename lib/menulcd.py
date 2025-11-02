@@ -1,18 +1,51 @@
 import os
-
 from subprocess import call
 from xml.dom import minidom
-
 import webcolors as wc
 from PIL import ImageFont, Image, ImageDraw
-
 from lib import LCD_Config, LCD_1in44, LCD_1in3
-
 from lib.functions import *
 from lib.rpi_drivers import GPIO
-
 import lib.colormaps as cmap
 from lib.log_setup import logger
+
+
+# ============================================================================
+# UI Theme Configuration
+# ============================================================================
+class UITheme:
+    """Centralized UI theme configuration"""
+    def __init__(self, lcd_scale_func):
+        self.scale = lcd_scale_func
+        
+        # Menu item styling
+        self.item_gap = 5  # Vertical spacing between items
+        self.item_padding_v = 5  # Vertical padding inside item box
+        self.item_padding_h = 5  # Horizontal padding inside item box
+        self.item_corner_radius = 15  # Rounded corner radius
+        self.item_bg_color = (63, 63, 70)  # Grey background for items
+        self.item_border_color = (63, 63, 70, 200)  # Border color RGBA
+        self.item_border_width = 1  # Constant border width
+        
+        # Pointer (selection highlight)
+        self.pointer_color = (14, 165, 233)  # Default: Blue-Like
+        self.pointer_width = 1  # Constant outline thickness
+        self.pointer_padding = 1  # Extra padding around item for pointer
+        
+        # Scrolling
+        self.viewport_margin_top = 5  # Keep selection this far from top
+        self.viewport_margin_bottom = 5  # Keep selection this far from bottom
+        self.scroll_indicator_width = 3  # Width of scroll arrows
+        
+        # Title area
+        self.title_height = 15  # Height reserved for title
+        self.title_padding = 5
+        self.title_width_percent = 90 # Percentage of screen width to use (1-100)
+        self.menu_title_png = "webinterface/static/menu_title.png"  # Path to title image
+        
+        # Value display
+        self.value_right_margin = 5  # Right margin for values
+        self.value_gap = 5  # Gap between label and value
 
 
 class MenuLCD:
@@ -31,6 +64,7 @@ class MenuLCD:
         self.hotspot = hotspot
         self.platform = platform
         self.args = args
+        
         font_dir = "/usr/share/fonts/truetype/freefont"
         if args.fontdir is not None:
             font_dir = args.fontdir
@@ -47,6 +81,9 @@ class MenuLCD:
             self.font = ImageFont.load_default()
             self.image = Image.open('webinterface/static/logo128_128.bmp')
 
+        # Initialize UI theme
+        self.theme = UITheme(self.scale)
+        
         self.LCD.LCD_Init()
         self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
         self.DOMTree = minidom.parse(xml_file_name)
@@ -54,8 +91,21 @@ class MenuLCD:
         self.scroll_hold = 0
         self.cut_count = 0
         self.pointer_position = 0
+        self.scroll_offset = 0  # New: track scroll position
+        
         self.background_color = usersettings.get_setting_value("background_color")
         self.text_color = usersettings.get_setting_value("text_color")
+        
+        # Load pointer color from settings
+        pointer_color_str = None
+        try:
+            pointer_color_str = usersettings.get_setting_value("pointer_color")
+        except Exception as e:
+            logger.debug(f"pointer_color not found in settings; using default {self.theme.pointer_color}")
+
+        if pointer_color_str:
+            self.theme.pointer_color = self._parse_color(pointer_color_str)
+
         self.update_songs()
         self.update_ports()
         self.update_led_note_offsets()
@@ -75,17 +125,85 @@ class MenuLCD:
         self.screensaver_delay = usersettings.get_setting_value("screensaver_delay")
         self.screen_off_delay = usersettings.get_setting_value("screen_off_delay")
         self.led_animation_delay = usersettings.get_setting_value("led_animation_delay")
-
         self.led_animation = usersettings.get_setting_value("led_animation")
-
         self.screen_on = int(usersettings.get_setting_value("screen_on"))
-
         self.screen_status = 1
-
         self.screensaver_is_running = False
         self.last_activity = time.time()
         self.is_idle_animation_running = False
         self.is_animation_running = False
+        
+        # Load menu title image
+        self.menu_title_image = None
+        try:
+            base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            candidates = [
+                getattr(self.theme, "menu_title_png", None),                         # theme override
+                os.path.join("webinterface", "static", "menu_title.png"),            # relative default
+                os.path.join(base_path, "webinterface", "static", "menu_title.png"), # absolute default
+            ]
+            for p in candidates:
+                if not p:
+                    continue
+                path = p if os.path.isabs(p) else os.path.join(base_path, p)
+                if os.path.exists(path):
+                    # Force RGBA to keep transparency
+                    self.menu_title_image = Image.open(path).convert("RGBA")
+                    logger.debug(f"Menu title PNG loaded: {path}")
+                    break
+            if self.menu_title_image is None:
+                logger.debug("Menu title PNG not found (no JPG fallback by design).")
+        except Exception as e:
+            self.menu_title_image = None
+            logger.debug(f"Failed to load menu title PNG: {e}")
+
+
+    def _parse_color(self, color_str):
+            """Parse 'R,G,B', '#RRGGBB', color names, or 'Default Grey'. Fallback to #27272a."""
+            DEFAULT_GREY = (39, 39, 42)  # #27272a
+            if color_str is None:
+                return DEFAULT_GREY
+
+            if not isinstance(color_str, str):
+                color_str = str(color_str)
+            s = color_str.strip()
+            low = s.lower()
+
+            # Handle "Default Grey/Gray" tokens
+            if any(x in low for x in ("default grey", "default gray", "defaultgrey", "defaultgray")):
+                return DEFAULT_GREY
+
+            # Hex (#RRGGBB)
+            if s.startswith("#") and len(s.lstrip("#")) == 6:
+                h = s.lstrip("#")
+                try:
+                    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+                except Exception:
+                    pass
+
+            # "R,G,B"
+            if "," in s:
+                try:
+                    parts = [int(x.strip()) for x in s.split(",")]
+                    if len(parts) >= 3:
+                        r, g, b = [max(0, min(255, v)) for v in parts[:3]]
+                        return (r, g, b)
+                except Exception:
+                    pass
+
+            # Named colors (via webcolors), with simple grey fallback
+            try:
+                from webcolors import name_to_rgb
+                rgb = name_to_rgb(low)
+                return (rgb.red, rgb.green, rgb.blue)
+            except Exception:
+                if low in ("grey", "gray"):
+                    return (128, 128, 128)
+            return DEFAULT_GREY
+
+    def _color_to_string(self, color):
+        """Convert RGB tuple to string for storage"""
+        return f"{color[0]},{color[1]},{color[2]}"
 
     def rotate_image(self, image):
         if self.args.rotatescreen != "true":
@@ -104,54 +222,49 @@ class MenuLCD:
             self.screensaver_settings[setting] = "1"
 
     def update_songs(self):
-        # Assume the first node is "Choose song"
         replace_node = self.DOMTree.getElementsByTagName("Play_MIDI")[0]
         choose_song_mc = self.DOMTree.createElement("Play_MIDI")
         choose_song_mc.appendChild(self.DOMTree.createTextNode(""))
         choose_song_mc.setAttribute("text", "Choose song")
         replace_node.parentNode.replaceChild(choose_song_mc, replace_node)
-        # Assume the first node is "Load song"
+        
         replace_node = self.DOMTree.getElementsByTagName("Learn_MIDI")[0]
         load_song_mc = self.DOMTree.createElement("Learn_MIDI")
         load_song_mc.appendChild(self.DOMTree.createTextNode(""))
         load_song_mc.setAttribute("text", "Load song")
         replace_node.parentNode.replaceChild(load_song_mc, replace_node)
+        
         songs_list = os.listdir("Songs")
         for song in songs_list:
-            # List of songs for Play_MIDI
             element = self.DOMTree.createElement("Choose_song")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", song)
             choose_song_mc.appendChild(element)
-            # List of songs for Learn_MIDI
+            
             element = self.DOMTree.createElement("Load_song")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", song)
             load_song_mc.appendChild(element)
 
     def update_colormap(self):
-        # Assume the first node is "Velocity Colormap"
         replace_node = self.DOMTree.getElementsByTagName("Velocity_Rainbow")[0]
         velocity_colormap_mc = self.DOMTree.createElement("Velocity_Rainbow")
         velocity_colormap_mc.appendChild(self.DOMTree.createTextNode(""))
         velocity_colormap_mc.setAttribute("text", "Velocity Colormap")
         replace_node.parentNode.replaceChild(velocity_colormap_mc, replace_node)
 
-        # Assume the first node is "Rainbow Colormap"
         replace_node = self.DOMTree.getElementsByTagName("Rainbow_Colors")[0]
         rainbow_colormap_mc = self.DOMTree.createElement("Rainbow_Colors")
         rainbow_colormap_mc.appendChild(self.DOMTree.createTextNode(""))
         rainbow_colormap_mc.setAttribute("text", "Rainbow Colormap")
         replace_node.parentNode.replaceChild(rainbow_colormap_mc, replace_node)
 
-        # loop through cmap.colormaps_preview with a key
         for key, value in cmap.colormaps_preview.items():
-            # List of colormaps for Rainbow colormap
             element = self.DOMTree.createElement("Rainbow_Colormap")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", key)
             rainbow_colormap_mc.appendChild(element)
-            # List of colormaps for Velocity colormap
+            
             element = self.DOMTree.createElement("Velocity_Colormap")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", key)
@@ -261,7 +374,6 @@ class MenuLCD:
             element = self.DOMTree.createElement("Multicolor")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", "Color" + str(i))
-            # mc = self.DOMTree.getElementsByTagName("LED_Color")[0]
             mc_multicolor.appendChild(element)
 
             element = self.DOMTree.createElement("Color" + str(i))
@@ -270,7 +382,6 @@ class MenuLCD:
             mc = self.DOMTree.getElementsByTagName("Multicolor")[0]
             mc.appendChild(element)
 
-            # adding key range to menu
             element = self.DOMTree.createElement("Color" + str(i))
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", "Key range" + str(i))
@@ -289,7 +400,6 @@ class MenuLCD:
             mc = self.DOMTree.getElementsByTagName("Color" + str(i))[0]
             mc.appendChild(element)
 
-            # adding delete
             element = self.DOMTree.createElement("Color" + str(i))
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", "Delete")
@@ -303,7 +413,6 @@ class MenuLCD:
                 mc = self.DOMTree.getElementsByTagName("Color" + str(i))[0]
                 mc.appendChild(element)
 
-        # Create the "Cycle colors" element
         element = self.DOMTree.createElement("Multicolor")
         element.appendChild(self.DOMTree.createTextNode(""))
         element.setAttribute("text", "Cycle colors")
@@ -321,7 +430,6 @@ class MenuLCD:
 
         mc_multicolor.appendChild(element)
 
-        # Add in the "Add Color" and "Confirm" into the replaced child
         element = self.DOMTree.createElement("Multicolor")
         element.appendChild(self.DOMTree.createTextNode(""))
         element.setAttribute("text", "Add Color")
@@ -344,25 +452,247 @@ class MenuLCD:
         self.screen_on = 1
         self.usersettings.change_setting_value("screen_on", 1)
 
+    def _draw_rounded_rect(self, xy, radius, fill=None, outline=None, width=1):
+        """Draw an anti-aliased rounded rectangle (fill + optional outline)."""
+
+        """Draw a rounded rectangle with anti-aliasing and complete outline"""
+        x0, y0, x1, y1 = xy
+        
+        # Add padding for the outline to prevent clipping
+        padding = width + 1
+        img_w = int(x1 - x0 + padding * 2)
+        img_h = int(y1 - y0 + padding * 2)
+        
+        # Create a temporary image with padding for anti-aliasing
+        temp_img = Image.new('RGBA', (img_w, img_h), (0, 0, 0, 0))
+        temp_draw = ImageDraw.Draw(temp_img)
+        
+        # Draw with offset to account for padding
+        rect_coords = [(padding, padding), (img_w - padding, img_h - padding)]
+        
+        # Draw fill first if specified
+        if fill:
+            temp_draw.rounded_rectangle(rect_coords, radius=radius, fill=fill)
+            
+        # Draw outline separately to ensure it's complete
+        if outline:
+            temp_draw.rounded_rectangle(rect_coords, radius=radius, outline=outline, width=width)
+        
+        # Paste onto main image, adjusting position for padding
+        self.image.paste(temp_img, (int(x0 - padding), int(y0 - padding)), temp_img)
+
+    def _truncate_text(self, text, max_width, font):
+        """Truncate text with ellipsis if it exceeds max_width"""
+        if self.draw.textlength(text, font=font) <= max_width:
+            return text
+        
+        ellipsis = "..."
+        while text and self.draw.textlength(text + ellipsis, font=font) > max_width:
+            text = text[:-1]
+        return text + ellipsis
+
+
+    def _get_item_value(self, location, choice):
+            """Get the display value for a menu item if it has an adjustable value"""
+            value = None
+
+            # Map locations to their corresponding values
+            if location == "Brightness" and choice == "Power":
+                value = f"{self.ledstrip.brightness_percent}%"
+
+            elif location == "Backlight_Brightness" and choice == "Power":
+                value = self.ledsettings.backlight_brightness_percent
+
+            elif location == "Led_count":
+                value = self.ledstrip.led_number
+
+            elif location == "Leds_per_meter":
+                value = self.ledstrip.leds_per_meter
+
+            elif location == "Shift":
+                value = self.ledstrip.shift
+
+            elif location == "Reverse":
+                value = self.ledstrip.reverse
+
+            elif location == "Start_delay":
+                value = self.screensaver_delay
+
+            elif location == "Turn_off_screen_delay":
+                value = self.screen_off_delay
+
+            elif location == "Led_animation_delay":
+                value = self.led_animation_delay
+
+            elif location == "Period":
+                value = self.ledsettings.speed_period_in_seconds
+
+            elif location == "Max_notes_in_period":
+                value = self.ledsettings.speed_max_notes
+
+            elif location == "Content":
+                sid_temp = choice.lower().replace(" ", "_")
+                value = "+" if str(self.screensaver_settings.get(sid_temp)) == "1" else "-"
+        
+            # --- Scale Coloring: show selected key name on the "Scale key" row ---
+            elif location == "Scale_Coloring" and choice == "Scale key":
+                try:
+                    value = self.ledsettings.scales[self.ledsettings.scale_key]
+                except Exception:
+                    value = None
+
+            # --- Key_rangeX: show Start/End values in their boxes ---
+            elif location.startswith("Key_range"):
+                idx_str = location.replace("Key_range", "")
+                if idx_str.isdigit():
+                    idx = int(idx_str) - 1  # ColorX -> 0-based
+                    try:
+                        start_val, end_val = self.ledsettings.multicolor_range[idx]
+                        if choice == "Start":
+                            value = start_val
+                        elif choice == "End":
+                            value = end_val
+                    except Exception:
+                        value = None
+
+            # --- LED Note Offsets: show "LED Number" / "LED Offset" values ---
+            elif location.startswith("Offset"):
+                # location like "Offset0", "Offset1", ...
+                idx_digits = "".join(ch for ch in location if ch.isdigit())
+                if idx_digits:
+                    idx = int(idx_digits)
+                    try:
+                        led_num, led_off = self.ledsettings.note_offsets[idx]
+                        if choice == "LED Number":
+                            value = led_num
+                        elif choice == "LED Offset":
+                            value = led_off
+                    except Exception:
+                        value = None
+
+            # --- Rainbow_Colors: show Offset / Scale / Timeshift values ---
+            elif location == "Rainbow_Colors":
+                if choice == "Offset":
+                    value = self.ledsettings.rainbow_offset
+                elif choice == "Scale":
+                    value = self.ledsettings.rainbow_scale
+                elif choice == "Timeshift":
+                    value = self.ledsettings.rainbow_timeshift
+
+            # --- Velocity_Rainbow: show Offset / Scale / Curve values ---
+            elif location == "Velocity_Rainbow":
+                if choice == "Offset":
+                    value = self.ledsettings.velocityrainbow_offset
+                elif choice == "Scale":
+                    value = self.ledsettings.velocityrainbow_scale
+                elif choice == "Curve":
+                    value = self.ledsettings.velocityrainbow_curve
+        
+            # RGB color values (existing logic)
+            elif location == "RGB":
+                color_str = self.ledsettings.get_colors()
+                try:
+                    r, g, b = [c.strip() for c in color_str.split(',')]
+                except Exception:
+                    r, g, b = "0", "0", "0"
+                color_dict = {"Red": r, "Green": g, "Blue": b}
+                value = color_dict.get(choice)
+        
+            elif "RGB_Color" in location:
+                color_str = self.ledsettings.get_multicolors(location.replace('RGB_Color', ''))
+                parts = [p.strip() for p in color_str.split(',')]
+                while len(parts) < 3: parts.append("0")
+                color_dict = {"Red": parts[0], "Green": parts[1], "Blue": parts[2]}
+                value = color_dict.get(choice)
+    
+
+            elif location == "Backlight_Color":
+                color_str = self.ledsettings.get_backlight_colors()
+                parts = [p.strip() for p in color_str.split(',')]
+                while len(parts) < 3: parts.append("0")
+                color_dict = {"Red": parts[0], "Green": parts[1], "Blue": parts[2]}
+                value = color_dict.get(choice)
+
+            elif location == "Custom_RGB":
+                color_str = self.ledsettings.get_adjacent_colors()
+                parts = [p.strip() for p in color_str.split(',')]
+                while len(parts) < 3: parts.append("0")
+                color_dict = {"Red": parts[0], "Green": parts[1], "Blue": parts[2]}
+                value = color_dict.get(choice)
+
+            elif location == "Pointer_Color_RGB":
+                r, g, b = self.theme.pointer_color
+                color_dict = {"Red": str(r), "Green": str(g), "Blue": str(b)}
+                value = color_dict.get(choice)
+        
+            elif location == "Color_for_slow_speed":
+                color_dict = {
+                    "Red": str(self.ledsettings.speed_slowest.get('red', 0)),
+                    "Green": str(self.ledsettings.speed_slowest.get('green', 0)),
+                    "Blue": str(self.ledsettings.speed_slowest.get('blue', 0)),
+                }
+                value = color_dict.get(choice)
+
+            elif location == "Color_for_fast_speed":
+                color_dict = {
+                    "Red": str(self.ledsettings.speed_fastest.get('red', 0)),
+                    "Green": str(self.ledsettings.speed_fastest.get('green', 0)),
+                    "Blue": str(self.ledsettings.speed_fastest.get('blue', 0)),
+                }
+                value = color_dict.get(choice)
+        
+            elif location == "Gradient_start":
+                color_dict = {
+                    "Red": str(self.ledsettings.gradient_start.get('red', 0)),
+                    "Green": str(self.ledsettings.gradient_start.get('green', 0)),
+                    "Blue": str(self.ledsettings.gradient_start.get('blue', 0)),
+                }
+                value = color_dict.get(choice)
+        
+            elif location == "Gradient_end":
+                color_dict = {
+                    "Red": str(self.ledsettings.gradient_end.get('red', 0)),
+                    "Green": str(self.ledsettings.gradient_end.get('green', 0)),
+                    "Blue": str(self.ledsettings.gradient_end.get('blue', 0)),
+                }
+                value = color_dict.get(choice)
+
+            elif location == "Color_in_scale":
+                color_dict = {
+                    "Red": str(self.ledsettings.key_in_scale.get('red', 0)),
+                    "Green": str(self.ledsettings.key_in_scale.get('green', 0)),
+                    "Blue": str(self.ledsettings.key_in_scale.get('blue', 0)),
+                }
+                value = color_dict.get(choice)
+
+            elif location == "Color_not_in_scale":
+                color_dict = {
+                    "Red": str(self.ledsettings.key_not_in_scale.get('red', 0)),
+                    "Green": str(self.ledsettings.key_not_in_scale.get('green', 0)),
+                    "Blue": str(self.ledsettings.key_not_in_scale.get('blue', 0)),
+                }
+                value = color_dict.get(choice)
+
+            elif location == "Learn_MIDI":
+                learn_values = {
+                    "Load song": self.learning.loadingList[self.learning.loading],
+                    "Learning": self.learning.learningList[self.learning.is_started_midi],
+                    "Practice": self.learning.practiceList[self.learning.practice],
+                    "Hands": self.learning.handsList[self.learning.hands],
+                    "Mute hand": self.learning.mute_handList[self.learning.mute_hand],
+                    "Start point": f"{self.learning.start_point}%",
+                    "End point": f"{self.learning.end_point}%",
+                    "Hand color R": " ",
+                    "Hand color L": " ",
+                    "Set tempo": f"{self.learning.set_tempo}%",
+                    "Wrong notes": "Enabled" if self.learning.show_wrong_notes else "Disabled",
+                    "Future notes": "Enabled" if self.learning.show_future_notes else "Disabled",
+                    "Max mistakes": self.learning.number_of_mistakes,
+                }
+                value = learn_values.get(choice)
+            return str(value) if value is not None else None
+
     def show(self, position="default", back_pointer_location=None):
-
-        def draw_value(value, x=10, y=35):
-            if y < 0:
-                return
-            self.draw.text((self.scale(x), self.scale(y)), str(value),
-                           fill=self.text_color, font=self.font)
-
-        def draw_pointer():
-            self.draw.rectangle(
-                [
-                    (0, text_margin_top),
-                    (self.LCD.width, text_margin_top + self.scale(11))
-                ],
-                fill="Crimson"
-            )
-            self.draw.text((self.scale(3), text_margin_top), ">", fill=self.text_color, font=self.font)
-            self.current_choice = sid
-
         if self.screen_on == 0:
             return False
 
@@ -376,355 +706,388 @@ class MenuLCD:
             position = position.replace(" ", "_")
             self.current_location = position
             refresh = 0
+            self.scroll_offset = 0  # Reset scroll when entering new menu
 
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
-        self.draw.text((self.scale(2), self.scale(5)), position.replace("_", " "), fill=self.text_color, font=self.font)
+        # Extra: show estimated current draw under Brightness -> Power
+        # displaying brightness value
+        
+        if self.current_location == "Brightness":
 
-        # getting list of items in current menu
-        staffs = self.DOMTree.getElementsByTagName(position)
-        text_margin_top = self.scale(15)
-        i = 0
-        self.list_count = len(staffs)
-        self.list_count -= 1
+            # Calcule l'intensité
+            miliamps = int(self.ledstrip.led_number) * (60 / (100 / float(self.ledstrip.brightness_percent)))
+            amps = round(float(miliamps) / 1000.0, 2)
 
-        if self.pointer_position > 9:
-            menu_offset = self.pointer_position - 9
-        else:
-            menu_offset = -1
+            # Affiche le texte sur 3 lignes à (10, 50)
+            self.draw.multiline_text(
+                (10, 50),
+                "Amps needed to\n"
+                f"power {self.ledstrip.led_number} LEDS with\n"
+                f"white color: {amps}",
+                fill=self.text_color,
+                font=self.font,
+                spacing=self.scale(2)
+            )
 
-        # looping through menu list
-        for staff in staffs:
-            self.pointer_position = clamp(self.pointer_position, 0, self.list_count)
-            # drawing little arrow to show there are more items above
-            if self.pointer_position > 9 and i < menu_offset:
-                self.draw.line(
-                    [
-                        (self.scale(119), self.scale(20)),
-                        (self.scale(125), self.scale(20))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
-                self.draw.line(
-                    [
-                        (self.scale(119), self.scale(20)),
-                        (self.scale(122), self.scale(17))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
-                self.draw.line(
-                    [
-                        (self.scale(119), self.scale(20)),
-                        (self.scale(122), self.scale(17))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
-                i += 1
-                continue
 
-            sid = staff.getAttribute("text")
-
-            if not back_pointer_location:
-                if i == self.pointer_position:
-                    try:
-                        self.parent_menu = staff.parentNode.tagName
-                    except:
-                        self.parent_menu = "end"
-                    draw_pointer()
+        # Draw title area (PNG in main menu only, text in submenus)
+        title_y = self.scale(self.theme.title_padding)
+        if self.menu_title_image and position == "menu":
+            # Scale based on configured width percentage
+            img_w, img_h = self.menu_title_image.size
+            # Set width from theme percentage
+            width_percent = getattr(self.theme, 'title_width_percent', 80)
+            width_percent = max(1, min(100, width_percent))
+            new_w = int(self.LCD.width * (width_percent / 100))
+            # Set height proportionally
+            ratio = img_h / img_w
+            new_h = int(new_w * ratio)
+            # Force maximum height if needed, but keep calculated width
+            max_h = max(1, self.scale(25))  # Increased height allowance
+            if new_h > max_h:
+                new_h = max_h
+            try:
+                resized = self.menu_title_image.resize((new_w, new_h), Image.Resampling.LANCZOS)
+            except Exception:
+                resized = self.menu_title_image.resize((new_w, new_h))
+            # Centrer horizontalement si l'image n'utilise pas toute la largeur
+            x_pos = (self.LCD.width - new_w) // 2
+            # Centrer verticalement dans l'espace du titre
+            y_pos = title_y + (self.scale(self.theme.title_height) - new_h) // 2
+            if resized.mode == 'RGBA':
+                self.image.paste(resized, (x_pos, y_pos), resized)
             else:
+                self.image.paste(resized, (x_pos, y_pos))
+        else:
+            # Fallback to text
+            title_text = position.replace("_", " ")
+            self.draw.text((self.scale(5), title_y), title_text, fill=self.text_color, font=self.font)
+
+        # Get menu items
+        staffs = self.DOMTree.getElementsByTagName(position)
+        self.list_count = len(staffs) - 1
+        
+        # Setup viewport dimensions
+        content_start_y = self.scale(self.theme.title_height + self.theme.title_padding * 2)
+        viewport_height_orig = self.LCD.height - content_start_y
+        max_visible_items = 4
+        # Set item dimensions
+        item_height = self.scale(self.theme.item_padding_v * 2) + self.font.size
+        total_item_height = item_height + self.scale(self.theme.item_gap)
+        # Limit viewport height
+        viewport_height = min(viewport_height_orig, total_item_height * max_visible_items)
+        content_bottom = content_start_y + viewport_height
+         
+        # Update scroll position for selection
+        if back_pointer_location is None:
+            self.pointer_position = clamp(self.pointer_position, 0, self.list_count)
+            selected_item_y = self.pointer_position * total_item_height
+            
+            # Auto-scroll logic
+            if selected_item_y < self.scroll_offset + self.scale(self.theme.viewport_margin_top):
+                self.scroll_offset = max(0, selected_item_y - self.scale(self.theme.viewport_margin_top))
+            elif selected_item_y + item_height > self.scroll_offset + viewport_height - self.scale(self.theme.viewport_margin_bottom):
+                self.scroll_offset = selected_item_y + item_height - viewport_height + self.scale(self.theme.viewport_margin_bottom)
+        
+        # Draw menu items
+        current_y = int(round(content_start_y - self.scroll_offset))
+        displayed_items = 0
+        max_items = 4
+        
+        for i, staff in enumerate(staffs):
+            sid = staff.getAttribute("text")
+            
+            # Check if this item is the selected one
+            is_selected = False
+            if back_pointer_location:
                 if sid == back_pointer_location:
+                    is_selected = True
+                    self.pointer_position = i
                     try:
                         self.parent_menu = staff.parentNode.tagName
                     except:
                         self.parent_menu = "data"
-                    draw_pointer()
-                    self.pointer_position = i
-            # drawing little arrow to show there are more items below
-            if i == 10 and self.pointer_position < self.list_count and self.list_count > 10:
-                self.draw.line(
-                    [
-                        (self.scale(119), self.scale(120)),
-                        (self.scale(125), self.scale(120))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
-                self.draw.line(
-                    [
-                        (self.scale(119), self.scale(120)),
-                        (self.scale(122), self.scale(123))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
-                self.draw.line(
-                    [
-                        (self.scale(122), self.scale(123)),
-                        (self.scale(125), self.scale(120))
-                    ],
-                    fill=self.text_color,
-                    width=(self.scale(2))
-                )
-
-            # scrolling text if too long
-            if self.pointer_position == i and len(sid) > 18:
-                to_be_continued = ".."
-                if refresh == 1:
-                    try:
-                        self.cut_count += 1
-                    except AttributeError:
-                        self.cut_count = -6
-                else:
-                    cut = 0
-                    self.cut_count = -6
-                if self.cut_count > (len(sid) - 16):
-                    # hold scrolling on end
-                    if self.scroll_hold < 8:
-                        self.cut_count -= 1
-                        self.scroll_hold += 1
-                        to_be_continued = ""
-                    else:
-                        self.cut_count = -6
-                        self.scroll_hold = 0
-                    cut = self.cut_count
-                else:
-                    cut = self.cut_count if self.cut_count >= 0 else 0
             else:
-                cut = 0
-                to_be_continued = ""
+                if i == self.pointer_position:
+                    is_selected = True
+                    self.current_choice = sid
+                    try:
+                        self.parent_menu = staff.parentNode.tagName
+                    except:
+                        self.parent_menu = "end"
+            
+            # Calculate item bounds
+            item_x0 = self.scale(5)
+            item_x1 = self.LCD.width - self.scale(5)
+            item_y0 = current_y
+            item_y1 = current_y + item_height
+            
+            # Calculate if the item would be fully visible
+            is_fully_visible = (item_y0 >= content_start_y and 
+                              item_y1 <= content_bottom and 
+                              displayed_items < max_items)
+            
+            # Skip if item is not fully visible or we've reached max items
+            if not is_fully_visible:
+                current_y += total_item_height
+                continue
+            
+            displayed_items += 1
+            
+            # Draw item background box
+            self._draw_rounded_rect(
+                (item_x0, item_y0, item_x1, item_y1),
+                radius=self.scale(self.theme.item_corner_radius),
+                fill=self.theme.item_bg_color,
+                outline=self.theme.item_border_color,
+                width=1  # Constant width for crisp borders
+            )
+            
+            # Draw selection highlight (outline only)
+            if is_selected:
+                pointer_x0 = item_x0 - self.scale(self.theme.pointer_padding)
+                pointer_y0 = item_y0 - self.scale(self.theme.pointer_padding)
+                pointer_x1 = item_x1 + self.scale(self.theme.pointer_padding)
+                pointer_y1 = item_y1 + self.scale(self.theme.pointer_padding)
+                
+                self._draw_rounded_rect(
+                    (pointer_x0, pointer_y0, pointer_x1, pointer_y1),
+                    radius=self.scale(self.theme.item_corner_radius),  # Same radius as item
+                    fill=None,
+                    outline=self.theme.pointer_color,
+                    width=self.theme.pointer_width  # Use the configured pointer width
+                )
+            
+            # Get value if applicable
+            value_text = self._get_item_value(self.current_location, sid)
+            
+            # Calculate text areas
+            text_x = item_x0 + self.scale(self.theme.item_padding_h)
+            text_y = item_y0 + self.scale(self.theme.item_padding_v)
+            
+            # Handle special case for Learn MIDI hand colors first - always draw the color box
+            if self.current_location == "Learn_MIDI" and sid in ["Hand color R", "Hand color L"]:
+                # Calculate the color preview box dimensions and position first
+                box_width = self.scale(30)
+                box_height = item_y1 - item_y0 - self.scale(6)  # Slightly smaller for better visual
+                
+                # Center the box vertically
+                box_y = item_y0 + (item_y1 - item_y0 - box_height) // 2
+                box_x = item_x1 - box_width - self.scale(5)  # 5 pixels from right edge
+                
+                # Draw the color preview box
+                hand_idx = self.learning.hand_colorR if sid == "Hand color R" else self.learning.hand_colorL
+                color = self.learning.hand_colorList[hand_idx]
+                
+                self._draw_rounded_rect(
+                    (box_x, box_y, box_x + box_width, box_y + box_height),
+                    radius=self.scale(4),
+                    fill=f"rgb({color[0]}, {color[1]}, {color[2]})"
+                )
+            
+            # Multicolor: swatch par ligne ColorX (scroll/clip avec la box)
+            if self.current_location == "Multicolor":
+                if sid.startswith("Color"):
+                    idx = sid[5:]
+                    if idx.isdigit():
+                        color_str = self.ledsettings.get_multicolors(idx)
 
-            i += 1
+                        # Dimensions du rectangle arrondi dans la box (à droite)
+                        swatch_w = self.scale(30)
+                        swatch_h = (item_y1 - item_y0) - self.scale(6)
+                        swatch_x = item_x1 - swatch_w - self.scale(5)
+                        swatch_y = item_y0 + ((item_y1 - item_y0) - swatch_h) // 2
 
-            # displaying screensaver status
-            if self.current_location == "Content":
-                sid_temp = sid.lower()
-                sid_temp = sid_temp.replace(" ", "_")
-                if str(self.screensaver_settings[sid_temp]) == "1":
-                    sid_temp = " +"
-                else:
-                    sid_temp = " -"
-                sid = sid + sid_temp
-            self.draw.text((self.scale(10), text_margin_top), sid[cut:(18 + cut)] + to_be_continued,
-                           fill=self.text_color,
-                           font=self.font)
+                        self._draw_rounded_rect(
+                            (swatch_x, swatch_y, swatch_x + swatch_w, swatch_y + swatch_h),
+                            radius=self.scale(4),          # rectangle arrondi (pas cercle)
+                            fill=f"rgb({color_str})"
+                        )
 
-            text_margin_top += self.scale(10)
+            # Handle text display
+            if value_text is not None:
+                # Calculate space for value, accounting for color box in Learn MIDI menu
+                value_width = self.draw.textlength(value_text, font=self.font)
+                extra_space = self.scale(35) if self.current_location == "Learn_MIDI" and sid in ["Hand color R", "Hand color L"] else 0
+                
+                label_max_width = (item_x1 - item_x0 - 
+                                 self.scale(self.theme.item_padding_h * 2 + self.theme.value_gap) - 
+                                 value_width - extra_space)
+                # Truncate label if needed
+                label_text = self._truncate_text(sid, label_max_width, self.font)
+                # Draw label
+                self.draw.text((text_x, text_y), label_text, fill=self.text_color, font=self.font)
+                # Calculate value position, accounting for color box if needed
+                value_right_margin = self.scale(self.theme.value_right_margin)
+                if self.current_location == "Learn_MIDI" and sid in ["Hand color R", "Hand color L"]:
+                    value_right_margin += self.scale(35)  # Add space for color box
+                value_x = item_x1 - value_right_margin - value_width
+                self.draw.text((value_x, text_y), value_text, fill=self.text_color, font=self.font)
+            else:
+                # Just draw label centered vertically
+                label_max_width = item_x1 - item_x0 - self.scale(self.theme.item_padding_h * 2)
+                label_text = self._truncate_text(sid, label_max_width, self.font)
+                self.draw.text((text_x, text_y), label_text, fill=self.text_color, font=self.font)
+            
+            current_y += total_item_height
+        
+        # Draw scroll indicators
+        total_content_height = (self.list_count + 1) * total_item_height
+        if total_content_height > viewport_height:
+            # Draw up arrow for scrolling
+            if self.scroll_offset > 0:
+                arrow_x = self.LCD.width - self.scale(5)
+                arrow_y = content_start_y - self.scale(8)
+                # Left line
+                self.draw.line(
+                    [(arrow_x + self.scale(3), arrow_y + self.scale(3)), 
+                     (arrow_x, arrow_y)],
+                    fill=self.text_color, width=self.scale(2)
+                )
+                # Right line
+                self.draw.line(
+                    [(arrow_x, arrow_y), 
+                     (arrow_x - self.scale(3), arrow_y + self.scale(3))],
+                    fill=self.text_color, width=self.scale(2)
+                )
+            
+            # Draw down arrow for scrolling
+            if self.scroll_offset + viewport_height < total_content_height:
+                arrow_x = self.LCD.width - self.scale(5)
+                arrow_y = content_bottom
+                # Left line
+                self.draw.line(
+                    [(arrow_x - self.scale(3), arrow_y - self.scale(3)), 
+                     (arrow_x, arrow_y)],
+                    fill=self.text_color, width=self.scale(2)
+                )
+                # Right line
+                self.draw.line(
+                    [(arrow_x, arrow_y), 
+                     (arrow_x + self.scale(3), arrow_y - self.scale(3))],
+                    fill=self.text_color, width=self.scale(2)
+                )
+        
+        # Handle special displays (color previews, etc.)
+        self._draw_special_displays()
+        
+        self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
 
-        # displaying color example
+    def _draw_special_displays(self):
+        """Draw bottom preview bars for color-related submenus."""
+
+        # Set preview dimensions
+        preview_y = self.LCD.height - self.scale(25)  # Y position from bottom
+        preview_height = self.scale(12)  # Height of preview box
+        preview_bottom = preview_y + preview_height
+
+        # RGB color preview
         if self.current_location == "RGB":
-            draw_value(self.ledsettings.get_colors(), 10, 70)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(self.ledsettings.get_colors()) + ")")
+            color_str = self.ledsettings.get_colors()
+            self._draw_rounded_rect(
+                (self.scale(20), preview_y, self.LCD.width - self.scale(20), preview_bottom),
+                radius=self.scale(6),
+                fill=f"rgb({color_str})"
+            )
 
+        # Multicolor preview
         if "RGB_Color" in self.current_location:
-            draw_value(self.ledsettings.get_multicolors(self.current_location.replace('RGB_Color', '')), 10, 70)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)], fill="rgb(" + str(
-                self.ledsettings.get_multicolors(self.current_location.replace('RGB_Color', ''))) + ")")
+            color_str = self.ledsettings.get_multicolors(self.current_location.replace('RGB_Color', ''))
+            self._draw_rounded_rect(
+                (self.scale(20), preview_y, self.LCD.width - self.scale(20), preview_bottom),
+                radius=self.scale(6),
+                fill=f"rgb({color_str})"
+            )
 
+        # Backlight color preview
         if "Backlight_Color" in self.current_location:
-            draw_value(self.ledsettings.get_backlight_colors(), 10, 70)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(self.ledsettings.get_backlight_colors()) + ")")
+            color_str = self.ledsettings.get_backlight_colors()
+            self._draw_rounded_rect(
+                (self.scale(20), preview_y, self.LCD.width - self.scale(20), preview_bottom),
+                radius=self.scale(6),
+                fill=f"rgb({color_str})"
+            )
 
+        # Custom RGB preview
         if "Custom_RGB" in self.current_location:
-            draw_value(self.ledsettings.get_adjacent_colors(), 10, 70)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(self.ledsettings.get_adjacent_colors()) + ")")
+            color_str = self.ledsettings.get_adjacent_colors()
+            self._draw_rounded_rect(
+                (self.scale(20), preview_y, self.LCD.width - self.scale(20), preview_bottom),
+                radius=self.scale(6),
+                fill=f"rgb({color_str})"
+            )
 
-        if "Multicolor" in self.current_location:
-            try:
-                self.draw.rectangle([(self.scale(115), self.scale(50)), (self.LCD.width, self.scale(80))],
-                                    fill="rgb(" + str(
-                                        self.ledsettings.get_multicolors(
-                                            self.current_choice.replace('Color', ''))) + ")")
-            except:
-                pass
+        # Pointer Color RGB preview
+        if self.current_location == "Pointer_Color_RGB":
+            r, g, b = self.theme.pointer_color
+            self._draw_rounded_rect(
+                (self.scale(20), preview_y, self.LCD.width - self.scale(10), preview_bottom),
+                radius=self.scale(6),
+                fill=f"rgb({r}, {g}, {b})"
+            )
 
-        def draw_color_example(color_values):
-            red, green, blue = color_values.values()
-            draw_value(str(red) + ", " + str(green) + ", " + str(blue), 10, 70)
-            self.draw.rectangle([(self.scale(0), self.scale(80)), (self.LCD.width, self.LCD.height)],
-                                fill="rgb(" + str(red) + ", " + str(green) + ", " + str(blue) + ")")
+        # Helper to draw small color previews for speed/gradient/etc.
+        def draw_small_color_preview(color_dict):
+            r, g, b = color_dict['red'], color_dict['green'], color_dict['blue']
+            self._draw_rounded_rect(
+                (self.scale(10), preview_y, self.LCD.width - self.scale(10), preview_bottom),
+                radius=self.scale(8),
+                fill=f"rgb({r}, {g}, {b})"
+            )
 
         if "Color_for_slow_speed" in self.current_location:
-            draw_color_example(self.ledsettings.speed_slowest)
+            draw_small_color_preview(self.ledsettings.speed_slowest)
+        elif "Color_for_fast_speed" in self.current_location:
+            draw_small_color_preview(self.ledsettings.speed_fastest)
+        elif "Gradient_start" in self.current_location:
+            draw_small_color_preview(self.ledsettings.gradient_start)
+        elif "Gradient_end" in self.current_location:
+            draw_small_color_preview(self.ledsettings.gradient_end)
+        elif "Color_in_scale" in self.current_location:
+            draw_small_color_preview(self.ledsettings.key_in_scale)
+        elif "Color_not_in_scale" in self.current_location:
+            draw_small_color_preview(self.ledsettings.key_not_in_scale)
 
-        if "Color_for_fast_speed" in self.current_location:
-            draw_color_example(self.ledsettings.speed_fastest)
-
-        if "Gradient_start" in self.current_location:
-            draw_color_example(self.ledsettings.gradient_start)
-
-        if "Gradient_end" in self.current_location:
-            draw_color_example(self.ledsettings.gradient_end)
-
-        if "Color_in_scale" in self.current_location:
-            draw_color_example(self.ledsettings.key_in_scale)
-
-        if "Color_not_in_scale" in self.current_location:
-            draw_color_example(self.ledsettings.key_not_in_scale)
-
-        # displaying rainbow offset value
-        rainbow_attribute_value = None
-
-        if "Rainbow_Colors" in self.current_location:
-            if self.current_choice == "Offset":
-                rainbow_attribute_value = self.ledsettings.rainbow_offset
-            elif self.current_choice == "Scale":
-                rainbow_attribute_value = self.ledsettings.rainbow_scale
-            elif self.current_choice == "Timeshift":
-                rainbow_attribute_value = self.ledsettings.rainbow_timeshift
-
-        elif "Velocity_Rainbow" in self.current_location:
-            if self.current_choice == "Offset":
-                rainbow_attribute_value = self.ledsettings.velocityrainbow_offset
-            elif self.current_choice == "Scale":
-                rainbow_attribute_value = self.ledsettings.velocityrainbow_scale
-            elif self.current_choice == "Curve":
-                rainbow_attribute_value = self.ledsettings.velocityrainbow_curve
-        if rainbow_attribute_value is not None:
-            self.draw.text((self.scale(10), self.scale(70)), str(rainbow_attribute_value), fill=self.text_color,
-                           font=self.font)
-
-        # displaying brightness value
-        if self.current_location == "Brightness":
-            draw_value(str(self.ledstrip.brightness_percent) + "%")
-            miliamps = int(self.ledstrip.led_number) * (60 / (100 / float(self.ledstrip.brightness_percent)))
-            amps = round(float(miliamps) / float(1000), 2)
-            draw_value("Amps needed to " + "\n" + "power " + str(
-                self.ledstrip.led_number) + " LEDS with " + "\n" + "white color: " + str(amps), 10, 50)
-
-        if self.current_location == "Backlight_Brightness":
-            draw_value(self.ledsettings.backlight_brightness_percent)
-
-        # displaying led count
-        if self.current_location == "Led_count":
-            draw_value(self.ledstrip.led_number)
-
-        # displaying leds per meter
-        if self.current_location == "Leds_per_meter":
-            draw_value(self.ledstrip.leds_per_meter)
-
-        # displaying shift
-        if self.current_location == "Shift":
-            draw_value(self.ledstrip.shift)
-
-        # displaying reverse
-        if self.current_location == "Reverse":
-            draw_value(self.ledstrip.reverse)
-
-        if self.current_choice == "LED Number" and self.current_location.startswith("Offset"):
-            try:
-                draw_value(self.ledsettings.note_offsets[int(self.current_location.replace('Offset', '')) - 1][0], 10,
-                           50)
-            except:
-                pass
-
-        if self.current_choice == "LED Offset" and self.current_location.startswith("Offset"):
-            try:
-                draw_value(self.ledsettings.note_offsets[int(self.current_location.replace('Offset', '')) - 1][1], 10,
-                           50)
-            except:
-                pass
-
-        if "Key_range" in self.current_location:
-            if self.current_choice == "Start":
-                try:
-                    draw_value(
-                        self.ledsettings.multicolor_range[int(self.current_location.replace('Key_range', '')) - 1][0],
-                        10, 50)
-                except:
-                    pass
-            else:
-                draw_value(
-                    self.ledsettings.multicolor_range[int(self.current_location.replace('Key_range', '')) - 1][1], 10,
-                    50)
-
-        # displaying screensaver settings
-        if self.current_location == "Start_delay":
-            draw_value(self.screensaver_delay, 10, 70)
-
-        if self.current_location == "Turn_off_screen_delay":
-            draw_value(self.screen_off_delay, 10, 70)
-
-        if self.current_location == "Led_animation_delay":
-            draw_value(self.led_animation_delay, 10, 70)
-
-        # displaying speed values
-        if self.current_location == "Period":
-            draw_value(self.ledsettings.speed_period_in_seconds, 10, 70)
-
-        if self.current_location == "Max_notes_in_period":
-            draw_value(self.ledsettings.speed_max_notes, 10, 70)
-
-        # displaying scale key
-        if self.current_location == "Scale_Coloring":
-            draw_value("scale: " + str(self.ledsettings.scales[self.ledsettings.scale_key]), 10, 70)
-
-        if self.current_location == "Velocity_Rainbow" or self.current_location == "Rainbow_Colors":
-            self.update_colormap()
-
-        # Learn MIDI
-        if self.current_location == "Learn_MIDI":
-
-            # calculate height so if self.pointer_position is 10 or more the height will be negative
-            if self.pointer_position > 9:
-                height = 95 - (self.pointer_position * 10)
-            else:
-                height = 5
-
-            #  Position 1: display Load song
-            draw_value(self.learning.loadingList[self.learning.loading], 90, height + 10)
-            #  Position 2: display Learning Start/Stop
-            draw_value(self.learning.learningList[self.learning.is_started_midi], 90, height + 20)
-            #  Position 3: display Practice
-            draw_value(self.learning.practiceList[self.learning.practice], 90, height + 30)
-            #  Position 4: display Hands
-            draw_value(self.learning.handsList[self.learning.hands], 90, height + 40)
-            #  Position 5: display Mute hand
-            draw_value(self.learning.mute_handList[self.learning.mute_hand], 90, height + 50)
-            #  Position 6: display Start point
-            draw_value(str(self.learning.start_point) + "%", 90, height + 60)
-            #  Position 7: display End point
-            draw_value(str(self.learning.end_point) + "%", 90, height + 70)
-            #  Position 8: display Set tempo
-            draw_value(str(self.learning.set_tempo) + "%", 90, height + 80)
-            #  Position 9,10: display Hands colors
-            coord_r = height + 2 + 90
-            coord_l = height + 2 + 100
-            self.draw.rectangle([(self.scale(90), self.scale(coord_r)), (self.LCD.width, self.scale(coord_r + 7))],
-                                fill="rgb(" + str(self.learning.hand_colorList[self.learning.hand_colorR])[1:-1] + ")")
-            self.draw.rectangle([(self.scale(90), self.scale(coord_l)), (self.LCD.width, self.scale(coord_l + 7))],
-                                fill="rgb(" + str(self.learning.hand_colorList[self.learning.hand_colorL])[1:-1] + ")")
-            #  Position 11: display wrong notes setting
-            wrong_notes_status = "Enabled" if self.learning.show_wrong_notes else "Disabled"
-            draw_value(wrong_notes_status, 90, height + 110)
-            #  Position 12: display future notes setting
-            future_notes_status = "Enabled" if self.learning.show_future_notes else "Disabled"
-            draw_value(future_notes_status, 90, height + 120)
-            #  Position 13: display number of mistakes setting
-            draw_value(self.learning.number_of_mistakes, 90, height + 130)
-
-        self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
 
     def change_pointer(self, direction):
         self.last_activity = time.time()
         self.is_idle_animation_running = False
-        if direction == 0:
-            if (self.pointer_position - 1) < 0:
-                self.pointer_position = self.list_count
-            else:
+        
+        if direction == 0:  # Up
+            if self.pointer_position > 0:
                 self.pointer_position -= 1
-
-        elif direction == 1:
-            if (self.pointer_position + 1) > self.list_count:
-                self.pointer_position = 0
             else:
+                self.pointer_position = self.list_count
+        elif direction == 1:  # Down
+            if self.pointer_position < self.list_count:
                 self.pointer_position += 1
+            else:
+                self.pointer_position = 0
+        
         self.cut_count = -6
+        self.show()
+    
+    def page_up(self):
+        """Move selection up by a page and refresh."""
+
+        """Jump up by multiple items (PageUp functionality)"""
+        self.last_activity = time.time()
+        self.is_idle_animation_running = False
+        
+        page_size = 5  # Jump by 5 items
+        self.pointer_position = max(0, self.pointer_position - page_size)
+        self.show()
+    
+    def page_down(self):
+        """Move selection down by a page and refresh."""
+
+        """Jump down by multiple items (PageDown functionality)"""
+        self.last_activity = time.time()
+        self.is_idle_animation_running = False
+        
+        page_size = 5  # Jump by 5 items
+        self.pointer_position = min(self.list_count, self.pointer_position + page_size)
         self.show()
 
     def enter_menu(self):
@@ -737,6 +1100,7 @@ class MenuLCD:
         else:
             self.current_location = self.current_choice
             self.pointer_position = 0
+            self.scroll_offset = 0
             self.cut_count = -6
             self.show(self.current_choice)
 
@@ -746,6 +1110,7 @@ class MenuLCD:
         if self.parent_menu != "data":
             location_readable = self.current_location.replace("_", " ")
             self.cut_count = -6
+            self.scroll_offset = 0
             self.show(self.parent_menu, location_readable)
 
     def render_message(self, title, message, delay=500):
@@ -836,8 +1201,7 @@ class MenuLCD:
                 info_height_font_network = self.scale(11)
             else:
                 info_height_font_network = int(info_height_font)
-            font_network = ImageFont.truetype(self.lcd_ttf,
-                                              int(info_height_font_network))
+            font_network = ImageFont.truetype(self.lcd_ttf, int(info_height_font_network))
             self.draw.text((self.scale(1), top_offset),
                            "D:" + str("{:.2f}".format(download)) + "Mb/s U:" + str("{:.2f}".format(upload)) + "Mb/s",
                            fill=self.text_color, font=font_network)
@@ -857,12 +1221,27 @@ class MenuLCD:
         self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
 
     def change_settings(self, choice, location):
+        # Pointer color setting
+        if location == "Display_Settings" and choice == "Pointer Color":
+            # This would open a submenu for pointer color selection
+            # For now, we'll handle it in the existing color change mechanism
+            pass
+        
+        if location == "Pointer_Color_RGB":
+            # Handle RGB adjustment for pointer color
+            pass
+        
+        # All existing change_settings logic remains the same...
         if location == "Text_Color":
             self.text_color = choice
             self.usersettings.change_setting_value("text_color", self.text_color)
         if location == "Background_Color":
-            self.background_color = choice
-            self.usersettings.change_setting_value("background_color", self.background_color)
+            # Parse the color before assigning it
+            parsed_color = self._parse_color(choice)
+            # Convert to hex format for storage
+            hex_color = "#{:02x}{:02x}{:02x}".format(*parsed_color)
+            self.background_color = hex_color
+            self.usersettings.change_setting_value("background_color", hex_color)
         if self.text_color == self.background_color:
             self.text_color = "Red"
             self.usersettings.change_setting_value("text_color", self.text_color)
@@ -975,8 +1354,7 @@ class MenuLCD:
                                                                             self, "Medium"))
                 self.t.start()
             if choice == "Fireplace":
-                self.t = threading.Thread(target=fireplace, args=(self.ledstrip, self.ledsettings,
-                                                                            self))
+                self.t = threading.Thread(target=fireplace, args=(self.ledstrip, self.ledsettings, self))
                 self.t.start()
             if choice == "Sound of da police":
                 self.t = threading.Thread(target=sound_of_da_police, args=(self.ledstrip, self.ledsettings,
@@ -1074,7 +1452,6 @@ class MenuLCD:
         if location == "Velocity_Colormap":
             self.ledsettings.velocityrainbow_colormap = choice
             self.usersettings.change_setting_value("velocityrainbow_colormap", self.ledsettings.velocityrainbow_colormap)
-
             self.ledsettings.color_mode = "VelocityRainbow"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
 
@@ -1085,7 +1462,6 @@ class MenuLCD:
         if location == "Rainbow_Colormap":
             self.ledsettings.rainbow_colormap = choice
             self.usersettings.change_setting_value("rainbow_colormap", self.ledsettings.rainbow_colormap)
-
             self.ledsettings.color_mode = "Rainbow"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
 
@@ -1171,6 +1547,10 @@ class MenuLCD:
         if location == "Led_animation":
             self.led_animation = choice
             self.usersettings.change_setting_value("led_animation", choice)
+        
+        # Pointer color presets
+        if location == "Presets":
+            self.set_pointer_color(choice)
 
     def change_value(self, value):
         if value == "LEFT":
@@ -1272,6 +1652,19 @@ class MenuLCD:
                 self.ledsettings.speed_max_notes = 2
             self.usersettings.change_setting_value("speed_max_notes", self.ledsettings.speed_max_notes)
 
+        # Pointer color adjustment
+        if self.current_location == "Pointer_Color_RGB":
+            r, g, b = self.theme.pointer_color
+            if self.current_choice == "Red":
+                r = clamp(r + value * self.speed_multiplier, 0, 255)
+            elif self.current_choice == "Green":
+                g = clamp(g + value * self.speed_multiplier, 0, 255)
+            elif self.current_choice == "Blue":
+                b = clamp(b + value * self.speed_multiplier, 0, 255)
+            
+            self.theme.pointer_color = (r, g, b)
+            self.usersettings.change_setting_value("pointer_color", self._color_to_string(self.theme.pointer_color))
+
         led_settings_map = {
             "Color_for_slow_speed": self.ledsettings.speed_slowest,
             "Color_for_fast_speed": self.ledsettings.speed_fastest,
@@ -1325,3 +1718,46 @@ class MenuLCD:
             self.speed_multiplier = 1
         elif self.speed_multiplier == 1:
             self.speed_multiplier = 10
+    
+    def set_pointer_color(self, color):
+        """Set selection outline color (RGB tuple, name, or hex)."""
+        if isinstance(color, str) and color.strip().lower() in ("default blue", "default_blue", "defaultblue"):
+            self.theme.pointer_color = (14, 165, 233)
+        elif isinstance(color, (tuple, list)) and len(color) >= 3:
+            r, g, b = color[:3]
+            self.theme.pointer_color = (
+                int(max(0, min(255, r))),
+                int(max(0, min(255, g))),
+                int(max(0, min(255, b))),
+            )
+        else:
+            self.theme.pointer_color = self._parse_color(color)
+        try:
+            self.usersettings.change_setting_value("pointer_color", self._color_to_string(self.theme.pointer_color))
+        except Exception as e:
+            logger.debug(f"Could not persist pointer_color: {e}")
+        self.show()  
+        
+    def get_pointer_color(self):
+        """Get the current pointer color as RGB tuple"""
+        return self.theme.pointer_color
+    
+    def set_theme_value(self, attribute, value):
+        """Update a theme attribute then refresh."""
+
+        """
+        Set a theme attribute value.
+        
+        Args:
+            attribute: Name of the theme attribute (e.g., 'item_gap', 'pointer_width')
+            value: New value for the attribute
+        """
+        if hasattr(self.theme, attribute):
+            setattr(self.theme, attribute, value)
+            self.show()
+        else:
+            logger.warning(f"Theme attribute '{attribute}' does not exist")
+    
+    def get_theme_value(self, attribute):
+        """Get a theme attribute value"""
+        return getattr(self.theme, attribute, None)
