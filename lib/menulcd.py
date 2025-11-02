@@ -3,6 +3,7 @@ from subprocess import call
 from xml.dom import minidom
 import webcolors as wc
 from PIL import ImageFont, Image, ImageDraw
+import time
 from lib import LCD_Config, LCD_1in44, LCD_1in3
 from lib.functions import *
 from lib.rpi_drivers import GPIO
@@ -47,6 +48,11 @@ class UITheme:
         self.value_right_margin = 5  # Right margin for values
         self.value_gap = 5  # Gap between label and value
 
+        self.marquee_enabled = True
+        self.marquee_selected_only = True   # set False if you want all rows to scroll
+        self.marquee_speed_px_s = 15       # slow scroll speed
+        self.marquee_pause_start_s = 1.0    # 1s pause at the start
+        self.marquee_pause_end_s = 1.0      # 1s pause at the end
 
 class MenuLCD:
     def __init__(self, xml_file_name, args, usersettings, ledsettings, ledstrip, learning, saving, midiports, hotspot, platform):
@@ -490,6 +496,74 @@ class MenuLCD:
         while text and self.draw.textlength(text + ellipsis, font=font) > max_width:
             text = text[:-1]
         return text + ellipsis
+    
+    def _draw_text_marquee(self, text, x, y, max_w, font, is_selected):
+        """
+        One-way marquee with start/end pauses:
+        - waits at the beginning (text at normal position),
+        - scrolls left until the end is fully visible,
+        - waits at the end, then snaps back to start.
+
+        Vertical alignment remains identical to static rendering by using the
+        real text bounding box (no descender clipping, no vertical jump).
+        """
+        # Pillow requires ints
+        try:
+            max_w = int(max(1, round(max_w)))
+        except Exception:
+            max_w = int(max(1, max_w))
+        x = int(round(x))
+        y = int(round(y))
+
+        # Measure text width (textlength may return float)
+        try:
+            text_w = int(round(self.draw.textlength(text, font=font)))
+        except Exception:
+            bb_text = self.draw.textbbox((0, 0), text, font=font)
+            text_w = int(bb_text[2] - bb_text[0])
+
+        # No overflow → draw normally
+        if text_w <= max_w:
+            self.draw.text((x, y), text, fill=self.text_color, font=font)
+            return
+
+        # Marquee disabled or only-for-selected item → fall back to ellipsis
+        if not getattr(self.theme, "marquee_enabled", False) or (
+            getattr(self.theme, "marquee_selected_only", True) and not is_selected
+        ):
+            clipped = self._truncate_text(text, max_w, font)
+            self.draw.text((x, y), clipped, fill=self.text_color, font=font)
+            return
+
+        # Stable vertical alignment using the REAL text bounding box
+        bb_text = self.draw.textbbox((0, 0), text, font=font)
+        top_text, bottom_text = bb_text[1], bb_text[3]
+        h = int(max(1, round(bottom_text - top_text+5)))
+        y_offset = int(-top_text+5)  # shift so top of bbox maps to y=0 in the temp image
+
+        # Motion profile: start pause + travel + end pause
+        D = int(max(1, text_w - max_w))  # pixels to travel
+        speed   = float(getattr(self.theme, "marquee_speed_px_s",     6.0))
+        p_start = float(getattr(self.theme, "marquee_pause_start_s",  1.0))
+        p_end   = float(getattr(self.theme, "marquee_pause_end_s",    1.0))
+
+        travel = D / max(speed, 0.1)                 # seconds for 0 → D
+        period = p_start + travel + p_end            # full cycle duration
+        t = time.time() % period
+
+        if t < p_start:
+            off = 0                                  # wait at start
+        elif t < p_start + travel:
+            off = int(round((t - p_start) * speed))  # moving
+        else:
+            off = D                                  # wait at end
+
+        # Render into a clipped buffer (no duplication, no gap)
+        tmp = Image.new("RGBA", (max_w, h), (0, 0, 0, 0))
+        td = ImageDraw.Draw(tmp)
+        td.text((-off, y_offset), text, fill=self.text_color, font=font)
+        self.image.paste(tmp, (x, y), tmp)
+
 
 
     def _get_item_value(self, location, choice):
@@ -715,11 +789,11 @@ class MenuLCD:
         
         if self.current_location == "Brightness":
 
-            # Calcule l'intensité
+            # Compute the current draw
             miliamps = int(self.ledstrip.led_number) * (60 / (100 / float(self.ledstrip.brightness_percent)))
             amps = round(float(miliamps) / 1000.0, 2)
 
-            # Affiche le texte sur 3 lignes à (10, 50)
+            # Render the text on three lines at (10, 50)
             self.draw.multiline_text(
                 (10, 50),
                 "Amps needed to\n"
@@ -751,9 +825,9 @@ class MenuLCD:
                 resized = self.menu_title_image.resize((new_w, new_h), Image.Resampling.LANCZOS)
             except Exception:
                 resized = self.menu_title_image.resize((new_w, new_h))
-            # Centrer horizontalement si l'image n'utilise pas toute la largeur
+            # Center horizontally if the image does not use the full width
             x_pos = (self.LCD.width - new_w) // 2
-            # Centrer verticalement dans l'espace du titre
+            # Center vertically within the title are
             y_pos = title_y + (self.scale(self.theme.title_height) - new_h) // 2
             if resized.mode == 'RGBA':
                 self.image.paste(resized, (x_pos, y_pos), resized)
@@ -886,14 +960,14 @@ class MenuLCD:
                     fill=f"rgb({color[0]}, {color[1]}, {color[2]})"
                 )
             
-            # Multicolor: swatch par ligne ColorX (scroll/clip avec la box)
+            # Multicolor: one swatch per ColorX row (scroll/clip within the box)
             if self.current_location == "Multicolor":
                 if sid.startswith("Color"):
                     idx = sid[5:]
                     if idx.isdigit():
                         color_str = self.ledsettings.get_multicolors(idx)
 
-                        # Dimensions du rectangle arrondi dans la box (à droite)
+                        # Rounded-rectangle dimensions inside the box (right side)
                         swatch_w = self.scale(30)
                         swatch_h = (item_y1 - item_y0) - self.scale(6)
                         swatch_x = item_x1 - swatch_w - self.scale(5)
@@ -901,7 +975,7 @@ class MenuLCD:
 
                         self._draw_rounded_rect(
                             (swatch_x, swatch_y, swatch_x + swatch_w, swatch_y + swatch_h),
-                            radius=self.scale(4),          # rectangle arrondi (pas cercle)
+                            radius=self.scale(4),          # rounded rectangle
                             fill=f"rgb({color_str})"
                         )
 
@@ -917,7 +991,8 @@ class MenuLCD:
                 # Truncate label if needed
                 label_text = self._truncate_text(sid, label_max_width, self.font)
                 # Draw label
-                self.draw.text((text_x, text_y), label_text, fill=self.text_color, font=self.font)
+                self._draw_text_marquee(sid, text_x, text_y, label_max_width, self.font, is_selected)
+
                 # Calculate value position, accounting for color box if needed
                 value_right_margin = self.scale(self.theme.value_right_margin)
                 if self.current_location == "Learn_MIDI" and sid in ["Hand color R", "Hand color L"]:
@@ -928,8 +1003,8 @@ class MenuLCD:
                 # Just draw label centered vertically
                 label_max_width = item_x1 - item_x0 - self.scale(self.theme.item_padding_h * 2)
                 label_text = self._truncate_text(sid, label_max_width, self.font)
-                self.draw.text((text_x, text_y), label_text, fill=self.text_color, font=self.font)
-            
+                self._draw_text_marquee(sid, text_x, text_y, label_max_width, self.font, is_selected)
+
             current_y += total_item_height
         
         # Draw scroll indicators
@@ -973,6 +1048,9 @@ class MenuLCD:
         self._draw_special_displays()
         
         self.LCD.LCD_ShowImage(self.rotate_image(self.image), 0, 0)
+
+    def update(self):
+       self.show("default")
 
     def _draw_special_displays(self):
         """Draw bottom preview bars for color-related submenus."""
