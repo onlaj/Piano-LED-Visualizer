@@ -734,6 +734,7 @@ class MenuLCD:
             return str(value) if value is not None else None
 
     def show(self, position="default", back_pointer_location=None):
+        selected_sid = None
         if self.screen_on == 0:
             return False
 
@@ -887,6 +888,7 @@ class MenuLCD:
             
             # Draw selection highlight (outline only)
             if is_selected:
+                selected_sid = sid
                 pointer_x0 = item_x0 - self.scale(self.theme.pointer_padding)
                 pointer_y0 = item_y0 - self.scale(self.theme.pointer_padding)
                 pointer_x1 = item_x1 + self.scale(self.theme.pointer_padding)
@@ -973,6 +975,16 @@ class MenuLCD:
                 self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh)
 
             current_y += total_item_height
+        # === Update scroll_needed flag based on actually selected item (legacy rule >18 chars) ===
+        try:
+            if isinstance(selected_sid, str) and len(selected_sid) > 18 and self.screen_on == 1:
+                self.scroll_needed = True
+            else:
+                self.scroll_needed = False
+        except Exception:
+            self.scroll_needed = False
+        # ============================================================================================
+
         
         # Draw scroll indicators
         total_content_height = (self.list_count + 1) * total_item_height
