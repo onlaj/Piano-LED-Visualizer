@@ -137,6 +137,7 @@ class VisualizerApp:
 
             self.component_initializer.ledstrip.strip.show()
             self.update_fps_stats()
+            time.sleep(0.01)  # Small delay to prevent CPU overuse
 
     def update_fps_stats(self):
         self.frame_count += 1
