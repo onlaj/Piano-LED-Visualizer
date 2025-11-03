@@ -172,7 +172,9 @@ class VisualizerApp:
 
     def update_display(self, elapsed_time):
         now = time.monotonic()
-        tick_interval = 0.15  # ~4 fps, léger pour RPi Zero
+        tick_interval = 0.2  # ~5 fps animation 
+        #(still really drop led fps but go back to normal 
+        # when selecting a non-animated line)
 
         if not hasattr(self, "_last_menu_tick"):
             self._last_menu_tick = 0.0
