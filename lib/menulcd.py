@@ -65,17 +65,20 @@ class MenuLCD:
         self.hotspot = hotspot
         self.platform = platform
         self.args = args
+        self._font_cache = {}
+        self._title_image_cache = {}
         
         font_dir = "/usr/share/fonts/truetype/freefont"
         if args.fontdir is not None:
             font_dir = args.fontdir
-        self.lcd_ttf = font_dir + "/FreeSansBold.ttf"
+        self.lcd_ttf = os.path.join(font_dir, "FreeSansBold.ttf")
         if not os.path.exists(self.lcd_ttf):
             raise RuntimeError("Cannot locate font file: %s" % self.lcd_ttf)
 
         if args.display == '1in3':
             self.LCD = LCD_1in3.LCD()
-            self.font = ImageFont.truetype(font_dir + '/FreeMonoBold.ttf', self.scale(10))
+            mono_bold = os.path.join(font_dir, 'FreeMonoBold.ttf')
+            self.font = self._get_font_cached(mono_bold, self.scale(10))
             self.image = Image.open('webinterface/static/logo240_240.bmp')
         else:
             self.LCD = LCD_1in44.LCD()
@@ -205,6 +208,66 @@ class MenuLCD:
     def _color_to_string(self, color):
         """Convert RGB tuple to string for storage"""
         return f"{color[0]},{color[1]},{color[2]}"
+
+    def _get_font_cached(self, path, size):
+        """Load and cache TrueType fonts keyed by (path, size)."""
+        if not path or not os.path.exists(path):
+            return ImageFont.load_default()
+        try:
+            size_int = max(1, int(round(size)))
+        except (TypeError, ValueError):
+            size_int = 1
+        cache_key = (path, size_int)
+        font = self._font_cache.get(cache_key)
+        if font is None:
+            try:
+                font = ImageFont.truetype(path, size_int)
+            except Exception as exc:
+                logger.debug(f"Falling back to default font for {path} ({exc})")
+                font = ImageFont.load_default()
+            self._font_cache[cache_key] = font
+        return font
+
+    @staticmethod
+    def _split_color_components(color_str):
+        """Return at least three components (as strings) from a comma-separated RGB string."""
+        if color_str is None:
+            return ["0", "0", "0"]
+        parts = [p.strip() for p in str(color_str).split(",")]
+        if len(parts) < 3:
+            parts.extend(["0"] * (3 - len(parts)))
+        return parts[:3]
+
+    def _get_menu_title_art(self):
+        """Return a cached, resized version of the menu title art if available."""
+        if not self.menu_title_image:
+            return None
+        width_percent = getattr(self.theme, "title_width_percent", 80)
+        width_percent = max(1, min(100, int(width_percent)))
+        max_height = max(1, self.scale(25))
+        cache_key = (width_percent, self.LCD.width, max_height)
+        cached = self._title_image_cache.get(cache_key)
+        if cached is not None:
+            return cached
+        img_w, img_h = self.menu_title_image.size
+        if img_w == 0 or img_h == 0:
+            return None
+        new_w = max(1, int(self.LCD.width * (width_percent / 100.0)))
+        ratio = img_h / float(img_w)
+        new_h = max(1, int(round(new_w * ratio)))
+        if new_h > max_height:
+            new_h = max_height
+        try:
+            resample_attr = getattr(Image, "Resampling", None)
+            if resample_attr is not None:
+                resized = self.menu_title_image.resize((new_w, new_h), resample_attr.LANCZOS)
+            else:
+                resized = self.menu_title_image.resize((new_w, new_h))
+        except Exception as exc:
+            logger.debug(f"Failed to resize menu title art: {exc}")
+            return None
+        self._title_image_cache[cache_key] = resized
+        return resized
 
     def rotate_image(self, image):
         if self.args.rotatescreen != "true":
@@ -755,6 +818,11 @@ class MenuLCD:
 
         self.image = Image.new("RGB", (self.LCD.width, self.LCD.height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
+        scale = self.scale
+        theme = self.theme
+        draw = self.draw
+        lcd_width = self.LCD.width
+        lcd_height = self.LCD.height
         # Extra: show estimated current draw under Brightness -> Power
         # displaying brightness value
         
@@ -765,64 +833,61 @@ class MenuLCD:
             amps = round(float(miliamps) / 1000.0, 2)
 
             # Render the text on three lines at (10, 50)
-            self.draw.multiline_text(
+            draw.multiline_text(
                 (10, 50),
                 "Amps needed to\n"
                 f"power {self.ledstrip.led_number} LEDS with\n"
                 f"white color: {amps}",
                 fill=self.text_color,
                 font=self.font,
-                spacing=self.scale(2)
+                spacing=scale(2)
             )
 
 
         # Draw title area (PNG in main menu only, text in submenus)
-        title_y = self.scale(self.theme.title_padding)
-        if self.menu_title_image and position == "menu":
-            # Scale based on configured width percentage
-            img_w, img_h = self.menu_title_image.size
-            # Set width from theme percentage
-            width_percent = getattr(self.theme, 'title_width_percent', 80)
-            width_percent = max(1, min(100, width_percent))
-            new_w = int(self.LCD.width * (width_percent / 100))
-            # Set height proportionally
-            ratio = img_h / img_w
-            new_h = int(new_w * ratio)
-            # Force maximum height if needed, but keep calculated width
-            max_h = max(1, self.scale(25))  # Increased height allowance
-            if new_h > max_h:
-                new_h = max_h
-            try:
-                resized = self.menu_title_image.resize((new_w, new_h), Image.Resampling.LANCZOS)
-            except Exception:
-                resized = self.menu_title_image.resize((new_w, new_h))
-            # Center horizontally if the image does not use the full width
-            x_pos = (self.LCD.width - new_w) // 2
-            # Center vertically within the title are
-            y_pos = title_y + (self.scale(self.theme.title_height) - new_h) // 2
-            if resized.mode == 'RGBA':
-                self.image.paste(resized, (x_pos, y_pos), resized)
+        title_y = scale(theme.title_padding)
+        title_height_px = scale(theme.title_height)
+        title_art = self._get_menu_title_art() if position == "menu" else None
+        if title_art is not None:
+            art_w, art_h = title_art.size
+            x_pos = (lcd_width - art_w) // 2
+            y_pos = title_y + (title_height_px - art_h) // 2
+            if title_art.mode == 'RGBA':
+                self.image.paste(title_art, (x_pos, y_pos), title_art)
             else:
-                self.image.paste(resized, (x_pos, y_pos))
+                self.image.paste(title_art, (x_pos, y_pos))
         else:
             # Fallback to text
             title_text = position.replace("_", " ")
-            self.draw.text((self.scale(5), title_y), title_text, fill=self.text_color, font=self.font)
+            draw.text((scale(5), title_y), title_text, fill=self.text_color, font=self.font)
 
         # Get menu items
         staffs = self.DOMTree.getElementsByTagName(position)
         self.list_count = len(staffs) - 1
         
         # Setup viewport dimensions
-        content_start_y = self.scale(self.theme.title_height + self.theme.title_padding * 2)
-        viewport_height_orig = self.LCD.height - content_start_y
+        content_start_y = scale(theme.title_height + theme.title_padding * 2)
+        viewport_height_orig = lcd_height - content_start_y
         max_visible_items = 4
         # Set item dimensions
-        item_height = self.scale(self.theme.item_padding_v * 2) + self.font.size
-        total_item_height = item_height + self.scale(self.theme.item_gap)
+        item_height = scale(theme.item_padding_v * 2) + self.font.size
+        total_item_height = item_height + scale(theme.item_gap)
         # Limit viewport height
         viewport_height = min(viewport_height_orig, total_item_height * max_visible_items)
         content_bottom = content_start_y + viewport_height
+        margin_top_px = scale(theme.viewport_margin_top)
+        margin_bottom_px = scale(theme.viewport_margin_bottom)
+        padding_h_px = scale(theme.item_padding_h)
+        padding_v_px = scale(theme.item_padding_v)
+        pointer_padding_px = scale(theme.pointer_padding)
+        pointer_radius_px = scale(theme.item_corner_radius)
+        outer_margin_px = scale(5)
+        label_value_spacing_px = scale(theme.item_padding_h * 2 + theme.value_gap)
+        value_right_margin_px = scale(theme.value_right_margin)
+        swatch_width_px = scale(30)
+        swatch_gap_px = scale(6)
+        learn_color_extra_px = scale(35)
+        color_box_radius_px = scale(4)
          
         # Update scroll position for selection
         if back_pointer_location is None:
@@ -830,10 +895,10 @@ class MenuLCD:
             selected_item_y = self.pointer_position * total_item_height
             
             # Auto-scroll logic
-            if selected_item_y < self.scroll_offset + self.scale(self.theme.viewport_margin_top):
-                self.scroll_offset = max(0, selected_item_y - self.scale(self.theme.viewport_margin_top))
-            elif selected_item_y + item_height > self.scroll_offset + viewport_height - self.scale(self.theme.viewport_margin_bottom):
-                self.scroll_offset = selected_item_y + item_height - viewport_height + self.scale(self.theme.viewport_margin_bottom)
+            if selected_item_y < self.scroll_offset + margin_top_px:
+                self.scroll_offset = max(0, selected_item_y - margin_top_px)
+            elif selected_item_y + item_height > self.scroll_offset + viewport_height - margin_bottom_px:
+                self.scroll_offset = selected_item_y + item_height - viewport_height + margin_bottom_px
         
         # Draw menu items
         current_y = int(round(content_start_y - self.scroll_offset))
@@ -863,8 +928,8 @@ class MenuLCD:
                         self.parent_menu = "end"
             
             # Calculate item bounds
-            item_x0 = self.scale(5)
-            item_x1 = self.LCD.width - self.scale(5)
+            item_x0 = outer_margin_px
+            item_x1 = lcd_width - outer_margin_px
             item_y0 = current_y
             item_y1 = current_y + item_height
             
@@ -883,44 +948,44 @@ class MenuLCD:
             # Draw item background box
             self._draw_rounded_rect(
                 (item_x0, item_y0, item_x1, item_y1),
-                radius=self.scale(self.theme.item_corner_radius),
-                fill=self.theme.item_bg_color,
-                outline=self.theme.item_border_color,
+                radius=pointer_radius_px,
+                fill=theme.item_bg_color,
+                outline=theme.item_border_color,
                 width=1  # Constant width for crisp borders
             )
             
             # Draw selection highlight (outline only)
             if is_selected:
                 selected_sid = sid
-                pointer_x0 = item_x0 - self.scale(self.theme.pointer_padding)
-                pointer_y0 = item_y0 - self.scale(self.theme.pointer_padding)
-                pointer_x1 = item_x1 + self.scale(self.theme.pointer_padding)
-                pointer_y1 = item_y1 + self.scale(self.theme.pointer_padding)
+                pointer_x0 = item_x0 - pointer_padding_px
+                pointer_y0 = item_y0 - pointer_padding_px
+                pointer_x1 = item_x1 + pointer_padding_px
+                pointer_y1 = item_y1 + pointer_padding_px
                 
                 self._draw_rounded_rect(
                     (pointer_x0, pointer_y0, pointer_x1, pointer_y1),
-                    radius=self.scale(self.theme.item_corner_radius),  # Same radius as item
+                    radius=pointer_radius_px,  # Same radius as item
                     fill=None,
-                    outline=self.theme.pointer_color,
-                    width=self.theme.pointer_width  # Use the configured pointer width
+                    outline=theme.pointer_color,
+                    width=theme.pointer_width  # Use the configured pointer width
                 )
             
             # Get value if applicable
             value_text = self._get_item_value(self.current_location, sid)
             
             # Calculate text areas
-            text_x = item_x0 + self.scale(self.theme.item_padding_h)
-            text_y = item_y0 + self.scale(self.theme.item_padding_v)
+            text_x = item_x0 + padding_h_px
+            text_y = item_y0 + padding_v_px
             
             # Handle special case for Learn MIDI hand colors first - always draw the color box
             if self.current_location == "Learn_MIDI" and sid in ["Hand color R", "Hand color L"]:
                 # Calculate the color preview box dimensions and position first
-                box_width = self.scale(30)
-                box_height = item_y1 - item_y0 - self.scale(6)  # Slightly smaller for better visual
+                box_width = swatch_width_px
+                box_height = item_y1 - item_y0 - swatch_gap_px  # Slightly smaller for better visual
                 
                 # Center the box vertically
                 box_y = item_y0 + (item_y1 - item_y0 - box_height) // 2
-                box_x = item_x1 - box_width - self.scale(5)  # 5 pixels from right edge
+                box_x = item_x1 - box_width - outer_margin_px  # outer margin from right edge
                 
                 # Draw the color preview box
                 hand_idx = self.learning.hand_colorR if sid == "Hand color R" else self.learning.hand_colorL
@@ -928,7 +993,7 @@ class MenuLCD:
                 
                 self._draw_rounded_rect(
                     (box_x, box_y, box_x + box_width, box_y + box_height),
-                    radius=self.scale(4),
+                    radius=color_box_radius_px,
                     fill=f"rgb({color[0]}, {color[1]}, {color[2]})"
                 )
             
@@ -940,40 +1005,40 @@ class MenuLCD:
                         color_str = self.ledsettings.get_multicolors(idx)
 
                         # Rounded-rectangle dimensions inside the box (right side)
-                        swatch_w = self.scale(30)
-                        swatch_h = (item_y1 - item_y0) - self.scale(6)
-                        swatch_x = item_x1 - swatch_w - self.scale(5)
+                        swatch_w = swatch_width_px
+                        swatch_h = (item_y1 - item_y0) - swatch_gap_px
+                        swatch_x = item_x1 - swatch_w - outer_margin_px
                         swatch_y = item_y0 + ((item_y1 - item_y0) - swatch_h) // 2
 
                         self._draw_rounded_rect(
                             (swatch_x, swatch_y, swatch_x + swatch_w, swatch_y + swatch_h),
-                            radius=self.scale(4),          # rounded rectangle
+                            radius=color_box_radius_px,          # rounded rectangle
                             fill=f"rgb({color_str})"
                         )
 
             # Handle text display
             if value_text is not None:
                 # Calculate space for value, accounting for color box in Learn MIDI menu
-                value_width = self.draw.textlength(value_text, font=self.font)
-                extra_space = self.scale(35) if self.current_location == "Learn_MIDI" and sid in ["Hand color R", "Hand color L"] else 0
+                value_width = draw.textlength(value_text, font=self.font)
+                extra_space = learn_color_extra_px if self.current_location == "Learn_MIDI" and sid in ["Hand color R", "Hand color L"] else 0
                 
-                label_max_width = (item_x1 - item_x0 - 
-                                 self.scale(self.theme.item_padding_h * 2 + self.theme.value_gap) - 
-                                 value_width - extra_space)
+                label_max_width = (item_x1 - item_x0 -
+                                   label_value_spacing_px -
+                                   value_width - extra_space)
                 # Truncate label if needed
                 label_text = self._truncate_text(sid, label_max_width, self.font)
                 # Draw label
                 self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh)
 
                 # Calculate value position, accounting for color box if needed
-                value_right_margin = self.scale(self.theme.value_right_margin)
+                value_right_margin = value_right_margin_px
                 if self.current_location == "Learn_MIDI" and sid in ["Hand color R", "Hand color L"]:
-                    value_right_margin += self.scale(35)  # Add space for color box
+                    value_right_margin += learn_color_extra_px  # Add space for color box
                 value_x = item_x1 - value_right_margin - value_width
-                self.draw.text((value_x, text_y), value_text, fill=self.text_color, font=self.font)
+                draw.text((value_x, text_y), value_text, fill=self.text_color, font=self.font)
             else:
                 # Just draw label centered vertically
-                label_max_width = item_x1 - item_x0 - self.scale(self.theme.item_padding_h * 2)
+                label_max_width = item_x1 - item_x0 - scale(theme.item_padding_h * 2)
                 label_text = self._truncate_text(sid, label_max_width, self.font)
                 self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh)
 
@@ -994,36 +1059,36 @@ class MenuLCD:
         if total_content_height > viewport_height:
             # Draw up arrow for scrolling
             if self.scroll_offset > 0:
-                arrow_x = self.LCD.width - self.scale(5)
-                arrow_y = content_start_y - self.scale(8)
+                arrow_x = lcd_width - scale(5)
+                arrow_y = content_start_y - scale(8)
                 # Left line
-                self.draw.line(
-                    [(arrow_x + self.scale(3), arrow_y + self.scale(3)), 
+                draw.line(
+                    [(arrow_x + scale(3), arrow_y + scale(3)), 
                      (arrow_x, arrow_y)],
-                    fill=self.text_color, width=self.scale(2)
+                    fill=self.text_color, width=scale(2)
                 )
                 # Right line
-                self.draw.line(
+                draw.line(
                     [(arrow_x, arrow_y), 
-                     (arrow_x - self.scale(3), arrow_y + self.scale(3))],
-                    fill=self.text_color, width=self.scale(2)
+                     (arrow_x - scale(3), arrow_y + scale(3))],
+                    fill=self.text_color, width=scale(2)
                 )
             
             # Draw down arrow for scrolling
             if self.scroll_offset + viewport_height < total_content_height:
-                arrow_x = self.LCD.width - self.scale(5)
+                arrow_x = lcd_width - scale(5)
                 arrow_y = content_bottom
                 # Left line
-                self.draw.line(
-                    [(arrow_x - self.scale(3), arrow_y - self.scale(3)), 
+                draw.line(
+                    [(arrow_x - scale(3), arrow_y - scale(3)), 
                      (arrow_x, arrow_y)],
-                    fill=self.text_color, width=self.scale(2)
+                    fill=self.text_color, width=scale(2)
                 )
                 # Right line
-                self.draw.line(
+                draw.line(
                     [(arrow_x, arrow_y), 
-                     (arrow_x + self.scale(3), arrow_y - self.scale(3))],
-                    fill=self.text_color, width=self.scale(2)
+                     (arrow_x + scale(3), arrow_y - scale(3))],
+                    fill=self.text_color, width=scale(2)
                 )
         
         # Handle special displays (color previews, etc.)
@@ -1037,17 +1102,24 @@ class MenuLCD:
     def _draw_special_displays(self):
         """Draw bottom preview bars for color-related submenus."""
 
+        scale = self.scale
+        lcd_width = self.LCD.width
+        lcd_height = self.LCD.height
+
         # Set preview dimensions
-        preview_y = self.LCD.height - self.scale(25)  # Y position from bottom
-        preview_height = self.scale(12)  # Height of preview box
+        preview_y = lcd_height - scale(25)  # Y position from bottom
+        preview_height = scale(12)  # Height of preview box
         preview_bottom = preview_y + preview_height
+        preview_left = scale(20)
+        preview_right = lcd_width - scale(20)
+        preview_box = (preview_left, preview_y, preview_right, preview_bottom)
 
         # RGB color preview
         if self.current_location == "RGB":
             color_str = self.ledsettings.get_colors()
             self._draw_rounded_rect(
-                (self.scale(20), preview_y, self.LCD.width - self.scale(20), preview_bottom),
-                radius=self.scale(6),
+                preview_box,
+                radius=scale(6),
                 fill=f"rgb({color_str})"
             )
 
@@ -1055,8 +1127,8 @@ class MenuLCD:
         if "RGB_Color" in self.current_location:
             color_str = self.ledsettings.get_multicolors(self.current_location.replace('RGB_Color', ''))
             self._draw_rounded_rect(
-                (self.scale(20), preview_y, self.LCD.width - self.scale(20), preview_bottom),
-                radius=self.scale(6),
+                preview_box,
+                radius=scale(6),
                 fill=f"rgb({color_str})"
             )
 
@@ -1064,8 +1136,8 @@ class MenuLCD:
         if "Backlight_Color" in self.current_location:
             color_str = self.ledsettings.get_backlight_colors()
             self._draw_rounded_rect(
-                (self.scale(20), preview_y, self.LCD.width - self.scale(20), preview_bottom),
-                radius=self.scale(6),
+                preview_box,
+                radius=scale(6),
                 fill=f"rgb({color_str})"
             )
 
@@ -1073,8 +1145,8 @@ class MenuLCD:
         if "Custom_RGB" in self.current_location:
             color_str = self.ledsettings.get_adjacent_colors()
             self._draw_rounded_rect(
-                (self.scale(20), preview_y, self.LCD.width - self.scale(20), preview_bottom),
-                radius=self.scale(6),
+                preview_box,
+                radius=scale(6),
                 fill=f"rgb({color_str})"
             )
 
