@@ -737,6 +737,9 @@ class MenuLCD:
         selected_sid = None
         if self.screen_on == 0:
             return False
+        
+        if self.current_location in ("Velocity_Rainbow", "Rainbow_Colors"):
+            self.update_colormap()
 
         if position == "default" and self.current_location:
             position = self.current_location
