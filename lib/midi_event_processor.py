@@ -37,11 +37,15 @@ class MIDIEventProcessor:
         else:
             # Process MIDI file playback
             self.midiports.midipending = self.midiports.midifile_queue
+        # Process a bounded slice per frame to avoid jitter and keep FPS stable
+        # - time budget: ~3ms, message budget: 512
+        # - burst coalescing: group near-identical timestamps and process notes first
+        import collections
+        t0 = time.perf_counter()
+        processed = 0
 
-        # Process all pending MIDI messages
-        while self.midiports.midipending:
-            msg, msg_timestamp = self.midiports.midipending.popleft()
-
+        def _process_one(msg, msg_timestamp):
+            """Route one message exactly like before (LEDs/recording/color mode)."""
             # Log MIDI events if enabled in settings
             if int(self.usersettings.get_setting_value("midi_logging")) == 1:
                 if not msg.is_meta:
@@ -54,21 +58,17 @@ class MIDIEventProcessor:
             self.midiports.last_activity = time.time()
 
             # Route different MIDI event types to their handlers
-            if (msg.type == "note_off" or (
-                    msg.type == "note_on" and msg.velocity == 0)) and self.ledsettings.mode != "Disabled":
-                # Handle note-off or note-on with zero velocity (equivalent to note-off)
+            if (msg.type == "note_off" or (msg.type == "note_on" and getattr(msg, "velocity", 0) == 0)) and self.ledsettings.mode != "Disabled":
                 note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
                 if 0 <= note_position < self.ledstrip.led_number:
                     self.handle_note_off(msg, msg_timestamp, note_position)
 
-            elif msg.type == 'note_on' and msg.velocity > 0 and self.ledsettings.mode != "Disabled":
-                # Handle note-on with positive velocity
+            elif msg.type == 'note_on' and getattr(msg, "velocity", 0) > 0 and self.ledsettings.mode != "Disabled":
                 note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
                 if 0 <= note_position < self.ledstrip.led_number:
                     self.handle_note_on(msg, msg_timestamp, note_position)
 
             elif msg.type == "control_change":
-                # Handle control change messages (e.g., sustain pedal)
                 self.handle_control_change(msg, msg_timestamp)
 
             # Pass the MIDI event to the color mode handler for additional processing
@@ -77,6 +77,38 @@ class MIDIEventProcessor:
             # Restart recording timer if recording
             self.saving.restart_time()
 
+        # Bounded drain with bursts grouped by timestamp (~1.5ms window)
+        BURST_WINDOW = 0.0015  # 1.5 ms
+        BURST_LIMIT  = 64      # avoid starving under continuous streams
+
+        midipending = self.midiports.midipending
+        while midipending and processed < 512 and (time.perf_counter() - t0) < 0.003:
+            head_msg, head_ts = midipending.popleft()
+            burst = [(head_msg, head_ts)]
+            # Coalesce a small burst of messages with almost the same timestamp
+            while midipending and len(burst) < BURST_LIMIT:
+                nxt_msg, nxt_ts = midipending[0]
+                if abs(nxt_ts - head_ts) <= BURST_WINDOW:
+                    burst.append(midipending.popleft())
+                else:
+                    break
+
+            # Notes first (reduce visual latency for chords), then others
+            for m, ts in burst:
+                if (getattr(m, "type", None) == "note_on" and getattr(m, "velocity", 0) > 0) or                    getattr(m, "type", None) == "note_off" or                    (getattr(m, "type", None) == "note_on" and getattr(m, "velocity", 0) == 0):
+                    _process_one(m, ts)
+                    processed += 1
+                    if processed >= 512:
+                        break
+
+            if processed < 512:
+                for m, ts in burst:
+                    if getattr(m, "type", None) not in ("note_on", "note_off"):
+                        _process_one(m, ts)
+                        processed += 1
+                        if processed >= 512:
+                            break
+    
     def handle_note_off(self, msg, msg_timestamp, note_position):
         """
         Handle note-off MIDI events.
@@ -225,6 +257,10 @@ class MIDIEventProcessor:
         """
         control = msg.control
         value = msg.value
+
+        # Sustain coalescing: skip if state didn't change (perf-friendly on RPi Zero)
+        if control == 64 and value == self.last_sustain:
+            return
 
         # Track sustain pedal state (MIDI CC 64)
         if control == 64:  # Sustain pedal
