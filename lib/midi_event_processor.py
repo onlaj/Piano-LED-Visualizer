@@ -38,8 +38,7 @@ class MIDIEventProcessor:
             # Process MIDI file playback
             self.midiports.midipending = self.midiports.midifile_queue
         # Process a bounded slice per frame to avoid jitter and keep FPS stable
-        # - time budget: ~3ms, message budget: 512
-        # - burst coalescing: group near-identical timestamps and process notes first
+        # group near-identical timestamps and process notes first
         import collections
         t0 = time.perf_counter()
         processed = 0
@@ -59,16 +58,19 @@ class MIDIEventProcessor:
 
             # Route different MIDI event types to their handlers
             if (msg.type == "note_off" or (msg.type == "note_on" and getattr(msg, "velocity", 0) == 0)) and self.ledsettings.mode != "Disabled":
+                # Handle note-off or note-on with zero velocity (equivalent to note-off)
                 note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
                 if 0 <= note_position < self.ledstrip.led_number:
                     self.handle_note_off(msg, msg_timestamp, note_position)
 
             elif msg.type == 'note_on' and getattr(msg, "velocity", 0) > 0 and self.ledsettings.mode != "Disabled":
+                # Handle note-on with positive velocity
                 note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
                 if 0 <= note_position < self.ledstrip.led_number:
                     self.handle_note_on(msg, msg_timestamp, note_position)
 
             elif msg.type == "control_change":
+                # Handle control change messages (e.g., sustain pedal)
                 self.handle_control_change(msg, msg_timestamp)
 
             # Pass the MIDI event to the color mode handler for additional processing
@@ -258,7 +260,7 @@ class MIDIEventProcessor:
         control = msg.control
         value = msg.value
 
-        # Sustain coalescing: skip if state didn't change (perf-friendly on RPi Zero)
+        # Sustain coalescing: skip if state didn't change
         if control == 64 and value == self.last_sustain:
             return
 

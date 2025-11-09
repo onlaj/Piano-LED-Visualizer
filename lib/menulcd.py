@@ -12,7 +12,7 @@ from lib.log_setup import logger
 
 
 # ============================================================================
-# UI Theme Configuration
+#                          🥖 UI Theme Configuration 🥖
 # ============================================================================
 class UITheme:
     """Centralized UI theme configuration"""
@@ -286,12 +286,13 @@ class MenuLCD:
             self.screensaver_settings[setting] = "1"
 
     def update_songs(self):
+        # Assume the first node is "Choose song"
         replace_node = self.DOMTree.getElementsByTagName("Play_MIDI")[0]
         choose_song_mc = self.DOMTree.createElement("Play_MIDI")
         choose_song_mc.appendChild(self.DOMTree.createTextNode(""))
         choose_song_mc.setAttribute("text", "Choose song")
         replace_node.parentNode.replaceChild(choose_song_mc, replace_node)
-        
+        # Assume the first node is "Load song"
         replace_node = self.DOMTree.getElementsByTagName("Learn_MIDI")[0]
         load_song_mc = self.DOMTree.createElement("Learn_MIDI")
         load_song_mc.appendChild(self.DOMTree.createTextNode(""))
@@ -300,35 +301,39 @@ class MenuLCD:
         
         songs_list = os.listdir("Songs")
         for song in songs_list:
+            # List of songs for Play_MIDI
             element = self.DOMTree.createElement("Choose_song")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", song)
             choose_song_mc.appendChild(element)
-            
+            # List of songs for Learn_MIDI
             element = self.DOMTree.createElement("Load_song")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", song)
             load_song_mc.appendChild(element)
 
     def update_colormap(self):
+        # Assume the first node is "Velocity Colormap"
         replace_node = self.DOMTree.getElementsByTagName("Velocity_Rainbow")[0]
         velocity_colormap_mc = self.DOMTree.createElement("Velocity_Rainbow")
         velocity_colormap_mc.appendChild(self.DOMTree.createTextNode(""))
         velocity_colormap_mc.setAttribute("text", "Velocity Colormap")
         replace_node.parentNode.replaceChild(velocity_colormap_mc, replace_node)
-
+        # Assume the first node is "Rainbow Colormap"
         replace_node = self.DOMTree.getElementsByTagName("Rainbow_Colors")[0]
         rainbow_colormap_mc = self.DOMTree.createElement("Rainbow_Colors")
         rainbow_colormap_mc.appendChild(self.DOMTree.createTextNode(""))
         rainbow_colormap_mc.setAttribute("text", "Rainbow Colormap")
         replace_node.parentNode.replaceChild(rainbow_colormap_mc, replace_node)
 
+        # loop through cmap.colormaps_preview with a key
         for key, value in cmap.colormaps_preview.items():
+            # List of colormaps for Rainbow colormap
             element = self.DOMTree.createElement("Rainbow_Colormap")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", key)
             rainbow_colormap_mc.appendChild(element)
-            
+            # List of colormaps for Velocity colormap
             element = self.DOMTree.createElement("Velocity_Colormap")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", key)
@@ -438,6 +443,7 @@ class MenuLCD:
             element = self.DOMTree.createElement("Multicolor")
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", "Color" + str(i))
+            # mc = self.DOMTree.getElementsByTagName("LED_Color")[0]
             mc_multicolor.appendChild(element)
 
             element = self.DOMTree.createElement("Color" + str(i))
@@ -445,7 +451,8 @@ class MenuLCD:
             element.setAttribute("text", "RGB Color" + str(i))
             mc = self.DOMTree.getElementsByTagName("Multicolor")[0]
             mc.appendChild(element)
-
+            
+            # adding key range to menu
             element = self.DOMTree.createElement("Color" + str(i))
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", "Key range" + str(i))
@@ -464,6 +471,7 @@ class MenuLCD:
             mc = self.DOMTree.getElementsByTagName("Color" + str(i))[0]
             mc.appendChild(element)
 
+            # adding delete
             element = self.DOMTree.createElement("Color" + str(i))
             element.appendChild(self.DOMTree.createTextNode(""))
             element.setAttribute("text", "Delete")
@@ -477,6 +485,7 @@ class MenuLCD:
                 mc = self.DOMTree.getElementsByTagName("Color" + str(i))[0]
                 mc.appendChild(element)
 
+        # Create the "Cycle colors" element
         element = self.DOMTree.createElement("Multicolor")
         element.appendChild(self.DOMTree.createTextNode(""))
         element.setAttribute("text", "Cycle colors")
@@ -494,6 +503,7 @@ class MenuLCD:
 
         mc_multicolor.appendChild(element)
 
+        # Add in the "Add Color" and "Confirm" into the replaced child
         element = self.DOMTree.createElement("Multicolor")
         element.appendChild(self.DOMTree.createTextNode(""))
         element.setAttribute("text", "Add Color")
@@ -1043,7 +1053,7 @@ class MenuLCD:
                 self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh)
 
             current_y += total_item_height
-        # === Update scroll_needed flag based on actually selected item (legacy rule >18 chars) ===
+        # Update scroll_needed flag based on actually selected item (legacy rule >18 chars)
         try:
             if isinstance(selected_sid, str) and len(selected_sid) > 18 and self.screen_on == 1:
                 self.scroll_needed = True
@@ -1051,8 +1061,6 @@ class MenuLCD:
                 self.scroll_needed = False
         except Exception:
             self.scroll_needed = False
-        # ============================================================================================
-
         
         # Draw scroll indicators
         total_content_height = (self.list_count + 1) * total_item_height
