@@ -1881,23 +1881,4 @@ class MenuLCD:
     def get_pointer_color(self):
         """Get the current pointer color as RGB tuple"""
         return self.theme.pointer_color
-    
-    def set_theme_value(self, attribute, value):
-        """Update a theme attribute then refresh."""
 
-        """
-        Set a theme attribute value.
-        
-        Args:
-            attribute: Name of the theme attribute (e.g., 'item_gap', 'pointer_width')
-            value: New value for the attribute
-        """
-        if hasattr(self.theme, attribute):
-            setattr(self.theme, attribute, value)
-            self.show()
-        else:
-            logger.warning(f"Theme attribute '{attribute}' does not exist")
-    
-    def get_theme_value(self, attribute):
-        """Get a theme attribute value"""
-        return getattr(self.theme, attribute, None)
