@@ -5,6 +5,8 @@ from rpi_ws281x import Color
 from lib.functions import get_note_position, find_between
 from lib.log_setup import logger
 
+OFF_COLOR = Color(0, 0, 0)
+
 
 class MIDIEventProcessor:
     """
@@ -31,59 +33,62 @@ class MIDIEventProcessor:
         Selects input source based on playback/learning state.
         """
         # Determine which MIDI queue to process based on playback state
-        if len(self.saving.is_playing_midi) == 0 and self.learning.is_started_midi is False:
+        if not self.saving.is_playing_midi and not self.learning.is_started_midi:
             # Process live MIDI input
             self.midiports.midipending = self.midiports.midi_queue
         else:
             # Process MIDI file playback
             self.midiports.midipending = self.midiports.midifile_queue
+
+        midi_logging_enabled = int(self.usersettings.get_setting_value("midi_logging")) == 1
+        log_sink = self.learning.socket_send if midi_logging_enabled else None
+        midiports = self.midiports
+        ledstrip = self.ledstrip
+        ledsettings = self.ledsettings
+        color_mode = self.color_mode
+        saving = self.saving
+        handle_note_off = self.handle_note_off
+        handle_note_on = self.handle_note_on
+        handle_control_change = self.handle_control_change
+        get_position = get_note_position
+        led_count = ledstrip.led_number
+
         # Process a bounded slice per frame to avoid jitter and keep FPS stable
         # group near-identical timestamps and process notes first
-        import collections
         t0 = time.perf_counter()
         processed = 0
 
         def _process_one(msg, msg_timestamp):
             """Route one message exactly like before (LEDs/recording/color mode)."""
-            # Log MIDI events if enabled in settings
-            if int(self.usersettings.get_setting_value("midi_logging")) == 1:
-                if not msg.is_meta:
-                    try:
-                        self.learning.socket_send.append("midi_event" + str(msg))
-                    except Exception as e:
-                        logger.warning(f"[process midi events] Unexpected exception occurred: {e}")
+            if midi_logging_enabled and log_sink is not None and not getattr(msg, "is_meta", False):
+                try:
+                    log_sink.append("midi_event" + str(msg))
+                except Exception as e:
+                    logger.warning(f"[process midi events] Unexpected exception occurred: {e}")
 
-            # Update last activity timestamp
-            self.midiports.last_activity = time.time()
+            midiports.last_activity = time.time()
 
-            # Route different MIDI event types to their handlers
-            if (msg.type == "note_off" or (msg.type == "note_on" and getattr(msg, "velocity", 0) == 0)) and self.ledsettings.mode != "Disabled":
-                # Handle note-off or note-on with zero velocity (equivalent to note-off)
-                note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
-                if 0 <= note_position < self.ledstrip.led_number:
-                    self.handle_note_off(msg, msg_timestamp, note_position)
+            msg_type = getattr(msg, "type", None)
+            velocity = getattr(msg, "velocity", 0)
 
-            elif msg.type == 'note_on' and getattr(msg, "velocity", 0) > 0 and self.ledsettings.mode != "Disabled":
-                # Handle note-on with positive velocity
-                note_position = get_note_position(msg.note, self.ledstrip, self.ledsettings)
-                if 0 <= note_position < self.ledstrip.led_number:
-                    self.handle_note_on(msg, msg_timestamp, note_position)
+            if ledsettings.mode != "Disabled" and msg_type in ("note_on", "note_off"):
+                note_position = get_position(msg.note, ledstrip, ledsettings)
+                if 0 <= note_position < led_count:
+                    if msg_type == "note_off" or velocity == 0:
+                        handle_note_off(msg, msg_timestamp, note_position)
+                    elif velocity > 0:
+                        handle_note_on(msg, msg_timestamp, note_position)
+            elif msg_type == "control_change":
+                handle_control_change(msg, msg_timestamp)
 
-            elif msg.type == "control_change":
-                # Handle control change messages (e.g., sustain pedal)
-                self.handle_control_change(msg, msg_timestamp)
-
-            # Pass the MIDI event to the color mode handler for additional processing
-            self.color_mode.MidiEvent(msg, None, self.ledstrip)
-
-            # Restart recording timer if recording
-            self.saving.restart_time()
+            color_mode.MidiEvent(msg, None, ledstrip)
+            saving.restart_time()
 
         # Bounded drain with bursts grouped by timestamp (~1.5ms window)
         BURST_WINDOW = 0.0015  # 1.5 ms
         BURST_LIMIT  = 64      # avoid starving under continuous streams
 
-        midipending = self.midiports.midipending
+        midipending = midiports.midipending
         while midipending and processed < 512 and (time.perf_counter() - t0) < 0.003:
             head_msg, head_ts = midipending.popleft()
             burst = [(head_msg, head_ts)]
@@ -97,7 +102,7 @@ class MIDIEventProcessor:
 
             # Notes first (reduce visual latency for chords), then others
             for m, ts in burst:
-                if (getattr(m, "type", None) == "note_on" and getattr(m, "velocity", 0) > 0) or                    getattr(m, "type", None) == "note_off" or                    (getattr(m, "type", None) == "note_on" and getattr(m, "velocity", 0) == 0):
+                if getattr(m, "type", None) in ("note_on", "note_off"):
                     _process_one(m, ts)
                     processed += 1
                     if processed >= 512:
@@ -147,21 +152,8 @@ class MIDIEventProcessor:
 
         # If LED is completely off, set appropriate color
         if self.ledstrip.keylist[note_position] <= 0:
-            if self.ledsettings.backlight_brightness > 0 and self.menu.screensaver_is_running is not True:
-                # Apply backlight color if backlight is enabled
-                red_backlight = int(
-                    self.ledsettings.get_backlight_color("Red")) * self.ledsettings.backlight_brightness_percent / 100
-                green_backlight = int(
-                    self.ledsettings.get_backlight_color("Green")) * self.ledsettings.backlight_brightness_percent / 100
-                blue_backlight = int(
-                    self.ledsettings.get_backlight_color("Blue")) * self.ledsettings.backlight_brightness_percent / 100
-                color_backlight = Color(int(red_backlight), int(green_backlight), int(blue_backlight))
-                self.ledstrip.strip.setPixelColor(note_position, color_backlight)
-                self.ledstrip.set_adjacent_colors(note_position, color_backlight, True)
-            else:
-                # Turn LED completely off
-                self.ledstrip.strip.setPixelColor(note_position, Color(0, 0, 0))
-                self.ledstrip.set_adjacent_colors(note_position, Color(0, 0, 0), False)
+            idle_color, use_backlight = self._resolve_idle_color()
+            self._apply_idle_color(note_position, idle_color, use_backlight)
 
         # Record the note-off event if recording is active
         if self.saving.is_recording:
@@ -271,30 +263,15 @@ class MIDIEventProcessor:
             # Handle sustain pedal release - clear all sustained notes
             pedal_deadzone = 10  # Standard MIDI deadzone for sustain pedal
             if value < pedal_deadzone and self.ledsettings.mode in ["Velocity", "Pedal"]:
-                for i in range(len(self.ledstrip.keylist_sustained)):
-                    if self.ledstrip.keylist_sustained[i] == 1:
+                idle_color, use_backlight = self._resolve_idle_color()
+                for i, sustained in enumerate(self.ledstrip.keylist_sustained):
+                    if sustained == 1:
                         # Clear sustained status
                         self.ledstrip.keylist_sustained[i] = 0
                         # If key is not currently pressed, turn it off
                         if self.ledstrip.keylist_status[i] == 0:
                             self.ledstrip.keylist[i] = 0  # Turn off immediately
-                            
-                            # Apply appropriate LED color (backlight or off)
-                            if self.ledsettings.backlight_brightness > 0 and self.menu.screensaver_is_running is not True:
-                                # Apply backlight color if backlight is enabled
-                                red_backlight = int(
-                                    self.ledsettings.get_backlight_color("Red")) * self.ledsettings.backlight_brightness_percent / 100
-                                green_backlight = int(
-                                    self.ledsettings.get_backlight_color("Green")) * self.ledsettings.backlight_brightness_percent / 100
-                                blue_backlight = int(
-                                    self.ledsettings.get_backlight_color("Blue")) * self.ledsettings.backlight_brightness_percent / 100
-                                color_backlight = Color(int(red_backlight), int(green_backlight), int(blue_backlight))
-                                self.ledstrip.strip.setPixelColor(i, color_backlight)
-                                self.ledstrip.set_adjacent_colors(i, color_backlight, True)
-                            else:
-                                # Turn LED completely off
-                                self.ledstrip.strip.setPixelColor(i, Color(0, 0, 0))
-                                self.ledstrip.set_adjacent_colors(i, Color(0, 0, 0), False)
+                            self._apply_idle_color(i, idle_color, use_backlight)
 
         current_time = time.time()
         # Handle sequence advancement based on control values
@@ -319,3 +296,19 @@ class MIDIEventProcessor:
         # Record the control change if recording is active
         if self.saving.is_recording:
             self.saving.add_control_change("control_change", 0, control, value, msg_timestamp)
+
+    def _resolve_idle_color(self):
+        """Compute the color to apply when a key returns to its idle state."""
+        if self.ledsettings.backlight_brightness > 0 and not self.menu.screensaver_is_running:
+            scale = self.ledsettings.backlight_brightness_percent / 100.0
+            return Color(
+                int(self.ledsettings.backlight_red * scale),
+                int(self.ledsettings.backlight_green * scale),
+                int(self.ledsettings.backlight_blue * scale),
+            ), True
+        return OFF_COLOR, False
+
+    def _apply_idle_color(self, note_position, color_value, is_backlight):
+        """Apply either the backlight color or switch LEDs off for a key."""
+        self.ledstrip.strip.setPixelColor(note_position, color_value)
+        self.ledstrip.set_adjacent_colors(note_position, color_value, True if is_backlight else False)
