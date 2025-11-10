@@ -108,7 +108,10 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
                 if delay > 0:
                     time.sleep(delay)
                 if not message.is_meta:
-                    midiports.playport.send(message)
+                    if midiports.playport is not None:
+                        midiports.playport.send(message)
+                    else:
+                        logger.debug("Skipping playport send: no output port configured")
                     midiports.midifile_queue.append((message.copy(time=0), msg_timestamp))
 
             else:
