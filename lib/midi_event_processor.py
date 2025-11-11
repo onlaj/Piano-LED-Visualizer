@@ -252,10 +252,6 @@ class MIDIEventProcessor:
         control = msg.control
         value = msg.value
 
-        # Sustain coalescing: skip if state didn't change
-        if control == 64 and value == self.last_sustain:
-            return
-
         # Track sustain pedal state (MIDI CC 64)
         if control == 64:  # Sustain pedal
             self.last_sustain = value
