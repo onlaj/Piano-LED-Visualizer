@@ -20,6 +20,7 @@ import ast
 import re
 from lib.rpi_drivers import GPIO
 from lib.log_setup import logger
+from flask import abort
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
@@ -1761,6 +1762,77 @@ def get_logs():
 def get_colormap_gradients():
     return jsonify(cmap.colormaps_preview)
 
+# ---------------------- Profiles & Highscores API ----------------------
+@webinterface.route('/api/get_profiles', methods=['GET'])
+def api_get_profiles():
+    if not hasattr(app_state, 'profile_manager'):
+        return jsonify({"profiles": []})
+    profiles = app_state.profile_manager.get_profiles()
+    return jsonify({"profiles": profiles})
+
+@webinterface.route('/api/create_profile', methods=['POST'])
+def api_create_profile():
+    if not hasattr(app_state, 'profile_manager'):
+        abort(500, description="Profile manager not initialized")
+    data = request.get_json(silent=True) or {}
+    name = data.get('name', '').strip()
+    if not name:
+        return jsonify(success=False, error="Name required"), 400
+    try:
+        profile_id = app_state.profile_manager.create_profile(name)
+    except ValueError as ve:
+        return jsonify(success=False, error=str(ve)), 400
+    except Exception as e:
+        logger.warning(f"Failed creating profile: {e}")
+        return jsonify(success=False, error="Internal error"), 500
+    return jsonify(success=True, profile={"id": profile_id, "name": name})
+
+@webinterface.route('/api/delete_profile', methods=['POST'])
+def api_delete_profile():
+    if not hasattr(app_state, 'profile_manager'):
+        abort(500, description="Profile manager not initialized")
+    data = request.get_json(silent=True) or {}
+    try:
+        profile_id = int(data.get('profile_id'))
+    except (TypeError, ValueError):
+        return jsonify(success=False, error="profile_id must be integer"), 400
+    try:
+        app_state.profile_manager.delete_profile(profile_id)
+        # If the deleted profile was the current one, clear it
+        if getattr(app_state, 'current_profile_id', None) == profile_id:
+            app_state.current_profile_id = None
+        return jsonify(success=True)
+    except Exception as e:
+        logger.warning(f"Failed deleting profile {profile_id}: {e}")
+        return jsonify(success=False, error="Internal error"), 500
+
+@webinterface.route('/api/get_highscores', methods=['GET'])
+def api_get_highscores():
+    if not hasattr(app_state, 'profile_manager'):
+        abort(500, description="Profile manager not initialized")
+    profile_id = request.args.get('profile_id')
+    if not profile_id:
+        return jsonify(success=False, error="profile_id required"), 400
+    try:
+        profile_id = int(profile_id)
+    except ValueError:
+        return jsonify(success=False, error="profile_id must be integer"), 400
+    highscores = app_state.profile_manager.get_highscores(profile_id)
+    return jsonify(success=True, highscores=highscores)
+
+@webinterface.route('/api/update_highscore', methods=['POST'])
+def api_update_highscore():
+    if not hasattr(app_state, 'profile_manager'):
+        abort(500, description="Profile manager not initialized")
+    data = request.get_json(silent=True) or {}
+    try:
+        profile_id = int(data.get('profile_id'))
+        song_name = data.get('song_name', '')
+        new_score = int(data.get('score'))
+    except (TypeError, ValueError):
+        return jsonify(success=False, error="Invalid payload"), 400
+    changed = app_state.profile_manager.update_highscore(profile_id, song_name, new_score)
+    return jsonify(success=True, updated=changed)
 
 # ========== Port Manager Helper Functions ==========
 
@@ -1976,3 +2048,18 @@ def pretty_print(dom):
 def pretty_save(file_path, sequences_tree):
     with open(file_path, "w", encoding="utf8") as outfile:
         outfile.write(pretty_print(sequences_tree))
+
+# Track currently selected profile on the backend for use by learning logic
+@webinterface.route('/api/set_current_profile', methods=['POST'])
+def api_set_current_profile():
+    data = request.get_json(silent=True) or {}
+    pid = data.get('profile_id')
+    try:
+        app_state.current_profile_id = int(pid) if pid is not None and pid != '' else None
+    except (TypeError, ValueError):
+        return jsonify(success=False, error="profile_id must be integer or empty"), 400
+    return jsonify(success=True, profile_id=app_state.current_profile_id)
+
+@webinterface.route('/api/get_current_profile', methods=['GET'])
+def api_get_current_profile():
+    return jsonify(success=True, profile_id=app_state.current_profile_id)
