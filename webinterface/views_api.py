@@ -143,6 +143,7 @@ def get_homepage_data():
         'cover_state': 'Opened' if cover_opened else 'Closed',
         'led_fps': round(app_state.ledstrip.current_fps, 2),
         'screen_on': app_state.menu.screen_on,
+        'display_type': app_state.menu.args.display if app_state.menu and app_state.menu.args and app_state.menu.args.display else app_state.usersettings.get_setting_value("display_type") or '1in44',
     }
     return jsonify(homepage_data)
 
@@ -959,6 +960,16 @@ def change_setting():
             app_state.menu.disable_screen()
         else:
             app_state.menu.enable_screen()
+
+    if setting_name == "display_type":
+        # Validate the value
+        if value in ['1in44', '1in3']:
+            app_state.usersettings.change_setting_value("display_type", value)
+            # Restart visualizer to apply the LCD type change
+            app_state.platform.restart_visualizer()
+            return jsonify(success=True, restart_required=True, message="LCD type changed. Restarting visualizer...")
+        else:
+            return jsonify(success=False, error="Invalid display type")
 
     if setting_name == "reset_to_default":
         app_state.usersettings.reset_to_default()

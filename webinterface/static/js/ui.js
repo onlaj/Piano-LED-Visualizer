@@ -56,6 +56,16 @@ function get_homepage_data_loop() {
             // change value of select based on response_pc_stats.screen_on
             document.getElementById("screen_on").value = response_pc_stats.screen_on;
 
+            // change value of select based on response_pc_stats.display_type
+            if (response_pc_stats.display_type) {
+                const displayTypeSelect = document.getElementById("display_type");
+                if (displayTypeSelect) {
+                    displayTypeSelect.value = response_pc_stats.display_type;
+                    // Store current value for confirmation handler
+                    displayTypeSelect.setAttribute('data-current-value', response_pc_stats.display_type);
+                }
+            }
+
             document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
 
 

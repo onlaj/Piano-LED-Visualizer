@@ -1,5 +1,6 @@
 <settings>
 	<screen_on>1</screen_on>
+	<display_type>1in44</display_type>
 	<brightness_percent>50</brightness_percent>
 	<background_color>#27272a</background_color>
 	<text_color>#FFFFFF</text_color>
