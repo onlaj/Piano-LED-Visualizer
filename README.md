@@ -87,8 +87,15 @@ You can also connect Raspberry Pi to your network [manually](https://github.com/
 [Instructions](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
 
 ## Connecting LED Strip to Raspberry Pi
-There is no point to reinvent the wheel again, here is a nice [tutorial](https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/) *(do only the hardware part)*.
-Double check how your LED strip is wired. Most strips use G-D-V (ground, data, voltage), however in the wiring diagram shown in the tutorial the voltage and data lines are swapped.
+There is no point to reinvent the wheel again, so here is a nice [diagram](https://web.archive.org/web/20230319222537/https://tutorials-raspberrypi.com/wp-content/uploads/2017/03/Raspberry-Pi-WS2812-Steckplatine.png).
+
+The wires of the LED strip are connected like this:
+
+- DIN (data) to pin 18 on the Pi
+- GRD to GRD on the Pi and the negative of the power supply
+- +5V to the positive of the power supply (not the Pi)
+
+Double check how your LED strip is wired. Most strips use G-D-V (ground, data, voltage), however in the wiring diagram the voltage and data lines are swapped.
 Connecting voltage directly to your data pin might seriously damage or kill your Raspberry!
 
 Optionally, you can connect a switch to BCM pin 12 and GND. Attach the switch to the key cover, if available. When it is closed, the animations are automatically switched off.
@@ -100,8 +107,14 @@ If you don't have a 3d printer, try to find some company or private person who w
 
 ## Web interface
 The visualizer comes with a web interface with which you can control the colors of the LED strip, change port settings, run animations of the strip, control sequences and manage midi files, including downloading, uploading, renaming, deleting, and playing.
-To connect to the web interface, type the local address of your raspberry pi in the browser, for example [http:/192.168.1.10](http:/192.168.1.10)
-Both devices must be connected to the same network. By default, web interface works on port 80, but if needed it can be changed with the script's argument `--port`
+
+To connect to the web interface, type the local address of your raspberry pi in the browser, for example [http://192.168.1.10](http://192.168.1.10)
+Both devices must be connected to the same network. By default, web interface works on port 80 through any available IP address, but if needed it can be changed in `config/settings.xml`:
+
+    <web_listen_ip>192.168.1.10</web_listen_ip>
+    <web_listen_port>80</web_listen_port>
+
+ The port can also be changed with the script's argument `--port`
 
     sudo python3 /home/Piano-LED-Visualizer/visualizer.py --port 5000
 

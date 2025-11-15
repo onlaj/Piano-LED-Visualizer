@@ -1,8 +1,9 @@
 <settings>
 	<screen_on>1</screen_on>
 	<brightness_percent>50</brightness_percent>
-	<background_color>BLACK</background_color>
-	<text_color>WHITE</text_color>
+	<background_color>#27272a</background_color>
+	<text_color>#FFFFFF</text_color>
+	<pointer_color>14,165,233</pointer_color>
 
 	<mode>Normal</mode>
 	<red>255</red>
@@ -128,5 +129,8 @@
 	<led_gamma>1</led_gamma>
 
     <hotspot_password>visualizer</hotspot_password>
+
+    <web_listen_ip></web_listen_ip>
+    <web_listen_port></web_listen_port>
 
 </settings>

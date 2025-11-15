@@ -35,93 +35,22 @@ After succesfully booting RPi (and connecting to it by SSH if necessary) we need
 - `sudo apt-get upgrade` //*it will take a while, go grab a coffee*
 
 
-### 2. **Creating autoconnect script** ### 
-*You can skip this part if you don't plan to connect any MIDI device other than a piano.*
-- Create `connectall.py` file
-
- `sudo nano /usr/local/bin/connectall.py`
-- paste the script:
-```python
-#!/usr/bin/python3
-import subprocess
-
-ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
-port_list = []
-client = "0"
-for line in str(ports).splitlines():
-    if line.startswith("client "):
-        client = line[7:].split(":",2)[0]
-        if client == "0" or "Through" in line:
-            client = "0"
-    else:
-        if client == "0" or line.startswith('\t'):
-            continue
-        port = line.split()[0]
-        port_list.append(client+":"+port)
-for source in port_list:
-    for target in port_list:
-        if source != target:
-            #print("aconnect %s %s" % (source, target))
-            subprocess.call("aconnect %s %s" % (source, target), shell=True)
-```
-Press CTRL + O to save file, confirm with enter and CTRL + X to exit editor.
-- Change permissions:
-
-    `sudo chmod +x /usr/local/bin/connectall.py`
-
-- Make the script launch on USB connect:
-
-   ` sudo nano /etc/udev/rules.d/33-midiusb.rules`
-
-- Paste and save:
-
-    `ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/local/bin/connectall.py"  `
-
-- Reload services:
-
-   ` sudo udevadm control --reload`
-
-    `sudo service udev restart`
-- Open file
-
-    `sudo nano /lib/systemd/system/midi.service`
-- Paste and save:
-```bash
-[Unit]
-Description=Initial USB MIDI connect
-
-[Service]
-ExecStart=/usr/local/bin/connectall.py
-
-[Install]
-WantedBy=multi-user.target
-```
-
-- Reload daemon and enable service:
-
-   ` sudo systemctl daemon-reload`
-   
-   ` sudo systemctl enable midi.service`
-    
-   `sudo systemctl start midi.service`
-    
-
-###  3. **Enabling SPI interface** ### 
+###  2. **Enabling SPI interface** ### 
  - Here you can find instruction: [Enable SPI Interface on the Raspberry Pi](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/)
  - Or simply use this command:
 
 ```bash
-  sudo raspi-config nonint do_spi 0
+sudo raspi-config nonint do_spi 0
 ```
 
-### 4. **Installing packages** //*ready for another cup?* ### 
+### 3. **Installing packages** //*ready for another cup?* ### 
 
 ```bash
-sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2 libavahi-client3 libavahi-common3 libc6 libfmt9 libgcc-s1 libstdc++6 python3 libopenblas-dev libavahi-client-dev libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libatlas-base-dev libopenjp2-7 libtiff6 libjack0 libjack-dev fonts-freefont-ttf gcc make build-essential scons swig abcmidi
+sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2 libavahi-client3 libavahi-common3 libc6 libgcc-s1 libstdc++6 python3 libopenblas-dev libavahi-client-dev libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libopenjp2-7 libtiff6 libjack0 libjack-dev fonts-freefont-ttf gcc make build-essential scons swig abcmidi
 ```
 
 
-### 5. **Disabling audio output** ### 
+### 4. **Disabling audio output** ### 
 
     sudo nano /etc/modprobe.d/snd-blacklist.conf
 - paste and save:
@@ -137,28 +66,36 @@ sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf liba
 `sudo reboot`
 
 
-### 6. **Installing RTP-midi server** (optional) ### 
+### 5. **Installing RTP-midi server** (optional) ### 
 *This part is not needed if you're not going to connect your RPi to PC.*
 
 We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://github.com/davidmoreno/rtpmidid/releases)
+
 - Navigate to /home folder:
 
-` cd /home/`   
+`cd /home/`
 
-- Download deb package:
+- Download and install the prerequisite `libfmt9` package:
+
+`sudo wget http://ftp.de.debian.org/debian/pool/main/f/fmtlib/libfmt9_9.1.0+ds1-2_arm64.deb`
+
+`sudo dpkg -i libfmt9_9.1.0+ds1-2_arm64.deb`
+
+`sudo apt -f install`
+
+- Download and install `rtpmidid` package:
 
 
 `sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v24.12/rtpmidid_24.12.2_armhf.deb`
-- Install package
 
 `sudo dpkg -i rtpmidid_24.12.2_armhf.deb`
 
 `sudo apt -f install`
 
-### 7. **Installing Piano-LED-Visualizer** ###
+### 6. **Installing Piano-LED-Visualizer** ###
 - Navigate to /home folder:
 
-` cd /home/`
+`cd /home/`
 
 - GIT clone repository
 
@@ -167,7 +104,10 @@ We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://githu
 `cd Piano-LED-Visualizer`
 - Install required libraries
 
-`sudo pip3 install -r requirements.txt`
+`sudo apt-get install -y python3-rpi.gpio python3-webcolors python3-psutil python3-mido python3-pillow python3-rtmidi python3-spidev python3-numpy python3-flask python3-waitress python3-websockets python3-werkzeug`
+
+`sudo pip3 install rpi-ws281x --break-system-packages`
+
 - Enable autologin on boot
 
 `sudo raspi-config`
@@ -192,8 +132,8 @@ WantedBy=multi-user.target
 ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py
 Restart=always
 Type=simple
-User=pi
-Group=pi
+User=plv
+Group=plv
 ```
 
 *If you are using WaveShare 1.3inch 240x240 LED Hat instead of 1.44inch 128x128, edit accordingly:*
@@ -205,9 +145,9 @@ Group=pi
 
 - Reload daemon and enable service:
 
-   ` sudo systemctl daemon-reload`
+   `sudo systemctl daemon-reload`
    
-   ` sudo systemctl enable visualizer.service`
+   `sudo systemctl enable visualizer.service`
     
    `sudo systemctl start visualizer.service`
 

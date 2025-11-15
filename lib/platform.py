@@ -51,14 +51,33 @@ class PlatformRasp(PlatformBase):
             logger.warning(f"Error checking SPI status: {e}")
             return False
 
+    
     @staticmethod
-    def copy_connectall_script():
-        # make sure connectall.py file exists and is updated
-        if not os.path.exists('/usr/local/bin/connectall.py') or \
-                filecmp.cmp('/usr/local/bin/connectall.py', 'lib/connectall.py') is not True:
-            logger.info("connectall.py script is outdated, updating...")
-            copyfile('lib/connectall.py', '/usr/local/bin/connectall.py')
-            os.chmod('/usr/local/bin/connectall.py', 493)
+    def disable_system_midi_scripts():
+        """Disable udev rules and systemd service that run the old connectall script"""
+        try:
+            # Disable the udev rule
+            udev_rule_path = '/etc/udev/rules.d/33-midiusb.rules'
+            if os.path.exists(udev_rule_path):
+                logger.info("Disabling udev MIDI rule...")
+                # Rename the file to disable it
+                os.rename(udev_rule_path, udev_rule_path + '.disabled')
+                subprocess.call(['sudo', 'udevadm', 'control', '--reload'], check=False)
+                logger.info("udev MIDI rule disabled")
+            
+            # Disable the systemd service
+            service_name = 'midi.service'
+            try:
+                # Stop the service
+                subprocess.call(['sudo', 'systemctl', 'stop', service_name], check=False)
+                # Disable the service
+                subprocess.call(['sudo', 'systemctl', 'disable', service_name], check=False)
+                logger.info(f"Systemd service {service_name} disabled")
+            except:
+                logger.info(f"Could not disable systemd service {service_name}")
+                
+        except Exception as e:
+            logger.warning(f"Error disabling system MIDI scripts: {e}")
 
     def install_midi2abc(self):
         if not self.is_package_installed("abcmidi"):
