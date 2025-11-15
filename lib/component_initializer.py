@@ -32,7 +32,8 @@ class ComponentInitializer:
 
     def setup_components(self):
         if not self.args.skipupdate:
-            self.platform.copy_connectall_script()
+            # Disable system MIDI scripts that use the old connectall behavior
+            self.platform.disable_system_midi_scripts()
 
         self.platform.install_midi2abc()
         logger.info(self.args)
@@ -52,5 +53,8 @@ class ComponentInitializer:
         self.menu.show()
         self.midiports.last_activity = time.time()
         self.hotspot.hotspot_script_time = time.time()
+
+        # Start MIDI device monitoring for auto-connection
+        self.midiports.start_midi_monitor()
 
         fastColorWipe(self.ledstrip.strip, True, self.ledsettings)

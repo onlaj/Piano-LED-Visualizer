@@ -41,13 +41,16 @@ class WebInterfaceManager:
             webinterface.jinja_env.auto_reload = True
             webinterface.config['TEMPLATES_AUTO_RELOAD'] = True
 
-            if not self.args.port:
-                self.args.port = 80
+            listen_ip = app_state.usersettings.get_setting_value("web_listen_ip") or "0.0.0.0"
 
+            listen_port = self.usersettings.get_setting_value("web_listen_port") or 80
+            if self.args.port:
+                listen_port = self.args.port
+            
             processThread = threading.Thread(
                 target=serve,
                 args=(webinterface,),
-                kwargs={'host': '0.0.0.0', 'port': self.args.port, 'threads': 20},
+                kwargs={'host': listen_ip, 'port': listen_port, 'threads': 20},
                 daemon=True
             )
             processThread.start()

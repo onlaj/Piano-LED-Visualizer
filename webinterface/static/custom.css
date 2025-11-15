@@ -407,3 +407,174 @@ input[type=number]::-webkit-outer-spin-button {
 [lang="ar"] footer {
     flex-direction: row;
 }
+
+/* Port Connection Manager Styles */
+.port-item {
+    position: relative;
+    user-select: none;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    z-index: 10;
+    background: inherit;
+}
+
+.port-item:hover {
+    transform: translateX(3px);
+}
+
+.port-item.port-selected {
+    border-color: #3b82f6;
+    background-color: #dbeafe !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.dark .port-item.port-selected {
+    border-color: #3b82f6;
+    background-color: #1e3a8a !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+#connection-status {
+    transition: all 0.3s ease;
+}
+
+#connection-status:hover {
+    background-color: #f3f4f6;
+}
+
+.dark #connection-status:hover {
+    background-color: #4b5563;
+}
+
+.connection-dot {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    background-color: #3b82f6;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.dark .connection-dot {
+    border-color: #374151;
+}
+
+.connection-dot.right-0 {
+    right: -5px;
+}
+
+.connection-dot.left-0 {
+    left: -5px;
+}
+
+.connection-line {
+    transition: stroke 0.2s, stroke-width 0.2s;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+.connection-line:hover {
+    stroke: #ef4444 !important;
+    stroke-width: 4px !important;
+    filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.5));
+}
+
+#port-connection-container {
+    min-height: 600px;
+    max-height: 800px;
+}
+
+/* Tablet adjustments */
+@media (max-width: 1024px) {
+    #port-connection-container {
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+    
+    #source-ports,
+    #destination-ports {
+        width: 38% !important;
+    }
+    
+    #port-connection-container > div:nth-child(3) {
+        width: 24% !important;
+    }
+}
+
+/* Mobile connection info styling */
+.port-connections-mobile {
+    display: none;
+}
+
+/* Mobile layout - stack vertically */
+@media (max-width: 768px) {
+    #port-connection-container {
+        min-height: auto !important;
+        max-height: none !important;
+        flex-direction: column !important;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    #source-ports,
+    #destination-ports {
+        width: 100% !important;
+        max-height: 40vh;
+        font-size: 0.875rem;
+        z-index: 10 !important;
+    }
+    
+    /* Middle section becomes a horizontal divider */
+    #port-connection-container > div:nth-child(3) {
+        width: 100% !important;
+        height: 40px !important;
+        flex-direction: row;
+        flex-shrink: 0;
+    }
+    
+    /* Hide connection lines on mobile as they won't make sense in vertical layout */
+    #connection-lines {
+        display: none !important;
+    }
+    
+    .connection-dot {
+        display: none;
+    }
+    
+    /* Show mobile connection info on mobile */
+    .port-connections-mobile {
+        display: block !important;
+    }
+    
+    .port-item {
+        margin-bottom: 0.5rem;
+    }
+}
+
+#source-ports::-webkit-scrollbar,
+#destination-ports::-webkit-scrollbar {
+    width: 6px;
+}
+
+#source-ports::-webkit-scrollbar-thumb,
+#destination-ports::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 5px;
+}
+
+#source-ports::-webkit-scrollbar-thumb:hover,
+#destination-ports::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+.dark #source-ports::-webkit-scrollbar-thumb,
+.dark #destination-ports::-webkit-scrollbar-thumb {
+    background: #4b5563;
+}
+
+.dark #source-ports::-webkit-scrollbar-thumb:hover,
+.dark #destination-ports::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}

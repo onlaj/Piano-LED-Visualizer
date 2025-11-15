@@ -17,6 +17,7 @@ import math
 from zipfile import ZipFile
 import json
 import ast
+import re
 from lib.rpi_drivers import GPIO
 from lib.log_setup import logger
 from flask import abort
@@ -1832,6 +1833,214 @@ def api_update_highscore():
         return jsonify(success=False, error="Invalid payload"), 400
     changed = app_state.profile_manager.update_highscore(profile_id, song_name, new_score)
     return jsonify(success=True, updated=changed)
+
+# ========== Port Manager Helper Functions ==========
+
+def parse_aconnect_ports(output, port_type="input"):
+    """
+    Parse aconnect output to extract port information.
+    Returns a list of dicts with port info: {id, client_id, port_id, name, full_name}
+    """
+    ports = []
+    current_client = None
+    current_client_name = ""
+    
+    for line in output.split('\n'):
+        line = line.strip()
+        
+        # Match client lines: "client 20: 'Midi Through' [type=kernel]"
+        client_match = re.match(r"client (\d+):\s+'([^']+)'", line)
+        if client_match:
+            current_client = client_match.group(1)
+            current_client_name = client_match.group(2)
+            
+            # Skip special clients
+            if current_client == "0" or "Through" in current_client_name or "RtMidi" in current_client_name:
+                current_client = None
+            continue
+        
+        # Match port lines: "    0 'Midi Through Port-0'"
+        if current_client and line and not line.startswith('client'):
+            port_match = re.match(r"(\d+)\s+'([^']+)'", line)
+            if port_match:
+                port_id = port_match.group(1)
+                port_name = port_match.group(2)
+                full_id = f"{current_client}:{port_id}"
+                
+                ports.append({
+                    'id': full_id,
+                    'client_id': current_client,
+                    'port_id': port_id,
+                    'name': port_name,
+                    'client_name': current_client_name,
+                    'full_name': f"{current_client_name} - {port_name}"
+                })
+    
+    return ports
+
+
+def parse_aconnect_connections(output):
+    """
+    Parse aconnect -l output to extract current connections.
+    Returns a list of dicts: {source, destination, source_name, dest_name}
+    """
+    connections = []
+    current_client = None
+    current_port = None
+    current_client_name = ""
+    current_port_name = ""
+    
+    for line in output.split('\n'):
+        line_stripped = line.strip()
+        
+        # Match client lines
+        client_match = re.match(r"client (\d+):\s+'([^']+)'", line_stripped)
+        if client_match:
+            current_client = client_match.group(1)
+            current_client_name = client_match.group(2)
+            current_port = None
+            continue
+        
+        # Match port lines with connections: "    0 'port name'"
+        if current_client and line.startswith('    ') and not line.startswith('\t'):
+            port_match = re.match(r"\s+(\d+)\s+'([^']+)'", line)
+            if port_match:
+                current_port = port_match.group(1)
+                current_port_name = port_match.group(2)
+                continue
+        
+        # Match connection lines: "\tConnecting To: 130:0" or "\tConnecting To: 130:0, 131:0, 132:0"
+        if current_client and current_port and '\t' in line:
+            # Only process "Connecting To:" to avoid duplicates
+            if "Connecting To:" in line:
+                # Find all port connections in the line (handles multiple connections)
+                conn_matches = re.findall(r"(\d+):(\d+)", line_stripped)
+                source_id = f"{current_client}:{current_port}"
+                
+                for conn_match in conn_matches:
+                    dest_id = f"{conn_match[0]}:{conn_match[1]}"
+                    connections.append({
+                        'source': source_id,
+                        'destination': dest_id,
+                        'source_name': f"{current_client_name} - {current_port_name}",
+                    })
+    
+    return connections
+
+
+def get_all_available_ports():
+    """
+    Get all available MIDI input and output ports.
+    Returns dict with 'inputs' and 'outputs' lists.
+    """
+    try:
+        input_output = subprocess.check_output(["aconnect", "-l"], text=True)
+        input_ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
+        output_ports = subprocess.check_output(["aconnect", "-o", "-l"], text=True)
+        
+        return {
+            'inputs': parse_aconnect_ports(input_ports, "input"),
+            'outputs': parse_aconnect_ports(output_ports, "output"),
+            'all': parse_aconnect_ports(input_output, "all")
+        }
+    except subprocess.CalledProcessError as e:
+        return {'inputs': [], 'outputs': [], 'all': []}
+
+
+def get_all_current_connections():
+    """
+    Get all current MIDI port connections.
+    Returns list of connection dicts.
+    """
+    try:
+        output = subprocess.check_output(["aconnect", "-l"], text=True)
+        return parse_aconnect_connections(output)
+    except subprocess.CalledProcessError:
+        return []
+
+
+def create_midi_port_connection(source, destination):
+    """
+    Create a connection between two MIDI ports.
+    Args:
+        source: Source port in format "client:port" (e.g., "20:0")
+        destination: Destination port in format "client:port"
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        result = subprocess.call(["aconnect", source, destination])
+        return result == 0
+    except Exception as e:
+        print(f"Error creating connection: {e}")
+        return False
+
+
+def delete_midi_port_connection(source, destination):
+    """
+    Delete a connection between two MIDI ports.
+    Args:
+        source: Source port in format "client:port"
+        destination: Destination port in format "client:port"
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        result = subprocess.call(["aconnect", "-d", source, destination])
+        return result == 0
+    except Exception as e:
+        print(f"Error deleting connection: {e}")
+        return False
+
+
+# ========== Port Connection API Endpoints ==========
+
+@webinterface.route('/api/get_available_ports', methods=['GET'])
+def get_available_ports():
+    """Get all available MIDI ports (inputs and outputs)"""
+    ports = get_all_available_ports()
+    return jsonify(ports)
+
+
+@webinterface.route('/api/get_port_connections', methods=['GET'])
+def get_port_connections():
+    """Get all current MIDI port connections"""
+    connections = get_all_current_connections()
+    return jsonify({'connections': connections})
+
+
+@webinterface.route('/api/create_port_connection', methods=['POST'])
+def create_port_connection():
+    """Create a connection between two MIDI ports"""
+    data = request.get_json()
+    source = data.get('source')
+    destination = data.get('destination')
+    
+    if not source or not destination:
+        return jsonify({'success': False, 'error': 'Missing source or destination'}), 400
+    
+    # Prevent self-connection
+    if source == destination:
+        return jsonify({'success': False, 'error': 'Cannot connect a port to itself'}), 400
+    
+    success = create_midi_port_connection(source, destination)
+    return jsonify({'success': success})
+
+
+@webinterface.route('/api/delete_port_connection', methods=['POST'])
+def delete_port_connection():
+    """Delete a connection between two MIDI ports"""
+    data = request.get_json()
+    source = data.get('source')
+    destination = data.get('destination')
+    
+    if not source or not destination:
+        return jsonify({'success': False, 'error': 'Missing source or destination'}), 400
+    
+    success = delete_midi_port_connection(source, destination)
+    return jsonify({'success': success})
+
+
 def pretty_print(dom):
     return '\n'.join([line for line in dom.toprettyxml(indent=' ' * 4).split('\n') if line.strip()])
 
