@@ -81,59 +81,104 @@ class SingleColor(ColorMode):
 
 class Multicolor(ColorMode):
     def LoadSettings(self, ledsettings):
-        self.multicolor = ledsettings.multicolor
-        self.multicolor_range = ledsettings.multicolor_range
+        # Snapshot the current palette/ranges so we can work without repeatedly
+        # touching LedSettings during fast MIDI bursts.
+        self.multicolor = tuple(
+            tuple(int(channel) for channel in color)
+            for color in ledsettings.multicolor
+        )
+        self.multicolor_range = tuple(
+            tuple(int(bound) for bound in color_range)
+            for color_range in ledsettings.multicolor_range
+        )
         self.multicolor_index = 0
         self.multicolor_iteration = ledsettings.multicolor_iteration
+        self._build_note_cache()
 
     def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
-            chosen_color = self.get_random_multicolor_in_range(midi_event.note)
-            return chosen_color
-
-    def get_random_multicolor_in_range(self, note):
-        temporary_multicolor = []
-        color_on_the_right = {}
-        color_on_the_left = {}
-
-        for i, range in enumerate(self.multicolor_range):
-            if range[0] <= note <= range[1]:
-                temporary_multicolor.append(self.multicolor[i])
-
-            # get colors on the left and right
-            if range[0] > note:
-                color_on_the_right[range[0]] = self.multicolor[i]
-            if range[1] < note:
-                color_on_the_left[range[1]] = self.multicolor[i]
+        if not self.multicolor:
+            return (0, 0, 0)
 
         if self.multicolor_iteration == 1:
-            if self.multicolor_index >= len(self.multicolor):
-                self.multicolor_index = 0
-            chosen_color = self.multicolor[self.multicolor_index]
-            self.multicolor_index += 1
-        elif temporary_multicolor:
-            chosen_color = random.choice(temporary_multicolor)
-        else:
-            # mix colors from left and right
+            color = self.multicolor[self.multicolor_index]
+            self.multicolor_index = (self.multicolor_index + 1) % len(self.multicolor)
+            return color
 
-            if color_on_the_right and color_on_the_left:
-                right = min(color_on_the_right)
-                left = max(color_on_the_left)
+        return self.get_random_multicolor_in_range(midi_event.note)
 
-                left_to_right_distance = right - left
-                percent_value = (note - left) / left_to_right_distance
+    def get_random_multicolor_in_range(self, note):
+        note_index = clamp(int(note), 0, len(self._note_color_cache) - 1)
+        colors_for_note = self._note_color_cache[note_index]
+        if colors_for_note:
+            return random.choice(colors_for_note)
 
-                red = (percent_value * (color_on_the_right[right][0] -
-                                        color_on_the_left[left][0])) + color_on_the_left[left][0]
-                green = (percent_value * (color_on_the_right[right][1] -
-                                          color_on_the_left[left][1])) + color_on_the_left[left][1]
-                blue = (percent_value * (color_on_the_right[right][2] -
-                                         color_on_the_left[left][2])) + color_on_the_left[left][2]
+        left_neighbor = self._left_neighbors[note_index]
+        right_neighbor = self._right_neighbors[note_index]
 
-                chosen_color = [int(red), int(green), int(blue)]
-            else:
-                chosen_color = [0, 0, 0]
+        if left_neighbor and right_neighbor:
+            left_pos, left_color = left_neighbor
+            right_pos, right_color = right_neighbor
+            distance = max(right_pos - left_pos, 1)
+            percent_value = (note_index - left_pos) / distance
 
-        return chosen_color
+            red = int(round(left_color[0] + percent_value * (right_color[0] - left_color[0])))
+            green = int(round(left_color[1] + percent_value * (right_color[1] - left_color[1])))
+            blue = int(round(left_color[2] + percent_value * (right_color[2] - left_color[2])))
+            return (clamp(red, 0, 255), clamp(green, 0, 255), clamp(blue, 0, 255))
+
+        if right_neighbor:
+            return right_neighbor[1]
+
+        if left_neighbor:
+            return left_neighbor[1]
+
+        return self.multicolor[random.randrange(len(self.multicolor))]
+
+    def _build_note_cache(self):
+        """Precompute color candidates and nearest neighbors for every MIDI note."""
+        max_note = 128
+        note_cache = [[] for _ in range(max_note)]
+        cleaned_ranges = []
+
+        for color, color_range in zip(self.multicolor, self.multicolor_range):
+            if not color_range or len(color_range) < 2:
+                continue
+            start, end = color_range
+            start, end = sorted((int(start), int(end)))
+            if end < 0 or start > 127:
+                continue
+            start = clamp(start, 0, 127)
+            end = clamp(end, 0, 127)
+            color_tuple = tuple(color)
+            cleaned_ranges.append((start, end, color_tuple))
+            for midi_note in range(start, end + 1):
+                note_cache[midi_note].append(color_tuple)
+
+        self._note_color_cache = tuple(tuple(colors) for colors in note_cache)
+
+        ranges_by_end = sorted(cleaned_ranges, key=lambda item: item[1])
+        left_neighbors = [None] * max_note
+        end_idx = -1
+        for midi_note in range(max_note):
+            while end_idx + 1 < len(ranges_by_end) and ranges_by_end[end_idx + 1][1] < midi_note:
+                end_idx += 1
+            left_neighbors[midi_note] = (
+                (ranges_by_end[end_idx][1], ranges_by_end[end_idx][2]) if end_idx >= 0 else None
+            )
+
+        ranges_by_start = sorted(cleaned_ranges, key=lambda item: item[0])
+        right_neighbors = [None] * max_note
+        start_idx = 0
+        for midi_note in range(max_note):
+            while start_idx < len(ranges_by_start) and ranges_by_start[start_idx][0] <= midi_note:
+                start_idx += 1
+            right_neighbors[midi_note] = (
+                (ranges_by_start[start_idx][0], ranges_by_start[start_idx][2])
+                if start_idx < len(ranges_by_start) else None
+            )
+
+        self._left_neighbors = tuple(left_neighbors)
+        self._right_neighbors = tuple(right_neighbors)
 
 class Rainbow(ColorMode):
     def LoadSettings(self, ledsettings):

@@ -69,6 +69,7 @@ def shift(lst, num_shifts):
 
 def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     midiports.midifile_queue.append((mido.Message('note_on'), time.perf_counter()))
+    strip = ledstrip.strip
 
     if song_path in saving.is_playing_midi.keys():
         menu.render_message(song_path, "Already playing", 2000)
@@ -82,7 +83,7 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
 
     try:
         mid = mido.MidiFile("Songs/" + song_path)
-        fastColorWipe(ledstrip.strip, True, ledsettings)
+        fastColorWipe(strip, True, ledsettings)
         # length = mid.length
         t0 = False
         total_delay = 0
@@ -107,13 +108,15 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
                 if delay > 0:
                     time.sleep(delay)
                 if not message.is_meta:
-                    midiports.playport.send(message)
+                    if midiports.playport is not None:
+                        midiports.playport.send(message)
+                    else:
+                        logger.debug("Skipping playport send: no output port configured")
                     midiports.midifile_queue.append((message.copy(time=0), msg_timestamp))
 
             else:
                 midiports.midifile_queue.clear()
-                strip = ledstrip.strip
-                fastColorWipe(strip, True, ledsettings)
+                clear_ledstrip_state(ledstrip)
                 break
         logger.info('play time: {:.2f} s (expected {:.2f})'.format(time.perf_counter() - t0, total_delay))
         # print('play time: {:.2f} s (expected {:.2f})'.format(time.perf_counter() - t0, length))
@@ -123,6 +126,12 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     except Exception as e:
         menu.render_message(song_path, "Error while playing song " + str(e), 2000)
         logger.warning(e)
+    finally:
+        midiports.midifile_queue.clear()
+        try:
+            clear_ledstrip_state(ledstrip)
+        except Exception as e:
+            logger.debug(f"LED cleanup failed: {e}")
     saving.is_playing_midi.clear()
 
 
@@ -421,6 +430,22 @@ def fastColorWipe(strip, update, ledsettings):
         strip.setPixelColor(i, color)
     if update:
         strip.show()
+
+
+def clear_ledstrip_state(ledstrip, *, show=True):
+    """Force-clear LED pixels and reset key state tracking."""
+    strip = ledstrip.strip
+    total = strip.numPixels()
+    for i in range(total):
+        strip.setPixelColor(i, Color(0, 0, 0))
+    if show:
+        strip.show()
+
+    # Reset internal note tracking so fade logic cannot relight pixels.
+    ledstrip.keylist = [0] * ledstrip.led_number
+    ledstrip.keylist_status = [0] * ledstrip.led_number
+    ledstrip.keylist_sustained = [0] * ledstrip.led_number
+    ledstrip.keylist_color = [0] * ledstrip.led_number
 
 
 def calculate_brightness(ledsettings):

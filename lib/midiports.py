@@ -12,6 +12,8 @@ class MidiPorts:
         # midi queues will contain a tuple (midi_msg, timestamp)
         self.midifile_queue = deque(maxlen=500)
         self.midi_queue = deque(maxlen=1000)
+        # Count dropped messages when queue is full (diagnostics)
+        self.drop_counter = 0
         self.last_activity = 0
         self.inport = None
         self.playport = None
@@ -36,8 +38,8 @@ class MidiPorts:
             try:
                 self.inport = mido.open_input(port, callback=self.msg_callback)
                 logger.info("Inport loaded and set to " + port)
-            except:
-                logger.info("Can't load input port: " + port)
+            except Exception as e:
+                logger.warning("Can't load input port: " + port)
         else:
             # if not, try to find the new midi port
             try:
@@ -47,16 +49,16 @@ class MidiPorts:
                         self.usersettings.change_setting_value("input_port", port)
                         logger.info("Inport set to " + port)
                         break
-            except:
-                logger.info("no input port")
+            except Exception as e:
+                logger.warning("no input port")
         # checking if the play port was previously set by the user
         port = self.usersettings.get_setting_value("play_port")
         if port != "default":
             try:
                 self.playport = mido.open_output(port)
                 logger.info("Playport loaded and set to " + port)
-            except:
-                logger.info("Can't load input port: " + port)
+            except Exception as e:
+                logger.warning("Can't load input port: " + port)
         else:
             # if not, try to find the new midi port
             try:
@@ -66,8 +68,8 @@ class MidiPorts:
                         self.usersettings.change_setting_value("play_port", port)
                         logger.info("Playport set to " + port)
                         break
-            except:
-                logger.info("no play port")
+            except Exception as e:
+                logger.warning("no play port")
 
         self.portname = "inport"
 
@@ -94,7 +96,7 @@ class MidiPorts:
             if destroy_old is not None:
                 destory_old.close()
             self.menu.show()
-        except:
+        except Exception as e:
             self.menu.render_message("Can't change " + port + " to:", portname, 1500)
             self.menu.show()
 
@@ -106,8 +108,8 @@ class MidiPorts:
             if destroy_old is not None:
                 time.sleep(0.002)
                 destroy_old.close()
-        except:
-            logger.info("Can't reconnect input port: " + port)
+        except Exception as e:
+            logger.warning("Can't reconnect input port: " + port)
         try:
             destroy_old = self.playport
             port = self.usersettings.get_setting_value("play_port")
@@ -115,11 +117,24 @@ class MidiPorts:
             if destroy_old is not None:
                 time.sleep(0.002)
                 destroy_old.close()
-        except:
-            logger.info("Can't reconnect play port: " + port)
+        except Exception as e:
+            logger.warning("Can't reconnect play port: " + port)
 
     def msg_callback(self, msg):
-        self.midi_queue.append((msg, time.perf_counter()))
+        # Bound queue under load: keep notes prioritized; drop others first
+        ts = time.perf_counter()
+        q = self.midi_queue
+        if q.maxlen and len(q) >= q.maxlen:
+            self.drop_counter += 1
+            # If not a note event, drop silently
+            if getattr(msg, 'type', None) not in ('note_on', 'note_off'):
+                return
+            # Note event: make room by evicting oldest item
+            try:
+                q.popleft()
+            except Exception:
+                pass
+        q.append((msg, ts))
     
     def start_midi_monitor(self):
         """Start monitoring for MIDI device changes and auto-connect"""
