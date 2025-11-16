@@ -151,10 +151,10 @@ function handleDisplayTypeChange(value, selectElement) {
                 if (response.success === true) {
                     // Show success message with translation
                     alert(translate('lcd_type_change_success'));
-                    // Reload page after a short delay to show the restart
+                    // Reload page after delay to allow visualizer to restart (30 seconds)
                     setTimeout(function() {
                         window.location.reload();
-                    }, 2000);
+                    }, 30000);
                 } else {
                     // Revert on error
                     selectElement.value = actualPrevious;
@@ -209,10 +209,10 @@ function handleLedPinChange(value, selectElement) {
                 if (response.success === true) {
                     // Show success message with translation
                     alert(translate('led_pin_change_success'));
-                    // Reload page after a short delay to show the restart
+                    // Reload page after delay to allow visualizer to restart (30 seconds)
                     setTimeout(function() {
                         window.location.reload();
-                    }, 2000);
+                    }, 30000);
                 } else {
                     // Revert on error
                     selectElement.value = actualPrevious;
