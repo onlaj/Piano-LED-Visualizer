@@ -1341,6 +1341,33 @@ def change_setting():
         if app_state.menu.led_animation_delay < 0:
             app_state.menu.led_animation_delay = 0
         app_state.usersettings.change_setting_value("led_animation_delay", app_state.menu.led_animation_delay)
+        return jsonify(success=True)
+
+    if setting_name == "idle_timeout_minutes":
+        value = max(int(value), 1)
+        app_state.menu.idle_timeout_minutes = value
+        app_state.usersettings.change_setting_value("idle_timeout_minutes", app_state.menu.idle_timeout_minutes)
+        # Reload state manager config
+        if app_state.state_manager:
+            app_state.state_manager.reload_config()
+        return jsonify(success=True)
+
+    if setting_name == "screensaver_delay":
+        value = max(int(value), 0)
+        app_state.menu.screensaver_delay = value
+        app_state.usersettings.change_setting_value("screensaver_delay", app_state.menu.screensaver_delay)
+        # Reload state manager config
+        if app_state.state_manager:
+            app_state.state_manager.reload_config()
+        return jsonify(success=True)
+
+    if setting_name == "screen_off_delay":
+        value = max(int(value), 0)
+        app_state.menu.screen_off_delay = value
+        app_state.usersettings.change_setting_value("screen_off_delay", app_state.menu.screen_off_delay)
+        # Reload state manager config
+        if app_state.state_manager:
+            app_state.state_manager.reload_config()
 
         return jsonify(success=True)
 
@@ -1460,7 +1487,10 @@ def get_sequence_setting():
 def get_idle_animation_settings():
     response = {"led_animation_delay": app_state.usersettings.get_setting_value("led_animation_delay"),
                 "led_animation": app_state.usersettings.get_setting_value("led_animation"),
-                "led_animation_brightness_percent": app_state.ledsettings.led_animation_brightness_percent}
+                "led_animation_brightness_percent": app_state.ledsettings.led_animation_brightness_percent,
+                "idle_timeout_minutes": app_state.usersettings.get_setting_value("idle_timeout_minutes"),
+                "screensaver_delay": app_state.usersettings.get_setting_value("screensaver_delay"),
+                "screen_off_delay": app_state.usersettings.get_setting_value("screen_off_delay")}
     return jsonify(response)
 
 @webinterface.route('/api/get_settings', methods=['GET'])

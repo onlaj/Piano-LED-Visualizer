@@ -6,13 +6,14 @@ from lib.functions import fastColorWipe
 
 
 class GPIOHandler:
-    def __init__(self, args, midiports, menu, ledstrip, ledsettings, usersettings):
+    def __init__(self, args, midiports, menu, ledstrip, ledsettings, usersettings, state_manager=None):
         self.args = args
         self.midiports = midiports
         self.menu = menu
         self.ledstrip = ledstrip
         self.ledsettings = ledsettings
         self.usersettings = usersettings
+        self.state_manager = state_manager
         self.setup_gpio()
 
     def setup_gpio(self):
@@ -48,24 +49,32 @@ class GPIOHandler:
     def process_gpio_keys(self):
         if GPIO.input(self.KEYUP) == 0:
             self.midiports.last_activity = time.time()
+            if self.state_manager:
+                self.state_manager.update_user_activity()
             self.menu.change_pointer(0)
             while GPIO.input(self.KEYUP) == 0:
                 time.sleep(0.001)
 
         if GPIO.input(self.KEYDOWN) == 0:
             self.midiports.last_activity = time.time()
+            if self.state_manager:
+                self.state_manager.update_user_activity()
             self.menu.change_pointer(1)
             while GPIO.input(self.KEYDOWN) == 0:
                 time.sleep(0.001)
 
         if GPIO.input(self.KEY1) == 0:
             self.midiports.last_activity = time.time()
+            if self.state_manager:
+                self.state_manager.update_user_activity()
             self.menu.enter_menu()
             while GPIO.input(self.KEY1) == 0:
                 time.sleep(0.001)
 
         if GPIO.input(self.KEY2) == 0:
             self.midiports.last_activity = time.time()
+            if self.state_manager:
+                self.state_manager.update_user_activity()
             self.menu.go_back()
             if not self.menu.screensaver_is_running:
                 fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
@@ -74,6 +83,8 @@ class GPIOHandler:
 
         if GPIO.input(self.KEY3) == 0:
             self.midiports.last_activity = time.time()
+            if self.state_manager:
+                self.state_manager.update_user_activity()
             if self.ledsettings.sequence_active:
                 self.ledsettings.set_sequence(0, 1)
             else:
@@ -88,16 +99,22 @@ class GPIOHandler:
 
         if GPIO.input(self.KEYLEFT) == 0:
             self.midiports.last_activity = time.time()
+            if self.state_manager:
+                self.state_manager.update_user_activity()
             self.menu.change_value("LEFT")
             time.sleep(0.1)
 
         if GPIO.input(self.KEYRIGHT) == 0:
             self.midiports.last_activity = time.time()
+            if self.state_manager:
+                self.state_manager.update_user_activity()
             self.menu.change_value("RIGHT")
             time.sleep(0.1)
 
         if GPIO.input(self.JPRESS) == 0:
             self.midiports.last_activity = time.time()
+            if self.state_manager:
+                self.state_manager.update_user_activity()
             self.menu.speed_change()
             while GPIO.input(self.JPRESS) == 0:
                 time.sleep(0.01)

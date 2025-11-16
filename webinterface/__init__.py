@@ -30,6 +30,7 @@ class AppState:
         self.menu = None
         self.hotspot = None
         self.platform = None
+        self.state_manager = None
         self.ledemu_clients = set()  # Track active LED emulator clients
         self.ledemu_pause = False
         self.current_profile_id = None

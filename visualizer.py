@@ -18,6 +18,7 @@ from lib.menulcd import MenuLCD
 from lib.midi_event_processor import MIDIEventProcessor
 from lib.color_mode import ColorMode
 from lib.webinterface_manager import WebInterfaceManager
+from lib.state_manager import StateManager
 
 from lib.log_setup import logger
 
@@ -52,9 +53,13 @@ class VisualizerApp:
         self.color_mode = ColorMode(self.ci.ledsettings.color_mode,
                                     self.ci.ledsettings)
         self.color_mode_name = self.ci.ledsettings.color_mode
+        
+        # Initialize state manager first
+        self.state_manager = StateManager(self.ci.usersettings)
+        
         self.gpio_handler = GPIOHandler(self.args, self.ci.midiports, self.ci.menu,
                                         self.ci.ledstrip, self.ci.ledsettings,
-                                        self.ci.usersettings)
+                                        self.ci.usersettings, self.state_manager)
         self.web_interface_manager = WebInterfaceManager(self.args, self.ci.usersettings,
                                                          self.ci.ledsettings,
                                                          self.ci.ledstrip,
@@ -63,7 +68,8 @@ class VisualizerApp:
                                                          self.ci.midiports,
                                                          self.ci.menu,
                                                          self.ci.hotspot,
-                                                         self.ci.platform)
+                                                         self.ci.platform,
+                                                         self.state_manager)
         self.midi_event_processor = MIDIEventProcessor(self.ci.midiports,
                                                        self.ci.ledstrip,
                                                        self.ci.ledsettings,
@@ -71,7 +77,8 @@ class VisualizerApp:
                                                        self.ci.saving,
                                                        self.ci.learning,
                                                        self.ci.menu,
-                                                       self.color_mode)
+                                                       self.color_mode,
+                                                       self.state_manager)
         self.led_effects_processor = LEDEffectsProcessor(self.ci.ledstrip,
                                                          self.ci.ledsettings,
                                                          self.ci.menu,
@@ -110,8 +117,6 @@ class VisualizerApp:
         platform = ci.platform
         platform.manage_hotspot(ci.hotspot, ci.usersettings, ci.midiports, True)
 
-        sleep_interval = 0.006
-
         while True:
             loop_start = time.perf_counter()
             try:
@@ -128,8 +133,14 @@ class VisualizerApp:
             hotspot = ci.hotspot
             now_wall = time.time()
 
+            # Update system state (syncs with midiports and menu activity)
+            self.state_manager.update_state(midiports, menu)
+            
+            # Get dynamic sleep interval based on current state
+            sleep_interval = self.state_manager.get_loop_delay()
+
             self.check_screensaver(midiports, menu, now_wall)
-            manage_idle_animation(ledstrip, ledsettings, menu, midiports)
+            manage_idle_animation(ledstrip, ledsettings, menu, midiports, self.state_manager)
             self.check_activity_backlight(ledstrip, ledsettings, midiports, now_wall)
             self.update_display(elapsed_time, menu)
             self.check_color_mode(ledsettings)
@@ -145,7 +156,7 @@ class VisualizerApp:
 
             ledstrip.strip.show()
             self.update_fps_stats()
-            time.sleep(sleep_interval)  # Small delay to prevent CPU overuse
+            time.sleep(sleep_interval)  # Dynamic delay based on system state
 
     def update_fps_stats(self):
         self.frame_count += 1
@@ -162,12 +173,16 @@ class VisualizerApp:
         ci = self.ci
         menu = menu or ci.menu
         midiports = midiports or ci.midiports
-        delay_minutes = int(menu.screensaver_delay)
-        if delay_minutes <= 0:
+        
+        # Stop screensaver during active use
+        if self.state_manager.is_active_use() and menu.screensaver_is_running:
+            menu.screensaver_is_running = False
+            menu.show()
             return
-        now = current_time or time.time()
-        if (now - midiports.last_activity) > (delay_minutes * 60):
-            screensaver(menu, midiports, ci.saving, ci.ledstrip, ci.ledsettings)
+        
+        # Check if screensaver should start using state manager
+        if self.state_manager.should_run_screensaver(menu):
+            screensaver(menu, midiports, ci.saving, ci.ledstrip, ci.ledsettings, self.state_manager)
 
     def check_activity_backlight(self, ledstrip=None, ledsettings=None, midiports=None, current_time=None):
         ci = self.ci
@@ -203,12 +218,10 @@ class VisualizerApp:
                     logger.debug(f"menu.update() tick skipped: {e}")
                 self._last_menu_tick = now
 
-        # Existing refresh cycle logic
-        if self.display_cycle >= 3:
-            self.display_cycle = 0
+        # State-based refresh logic
+        if self.state_manager.should_refresh_screen():
             if elapsed_time > self.screen_hold_time:
                 menu.show()
-        self.display_cycle += 1
 
 
     def check_color_mode(self, ledsettings=None):

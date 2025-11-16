@@ -92,6 +92,7 @@
 	<led_animation>Scanner</led_animation>
     <led_animation_brightness_percent>50</led_animation_brightness_percent>
     <disable_backlight_on_idle>1</disable_backlight_on_idle>
+	<idle_timeout_minutes>10</idle_timeout_minutes>
 
 	<led_count>176</led_count>
 	<leds_per_meter>144</leds_per_meter>

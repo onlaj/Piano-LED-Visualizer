@@ -543,6 +543,15 @@ function get_led_idle_animation_settings(){
             document.getElementById("led_animation").value = response["led_animation"];
             document.getElementById("brightness_percent").value = response["led_animation_brightness_percent"];
             document.getElementById("brightness").value = response["led_animation_brightness_percent"];
+            if (document.getElementById("idle_timeout_minutes")) {
+                document.getElementById("idle_timeout_minutes").value = response["idle_timeout_minutes"];
+            }
+            if (document.getElementById("screensaver_delay")) {
+                document.getElementById("screensaver_delay").value = response["screensaver_delay"];
+            }
+            if (document.getElementById("screen_off_delay")) {
+                document.getElementById("screen_off_delay").value = response["screen_off_delay"];
+            }
         }
     }
     xhttp.open("GET", "/api/get_idle_animation_settings", true);

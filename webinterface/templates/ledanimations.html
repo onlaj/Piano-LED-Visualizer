@@ -231,6 +231,63 @@
                            oninput="this.nextElementSibling.value = this.value+'%' ">
                     <output id="brightness_percent" class="flex justify-center">50%</output>
                 </div>
+
+                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400" data-translate="idle_timeout">Idle timeout (minutes)</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400" data-translate="idle_timeout_desc">Time before entering IDLE state (CPU saving mode)</div>
+                <div class="flex mb-4">
+                    <svg onclick="document.getElementById('idle_timeout_minutes').stepDown();
+                    document.getElementById('idle_timeout_minutes').dispatchEvent(new Event('change'));
+                    change_setting('idle_timeout_minutes', document.getElementById('idle_timeout_minutes').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <input id="idle_timeout_minutes" name="field_name" type="number" value="10" min="1" max="9999"
+                           onchange="change_setting('idle_timeout_minutes', this.value);"
+                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl
+                           leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    <svg onclick="document.getElementById('idle_timeout_minutes').stepUp();
+                        document.getElementById('idle_timeout_minutes').dispatchEvent(new Event('change'));
+                        change_setting('idle_timeout_minutes', document.getElementById('idle_timeout_minutes').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+
+                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400" data-translate="screensaver_delay">Screensaver delay (minutes)</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400" data-translate="screensaver_delay_desc">Time before screensaver starts (0 - never)</div>
+                <div class="flex mb-4">
+                    <svg onclick="document.getElementById('screensaver_delay').stepDown();
+                    document.getElementById('screensaver_delay').dispatchEvent(new Event('change'));
+                    change_setting('screensaver_delay', document.getElementById('screensaver_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <input id="screensaver_delay" name="field_name" type="number" value="10" min="0" max="9999"
+                           onchange="change_setting('screensaver_delay', this.value);"
+                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl
+                           leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    <svg onclick="document.getElementById('screensaver_delay').stepUp();
+                        document.getElementById('screensaver_delay').dispatchEvent(new Event('change'));
+                        change_setting('screensaver_delay', document.getElementById('screensaver_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+
+                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400" data-translate="screen_off_delay">Screen off delay (minutes)</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400" data-translate="screen_off_delay_desc">Time before screen turns off (0 - never)</div>
+                <div class="flex mb-4">
+                    <svg onclick="document.getElementById('screen_off_delay').stepDown();
+                    document.getElementById('screen_off_delay').dispatchEvent(new Event('change'));
+                    change_setting('screen_off_delay', document.getElementById('screen_off_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <input id="screen_off_delay" name="field_name" type="number" value="60" min="0" max="9999"
+                           onchange="change_setting('screen_off_delay', this.value);"
+                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl
+                           leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    <svg onclick="document.getElementById('screen_off_delay').stepUp();
+                        document.getElementById('screen_off_delay').dispatchEvent(new Event('change'));
+                        change_setting('screen_off_delay', document.getElementById('screen_off_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
         </div>
     </div>
 </div>

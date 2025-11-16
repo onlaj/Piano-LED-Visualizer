@@ -12,7 +12,7 @@ class MIDIEventProcessor:
     """
     Processes MIDI events and translates them into LED strip visualizations.
     """
-    def __init__(self, midiports, ledstrip, ledsettings, usersettings, saving, learning, menu, color_mode):
+    def __init__(self, midiports, ledstrip, ledsettings, usersettings, saving, learning, menu, color_mode, state_manager=None):
 
         self.midiports = midiports
         self.ledstrip = ledstrip
@@ -22,6 +22,7 @@ class MIDIEventProcessor:
         self.learning = learning
         self.menu = menu
         self.color_mode = color_mode
+        self.state_manager = state_manager
         self.last_sustain = 0  # Track sustain pedal state
         # Time tracking for sequence advancement to prevent rapid triggering
         self.last_sequence_advance = 0
@@ -67,6 +68,9 @@ class MIDIEventProcessor:
                     logger.warning(f"[process midi events] Unexpected exception occurred: {e}")
 
             midiports.last_activity = time.time()
+            # Update state manager for MIDI activity
+            if self.state_manager:
+                self.state_manager.update_midi_activity()
 
             msg_type = getattr(msg, "type", None)
             velocity = getattr(msg, "velocity", 0)

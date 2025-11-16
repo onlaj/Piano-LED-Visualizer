@@ -129,6 +129,7 @@ class MenuLCD:
         self.screensaver_delay = usersettings.get_setting_value("screensaver_delay")
         self.screen_off_delay = usersettings.get_setting_value("screen_off_delay")
         self.led_animation_delay = usersettings.get_setting_value("led_animation_delay")
+        self.idle_timeout_minutes = usersettings.get_setting_value("idle_timeout_minutes")
         self.led_animation = usersettings.get_setting_value("led_animation")
         self.screen_on = int(usersettings.get_setting_value("screen_on"))
         self.screen_status = 1
@@ -637,6 +638,9 @@ class MenuLCD:
 
             elif location == "Led_animation_delay":
                 value = self.led_animation_delay
+
+            elif location == "Idle_timeout":
+                value = self.idle_timeout_minutes
 
             elif location == "Period":
                 value = self.ledsettings.speed_period_in_seconds
@@ -1778,6 +1782,12 @@ class MenuLCD:
             if self.led_animation_delay < 0:
                 self.led_animation_delay = 0
             self.usersettings.change_setting_value("led_animation_delay", self.led_animation_delay)
+
+        if self.current_location == "Idle_timeout":
+            self.idle_timeout_minutes = int(self.idle_timeout_minutes) + (value * self.speed_multiplier)
+            if self.idle_timeout_minutes < 1:
+                self.idle_timeout_minutes = 1
+            self.usersettings.change_setting_value("idle_timeout_minutes", self.idle_timeout_minutes)
 
         if self.current_location == "Period":
             self.ledsettings.speed_period_in_seconds = round(self.ledsettings.speed_period_in_seconds + (value * .1) *

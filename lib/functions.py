@@ -135,77 +135,101 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     saving.is_playing_midi.clear()
 
 
-def manage_idle_animation(ledstrip, ledsettings, menu, midiports):
+def manage_idle_animation(ledstrip, ledsettings, menu, midiports, state_manager=None):
     animation_delay_minutes = int(menu.led_animation_delay)
     if animation_delay_minutes == 0:
         return
 
-    time_since_last_activity_minutes = (time.time() - menu.last_activity) / 60
-    time_since_last_ports_activity_minutes = (time.time() - midiports.last_activity) / 60
+    # Use state manager if available
+    if state_manager:
+        # Only run idle animation in IDLE state
+        if not state_manager.is_idle():
+            if menu.is_idle_animation_running:
+                menu.is_idle_animation_running = False
+            return
+        
+        # In IDLE state, check animation delay
+        time_since_last_activity_minutes = state_manager.get_state_info()['time_since_user'] / 60
+        if time_since_last_activity_minutes < animation_delay_minutes:
+            return
+    else:
+        # Fallback to original logic if state_manager not available
+        time_since_last_activity_minutes = (time.time() - menu.last_activity) / 60
+        time_since_last_ports_activity_minutes = (time.time() - midiports.last_activity) / 60
 
-    if time_since_last_ports_activity_minutes < animation_delay_minutes:
-        menu.is_idle_animation_running = False
+        if time_since_last_ports_activity_minutes < animation_delay_minutes:
+            menu.is_idle_animation_running = False
+            return
 
-    # Check conditions
-    if (
-            0 < animation_delay_minutes < time_since_last_activity_minutes
-            and not menu.is_idle_animation_running
-            and 0 < animation_delay_minutes < time_since_last_ports_activity_minutes
-    ):
-        menu.is_idle_animation_running = True
+        # Check conditions
+        if not (0 < animation_delay_minutes < time_since_last_activity_minutes
+                and not menu.is_idle_animation_running
+                and 0 < animation_delay_minutes < time_since_last_ports_activity_minutes):
+            return
+    
+    # Start animation if not already running
+    if menu.is_idle_animation_running:
+        return
+        
+    menu.is_idle_animation_running = True
 
-        if menu.led_animation == "Theater Chase":
+    if menu.led_animation == "Theater Chase":
             menu.t = threading.Thread(target=theaterChase, args=(ledstrip,
                                                                  Color(127, 127, 127),
                                                                  ledsettings,
                                                                  menu))
             menu.t.start()
-        if menu.led_animation == "Fireplace":
+    if menu.led_animation == "Fireplace":
             menu.t = threading.Thread(target=theaterChase, args=(ledstrip,
                                                                  Color(127, 127, 127),
                                                                  ledsettings,
                                                                  menu))
             menu.t.start()
-        if menu.led_animation == "Breathing Slow":
+    if menu.led_animation == "Breathing Slow":
             menu.t = threading.Thread(target=breathing, args=(ledstrip,
                                                               ledsettings,
                                                               menu, "Slow"))
             menu.t.start()
-        if menu.led_animation == "Rainbow Slow":
+    if menu.led_animation == "Rainbow Slow":
             menu.t = threading.Thread(target=rainbow, args=(ledstrip,
                                                             ledsettings,
                                                             menu, 50))
             menu.t.start()
-        if menu.led_animation == "Rainbow Cycle Slow":
+    if menu.led_animation == "Rainbow Cycle Slow":
             menu.t = threading.Thread(target=rainbowCycle, args=(ledstrip,
                                                                  ledsettings,
                                                                  menu, 50))
             menu.t.start()
-        if menu.led_animation == "Theater Chase Rainbow":
+    if menu.led_animation == "Theater Chase Rainbow":
             menu.t = threading.Thread(target=theaterChaseRainbow, args=(ledstrip,
                                                                         ledsettings,
                                                                         menu, 5))
             menu.t.start()
-        if menu.led_animation == "Sound of da police":
+    if menu.led_animation == "Sound of da police":
             menu.t = threading.Thread(target=sound_of_da_police, args=(ledstrip,
                                                                        ledsettings,
                                                                        menu, 1))
             menu.t.start()
-        if menu.led_animation == "Scanner":
+    if menu.led_animation == "Scanner":
             menu.t = threading.Thread(target=scanner, args=(ledstrip,
                                                             ledsettings,
                                                             menu, 1))
             menu.t.start()
-        time.sleep(1)
+    time.sleep(1)
 
 
-def screensaver(menu, midiports, saving, ledstrip, ledsettings):
+def screensaver(menu, midiports, saving, ledstrip, ledsettings, state_manager=None):
     last_cpu_average = 0
 
     KEY2 = 20
     GPIO.setup(KEY2, GPIO.IN, GPIO.PUD_UP)
 
-    delay = 0.1
+    # Use state manager to determine initial delay
+    if state_manager and state_manager.is_idle():
+        delay = 1.0  # 1Hz in IDLE state
+    else:
+        delay = 0.2  # 5Hz in NORMAL state for smooth animations
+    
     interval = 3 / float(delay)
     i = 0
     cpu_history = [None] * int(interval)
@@ -228,9 +252,28 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
         logger.warning("Error while getting ports " + str(e))
 
     while True:
-        manage_idle_animation(ledstrip, ledsettings, menu, midiports)
+        manage_idle_animation(ledstrip, ledsettings, menu, midiports, state_manager)
 
-        if (time.perf_counter() - saving.start_time) > 3600 and delay < 0.5 and menu.screensaver_is_running is False:
+        # Update state manager in screensaver loop
+        if state_manager:
+            state_manager.update_state(midiports, menu)
+        
+        # Adjust delay based on state
+        if state_manager:
+            if state_manager.is_idle():
+                new_delay = 1.0  # 1Hz in IDLE
+            else:
+                new_delay = 0.2  # 5Hz in NORMAL
+            
+            # If delay changed, recalculate interval and reset cpu_history
+            if abs(new_delay - delay) > 0.01:
+                delay = new_delay
+                interval = 3 / float(delay)
+                cpu_history = [None] * int(interval)
+                cpu_average = 0
+                i = 0
+        elif (time.perf_counter() - saving.start_time) > 3600 and delay < 0.5 and menu.screensaver_is_running is False:
+            # Fallback: old behavior if no state manager
             delay = 0.9
             interval = 5 / float(delay)
             cpu_history = [None] * int(interval)
@@ -303,7 +346,8 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings):
         time.sleep(delay)
         i += 1
         try:
-            if len(midiports.midi_queue) != 0:
+            # Exit screensaver if MIDI activity or state changed to active use
+            if len(midiports.midi_queue) != 0 or (state_manager and state_manager.is_active_use()):
                 menu.screensaver_is_running = False
                 saving.start_time = time.perf_counter()
                 menu.screen_status = 1

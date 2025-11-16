@@ -331,6 +331,9 @@
             <Screensaver text="Led animation delay">
                 <Led_animation_delay text="After minutes (0 - never)"></Led_animation_delay>
             </Screensaver>
+            <Screensaver text="Idle timeout">
+                <Idle_timeout text="After minutes"></Idle_timeout>
+            </Screensaver>
             <Screensaver text="Led animation">
                 <Led_animation text="Theater Chase"></Led_animation>
                 <Led_animation text="Breathing Slow"></Led_animation>
