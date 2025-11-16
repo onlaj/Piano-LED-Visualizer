@@ -45,6 +45,9 @@ function get_homepage_data_loop() {
             document.getElementById("cover_state").innerHTML = response_pc_stats["cover_state"];
 
             document.getElementById("led_fps").innerHTML = response_pc_stats.led_fps;
+            if (document.getElementById("system_state")) {
+                document.getElementById("system_state").innerHTML = response_pc_stats.system_state || 'UNKNOWN';
+            }
             document.getElementById("cpu_count").innerHTML = response_pc_stats.cpu_count;
             document.getElementById("cpu_pid").innerHTML = response_pc_stats.cpu_pid;
             document.getElementById("cpu_freq").innerHTML = response_pc_stats.cpu_freq;

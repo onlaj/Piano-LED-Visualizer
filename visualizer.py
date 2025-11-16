@@ -154,8 +154,17 @@ class VisualizerApp:
             self.led_effects_processor.process_fade_effects(event_loop_time)
             self.midi_event_processor.process_midi_events()
 
-            ledstrip.strip.show()
-            self.update_fps_stats()
+            # Only update LEDs if not in IDLE or if there are pending MIDI events
+            should_update = (not self.state_manager.is_idle() or 
+                           len(midiports.midi_queue) > 0 or 
+                           len(midiports.midifile_queue) > 0)
+            
+            if should_update:
+                ledstrip.strip.show()
+                self.update_fps_stats()
+            else:
+                # In IDLE with no activity, set FPS to reflect actual state
+                ledstrip.current_fps = 1.0 / max(sleep_interval, 0.001) if sleep_interval > 0 else 0
             time.sleep(sleep_interval)  # Dynamic delay based on system state
 
     def update_fps_stats(self):
