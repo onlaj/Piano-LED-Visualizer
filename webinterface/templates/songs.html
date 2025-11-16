@@ -721,37 +721,33 @@
                 <span id="score_update_feedback" class="ml-2 text-lg font-bold"></span>
             </div>
 
-            <!-- Session Summary Window -->
-            <div id="session_summary_window" 
-                 class="fixed inset-0 flex items-center justify-center z-50 hidden 
-                        bg-black bg-opacity-50 dark:bg-opacity-70">
-                 <div class="relative p-12 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xl 
-                             border border-gray-300 dark:border-gray-600 
-                             w-full md:w-full lg:w-full xl:w-full h-auto max-h-[95vh] 
-                             flex flex-col 
-                             transform translate-y-full opacity-0 transition-all duration-500 ease-in-out">
-                    <div class="flex justify-between items-center mb-6 flex-shrink-0">
-                        <h3 class="text-3xl font-semibold text-gray-700 dark:text-gray-300" data-translate="session_summary">Session Summary</h3>
-                        <button id="close_summary_button" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="text-lg text-gray-600 dark:text-gray-400 space-y-2 mb-8 flex-shrink-0 grid grid-cols-2 gap-x-8">
-                        <p><strong data-translate="left_hand_mistakes">Left Hand Mistakes:</strong> <span id="summary_mistakes_l_count">0</span></p>
-                         <p><strong data-translate="right_hand_mistakes">Right Hand Mistakes:</strong> <span id="summary_mistakes_r_count">0</span></p>
-                         <p><strong data-translate="left_hand_delay">Left Hand Max Delay Count:</strong> <span id="summary_delay_l">0</span></p>
-                         <p><strong data-translate="right_hand_delay">Right Hand Max Delay Count:</strong> <span id="summary_delay_r">0</span></p>
-                    </div>
-                    <!-- Graph Canvas -->
-                    <div class="flex-grow relative min-h-[300px]">
-                         <canvas id="summary_graph_canvas"></canvas>
-                         <button id="reset_zoom_button" 
-                                 class="absolute top-2 right-2 z-20 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 px-6 rounded-md text-base shadow"
-                                 data-translate="reset_zoom">
-                             Reset Zoom
-                         </button>
+            <!-- Session Summary - Inline Collapsible Section -->
+            <div id="session_summary_window" class="w-full bg-gray-200 dark:bg-gray-700 rounded-lg shadow-md mb-4 hidden">
+                <!-- Collapsible Header -->
+                <button id="session_summary_toggle" class="w-full flex justify-between items-center p-4 text-left hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors rounded-lg">
+                    <h3 class="text-xl font-bold text-gray-600 dark:text-gray-400" data-translate="session_summary">Session Summary</h3>
+                    <svg id="session_summary_arrow" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 dark:text-gray-400 transition-transform duration-300 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <!-- Collapsible Content -->
+                <div id="session_summary_content" class="overflow-hidden transition-all duration-300 ease-in-out" style="max-height: 5000px;">
+                    <div class="p-6 pt-0">
+                        <div class="text-lg text-gray-600 dark:text-gray-400 space-y-2 mb-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+                            <p><strong data-translate="left_hand_mistakes">Left Hand Mistakes:</strong> <span id="summary_mistakes_l_count">0</span></p>
+                            <p><strong data-translate="right_hand_mistakes">Right Hand Mistakes:</strong> <span id="summary_mistakes_r_count">0</span></p>
+                            <p><strong data-translate="left_hand_delay">Left Hand Max Delay Count:</strong> <span id="summary_delay_l">0</span></p>
+                            <p><strong data-translate="right_hand_delay">Right Hand Max Delay Count:</strong> <span id="summary_delay_r">0</span></p>
+                        </div>
+                        <!-- Graph Canvas -->
+                        <div class="relative min-h-[300px] w-full overflow-x-auto">
+                            <canvas id="summary_graph_canvas" class="w-full"></canvas>
+                            <button id="reset_zoom_button" 
+                                    class="absolute top-2 right-2 z-20 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 px-6 rounded-md text-base shadow"
+                                    data-translate="reset_zoom">
+                                Reset Zoom
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

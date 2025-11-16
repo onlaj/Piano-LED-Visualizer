@@ -1659,16 +1659,15 @@ function handleSessionSummary(data, retries = 5) {
         // If anything goes wrong, default to showing the popup
     }
     const summaryWindow = document.getElementById('session_summary_window');
-    const summaryContainer = summaryWindow ? summaryWindow.querySelector(':scope > div') : null; // Get the inner container for transform
+    const summaryContent = document.getElementById('session_summary_content');
     const delayR_el = document.getElementById('summary_delay_r');
     const delayL_el = document.getElementById('summary_delay_l');
     const mistakesR_el = document.getElementById('summary_mistakes_r_count');
     const mistakesL_el = document.getElementById('summary_mistakes_l_count');
-    const closeButton = document.getElementById('close_summary_button');
     const canvas = document.getElementById('summary_graph_canvas');
 
     // Check if elements are loaded
-    if (!summaryWindow || !summaryContainer || !delayR_el || !delayL_el || !mistakesR_el || !mistakesL_el || !closeButton || !canvas) {
+    if (!summaryWindow || !summaryContent || !delayR_el || !delayL_el || !mistakesR_el || !mistakesL_el || !canvas) {
         if (retries > 0) {
             console.log("Summary elements not found, retrying...");
             setTimeout(() => handleSessionSummary(data, retries - 1), 200); // Wait 200ms and retry
@@ -1959,7 +1958,10 @@ function handleSessionSummary(data, retries = 5) {
     // Add event listener for the reset zoom button
     const resetZoomButton = document.getElementById('reset_zoom_button');
     if (resetZoomButton && summaryChart) {
-        resetZoomButton.addEventListener('click', () => {
+        // Remove previous listeners by cloning
+        resetZoomButton.replaceWith(resetZoomButton.cloneNode(true));
+        const newResetButton = document.getElementById('reset_zoom_button');
+        newResetButton.addEventListener('click', () => {
             summaryChart.resetZoom();
         });
     } else {
@@ -1967,43 +1969,132 @@ function handleSessionSummary(data, retries = 5) {
         // summaryChart might not be initialized if canvas wasn't found, which is handled earlier
     }
 
-    // Show and animate the window (slide from bottom)
-    summaryWindow.classList.remove('hidden'); // Make parent visible first
-    // Wait a tick for display change, then trigger animation
-    requestAnimationFrame(() => {
-        summaryContainer.classList.remove('translate-y-full', 'opacity-0');
-        summaryContainer.classList.add('translate-y-0', 'opacity-100');
-    });
-
-    // Function to hide the window
-    const hideSummary = () => {
-        summaryContainer.classList.remove('translate-y-0', 'opacity-100');
-        summaryContainer.classList.add('translate-y-full', 'opacity-0');
-        // Use setTimeout to truly hide parent after transition ends
-        setTimeout(() => {
-             summaryWindow.classList.add('hidden');
-             // Destroy chart when hiding
-             if (summaryChart) {
-                 summaryChart.destroy();
-                 summaryChart = null;
-             }
-        }, 500); // Match transition duration
-        // Clear auto-hide timeout if closed manually
-        if (summaryTimeout) {
-             clearTimeout(summaryTimeout);
-             summaryTimeout = null;
+    // Add resize event listener to redraw chart on window resize
+    // Remove previous resize listener if it exists
+    if (window.__sessionSummaryResizeHandler) {
+        window.removeEventListener('resize', window.__sessionSummaryResizeHandler);
+    }
+    window.__sessionSummaryResizeHandler = () => {
+        if (summaryChart) {
+            summaryChart.resize();
         }
     };
+    window.addEventListener('resize', window.__sessionSummaryResizeHandler);
 
-    // Add event listener to close button (only once)
-    // Remove previous listener if it exists to avoid duplicates
-    closeButton.replaceWith(closeButton.cloneNode(true)); // Simple way to remove listeners
-    document.getElementById('close_summary_button').addEventListener('click', hideSummary);
-
-    // Optional timeout to auto-hide the summary after a certain period
-    // summaryTimeout = setTimeout(hideSummary, 30000); // Example: Hide after 30 seconds
+    // Show the inline section
+    summaryWindow.classList.remove('hidden');
+    
+    // Initialize toggle button
+    initSessionSummaryToggle();
+    
+    // Load and apply saved collapse state from cookie
+    const collapsedState = (typeof getCookie === 'function') ? getCookie('session_summary_collapsed') : null;
+    const shouldBeCollapsed = collapsedState === '1';
+    
+    // Initialize collapse state (default to expanded if no cookie)
+    if (shouldBeCollapsed) {
+        collapseSessionSummary();
+    } else {
+        expandSessionSummary();
+    }
 }
 window.handleSessionSummary = handleSessionSummary;
+
+// --- Session Summary Collapse/Expand Functions ---
+function collapseSessionSummary() {
+    const summaryContent = document.getElementById('session_summary_content');
+    const arrow = document.getElementById('session_summary_arrow');
+    
+    if (summaryContent && arrow) {
+        // Get the actual content height before collapsing
+        const contentHeight = summaryContent.scrollHeight;
+        // Set current height explicitly for smooth transition
+        summaryContent.style.maxHeight = contentHeight + 'px';
+        // Force reflow
+        summaryContent.offsetHeight;
+        // Now animate to 0
+        requestAnimationFrame(() => {
+            summaryContent.style.maxHeight = '0';
+        });
+        arrow.classList.remove('rotate-180');
+        arrow.classList.add('rotate-0');
+    }
+}
+
+function expandSessionSummary() {
+    const summaryContent = document.getElementById('session_summary_content');
+    const arrow = document.getElementById('session_summary_arrow');
+    
+    if (summaryContent && arrow) {
+        // Check if already expanded (has rotate-180 class)
+        const isAlreadyExpanded = arrow.classList.contains('rotate-180');
+        
+        if (!isAlreadyExpanded) {
+            // Get the actual content height (temporarily remove max-height restriction)
+            const currentMaxHeight = summaryContent.style.maxHeight;
+            summaryContent.style.maxHeight = 'none';
+            const contentHeight = summaryContent.scrollHeight;
+            summaryContent.style.maxHeight = currentMaxHeight;
+            
+            // Force reflow
+            summaryContent.offsetHeight;
+            // Now animate to full height
+            requestAnimationFrame(() => {
+                summaryContent.style.maxHeight = Math.max(contentHeight, 500) + 'px';
+                // Resize chart after expansion animation completes
+                setTimeout(() => {
+                    if (summaryChart) {
+                        summaryChart.resize();
+                    }
+                }, 350); // Slightly longer than transition duration (300ms)
+            });
+        } else {
+            // Already expanded, just ensure max-height is set properly
+            const contentHeight = summaryContent.scrollHeight;
+            summaryContent.style.maxHeight = Math.max(contentHeight, 500) + 'px';
+            // Resize chart if needed
+            if (summaryChart) {
+                summaryChart.resize();
+            }
+        }
+        arrow.classList.remove('rotate-0');
+        arrow.classList.add('rotate-180');
+    }
+}
+
+function toggleSessionSummary() {
+    const summaryContent = document.getElementById('session_summary_content');
+    const arrow = document.getElementById('session_summary_arrow');
+    
+    if (!summaryContent || !arrow) return;
+    
+    const isCollapsed = arrow.classList.contains('rotate-0');
+    
+    if (isCollapsed) {
+        expandSessionSummary();
+        // Save state: expanded (0)
+        if (typeof setCookie === 'function') {
+            setCookie('session_summary_collapsed', '0', 365);
+        }
+    } else {
+        collapseSessionSummary();
+        // Save state: collapsed (1)
+        if (typeof setCookie === 'function') {
+            setCookie('session_summary_collapsed', '1', 365);
+        }
+    }
+}
+
+// Initialize collapse toggle button event listener
+function initSessionSummaryToggle() {
+    const toggleButton = document.getElementById('session_summary_toggle');
+    if (toggleButton) {
+        // Remove previous listeners by cloning
+        toggleButton.replaceWith(toggleButton.cloneNode(true));
+        const newToggleButton = document.getElementById('session_summary_toggle');
+        newToggleButton.addEventListener('click', toggleSessionSummary);
+    }
+}
 
 // --- Initialize persisted preferences for Songs page toggles ---
 function initSongPagePreferences() {
