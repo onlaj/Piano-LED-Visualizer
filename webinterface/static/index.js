@@ -183,6 +183,64 @@ function handleDisplayTypeChange(value, selectElement) {
     }
 }
 
+function handleLedPinChange(value, selectElement) {
+    // Get the previous value (the one that was selected before this change)
+    const validPins = ['12', '13', '18', '19'];
+    const storedPrevious = selectElement.getAttribute('data-current-value');
+    const actualPrevious = storedPrevious || '18';
+    
+    // Show confirmation dialog with translation
+    const confirmMessage = translate('led_pin_change_confirm').replace('{0}', value);
+    const confirmed = confirm(confirmMessage);
+    
+    if (confirmed) {
+        // Store the value we're changing to as current for next time
+        selectElement.setAttribute('data-current-value', value);
+        
+        // Show loading state
+        selectElement.disabled = true;
+        selectElement.style.opacity = '0.6';
+        
+        // Call change_setting API
+        const xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                const response = JSON.parse(this.responseText);
+                if (response.success === true) {
+                    // Show success message with translation
+                    alert(translate('led_pin_change_success'));
+                    // Reload page after a short delay to show the restart
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    // Revert on error
+                    selectElement.value = actualPrevious;
+                    selectElement.setAttribute('data-current-value', actualPrevious);
+                    selectElement.disabled = false;
+                    selectElement.style.opacity = '1';
+                    const errorMsg = translate('led_pin_change_error').replace('{0}', response.error || 'Unknown error');
+                    alert(errorMsg);
+                }
+            } else if (this.readyState === 4) {
+                // Revert on error
+                selectElement.value = actualPrevious;
+                selectElement.setAttribute('data-current-value', actualPrevious);
+                selectElement.disabled = false;
+                selectElement.style.opacity = '1';
+                const errorMsg = translate('led_pin_change_error').replace('{0}', 'Please try again.');
+                alert(errorMsg);
+            }
+        };
+        xhttp.open("GET", "/api/change_setting?setting_name=led_pin&value=" + value, true);
+        xhttp.send();
+    } else {
+        // Revert to previous value if cancelled
+        selectElement.value = actualPrevious;
+        selectElement.setAttribute('data-current-value', actualPrevious);
+    }
+}
+
 function change_setting(setting_name, value, second_value = false, disable_sequence = false) {
     const xhttp = new XMLHttpRequest();
     try {

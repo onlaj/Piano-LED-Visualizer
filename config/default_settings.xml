@@ -129,6 +129,9 @@
 
 	<led_gamma>1</led_gamma>
 
+	<led_pin>18</led_pin>
+	<led_channel>0</led_channel>
+
     <hotspot_password>visualizer</hotspot_password>
 
     <web_listen_ip></web_listen_ip>

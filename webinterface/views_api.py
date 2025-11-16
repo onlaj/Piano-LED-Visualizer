@@ -144,6 +144,7 @@ def get_homepage_data():
         'led_fps': round(app_state.ledstrip.current_fps, 2),
         'screen_on': app_state.menu.screen_on,
         'display_type': app_state.menu.args.display if app_state.menu and app_state.menu.args and app_state.menu.args.display else app_state.usersettings.get_setting_value("display_type") or '1in44',
+        'led_pin': app_state.usersettings.get_setting_value("led_pin") or '18',
     }
     return jsonify(homepage_data)
 
@@ -970,6 +971,32 @@ def change_setting():
             return jsonify(success=True, restart_required=True, message="LCD type changed. Restarting visualizer...")
         else:
             return jsonify(success=False, error="Invalid display type")
+
+    if setting_name == "led_pin":
+        # Validate the pin value
+        valid_pins = ['12', '13', '18', '19', '41', '45', '53']
+        pin_value = str(value)
+        if pin_value not in valid_pins:
+            return jsonify(success=False, error="Invalid LED pin. Valid pins are: " + ", ".join(valid_pins))
+        
+        # Auto-determine channel based on pin
+        # Channel 0: pins 12, 18
+        # Channel 1: pins 13, 19, 41, 45, 53
+        pin_int = int(pin_value)
+        if pin_int in [12, 18]:
+            channel_value = 0
+        elif pin_int in [13, 19, 41, 45, 53]:
+            channel_value = 1
+        else:
+            return jsonify(success=False, error="Invalid LED pin")
+        
+        # Save both pin and channel settings
+        app_state.usersettings.change_setting_value("led_pin", pin_value)
+        app_state.usersettings.change_setting_value("led_channel", channel_value)
+        
+        # Restart visualizer to apply the LED pin change
+        app_state.platform.restart_visualizer()
+        return jsonify(success=True, restart_required=True, message="LED pin changed. Restarting visualizer...")
 
     if setting_name == "reset_to_default":
         app_state.usersettings.reset_to_default()

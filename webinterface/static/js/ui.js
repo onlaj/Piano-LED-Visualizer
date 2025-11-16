@@ -66,6 +66,16 @@ function get_homepage_data_loop() {
                 }
             }
 
+            // change value of select based on response_pc_stats.led_pin
+            if (response_pc_stats.led_pin) {
+                const ledPinSelect = document.getElementById("led_pin");
+                if (ledPinSelect) {
+                    ledPinSelect.value = response_pc_stats.led_pin;
+                    // Store current value for confirmation handler
+                    ledPinSelect.setAttribute('data-current-value', response_pc_stats.led_pin);
+                }
+            }
+
             document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
 
 
