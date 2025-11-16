@@ -232,8 +232,23 @@
                     <output id="brightness_percent" class="flex justify-center">50%</output>
                 </div>
 
-                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400" data-translate="idle_timeout">Idle timeout (minutes)</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400" data-translate="idle_timeout_desc">Time before entering IDLE state (CPU saving mode)</div>
+                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400">
+                    <div class="inline-flex">
+                        <div data-translate="idle_timeout">Idle timeout (minutes)</div>
+                        <div class="has-tooltip">
+                            <span class="inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8" data-translate="idle_timeout_tooltip">
+                                Time before entering IDLE state for CPU saving
+                                <br>Main loop runs at 0.9s delay in IDLE (vs 0.006s normally)
+                                <br>Minimum: 1 minute
+                            </span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
                 <div class="flex mb-4">
                     <svg onclick="document.getElementById('idle_timeout_minutes').stepDown();
                     document.getElementById('idle_timeout_minutes').dispatchEvent(new Event('change'));
@@ -251,8 +266,23 @@
                     </svg>
                 </div>
 
-                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400" data-translate="screensaver_delay">Screensaver delay (minutes)</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400" data-translate="screensaver_delay_desc">Time before screensaver starts (0 - never)</div>
+                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400">
+                    <div class="inline-flex">
+                        <div data-translate="screensaver_delay">Screensaver delay (minutes)</div>
+                        <div class="has-tooltip">
+                            <span class="inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8" data-translate="screensaver_delay_tooltip">
+                                Time before screensaver starts
+                                <br>0 = never start screensaver
+                                <br>Refreshes at 5Hz in NORMAL, 1Hz in IDLE state
+                            </span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
                 <div class="flex mb-4">
                     <svg onclick="document.getElementById('screensaver_delay').stepDown();
                     document.getElementById('screensaver_delay').dispatchEvent(new Event('change'));
@@ -270,8 +300,23 @@
                     </svg>
                 </div>
 
-                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400" data-translate="screen_off_delay">Screen off delay (minutes)</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400" data-translate="screen_off_delay_desc">Time before screen turns off (0 - never)</div>
+                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400">
+                    <div class="inline-flex">
+                        <div data-translate="screen_off_delay">Screen off delay (minutes)</div>
+                        <div class="has-tooltip">
+                            <span class="inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8" data-translate="screen_off_delay_tooltip">
+                                Time before physical screen turns off
+                                <br>0 = never turn off screen
+                                <br>Independent from IDLE state
+                            </span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
                 <div class="flex mb-4">
                     <svg onclick="document.getElementById('screen_off_delay').stepDown();
                     document.getElementById('screen_off_delay').dispatchEvent(new Event('change'));

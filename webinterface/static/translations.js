@@ -275,6 +275,12 @@ const translations = {
         led_animation_on_idle: "LED animation on IDLE",
         after_minutes: "after minutes (0 - never)",
         animation_type: "Animation type",
+        idle_timeout: "Idle timeout (minutes)",
+        idle_timeout_tooltip: "Time before entering IDLE state for CPU saving\nMain loop runs at 0.9s delay in IDLE (vs 0.006s normally)\nMinimum: 1 minute",
+        screensaver_delay: "Screensaver delay (minutes)",
+        screensaver_delay_tooltip: "Time before screensaver starts\n0 = never start screensaver\nRefreshes at 5Hz in NORMAL, 1Hz in IDLE state",
+        screen_off_delay: "Screen off delay (minutes)",
+        screen_off_delay_tooltip: "Time before physical screen turns off\n0 = never turn off screen\nIndependent from IDLE state",
 
         //homepage
         advanced_mode: "Advanced mode",
@@ -560,6 +566,12 @@ const translations = {
         led_animation_on_idle: "Animacja w trakcie bezczynności",
         after_minutes: "po ilu minutach (0 - nigdy)",
         animation_type: "Typ animacji",
+        idle_timeout: "Limit czasu bezczynności (minuty)",
+        idle_timeout_tooltip: "Czas przed wejściem w stan IDLE w celu oszczędzania CPU\nPętla główna działa z opóźnieniem 0,9s w IDLE (vs 0,006s normalnie)\nMinimum: 1 minuta",
+        screensaver_delay: "Opóźnienie wygaszacza ekranu (minuty)",
+        screensaver_delay_tooltip: "Czas przed uruchomieniem wygaszacza ekranu\n0 = nigdy nie uruchamiaj wygaszacza\nOdświeżanie 5Hz w NORMAL, 1Hz w stanie IDLE",
+        screen_off_delay: "Opóźnienie wyłączenia ekranu (minuty)",
+        screen_off_delay_tooltip: "Czas przed wyłączeniem fizycznego ekranu\n0 = nigdy nie wyłączaj ekranu\nNiezależne od stanu IDLE",
 
         //homepage
         advanced_mode: "Tryb zaawansowany",
@@ -854,6 +866,12 @@ const translations = {
         led_animation_on_idle: "Animation LED en veille",
         after_minutes: "après minutes (0 - jamais)",
         animation_type: "Type d'animation",
+        idle_timeout: "Délai d'inactivité (minutes)",
+        idle_timeout_tooltip: "Temps avant d'entrer en état IDLE pour économiser le CPU\nLa boucle principale s'exécute avec un délai de 0,9s en IDLE (vs 0,006s normalement)\nMinimum : 1 minute",
+        screensaver_delay: "Délai de l'économiseur d'écran (minutes)",
+        screensaver_delay_tooltip: "Temps avant le démarrage de l'économiseur d'écran\n0 = ne jamais démarrer l'économiseur d'écran\nRafraîchissement à 5Hz en NORMAL, 1Hz en état IDLE",
+        screen_off_delay: "Délai d'extinction de l'écran (minutes)",
+        screen_off_delay_tooltip: "Temps avant l'extinction de l'écran physique\n0 = ne jamais éteindre l'écran\nIndépendant de l'état IDLE",
 
 
         //homepage
@@ -1153,6 +1171,12 @@ const translations = {
         led_animation_on_idle: "LED-Animation im Leerlauf",
         after_minutes: "nach Minuten (0 - niemals)",
         animation_type: "Animationsart",
+        idle_timeout: "Leerlauf-Timeout (Minuten)",
+        idle_timeout_tooltip: "Zeit vor dem Eintritt in den IDLE-Zustand zur CPU-Einsparung\nHauptschleife läuft mit 0,9s Verzögerung im IDLE (vs. 0,006s normal)\nMinimum: 1 Minute",
+        screensaver_delay: "Bildschirmschoner-Verzögerung (Minuten)",
+        screensaver_delay_tooltip: "Zeit vor dem Start des Bildschirmschoners\n0 = Bildschirmschoner nie starten\nAktualisiert mit 5Hz im NORMAL, 1Hz im IDLE-Zustand",
+        screen_off_delay: "Bildschirm-Aus-Verzögerung (Minuten)",
+        screen_off_delay_tooltip: "Zeit vor dem Ausschalten des physischen Bildschirms\n0 = Bildschirm nie ausschalten\nUnabhängig vom IDLE-Zustand",
 
         //homepage
         advanced_mode: "Erweiterter Modus",
@@ -1450,6 +1474,12 @@ const translations = {
         led_animation_on_idle: "Animación LED en reposo",
         after_minutes: "después de minutos (0 - nunca)",
         animation_type: "Tipo de animación",
+        idle_timeout: "Tiempo de inactividad (minutos)",
+        idle_timeout_tooltip: "Tiempo antes de entrar en estado IDLE para ahorrar CPU\nEl bucle principal se ejecuta con 0,9s de retraso en IDLE (vs 0,006s normalmente)\nMínimo: 1 minuto",
+        screensaver_delay: "Retardo del salvapantallas (minutos)",
+        screensaver_delay_tooltip: "Tiempo antes de que se inicie el salvapantallas\n0 = nunca iniciar salvapantallas\nSe actualiza a 5Hz en NORMAL, 1Hz en estado IDLE",
+        screen_off_delay: "Retardo de apagado de pantalla (minutos)",
+        screen_off_delay_tooltip: "Tiempo antes de que se apague la pantalla física\n0 = nunca apagar la pantalla\nIndependiente del estado IDLE",
 
         //homepage
         advanced_mode: "Modo avanzado",
@@ -1746,6 +1776,12 @@ const translations = {
         led_animation_on_idle: "LED闲置动画",
         after_minutes: "几分钟后（0 - 从不）",
         animation_type: "动画类型",
+        idle_timeout: "空闲超时（分钟）",
+        idle_timeout_tooltip: "进入空闲状态以节省CPU的时间\n空闲状态下主循环以0.9秒延迟运行（正常为0.006秒）\n最小值：1分钟",
+        screensaver_delay: "屏幕保护程序延迟（分钟）",
+        screensaver_delay_tooltip: "屏幕保护程序启动前的时间\n0 = 永不启动屏幕保护程序\n正常状态下5Hz刷新，空闲状态下1Hz刷新",
+        screen_off_delay: "屏幕关闭延迟（分钟）",
+        screen_off_delay_tooltip: "物理屏幕关闭前的时间\n0 = 永不关闭屏幕\n独立于空闲状态",
 
         //homepage
         advanced_mode: "高级模式",
@@ -2041,6 +2077,12 @@ const translations = {
         led_animation_on_idle: "आईडल पर एलईडी एनिमेशन",
         after_minutes: "मिनटों के बाद (0 - कभी नहीं)",
         animation_type: "एनिमेशन प्रकार",
+        idle_timeout: "निष्क्रिय समय सीमा (मिनट)",
+        idle_timeout_tooltip: "CPU बचाने के लिए आईडल स्थिति में प्रवेश करने से पहले का समय\nआईडल में मुख्य लूप 0.9s देरी से चलता है (सामान्य रूप से 0.006s)\nन्यूनतम: 1 मिनट",
+        screensaver_delay: "स्क्रीनसेवर विलंब (मिनट)",
+        screensaver_delay_tooltip: "स्क्रीनसेवर शुरू होने से पहले का समय\n0 = कभी भी स्क्रीनसेवर शुरू न करें\nनॉर्मल में 5Hz, आईडल स्थिति में 1Hz पर रिफ्रेश करता है",
+        screen_off_delay: "स्क्रीन बंद विलंब (मिनट)",
+        screen_off_delay_tooltip: "भौतिक स्क्रीन बंद होने से पहले का समय\n0 = कभी भी स्क्रीन बंद न करें\nआईडल स्थिति से स्वतंत्र",
 
         //homepage
         advanced_mode: "उन्नत मोड",
@@ -2339,6 +2381,12 @@ const translations = {
         led_animation_on_idle: "Animação de LED em ociosidade",
         after_minutes: "depois de minutos (0 - nunca)",
         animation_type: "Tipo de animação",
+        idle_timeout: "Tempo limite de inatividade (minutos)",
+        idle_timeout_tooltip: "Tempo antes de entrar no estado IDLE para economizar CPU\nO loop principal é executado com atraso de 0,9s em IDLE (vs 0,006s normalmente)\nMínimo: 1 minuto",
+        screensaver_delay: "Atraso da proteção de tela (minutos)",
+        screensaver_delay_tooltip: "Tempo antes do início da proteção de tela\n0 = nunca iniciar proteção de tela\nAtualiza a 5Hz em NORMAL, 1Hz em estado IDLE",
+        screen_off_delay: "Atraso de desligamento da tela (minutos)",
+        screen_off_delay_tooltip: "Tempo antes de desligar a tela física\n0 = nunca desligar a tela\nIndependente do estado IDLE",
 
         //homepage
         advanced_mode: "Modo avançado",
@@ -2635,6 +2683,12 @@ const translations = {
         led_animation_on_idle: "IDLE状態でのLEDアニメーション",
         after_minutes: "経過後（0＝なし）",
         animation_type: "アニメーションの種類",
+        idle_timeout: "アイドルタイムアウト（分）",
+        idle_timeout_tooltip: "CPU節約のためIDLE状態に入るまでの時間\nIDLE時のメインループは0.9秒遅延で実行（通常0.006秒）\n最小値：1分",
+        screensaver_delay: "スクリーンセーバー遅延（分）",
+        screensaver_delay_tooltip: "スクリーンセーバーが起動するまでの時間\n0 = スクリーンセーバーを起動しない\nNORMAL時5Hz、IDLE状態時1Hzでリフレッシュ",
+        screen_off_delay: "画面オフ遅延（分）",
+        screen_off_delay_tooltip: "物理画面がオフになるまでの時間\n0 = 画面をオフにしない\nIDLE状態とは独立",
 
         //homepage
         advanced_mode: "アドバンストモード",
@@ -2930,6 +2984,12 @@ const translations = {
     led_animation_on_idle: "대기 중 LED 애니메이션",
     after_minutes: "몇 분 후 (0 - 사용안함)",
     animation_type: "애니메이션 유형",
+    idle_timeout: "유휴 시간 초과 (분)",
+    idle_timeout_tooltip: "CPU 절약을 위해 유휴 상태로 전환되기 전 시간\n유휴 상태에서 메인 루프는 0.9초 지연으로 실행 (일반적으로 0.006초)\n최소: 1분",
+    screensaver_delay: "화면 보호기 지연 (분)",
+    screensaver_delay_tooltip: "화면 보호기가 시작되기 전 시간\n0 = 화면 보호기 시작 안 함\n일반 상태에서 5Hz, 유휴 상태에서 1Hz로 새로고침",
+    screen_off_delay: "화면 끄기 지연 (분)",
+    screen_off_delay_tooltip: "물리적 화면이 꺼지기 전 시간\n0 = 화면 끄지 않음\n유휴 상태와 독립적",
 
     //homepage
     advanced_mode: "고급 모드",
@@ -3207,6 +3267,12 @@ he: {
     led_animation_on_idle: "אנימציית לד במצב מנוחה",
     after_minutes: "לאחר דקות",
     animation_type: "סוג אנימציה",
+    idle_timeout: "פסק זמן במצב מנוחה (דקות)",
+    idle_timeout_tooltip: "זמן לפני כניסה למצב IDLE לחיסכון בCPU\nהלולאה הראשית רצה עם עיכוב של 0.9 שניות ב-IDLE (לעומת 0.006 שניות בדרך כלל)\nמינימום: דקה אחת",
+    screensaver_delay: "עיכוב שומר מסך (דקות)",
+    screensaver_delay_tooltip: "זמן לפני הפעלת שומר המסך\n0 = אל תפעיל שומר מסך לעולם\nמתרענן ב-5Hz במצב NORMAL, 1Hz במצב IDLE",
+    screen_off_delay: "עיכוב כיבוי מסך (דקות)",
+    screen_off_delay_tooltip: "זמן לפני כיבוי המסך הפיזי\n0 = אל תכבה את המסך לעולם\nבלתי תלוי במצב IDLE",
 
     //homepage
     advanced_mode: "מצב מתקדם",
@@ -3482,6 +3548,12 @@ ar:{
     led_animation_on_idle: "حركة الليد وقت الخمول",
     after_minutes: "بعد كام دقيقة (0 = أبداً)",
     animation_type: "نوع الحركة",
+    idle_timeout: "مهلة الخمول (دقائق)",
+    idle_timeout_tooltip: "الوقت قبل دخول حالة الخمول لتوفير المعالج\nالحلقة الرئيسية تعمل بتأخير 0.9 ثانية في الخمول (مقابل 0.006 ثانية عادةً)\nالحد الأدنى: دقيقة واحدة",
+    screensaver_delay: "تأخير شاشة التوقف (دقائق)",
+    screensaver_delay_tooltip: "الوقت قبل بدء شاشة التوقف\n0 = عدم بدء شاشة التوقف أبدًا\nتحديث بمعدل 5Hz في الوضع العادي، 1Hz في حالة الخمول",
+    screen_off_delay: "تأخير إيقاف الشاشة (دقائق)",
+    screen_off_delay_tooltip: "الوقت قبل إيقاف الشاشة الفعلية\n0 = عدم إيقاف الشاشة أبدًا\nمستقل عن حالة الخمول",
 
     // homepage
     advanced_mode: "الوضع المتقدم",
