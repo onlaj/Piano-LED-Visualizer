@@ -585,10 +585,10 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Glassmorphism Base Classes - Pure Gray Tones */
 .glass {
-    background: rgba(229, 229, 229, 0.7);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .dark .glass {
@@ -597,10 +597,10 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .glass-strong {
-    background: rgba(229, 229, 229, 0.85);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .dark .glass-strong {
@@ -609,10 +609,10 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .glass-light {
-    background: rgba(245, 245, 245, 0.6);
+    background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .dark .glass-light {
@@ -622,9 +622,9 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Enhanced Shadow System */
 .shadow-glass {
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08),
-                0 2px 8px rgba(0, 0, 0, 0.04),
-                inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12),
+                0 2px 8px rgba(0, 0, 0, 0.08),
+                inset 0 1px 1px rgba(255, 255, 255, 0.8);
 }
 
 .dark .shadow-glass {
@@ -634,9 +634,9 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .shadow-glass-lg {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
-                0 4px 12px rgba(0, 0, 0, 0.06),
-                inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15),
+                0 4px 12px rgba(0, 0, 0, 0.1),
+                inset 0 1px 2px rgba(255, 255, 255, 0.9);
 }
 
 .dark .shadow-glass-lg {
