@@ -58,7 +58,7 @@ function loadAjax(subpage) {
                     mainElement.classList.add("show");
                 }, 100);
                 remove_page_indicators();
-                document.getElementById(subpage).classList.add("dark:bg-gray-700", "bg-gray-100");
+                document.getElementById(subpage).classList.add("glass-light");
                 switch (subpage) {
                     case "home":
                         initialize_homepage();
@@ -495,7 +495,7 @@ function render_port_connection_interface() {
 
 function create_port_element(port, type) {
     const div = document.createElement('div');
-    div.className = 'port-item relative bg-gray-200 dark:bg-gray-700 p-3 rounded cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors';
+    div.className = 'port-item relative glass-light p-3 rounded-glass cursor-pointer hover:glass transition-smooth-fast';
     div.dataset.portId = port.id;
     div.dataset.portType = type;
     div.title = port.full_name;

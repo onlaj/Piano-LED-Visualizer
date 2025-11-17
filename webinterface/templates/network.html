@@ -1,5 +1,5 @@
-<div class="transition duration-300 slide-in-content grid grid-cols-1 gap-6 w-full lg:w-1/2 xl:w-4/5 2xl:w-3/5 m-auto">
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg mb--2">
+<div class="transition duration-300 slide-in-content grid grid-cols-1 gap-8 w-full lg:w-1/2 xl:w-4/5 2xl:w-3/5 m-auto">
+    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass mb--2 transition-smooth">
         <div class="mb-2" data-translate="connected_wifi">
             Connected Wi-Fi
         </div>
@@ -11,10 +11,10 @@
                 <button onclick="this.classList.add('hidden');
                 handle_confirmation_button(this.nextElementSibling, 3000);
                 document.getElementById('connected-wifi-section').classList.remove('flex');"
-                        class="w-full outline-none font-bold ml-2 rounded-2xl inline-flex items-center">
+                        class="w-full outline-none font-bold ml-2 rounded-glass transition-smooth-fast inline-flex items-center">
                     <div class="has-tooltip h-6 w-full justify-items-center">
                             <span class="text-sm inline-block tooltip rounded shadow-lg p-1
-                            bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8"
+                            glass shadow-glass text-gray-600 dark:text-gray-400 -mt-8"
                                   data-translate="disconnect_wifi_and_create_hotspot">
                                 Disconnect Wi-Fi and create Hotspot
                             </span>
@@ -37,7 +37,7 @@
                         </div>
                     </div>
                     <button onclick="change_setting('disconnect_wifi', '0');temporary_disable_button(this, 25000);"
-                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
+                            class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
                         <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
                     </button>
                 </div>
@@ -47,7 +47,7 @@
 
         </div>
     </div>
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div class="text-lg font-semibold mb-2" data-translate="wifi_list">
             Wi-Fi List
         </div>
@@ -62,7 +62,7 @@
         </div>
     </div>
 
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div class="text-lg font-semibold mb-2" data-translate="local_address">
             Local Address
         </div>
@@ -70,27 +70,27 @@
         <div class="mb-4">
             <input
                     id="new-local-address"
-                    class="w-full h-10 dark:text-black bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    class="w-full h-10 dark:text-black glass-light py-2 px-2 rounded-glass leading-tight transition-smooth-fast"
                     type="text"
                     placeholder="Enter new local address"
                     data-translate-placeholder="enter_local_address"
             >
         </div>
         <button onclick="changeLocalAddress()"
-                class="w-full h-10 outline-none mb-2 bg-blue-500 dark:bg-blue-600 text-white font-bold py-2 px-2 rounded-2xl">
+                class="w-full h-10 outline-none mb-2 bg-blue-500 dark:bg-blue-600 text-white font-bold py-2 px-2 rounded-glass transition-smooth-fast hover-lift">
             <span data-translate="change_address">Change Address</span>
         </button>
         <div id="address-change-message" class="text-sm text-center hidden"></div>
     </div>
 
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div class="text-lg font-semibold mb-2" data-translate="hotspot_password_section_title">
             Hotspot Password
         </div>
         <div class="mb-1 relative">
             <input
                     id="hotspot-password"
-                    class="w-full h-10 dark:text-black bg-gray-100 dark:bg-gray-600 py-2 px-4 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500 pr-10"
+                    class="w-full h-10 dark:text-black glass-light py-2 px-4 rounded-glass leading-tight transition-smooth-fast pr-10"
                     type="password"
                     placeholder="Enter new hotspot password (min 8 chars)"
                     data-translate-placeholder="enter_hotspot_password"
@@ -118,7 +118,7 @@
             Note: Changing the password will enable the hotspot if it's not already active and will restart it, disconnecting current users.
         </p>
         <button onclick="changeHotspotPassword()"
-                class="w-full h-10 outline-none mb-2 bg-blue-500 dark:bg-blue-600 text-white font-bold py-2 px-2 rounded-2xl">
+                class="w-full h-10 outline-none mb-2 bg-blue-500 dark:bg-blue-600 text-white font-bold py-2 px-2 rounded-glass transition-smooth-fast hover-lift">
             <span data-translate="change_hotspot_password_button">Change Hotspot Password</span>
         </button>
         <div id="hotspot-password-message" class="text-sm text-center hidden"></div>

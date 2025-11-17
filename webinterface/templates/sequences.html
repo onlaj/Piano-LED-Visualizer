@@ -1,6 +1,6 @@
 <div class="transition duration-300 slide-in-content w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto
-grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2 gap-6">
-    <div id="sequence_block" class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2 gap-8">
+    <div id="sequence_block" class="flex-1 p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="sequence">
             Sequence
         </div>
@@ -8,8 +8,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
             Active sequence
         </label>
         <div class="relative">
-            <select id="sequences_list_1" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
-        py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            <select id="sequences_list_1" class="block appearance-none w-full glass-light
+        py-2 px-2 pr-8 mb-2 rounded-glass leading-tight transition-smooth-fast"
                     onchange="change_setting('set_sequence', this.value);">
                 <option value="0" data-translate="none">None</option>
             </select>
@@ -38,7 +38,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
         </div>
 
         <button id="next_step_button" onclick="change_setting('next_step', '0')" class="z-10 transform
-        shadow-xl w-full h-20 bg-gray-100 dark:bg-gray-600 font-bold rounded-lg mt-4">
+        shadow-glass-lg w-full h-20 glass-light hover:glass font-bold rounded-glass mt-4 transition-smooth-fast">
             <div class="absolute top-0 right-0 pt-2 flex items-center px-2 text-gray-700 dark:text-gray-200"
                  onclick="event.stopPropagation();this.parentElement.classList.toggle('big-button');
                  document.getElementById('sequence_block').classList.toggle('height-80vw');">
@@ -55,7 +55,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
         </button>
     </div>
 
-    <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div id="sequence_edit"
              class="w-10 flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400 cursor-pointer
              pointer-events-auto opacity-100 animate-pulse"
@@ -73,8 +73,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                         Sequence
                     </label>
                     <div class="relative pr-2">
-                        <select id="sequences_list_2" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                        <select id="sequences_list_2" class="h-10 block appearance-none w-full glass-light
+                py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
                                 onchange="get_steps_list();">
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
@@ -92,9 +92,9 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                 </label>
                                 <button onclick="this.classList.add('hidden');
                                 this.nextElementSibling.classList.remove('hidden')"
-                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold
                                         py-2 px-2
-                                        rounded-2xl inline-flex items-center">
+                                        rounded-glass transition-smooth-fast inline-flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg"
                                          class="h-4 w-full justify-items-center text-green-400"
                                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -103,8 +103,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                     </svg>
                                 </button>
                                 <button onclick="change_setting('add_sequence', '0');temporary_disable_button(this, 1000);"
-                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
-                                        rounded-2xl inline-flex items-center hidden">
+                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2
+                                        rounded-glass transition-smooth-fast inline-flex items-center hidden">
                                     <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
                             </div>
                         </div>
@@ -118,9 +118,9 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                     this.classList.add('hidden');
                                 this.nextElementSibling.classList.remove('hidden')
                                 }"
-                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold
                                         py-2 px-2
-                                        rounded-2xl inline-flex items-center">
+                                        rounded-glass transition-smooth-fast inline-flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg"
                                          class="h-4 w-full justify-items-center text-red-400"
                                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,8 +132,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                 <button onclick="change_setting('remove_sequence',
                                 document.getElementById('sequences_list_2').value);
                                 temporary_disable_button(this, 1000);"
-                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
-                                        rounded-2xl inline-flex items-center hidden">
+                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2
+                                        rounded-glass transition-smooth-fast inline-flex items-center hidden">
                                     <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
                             </div>
                         </div>
@@ -145,8 +145,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                         <div data-translate="step">Step</div>
                     </label>
                     <div class="relative pl-2">
-                        <select id="sequence_step" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                        <select id="sequence_step" class="h-10 block appearance-none w-full glass-light
+                py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
                                 onchange="set_step_properties(document.getElementById('sequences_list_2').value, this.value);">
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
@@ -164,9 +164,9 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                 </label>
                                 <button onclick="this.classList.add('hidden');
                                 this.nextElementSibling.classList.remove('hidden')"
-                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold
                                         py-2 px-2
-                                        rounded-2xl inline-flex items-center">
+                                        rounded-glass transition-smooth-fast inline-flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg"
                                          class="h-4 w-full justify-items-center text-green-400"
                                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -177,8 +177,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                 <button onclick="if(document.getElementById('sequences_list_2').value != 0){
                                     change_setting('add_step',
                                 document.getElementById('sequences_list_2').value);temporary_disable_button(this, 1000);}"
-                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
-                                        rounded-2xl inline-flex items-center hidden">
+                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold h-6 py-2 px-2
+                                        rounded-glass transition-smooth-fast inline-flex items-center hidden">
                                     <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
                             </div>
                         </div>
@@ -192,9 +192,9 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                     this.classList.add('hidden');
                                 this.nextElementSibling.classList.remove('hidden')
                                 }"
-                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold
                                         py-2 px-2
-                                        rounded-2xl inline-flex items-center">
+                                        rounded-glass transition-smooth-fast inline-flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg"
                                          class="h-4 w-full justify-items-center text-red-400"
                                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -206,8 +206,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                                 <button onclick="change_setting('remove_step',
                                 document.getElementById('sequences_list_2').value, document.getElementById('sequence_step').value);
                                 temporary_disable_button(this, 1000);"
-                                        class="w-full h-6 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
-                                        rounded-2xl inline-flex items-center hidden">
+                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold h-6 py-2 px-2
+                                        rounded-glass transition-smooth-fast inline-flex items-center hidden">
                                     <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
                             </div>
                         </div>
@@ -226,8 +226,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                             document.getElementById('sequences_list_2').value,
                             this.value);
                         }"
-                                id="control_number" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                                id="control_number" class="h-10 block appearance-none w-full glass-light
+                py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
                             <option value="0" data-translate="button_press">Button press</option>
                             <option value="64" data-translate="sustain_pedal">Sustain Pedal</option>
                             <option value="65" data-translate="portamento_pedal">Portamento Pedal</option>
@@ -250,7 +250,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                             Next step value
                         </div>
                         <div class='has-tooltip'>
-                        <span class='inline-block w-40 tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
+                        <span class='inline-block w-40 tooltip rounded shadow-lg p-1 glass shadow-glass text-gray-600 dark:text-gray-400 -mt-8'>
                             <div data-translate="next_step_tip_line_1">This value decides if next step is activated when you press or release the pedal.</div>
                             <br><div data-translate="next_step_tip_line_2">For example if you want to change settings after fully pressing Sostenuto pedal you should set it to 126</div>
                             <br><div data-translate="next_step_tip_line_3">(127 is the maximum value when pedal is fully pressed).</div>
@@ -272,8 +272,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                             this.value);
                         }"
                                id="next_step" type="number" value="0" min="-176" max="176"
-                               class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2
-                               rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                               class="h-10 block appearance-none w-full glass-light py-2 px-2
+                               rounded-glass leading-tight transition-smooth-fast">
                     </div>
                 </div>
             </div>
@@ -293,7 +293,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                           d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                 </svg>
                 <input id="sequence_name"
-                       class="w-4/5 bg-gray-100 dark:bg-gray-600 pointer-events-none text-left song_name truncate"
+                       class="w-4/5 glass-light pointer-events-none text-left song_name truncate transition-smooth-fast"
                        type="text"
                        value="{{key}}">
 
@@ -328,9 +328,9 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                 </label>
                 <button onclick="this.classList.add('hidden');
                                 this.nextElementSibling.classList.remove('hidden')"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
+                        class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold
                                         py-2 px-2
-                                        rounded-2xl inline-flex items-center">
+                                        rounded-glass transition-smooth-fast inline-flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-full justify-items-center text-green-400"
                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -339,8 +339,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                 <button onclick="change_setting('save_led_settings_to_step',
             document.getElementById('sequences_list_2').value, document.getElementById('sequence_step').value);
                 temporary_disable_button(this, 1000);"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
-                                        rounded-2xl inline-flex items-center hidden">
+                        class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2
+                                        rounded-glass transition-smooth-fast inline-flex items-center hidden">
                     <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
             </div>
 

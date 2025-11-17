@@ -1,11 +1,11 @@
 <div class="transition duration-300 slide-in-content w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto
-grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2 gap-6">
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2 gap-8">
+    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">
             <div class="flex">
                 <div data-translate="input_port">Input Port</div>
                 <div class='has-tooltip'>
-                        <span class='text-xs inline-bloc tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
+                        <span class='text-xs inline-bloc tooltip rounded shadow-lg p-1 glass shadow-glass text-gray-600 dark:text-gray-400 -mt-8'>
                             <div data-translate="for_lighting_leds">For lighting LEDs with your keyboard, set your piano port as an active input.</div>
                             <br><div data-translate="set_your_synthesia">Set your Synthesia's port for learning mode.</div>
                         </span>
@@ -25,8 +25,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                     Active
                 </label>
                 <div class="relative">
-                    <select id="active_input" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-        py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    <select id="active_input" class="h-10 block appearance-none w-full glass-light
+        py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -38,7 +38,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
             <div class="flex justify-center w-full h-10 md:w-1/5 px-3 mb-2 mt-4 md:mb-0">
                 <button id="switch_ports"
-                        class="mt-2 bg-gray-100 dark:bg-gray-600 font-bold h-10 py-2 px-2 rounded-2xl inline-flex items-center">
+                        class="mt-2 glass-light font-bold h-10 py-2 px-2 rounded-glass inline-flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden md:block lg:block xl:block 2xl:block"
                          fill="none"
                          viewBox="0 0 24 24"
@@ -63,8 +63,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                     Secondary
                 </label>
                 <div class="relative">
-                    <select id="secondary_input" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-        py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    <select id="secondary_input" class="h-10 block appearance-none w-full glass-light
+        py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -78,13 +78,13 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
     </div>
 
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">
             <div class="flex" data-translate="playback_port">
                 Playback Port
                 <div class='has-tooltip'>
                         <span class='text-xs inline-block tooltip rounded shadow-lg p-1
-                        bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'
+                        glass-light text-gray-600 dark:text-gray-400 -mt-8'
                         data-translate="used_for_sound">
                             Used for sound when playing a midi file.
                         </span>
@@ -101,8 +101,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                 Active
             </label>
             <div class="relative">
-                <select id="playback_input" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-        py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                <select id="playback_input" class="h-10 block appearance-none w-full glass-light
+        py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                     <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -114,14 +114,14 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
     </div>
 
     <!-- Unified Ports and Connections Section -->
-    <div class="col-span-full flex-1 grid p-3 md:p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg" style="grid-column: 1 / -1;">
+    <div class="col-span-full flex-1 grid p-3 m-1 md:p-5 glass-light shadow-xl rounded-lg" style="grid-column: 1 / -1;">
         <!-- Header with Title and Refresh Button -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-2">
             <div class="font-bold text-lg md:text-xl text-gray-600 dark:text-gray-400" data-translate="ports_and_connections">
                 Ports and Connections
             </div>
             <button onclick="refresh_all_ports()" 
-                    class="bg-gray-100 dark:bg-gray-600 font-bold py-2 px-3 md:px-4 rounded-2xl inline-flex items-center hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-sm md:text-base">
+                    class="glass-light font-bold py-2 px-3 md:px-4 rounded-glass inline-flex items-center hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-sm md:text-base">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 md:w-5 md:h-5 mr-2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
                 </svg>
@@ -136,8 +136,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                     Connect ports
                 </label>
                 <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
-                        rounded-2xl inline-flex items-center">
+                        class="w-full h-10 outline-none mb-2 glass-light font-bold py-2 px-2
+                        rounded-glass inline-flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -146,8 +146,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                     </svg>
                 </button>
                 <button onclick="connect_all_ports_action()"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
-                        rounded-2xl inline-flex items-center hidden">
+                        class="w-full h-10 outline-none mb-2 glass-light font-bold py-2 px-2
+                        rounded-glass inline-flex items-center hidden">
                     <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
             </div>
 
@@ -156,8 +156,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                     Disconnect ports
                 </label>
                 <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
-                        rounded-2xl inline-flex items-center">
+                        class="w-full h-10 outline-none mb-2 glass-light font-bold py-2 px-2
+                        rounded-glass inline-flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                          viewBox="0 0 24 24"
                          stroke="currentColor">
@@ -167,8 +167,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                     </svg>
                 </button>
                 <button onclick="disconnect_all_ports_action()"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
-                        rounded-2xl inline-flex items-center hidden">
+                        class="w-full h-10 outline-none mb-2 glass-light font-bold py-2 px-2
+                        rounded-glass inline-flex items-center hidden">
                     <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
             </div>
 
@@ -177,8 +177,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                     Restart RTP MIDI service
                 </label>
                 <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
-                        rounded-2xl inline-flex items-center">
+                        class="w-full h-10 outline-none mb-2 glass-light font-bold py-2 px-2
+                        rounded-glass inline-flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -186,8 +186,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
                     </svg>
                 </button>
                 <button onclick="change_setting('restart_rtp', '0');temporary_disable_button(this, 1500);"
-                        class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2
-                        rounded-2xl inline-flex items-center hidden">
+                        class="w-full h-10 outline-none mb-2 glass-light font-bold h-6 py-2 px-2
+                        rounded-glass inline-flex items-center hidden">
                     <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
             </div>
         </div>
@@ -197,7 +197,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
         </div>
 
         <!-- Visual Connection Canvas Container -->
-        <div id="port-connection-container" class="relative bg-gray-100 dark:bg-gray-600 rounded-lg p-6 flex gap-4" style="min-height: 600px;">
+        <div id="port-connection-container" class="relative glass-light rounded-lg p-3 m-1 flex gap-4" style="min-height: 600px;">
             <!-- SVG for drawing connection lines - positioned absolutely to cover entire container -->
             <svg id="connection-lines" class="absolute inset-0" style="width: 100%; height: 100%; pointer-events: none; z-index: 5;">
                 <!-- Connection lines will be drawn here -->
@@ -213,7 +213,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
             <!-- Sender Ports (Left) - 40% -->
             <div id="source-ports" class="flex-shrink-0 overflow-y-auto pr-2 relative" style="width: 40%; z-index: 1;">
-                <div class="font-bold text-base mb-3 text-gray-700 dark:text-gray-300 sticky top-0 bg-gray-100 dark:bg-gray-600 pb-2 flex items-center gap-2">
+                <div class="font-bold text-base mb-3 text-gray-400 dark:text-gray-300 sticky top-0 glass-light pb-2 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
@@ -235,7 +235,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
 
             <!-- Receiver Ports (Right) - 40% -->
             <div id="destination-ports" class="flex-shrink-0 overflow-y-auto pl-2 relative" style="width: 40%; z-index: 1;">
-                <div class="font-bold text-base mb-3 text-gray-700 dark:text-gray-300 sticky top-0 bg-gray-100 dark:bg-gray-600 pb-2 flex items-center gap-2">
+                <div class="font-bold text-base mb-3 text-gray-400 dark:text-gray-300 sticky top-0 glass-light pb-2 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
                     </svg>
@@ -248,7 +248,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
         </div>
 
         <!-- Connection Status -->
-        <div id="connection-status" class="mt-3 md:mt-4 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 p-2 md:p-3 rounded-lg">
+        <div id="connection-status" class="mt-3 md:mt-4 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 glass-light p-3 m-1 md:p-3 rounded-lg">
             <div class="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -260,7 +260,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
         <!-- Expandable Raw Output Section -->
         <div class="mt-4">
             <button onclick="toggle_raw_output()" 
-                    class="w-full bg-gray-100 dark:bg-gray-600 font-bold py-2 px-4 rounded-lg inline-flex items-center justify-between hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+                    class="w-full glass-light font-bold py-2 px-4 rounded-lg inline-flex items-center justify-between hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
                 <span class="text-sm text-gray-600 dark:text-gray-400" data-translate="show_raw_ports">Show Raw Port List (aconnect -l)</span>
                 <svg id="raw-output-arrow" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -268,14 +268,14 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
             </button>
             <div id="raw-output-container" class="hidden mt-2">
                 <textarea id="connect_all_textarea"
-                          class="w-full px-3 py-2 bg-gray-100 dark:bg-gray-600 rounded-lg focus:outline-none text-xs sm:text-sm"
+                          class="w-full px-3 py-2 glass-light rounded-lg focus:outline-none text-xs sm:text-sm"
                           rows="16" readonly></textarea>
             </div>
         </div>
     </div>
 
     <!-- MIDI Events Section (Full Width) -->
-    <div class="col-span-full flex-1 grid p-3 md:p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg" style="grid-column: 1 / -1;">
+    <div class="col-span-full flex-1 grid p-3 m-1 md:p-5 glass-light shadow-xl rounded-lg" style="grid-column: 1 / -1;">
         <div class="flex-1 font-bold text-lg md:text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="midi_events">MIDI events</div>
 
         <div class="flex items-center mb-4">
@@ -289,7 +289,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2
         </div>
 
         <textarea readonly id="midi_events_textarea"
-                  class="w-full px-3 py-2 bg-gray-100 dark:bg-gray-600 rounded-lg focus:outline-none"
+                  class="w-full px-3 py-2 glass-light rounded-lg focus:outline-none"
                   rows="20"></textarea>
     </div>
 </div>

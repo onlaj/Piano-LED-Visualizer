@@ -3,8 +3,8 @@
             LED Color
         </div>
         <div class="relative w-1/2">
-            <select id="color_mode" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+            <select id="color_mode" class="block appearance-none w-full glass-light
+                py-2 px-2 pr-8 mb-2 rounded-glass leading-tight transition-smooth-fast">
                 <option value="Single" data-translate="single">Single</option>
                 <option value="Multicolor" data-translate="multicolor">Multicolor</option>
                 <option value="Rainbow" data-translate="rainbow_colors">Rainbow Colors</option>
@@ -24,20 +24,20 @@
     <div class="overflow-y-auto overflow-x-hidden max-h-80">
         <div id="Single" class="flex-1 color_mode">
             <input id="led_color" type="color" value="#ffffff"
-                   class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                   class="cursor-pointer h-8 w-full glass-light"
                    oninput="editLedColor(event, '');"
                    onclick="editLedColor(event, '');"
                    onchange="change_setting('led_color', this.value, false, true);">
             <div id="ledcolors" class="justify-center flex">
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-red-400">R:</span>
                 <input id="red" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-green-400">G:</span>
                 <input id="green" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-blue-400">B:</span>
                 <input id="blue" name="field_name" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
             </div>
         </div>
 
@@ -50,8 +50,8 @@
                 <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="colormap">
                     Colormap
                 </label>
-                <select id="rainbow_colormap" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                <select id="rainbow_colormap" class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 rounded-glass leading-tight transition-smooth-fast">
                     <option name="Rainbow">Rainbow</option>
                 </select>
             </div>
@@ -61,8 +61,8 @@
                         Offset
                     </label>
                     <input id="rainbow_offset" type="number" value="0" min="-1024" max="1024"
-                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                           class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 rounded-glass leading-tight transition-smooth-fast">
                 </div>
 
                 <div class="w-1/3 md:w-1/3 px-3 md:mb-0">
@@ -70,8 +70,8 @@
                         Scale
                     </label>
                     <input id="rainbow_scale" type="number" value="0" min="-1024" max="1024"
-                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                           class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 rounded-glass leading-tight transition-smooth-fast">
                 </div>
 
                 <div class="w-1/3 md:w-1/3 px-3 md:mb-0">
@@ -79,8 +79,8 @@
                         Timeshift
                     </label>
                     <input id="rainbow_timeshift" type="number" value="0" min="-1024" max="1024"
-                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                           class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 rounded-glass leading-tight transition-smooth-fast">
                 </div>
             </div>
         </div>
@@ -90,8 +90,8 @@
                 <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="colormap">
                     Colormap
                 </label>
-                <select id="velocityrainbow_colormap" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                <select id="velocityrainbow_colormap" class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 rounded-glass leading-tight transition-smooth-fast">
                     <option name="Rainbow-FastLED">Rainbow-FastLED</option>
                 </select>
             </div>
@@ -101,8 +101,8 @@
                         Offset
                     </label>
                     <input id="velocityrainbow_offset" type="number" value="0" min="-1024" max="1024"
-                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                           class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 rounded-glass leading-tight transition-smooth-fast">
                 </div>
 
                 <div class="w-1/3 md:w-1/3 px-3 md:mb-0">
@@ -110,8 +110,8 @@
                         Scale %
                     </label>
                     <input id="velocityrainbow_scale" type="number" value="0" min="-1024" max="1024"
-                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                           class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 rounded-glass leading-tight transition-smooth-fast">
                 </div>
 
                 <div class="w-1/3 md:w-1/3 px-3 md:mb-0">
@@ -119,8 +119,8 @@
                         Curve%
                     </label>
                     <input id="velocityrainbow_curve" type="number" value="0" min="-1024" max="1024"
-                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                           class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 rounded-glass leading-tight transition-smooth-fast">
                 </div>
             </div>
         </div>
@@ -130,40 +130,40 @@
                 Slow color
             </label>
             <input id="speed_slow_color" type="color" value="#ffffff"
-                   class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                   class="cursor-pointer h-8 w-full glass-light"
                    onclick="editLedColor(event, 'speed_slowest_');"
                    oninput="editLedColor(event, 'speed_slowest_');"
                    onchange="change_setting('speed_slowest_color', this.value, false, true);">
             <div id="speedslowcolors" class="justify-center flex">
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-red-400">R:</span>
                 <input id="speed_slowest_red" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-green-400">G:</span>
                 <input id="speed_slowest_green" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-blue-400">B:</span>
                 <input id="speed_slowest_blue" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
             </div>
 
             <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="fast_color">
                 Fast color
             </label>
             <input id="speed_fast_color" type="color" value="#ffffff"
-                   class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                   class="cursor-pointer h-8 w-full glass-light"
                    onclick="editLedColor(event, 'speed_fastest_');"
                    oninput="editLedColor(event, 'speed_fastest_');"
                    onchange="change_setting('speed_fastest_color', this.value, false, true);">
             <div id="speedfastcolors" class="justify-center flex">
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-red-400">R:</span>
                 <input id="speed_fastest_red" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-green-400">G:</span>
                 <input id="speed_fastest_green" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-blue-400">B:</span>
                 <input id="speed_fastest_blue" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
             </div>
 
             <div class="flex flex-wrap">
@@ -173,8 +173,8 @@
                         Max notes
                     </label>
                     <input id="speed_max_notes" type="number" value="176" min="0" max="255"
-                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                           class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 rounded-glass leading-tight transition-smooth-fast"
                            onchange="change_setting('speed_max_notes', this.value, false, true)">
                 </div>
 
@@ -184,8 +184,8 @@
                         Period (in seconds)
                     </label>
                     <input id="speed_period_in_seconds" step="0.1" type="number" value="176" min="0" max="255"
-                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                           class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 rounded-glass leading-tight transition-smooth-fast"
                            onchange="change_setting('speed_period_in_seconds', this.value, false, true)">
                 </div>
             </div>
@@ -197,20 +197,20 @@
                 Start
             </label>
             <input id="gradient_start_color" type="color" value="#ffffff"
-                   class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                   class="cursor-pointer h-8 w-full glass-light"
                    onclick="editLedColor(event, 'gradient_start_');"
                    oninput="editLedColor(event, 'gradient_start_');"
                    onchange="change_setting('gradient_start_color', this.value, false, true);">
             <div id="gradientstartcolors" class="justify-center flex">
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-red-400">R:</span>
                 <input id="gradient_start_red" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-green-400">G:</span>
                 <input id="gradient_start_green" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-blue-400">B:</span>
                 <input id="gradient_start_blue" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
             </div>
 
             <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400"
@@ -218,20 +218,20 @@
                 End
             </label>
             <input id="gradient_end_color" type="color" value="#ffffff"
-                   class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                   class="cursor-pointer h-8 w-full glass-light"
                    onclick="editLedColor(event, 'gradient_end_');"
                    oninput="editLedColor(event, 'gradient_end_');"
                    onchange="change_setting('gradient_end_color', this.value, false, true);">
             <div id="gradientendcolors" class="justify-center flex">
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-red-400">R:</span>
                 <input id="gradient_end_red" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-green-400">G:</span>
                 <input id="gradient_end_green" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-blue-400">B:</span>
                 <input id="gradient_end_blue" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
             </div>
         </div>
 
@@ -241,20 +241,20 @@
                 Color for in scale
             </label>
             <input id="key_in_scale_color" type="color" value="#ffffff"
-                   class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                   class="cursor-pointer h-8 w-full glass-light"
                    onclick="editLedColor(event, 'key_in_scale_');"
                    oninput="editLedColor(event, 'key_in_scale_');"
                    onchange="change_setting('key_in_scale_color', this.value, false, true);">
             <div id="keyinscalecolors" class="justify-center flex">
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-red-400">R:</span>
                 <input id="key_in_scale_red" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-green-400">G:</span>
                 <input id="key_in_scale_green" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-blue-400">B:</span>
                 <input id="key_in_scale_blue" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
             </div>
 
             <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400"
@@ -262,20 +262,20 @@
                 Color for not in scale
             </label>
             <input id="key_not_in_scale_color" type="color" value="#ffffff"
-                   class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                   class="cursor-pointer h-8 w-full glass-light"
                    onclick="editLedColor(event, 'key_not_in_scale_');"
                    oninput="editLedColor(event, 'key_not_in_scale_');"
                    onchange="change_setting('key_not_in_scale_color', this.value, false, true);">
             <div id="keynotinscalecolors" class="justify-center flex">
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-red-400">R:</span>
                 <input id="key_not_in_scale_red" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-green-400">G:</span>
                 <input id="key_not_in_scale_green" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-blue-400">B:</span>
                 <input id="key_not_in_scale_blue" type="number" value="255" min="0" max="255"
-                       class="w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                       class="w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
             </div>
 
             <div class="relative">
@@ -283,8 +283,8 @@
                 data-translate="scale_key">
                     Scale key
                 </label>
-                <select id="scale_key" class="block appearance-none w-full bg-gray-100 dark:bg-gray-600
-        py-2 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                <select id="scale_key" class="block appearance-none w-full glass-light
+        py-2 px-2 pr-8 mb-2 rounded-glass leading-tight transition-smooth-fast"
                         onchange="change_setting('scale_key', this.value, false, true);">
                     {% set i = 0 %}
                     {% set scales_list = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "C m", "C# m", "D m", "Eb m" "E m", "F m", "F# m", "G m", "G# m", "A m", "Bb m", "B m"] %}

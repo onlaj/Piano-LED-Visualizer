@@ -1,13 +1,13 @@
 get_colormap_gradients();
 
 function remove_page_indicators() {
-    document.getElementById("home").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("ledsettings").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("songs").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("sequences").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("ports").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("ledanimations").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("network").classList.remove("dark:bg-gray-700", "bg-gray-100");
+    document.getElementById("home").classList.remove("glass-light");
+    document.getElementById("ledsettings").classList.remove("glass-light");
+    document.getElementById("songs").classList.remove("glass-light");
+    document.getElementById("sequences").classList.remove("glass-light");
+    document.getElementById("ports").classList.remove("glass-light");
+    document.getElementById("ledanimations").classList.remove("glass-light");
+    document.getElementById("network").classList.remove("glass-light");
 }
 
 function get_homepage_data_loop() {
@@ -189,7 +189,7 @@ function update_wifi_list(response) {
     // Loop through wifi_list
     wifi_list.forEach(wifi => {
         const listItem = document.createElement("div");
-        listItem.className = "bg-gray-100 dark:bg-gray-600 mb-4 p-2 rounded-md";
+        listItem.className = "glass-light mb-4 p-2 rounded-glass transition-smooth-fast";
 
         const partial_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" ' +
             'stroke-width="1.5" stroke="currentColor" class="w-6 h-6 absolute">' + getWifiIcon(wifi["Signal Strength"]) + '</svg>';
@@ -211,14 +211,14 @@ function update_wifi_list(response) {
                 <button onclick="this.classList.add('hidden');                            
                             document.getElementById('wifi_${wifi["ESSID"]}').classList.remove('hidden');
                             document.getElementById('wifi_password_${wifi["ESSID"]}').focus()"
-                    class="w-20 outline-none bg-blue-500 dark:bg-blue-500 py-2 font-bold rounded-2xl" data-translate="connect">
+                    class="w-20 outline-none bg-blue-500 dark:bg-blue-500 py-2 font-bold rounded-glass transition-smooth-fast" data-translate="connect">
                     ${translate("connect")}
                 </button>            
             
             </div>
             <div id="wifi_${wifi["ESSID"]}" class="hidden ">
                 <div class="relative">
-                    <input id="wifi_password_${wifi["ESSID"]}" class="mt-4 h-10 block a w-full dark:text-black bg-gray-200 dark:bg-gray-700 py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="password" placeholder="Type Wi-Fi password here">
+                    <input id="wifi_password_${wifi["ESSID"]}" class="mt-4 h-10 block a w-full dark:text-black glass-light py-2 px-2 rounded-glass leading-tight transition-smooth-fast" type="password" placeholder="Type Wi-Fi password here">
                     <button class="absolute top-1/4 right-2" onclick="togglePasswordVisibility(this, 'wifi_password_${wifi["ESSID"]}');">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" id="toggle-eye-${wifi["ESSID"]}">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
@@ -1385,15 +1385,15 @@ function show_multicolors(colors, ranges, iteration) {
     let i = 0;
     multicolor_element.innerHTML = "<div class=\"flex items-center mb-4\">\n" +
         "            <input onclick=\"change_setting('multicolor_iteration', this.checked)\" id=\"multicolor_iteration_checkbox\" " +
-        "           type=\"checkbox\" value=\"\" class=\"w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 " +
-        "focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600\">\n" +
+        "           type=\"checkbox\" value=\"\" class=\"w-4 h-4 text-blue-600 glass-light rounded border-gray-300 " +
+        "focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2\">\n" +
         "            <label for=\"default-checkbox\" class=\"pl-2 block uppercase tracking-wide text-xs font-bold mt-2 " +
         "text-gray-600 dark:text-gray-400\">Cycle through colors</label>\n" +
         "        </div>";
 
     const add_button = "<button onclick=\"this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')\" " +
-        "id=\"multicolor_add\" class=\"w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 " +
-        "rounded-2xl inline-flex items-center\">\n" +
+        "id=\"multicolor_add\" class=\"w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-2 px-2 " +
+        "rounded-glass inline-flex items-center transition-smooth-fast\">\n" +
         "   <svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-full justify-items-center text-green-400\" " +
         "fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n" +
         "      <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 9v3m0 " +
@@ -1401,8 +1401,8 @@ function show_multicolors(colors, ranges, iteration) {
         "   </svg>\n" +
         "</button>\n" +
         "<button onclick=\"change_setting('add_multicolor', '0')\" id=\"multicolor_add\" " +
-        "class=\"hidden w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 " +
-        "rounded-2xl inline-flex items-center\">\n" +
+        "class=\"hidden w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-2 px-2 " +
+        "rounded-glass inline-flex items-center transition-smooth-fast\">\n" +
         "<span class=\"w-full text-green-400\">Click to confirm</span></button>";
     multicolor_element.classList.remove("pointer-events-none", "opacity-50");
     multicolor_element.innerHTML += add_button;
@@ -1422,7 +1422,7 @@ function show_multicolors(colors, ranges, iteration) {
         const value_right_percent_reverse = 100 - value_right_percent;
 
         //append multicolor slider
-        multicolor_element.innerHTML += '<div class="mb-2 bg-gray-100 dark:bg-gray-600" id="multicolor_' + i + '">' +
+        multicolor_element.innerHTML += '<div class="mb-2 glass-light rounded-glass p-2 transition-smooth-fast" id="multicolor_' + i + '">' +
             '<label class="ml-2 inline block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">\n' +
             '                    Color ' + parseInt(i + 1) + '\n' +
             '                </label><div onclick=\'this.classList.add("hidden");' +
@@ -1436,20 +1436,20 @@ function show_multicolors(colors, ranges, iteration) {
             'document.getElementById("Multicolor").classList.add("pointer-events-none","opacity-50")\' ' +
             'class="hidden inline float-right text-red-400">Click to confirm</div>' +
             '<input id="multicolor_input_' + i + '" type="color" value="' + hex_color + '"\n' +
-            '                        class="cursor-pointer px-2 pt-2 h-8 w-full bg-gray-100 dark:bg-gray-600" ' +
+            '                        class="cursor-pointer px-2 pt-2 h-8 w-full glass-light rounded-glass" ' +
             'oninput=\'editLedColor(event, "multicolor_' + i + '_")\'' +
             'onchange=\'change_setting("multicolor", this.value, ' + i + ')\'>\n' +
             '                <div id="multicolors_' + i + '" class="justify-center flex" ' +
             'onchange=\'change_color_input_multicolor(event, "multicolor_' + i + '_", "multicolor_input_' + i + '", "multicolor", ' + i + ')\'>\n' +
-            '                    <span class="w-1/12 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-red-400">R:</span>\n' +
+            '                    <span class="w-1/12 h-6 px-2 glass-light text-red-400">R:</span>\n' +
             '                    <input id="multicolor_' + i + '_red" type="number" value="' + element[0] + '" min="0" max="255"\n' +
-            '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
-            '                    <span class="w-1/12 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-green-400">G:</span>\n' +
+            '                           class="w-2/12 h-6 glass-light" onkeyup=enforceMinMax(this)>\n' +
+            '                    <span class="w-1/12 h-6 px-2 glass-light text-green-400">G:</span>\n' +
             '                    <input id="multicolor_' + i + '_green" type="number" value="' + element[1] + '" min="0" max="255"\n' +
-            '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
-            '                    <span class="w-1/12 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-blue-400">B:</span>\n' +
+            '                           class="w-2/12 h-6 glass-light" onkeyup=enforceMinMax(this)>\n' +
+            '                    <span class="w-1/12 h-6 px-2 glass-light text-blue-400">B:</span>\n' +
             '                    <input id="multicolor_' + i + '_blue" type="number" value="' + element[2] + '" min="0" max="255"\n' +
-            '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
+            '                           class="w-2/12 h-6 glass-light" onkeyup=enforceMinMax(this)>\n' +
             '                </div>' +
             '<div slider id="slider-distance">\n' +
             '  <div>\n' +
@@ -1496,17 +1496,17 @@ function show_note_offsets(note_offsets) {
     }
     var i = 0
     offset_element.innerHTML = "";
-    const add_button = `<button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')" id="note_offsets_add" class="w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
-   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    const add_button = `<button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')" id="note_offsets_add" class="w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-1 px-1 rounded-glass inline-flex items-centers transition-smooth-fast">
+   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-full justify-items-center text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
    </svg>
 </button>
-<button onclick="change_setting('add_note_offset', '0');temporary_show_chords_animation();" id="note_offsets_add" class="hidden w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+<button onclick="change_setting('add_note_offset', '0');temporary_show_chords_animation();" id="note_offsets_add" class="hidden w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-1 px-1 rounded-glass inline-flex items-centers transition-smooth-fast">
 <span class="w-full text-green-400">Click to confirm</span></button>`;
     offset_element.classList.remove("pointer-events-none", "opacity-50");
     offset_element.innerHTML += add_button;
     for (const element of note_offsets) {
-        offset_element.innerHTML += `<div class="mb-2 bg-gray-100 dark:bg-gray-600" id="noteoffset_${i}">
+        offset_element.innerHTML += `<div class="mb-2 glass-light rounded-glass p-2 transition-smooth-fast" id="noteoffset_${i}">
             <label class="ml-2 inline block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                 ${translate("note_offset")} ${parseInt(i + 1)}
             </label>
@@ -1518,12 +1518,12 @@ function show_note_offsets(note_offsets) {
             <div onclick='change_setting("remove_note_offset", "${i}"); document.getElementById("NoteOffsetEntry").classList.add("pointer-events-none","opacity-50"); temporary_show_chords_animation();' class="hidden inline float-right text-red-400">Click to confirm</div>
             <div id="note_offset_${i}" class="justify-center flex" 
                 onchange='change_setting("update_note_offset", "${i}", (parseInt(document.getElementById("note_offset_${i}_num").value) + 20) + "," + document.getElementById("note_offset_${i}_off").value); temporary_show_chords_animation();'>
-                <span class="w-1/20 px-2 bg-gray-100 dark:bg-gray-600 text-red-400">${translate("light_number")}:</span>
+                <span class="w-1/20 px-2 glass-light text-red-400">${translate("light_number")}:</span>
                 <input id="note_offset_${i}_num" type="number" value="${element[0] - 20}" min="0" max="255"
-                       class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>
-                <span class="w-1/20 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-green-400">${translate("offset")}:</span>
+                       class="w-2/12 h-6 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/20 h-6 px-2 glass-light text-green-400">${translate("offset")}:</span>
                 <input id="note_offset_${i}_off" type="number" value="${element[1]}" min="-255" max="255"
-                       class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>
+                       class="w-2/12 h-6 glass-light" onkeyup=enforceMinMax(this)>
             </div>
         </div>`;
         i++;
