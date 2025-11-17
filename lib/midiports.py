@@ -154,6 +154,46 @@ class MidiPorts:
         
         return None
 
+    def _extract_descriptive_port_name(self, port_string):
+        """Extract descriptive port name without the trailing client:port ID.
+        
+        Port strings can be in formats like:
+        - "mio:mio MIDI 1 16:0" -> "mio:mio MIDI 1"
+        - "MIDI USB-USB:MIDI USB-USB Puerto 1 20:0" -> "MIDI USB-USB:MIDI USB-USB Puerto 1"
+        - "CASIO USB-MIDI:0" -> "CASIO USB-MIDI"
+        """
+        if not port_string or port_string == "default":
+            return None
+        
+        # Remove the trailing "client:port" ID (format: "number:number")
+        # This is typically the last space-separated part
+        parts = port_string.split()
+        if len(parts) > 1:
+            # Check if the last part matches the pattern "number:number"
+            last_part = parts[-1]
+            if ':' in last_part:
+                try:
+                    # Try to parse as client:port (e.g., "16:0", "20:0")
+                    client, port = last_part.split(':')
+                    int(client)
+                    int(port)
+                    # If successful, remove this trailing part
+                    return ' '.join(parts[:-1])
+                except (ValueError, IndexError):
+                    # Not a client:port format, return full string
+                    pass
+        
+        # If no client:port ID found, return the original string
+        # but remove any trailing ":number" from the last part
+        if parts:
+            last_part = parts[-1]
+            if ':' in last_part and not last_part.count(':') > 1:
+                # Simple format like "CASIO USB-MIDI:0"
+                parts[-1] = last_part.split(':')[0]
+                return ' '.join(parts)
+        
+        return port_string
+
     def connectall(self):
         """Reconnect mido ports and then manage aconnect connections."""
         # Reconnect the input and playports on a connectall
@@ -258,78 +298,49 @@ class MidiPorts:
     
     def auto_reconnect_loop(self):
         """
-        Watch mido port lists and:
-        - detect when configured devices appear (transition from absent -> present) and call connectall()
-        - detect when the previously opened ports vanish and close them locally so they can be reopened
+        Monitor input_port and secondary_input_port by name.
+        When either port is restored (absent -> present), call connectall() to restore the connection.
         """
-        last_device_present = False
+        last_input_present = None  # None indicates first run
+        last_secondary_present = None
         
         while self.monitor_running:
             try:
                 input_names = mido.get_input_names()
-                output_names = mido.get_output_names()
-                all_names = list(input_names) + list(output_names)
 
-                # Get configured device names
+                # Get configured ports
                 input_port = self.usersettings.get_setting_value("input_port")
-                play_port = self.usersettings.get_setting_value("play_port")
+                secondary_input_port = self.usersettings.get_setting_value("secondary_input_port")
                 
-                configured_input_device = self._extract_device_name(input_port) if input_port and input_port != "default" else None
-                configured_output_device = self._extract_device_name(play_port) if play_port and play_port != "default" else None
+                # Extract descriptive port names (without client:port ID)
+                input_descriptive_name = self._extract_descriptive_port_name(input_port) if input_port and input_port != "default" else None
+                secondary_descriptive_name = self._extract_descriptive_port_name(secondary_input_port) if secondary_input_port and secondary_input_port != "default" else None
 
-                # Check if configured devices are present in the system port lists now
-                device_present = False
-                if configured_input_device:
-                    device_present = any(configured_input_device in n for n in all_names)
-                if not device_present and configured_output_device:
-                    device_present = any(configured_output_device in n for n in all_names)
-                # If no configured device, consider any non-generic device as present
-                if not configured_input_device and not configured_output_device:
-                    device_present = any("Through" not in n and "RPi" not in n and "RtMidi" not in n and "USB-USB" not in n for n in all_names)
+                # Check if ports are present by matching descriptive names
+                input_present = False
+                if input_descriptive_name:
+                    input_present = any(input_descriptive_name in n for n in input_names)
+                
+                secondary_present = False
+                if secondary_descriptive_name:
+                    secondary_present = any(secondary_descriptive_name in n for n in input_names)
 
-                # Debug logging of what the watcher sees:
-                logger.debug("auto_reconnect: inputs=%s outputs=%s", input_names, output_names)
-
-                # If configured device appeared now but wasn't present before -> trigger connectall()
-                if device_present and not last_device_present:
-                    logger.info("Configured MIDI device detected (appearance). Triggering connectall()")
+                # If either port transitions from absent -> present, call connectall()
+                # Skip on first run (when last_*_present is None) to avoid false triggers
+                input_restored = input_present and (last_input_present is False)
+                secondary_restored = secondary_present and (last_secondary_present is False)
+                
+                if input_restored or secondary_restored:
+                    logger.info("MIDI port restored. Triggering connectall()")
                     try:
-                        # call the same logic the web UI triggers
                         self.connectall()
-                        logger.info("connectall() completed after device appearance")
+                        logger.info("connectall() completed after port restoration")
                     except Exception as e:
                         logger.info("connectall() raised: {}".format(e))
 
-                # If we have an inport object but its name is no longer present in mido's input list, close and clear it.
-                try:
-                    if self.inport is not None:
-                        port_name = getattr(self.inport, 'name', None)
-                        if port_name and not any(port_name in n for n in input_names):
-                            logger.info("Inport '{}' no longer in mido list -> closing local object".format(port_name))
-                            try:
-                                self.inport.close()
-                            except Exception as e:
-                                logger.debug("Error closing stale inport: {}".format(e))
-                            self.inport = None
-                except Exception as e:
-                    logger.debug("Error while checking/closing inport: {}".format(e))
-
-                # Same for playport
-                try:
-                    if self.playport is not None:
-                        port_name = getattr(self.playport, 'name', None)
-                        if port_name and not any(port_name in n for n in output_names):
-                            logger.info("Playport '{}' no longer in mido list -> closing local object".format(port_name))
-                            try:
-                                self.playport.close()
-                            except Exception as e:
-                                logger.debug("Error closing stale playport: {}".format(e))
-                            self.playport = None
-                except Exception as e:
-                    logger.debug("Error while checking/closing playport: {}".format(e))
-
-                last_device_present = device_present
-                time.sleep(3)  # shorter interval to react quicker
+                last_input_present = input_present
+                last_secondary_present = secondary_present
+                time.sleep(3)
             except Exception as e:
                 logger.info("auto_reconnect_loop error: {}".format(e))
                 time.sleep(5)
