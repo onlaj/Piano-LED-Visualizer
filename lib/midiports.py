@@ -2,7 +2,6 @@ import mido
 from lib import connectall
 import time
 import threading
-import subprocess
 from collections import deque
 from lib.log_setup import logger
 
@@ -32,50 +31,134 @@ class MidiPorts:
         except Exception as e:
             logger.warning("First access to mido failed.  Possibly from known issue: https://github.com/SpotlightKid/python-rtmidi/issues/138")
 
-        # checking if the input port was previously set by the user
+        # initial port setup (tries stored settings or first available)
+        self.setup_ports()
+
+        self.portname = "inport"
+
+    def setup_ports(self):
+        """Try to open the configured or first available ports."""
+        # Input port
         port = self.usersettings.get_setting_value("input_port")
-        if port != "default":
+        if port and port != "default":
             try:
                 self.inport = mido.open_input(port, callback=self.msg_callback)
                 logger.info("Inport loaded and set to " + port)
             except Exception as e:
-                logger.warning("Can't load input port: " + port)
+                logger.info("Can't load input port '{}': {}".format(port, e))
+                self.inport = None
         else:
-            # if not, try to find the new midi port
-            try:
-                for port in mido.get_input_names():
-                    if "Through" not in port and "RPi" not in port and "RtMidi" not in port and "USB-USB" not in port:
-                        self.inport = mido.open_input(port, callback=self.msg_callback)
-                        self.usersettings.change_setting_value("input_port", port)
-                        logger.info("Inport set to " + port)
-                        break
-            except Exception as e:
-                logger.warning("no input port")
-        # checking if the play port was previously set by the user
+            self.find_and_set_input()
+
+        # Output port
         port = self.usersettings.get_setting_value("play_port")
-        if port != "default":
+        if port and port != "default":
             try:
                 self.playport = mido.open_output(port)
                 logger.info("Playport loaded and set to " + port)
             except Exception as e:
-                logger.warning("Can't load input port: " + port)
+                logger.info("Can't load play port '{}': {}".format(port, e))
+                self.playport = None
         else:
-            # if not, try to find the new midi port
-            try:
-                for port in mido.get_output_names():
-                    if "Through" not in port and "RPi" not in port and "RtMidi" not in port and "USB-USB" not in port:
-                        self.playport = mido.open_output(port)
-                        self.usersettings.change_setting_value("play_port", port)
-                        logger.info("Playport set to " + port)
-                        break
-            except Exception as e:
-                logger.warning("no play port")
+            self.find_and_set_output()
 
-        self.portname = "inport"
+    def find_and_set_input(self):
+        """Find and set an available input port, preferring configured device names."""
+        try:
+            names = mido.get_input_names()
+            logger.info("Available inputs: {}".format(names))
+            
+            # Get configured port to prefer its device name
+            configured_port = self.usersettings.get_setting_value("input_port")
+            preferred_device = self._extract_device_name(configured_port) if configured_port and configured_port != "default" else None
+            
+            for pname in names:
+                # Prefer configured device if present; otherwise skip generic/through ports
+                if preferred_device and preferred_device in pname:
+                    try:
+                        self.inport = mido.open_input(pname, callback=self.msg_callback)
+                        self.usersettings.change_setting_value("input_port", pname)
+                        logger.info("Inport set to " + pname)
+                        return
+                    except Exception as e:
+                        logger.info("Failed to open input '{}' : {}".format(pname, e))
+            
+            # If preferred device not found, try any non-generic port
+            for pname in names:
+                if "Through" not in pname and "RPi" not in pname and "RtMidi" not in pname and "USB-USB" not in pname:
+                    try:
+                        self.inport = mido.open_input(pname, callback=self.msg_callback)
+                        self.usersettings.change_setting_value("input_port", pname)
+                        logger.info("Inport set to " + pname)
+                        return
+                    except Exception as e:
+                        logger.info("Failed to open input '{}' : {}".format(pname, e))
+        except Exception as e:
+            logger.info("No input port found: {}".format(e))
+
+    def find_and_set_output(self):
+        """Find and set an available output port, preferring configured device names."""
+        try:
+            names = mido.get_output_names()
+            logger.info("Available outputs: {}".format(names))
+            
+            # Get configured port to prefer its device name
+            configured_port = self.usersettings.get_setting_value("play_port")
+            preferred_device = self._extract_device_name(configured_port) if configured_port and configured_port != "default" else None
+            
+            for pname in names:
+                # Prefer configured device if present; otherwise skip generic/through ports
+                if preferred_device and preferred_device in pname:
+                    try:
+                        self.playport = mido.open_output(pname)
+                        self.usersettings.change_setting_value("play_port", pname)
+                        logger.info("Playport set to " + pname)
+                        return
+                    except Exception as e:
+                        logger.info("Failed to open output '{}' : {}".format(pname, e))
+            
+            # If preferred device not found, try any non-generic port
+            for pname in names:
+                if "Through" not in pname and "RPi" not in pname and "RtMidi" not in pname and "USB-USB" not in pname:
+                    try:
+                        self.playport = mido.open_output(pname)
+                        self.usersettings.change_setting_value("play_port", pname)
+                        logger.info("Playport set to " + pname)
+                        return
+                    except Exception as e:
+                        logger.info("Failed to open output '{}' : {}".format(pname, e))
+        except Exception as e:
+            logger.info("No play port found: {}".format(e))
+
+    def _extract_device_name(self, port_string):
+        """Extract device name from a port string.
+        
+        Port strings can be in formats like:
+        - "CASIO USB-MIDI:0" -> "CASIO"
+        - "Yamaha P-125:0" -> "Yamaha"
+        - "client_name:port_name 128:0" -> "client_name"
+        """
+        if not port_string or port_string == "default":
+            return None
+        
+        # Try to extract device name from the port string
+        # Format is typically "Device Name:Port" or "Device Name Port"
+        parts = port_string.split()
+        if parts:
+            # Take the first part and remove port number if present
+            device_part = parts[0]
+            # Remove trailing ":0" or ":1" etc.
+            if ":" in device_part:
+                device_part = device_part.split(":")[0]
+            return device_part
+        
+        return None
 
     def connectall(self):
-        # Only manage aconnect connections, don't touch mido ports
-        # This prevents mido from losing connection
+        """Reconnect mido ports and then manage aconnect connections."""
+        # Reconnect the input and playports on a connectall
+        self.reconnect_ports()
+        # Now connect all the remaining ports
         connectall.connectall(self.usersettings)
 
     def add_instance(self, menu):
@@ -85,40 +168,62 @@ class MidiPorts:
         try:
             destroy_old = None
             if port == "inport":
-                destory_old = self.inport
+                destroy_old = self.inport
                 self.inport = mido.open_input(portname, callback=self.msg_callback)
                 self.usersettings.change_setting_value("input_port", portname)
             elif port == "playport":
-                destory_old = self.playport
+                destroy_old = self.playport
                 self.playport = mido.open_output(portname)
                 self.usersettings.change_setting_value("play_port", portname)
             self.menu.render_message("Changing " + port + " to:", portname, 1500)
             if destroy_old is not None:
-                destory_old.close()
+                destroy_old.close()
             self.menu.show()
-        except Exception as e:
+        except Exception:
             self.menu.render_message("Can't change " + port + " to:", portname, 1500)
             self.menu.show()
 
     def reconnect_ports(self):
+        """Reconnect input and output ports, with fallback to finding available ports."""
         try:
             destroy_old = self.inport
             port = self.usersettings.get_setting_value("input_port")
-            self.inport = mido.open_input(port, callback=self.msg_callback)
-            if destroy_old is not None:
-                time.sleep(0.002)
-                destroy_old.close()
+            if port and port != "default":
+                self.inport = mido.open_input(port, callback=self.msg_callback)
+                if destroy_old is not None:
+                    time.sleep(0.002)
+                    try:
+                        destroy_old.close()
+                    except Exception:
+                        pass
+                logger.info("Reconnected input port: " + str(port))
+            else:
+                # No configured port, try to find one
+                self.find_and_set_input()
         except Exception as e:
-            logger.warning("Can't reconnect input port: " + port)
+            logger.info("Can't reconnect input port '{}': {}".format(port, e))
+            # fallback: try to find any input
+            self.find_and_set_input()
+
         try:
             destroy_old = self.playport
             port = self.usersettings.get_setting_value("play_port")
-            self.playport = mido.open_output(port)
-            if destroy_old is not None:
-                time.sleep(0.002)
-                destroy_old.close()
+            if port and port != "default":
+                self.playport = mido.open_output(port)
+                if destroy_old is not None:
+                    time.sleep(0.002)
+                    try:
+                        destroy_old.close()
+                    except Exception:
+                        pass
+                logger.info("Reconnected play port: " + str(port))
+            else:
+                # No configured port, try to find one
+                self.find_and_set_output()
         except Exception as e:
-            logger.warning("Can't reconnect play port: " + port)
+            logger.info("Can't reconnect play port '{}': {}".format(port, e))
+            # fallback: try to find any output
+            self.find_and_set_output()
 
     def msg_callback(self, msg):
         # Bound queue under load: keep notes prioritized; drop others first
@@ -140,7 +245,7 @@ class MidiPorts:
         """Start monitoring for MIDI device changes and auto-connect"""
         if self.midi_monitor_thread is None or not self.midi_monitor_thread.is_alive():
             self.monitor_running = True
-            self.midi_monitor_thread = threading.Thread(target=self._monitor_midi_devices, daemon=True)
+            self.midi_monitor_thread = threading.Thread(target=self.auto_reconnect_loop, daemon=True)
             self.midi_monitor_thread.start()
             logger.info("MIDI device monitor started")
     
@@ -151,126 +256,80 @@ class MidiPorts:
             self.midi_monitor_thread.join(timeout=1)
         logger.info("MIDI device monitor stopped")
     
-    def _monitor_midi_devices(self):
-        """Monitor for MIDI device changes and auto-connect configured ports - only when needed"""
-        last_port_count = 0
-        check_interval = 30  # Check every 30 seconds
-        consecutive_checks = 0
+    def auto_reconnect_loop(self):
+        """
+        Watch mido port lists and:
+        - detect when configured devices appear (transition from absent -> present) and call connectall()
+        - detect when the previously opened ports vanish and close them locally so they can be reopened
+        """
+        last_device_present = False
         
         while self.monitor_running:
             try:
-                # Check if aconnect command works
-                result = subprocess.run(['aconnect', '-l'], capture_output=True, text=True, timeout=3)
-                if result.returncode == 0:
-                    # Count non-empty lines that aren't client headers
-                    lines = [line for line in result.stdout.splitlines() if line.strip() and not line.startswith('client') and not line.startswith('\t')]
-                    current_port_count = len(lines)
-                    
-                    # Check if our desired connection exists
-                    connection_exists = self._check_desired_connection_exists(result.stdout)
-                    
-                    # Only act if port count changed AND connection doesn't exist
-                    if abs(current_port_count - last_port_count) > 0 and not connection_exists:
-                        logger.info(f"MIDI port count changed from {last_port_count} to {current_port_count}")
-                        last_port_count = current_port_count
-                        
-                        # Check if configured ports are still available
-                        if self._are_configured_ports_available(result.stdout):
-                            # Wait a bit for ports to stabilize
-                            time.sleep(3)
-                            
-                            # Only connect if configured ports are available
-                            logger.info("Configured ports are available, attempting connection...")
-                            self.connectall()
-                        else:
-                            logger.info("Configured ports not available, skipping connection")
-                    elif abs(current_port_count - last_port_count) > 0:
-                        logger.info(f"MIDI port count changed from {last_port_count} to {current_port_count}, but connection already exists")
-                        last_port_count = current_port_count
+                input_names = mido.get_input_names()
+                output_names = mido.get_output_names()
+                all_names = list(input_names) + list(output_names)
+
+                # Get configured device names
+                input_port = self.usersettings.get_setting_value("input_port")
+                play_port = self.usersettings.get_setting_value("play_port")
                 
-                consecutive_checks += 1
-                
-                # Adaptive sleep - check less frequently if everything is stable
-                if consecutive_checks > 10:  # After 5 minutes of stable operation
-                    check_interval = 120  # Check every 2 minutes
-                else:
-                    check_interval = 30  # Check every 30 seconds
-                
-                time.sleep(check_interval)
-                
+                configured_input_device = self._extract_device_name(input_port) if input_port and input_port != "default" else None
+                configured_output_device = self._extract_device_name(play_port) if play_port and play_port != "default" else None
+
+                # Check if configured devices are present in the system port lists now
+                device_present = False
+                if configured_input_device:
+                    device_present = any(configured_input_device in n for n in all_names)
+                if not device_present and configured_output_device:
+                    device_present = any(configured_output_device in n for n in all_names)
+                # If no configured device, consider any non-generic device as present
+                if not configured_input_device and not configured_output_device:
+                    device_present = any("Through" not in n and "RPi" not in n and "RtMidi" not in n and "USB-USB" not in n for n in all_names)
+
+                # Debug logging of what the watcher sees:
+                logger.debug("auto_reconnect: inputs=%s outputs=%s", input_names, output_names)
+
+                # If configured device appeared now but wasn't present before -> trigger connectall()
+                if device_present and not last_device_present:
+                    logger.info("Configured MIDI device detected (appearance). Triggering connectall()")
+                    try:
+                        # call the same logic the web UI triggers
+                        self.connectall()
+                        logger.info("connectall() completed after device appearance")
+                    except Exception as e:
+                        logger.info("connectall() raised: {}".format(e))
+
+                # If we have an inport object but its name is no longer present in mido's input list, close and clear it.
+                try:
+                    if self.inport is not None:
+                        port_name = getattr(self.inport, 'name', None)
+                        if port_name and not any(port_name in n for n in input_names):
+                            logger.info("Inport '{}' no longer in mido list -> closing local object".format(port_name))
+                            try:
+                                self.inport.close()
+                            except Exception as e:
+                                logger.debug("Error closing stale inport: {}".format(e))
+                            self.inport = None
+                except Exception as e:
+                    logger.debug("Error while checking/closing inport: {}".format(e))
+
+                # Same for playport
+                try:
+                    if self.playport is not None:
+                        port_name = getattr(self.playport, 'name', None)
+                        if port_name and not any(port_name in n for n in output_names):
+                            logger.info("Playport '{}' no longer in mido list -> closing local object".format(port_name))
+                            try:
+                                self.playport.close()
+                            except Exception as e:
+                                logger.debug("Error closing stale playport: {}".format(e))
+                            self.playport = None
+                except Exception as e:
+                    logger.debug("Error while checking/closing playport: {}".format(e))
+
+                last_device_present = device_present
+                time.sleep(3)  # shorter interval to react quicker
             except Exception as e:
-                logger.warning(f"Error in MIDI device monitor: {e}")
-                time.sleep(60)  # Wait a full minute on error
-    
-    def _check_desired_connection_exists(self, aconnect_output):
-        """Check if the desired two-way connection between input and secondary input ports exists"""
-        try:
-            # Get configured ports
-            input_port = self.usersettings.get_setting_value("input_port")
-            secondary_input_port = self.usersettings.get_setting_value("secondary_input_port")
-            
-            # Skip if ports are not configured
-            if input_port == "default" or secondary_input_port == "default":
-                return False
-            
-            # Extract port IDs
-            input_port_id = input_port.split()[-1]  # Get the last part (client_id:port_id)
-            secondary_input_port_id = secondary_input_port.split()[-1]  # Get the last part (client_id:port_id)
-            
-            # Check if both directions of the connection exist
-            lines = aconnect_output.splitlines()
-            input_to_secondary = False
-            secondary_to_input = False
-            
-            for line in lines:
-                # Look for "Connecting To:" lines that contain both port IDs
-                if "Connecting To:" in line:
-                    if input_port_id in line and secondary_input_port_id in line:
-                        # This line shows a connection between our two ports
-                        input_to_secondary = True
-                        secondary_to_input = True
-                        break
-                # Also check for "Connected From:" lines for completeness
-                elif "Connected From:" in line:
-                    if input_port_id in line and secondary_input_port_id in line:
-                        input_to_secondary = True
-                        secondary_to_input = True
-                        break
-            
-            return input_to_secondary and secondary_to_input
-            
-        except Exception as e:
-            logger.warning(f"Error checking desired connection: {e}")
-            return False
-    
-    def _are_configured_ports_available(self, aconnect_output):
-        """Check if the configured input and secondary input ports are available in the system"""
-        try:
-            # Get configured ports
-            input_port = self.usersettings.get_setting_value("input_port")
-            secondary_input_port = self.usersettings.get_setting_value("secondary_input_port")
-            
-            # Skip if ports are not configured
-            if input_port == "default" or secondary_input_port == "default":
-                return False
-            
-            # Extract port IDs
-            input_port_id = input_port.split()[-1]  # Get the last part (client_id:port_id)
-            secondary_input_port_id = secondary_input_port.split()[-1]  # Get the last part (client_id:port_id)
-            
-            # Check if both ports exist in the aconnect output
-            lines = aconnect_output.splitlines()
-            input_found = False
-            secondary_found = False
-            
-            for line in lines:
-                if input_port_id in line and not line.startswith('client'):
-                    input_found = True
-                if secondary_input_port_id in line and not line.startswith('client'):
-                    secondary_found = True
-            
-            return input_found and secondary_found
-            
-        except Exception as e:
-            logger.warning(f"Error checking port availability: {e}")
-            return False
+                logger.info("auto_reconnect_loop error: {}".format(e))
+                time.sleep(5)
