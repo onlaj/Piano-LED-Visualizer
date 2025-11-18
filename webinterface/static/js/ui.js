@@ -1,5 +1,53 @@
 get_colormap_gradients();
 
+// Homepage history tracking for charts
+window.homepageHistory = {
+    cpu: [],
+    ledFps: [],
+    maxPoints: 60
+};
+
+function addToHistory(type, value) {
+    if (!window.homepageHistory[type]) {
+        window.homepageHistory[type] = [];
+    }
+    window.homepageHistory[type].push(value);
+    if (window.homepageHistory[type].length > window.homepageHistory.maxPoints) {
+        window.homepageHistory[type].shift();
+    }
+}
+
+function updateChart(chartId, value) {
+    let chart;
+    if (chartId === 'cpu') {
+        chart = window.cpuChart;
+    } else if (chartId === 'ledFps') {
+        chart = window.ledFpsChart;
+    }
+    
+    if (chart) {
+        chart.data.labels.push('');
+        chart.data.datasets[0].data.push(value);
+        if (chart.data.labels.length > window.homepageHistory.maxPoints) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+        }
+        
+        // For LED FPS chart, set max to 2x the displayed average (so average appears at 50% height)
+        if (chartId === 'ledFps' && chart.data.datasets[0].data.length > 0) {
+            const data = chart.data.datasets[0].data;
+            const sum = data.reduce((a, b) => a + b, 0);
+            const average = sum / data.length;
+            const maxValue = average * 2; // 2x average so it appears at 50% height
+            
+            // Ensure minimum max value to avoid issues with very low values
+            chart.options.scales.y.max = Math.max(maxValue, value * 1.5);
+        }
+        
+        chart.update('none');
+    }
+}
+
 function remove_page_indicators() {
     document.getElementById("home").classList.remove("glass-light");
     document.getElementById("ledsettings").classList.remove("glass-light");
@@ -26,11 +74,19 @@ function get_homepage_data_loop() {
                 download = 0;
                 upload = 0;
             }
+            const cpuUsage = response_pc_stats["cpu_usage"];
+            const ledFps = parseFloat(response_pc_stats.led_fps) || 0;
+            
+            // Update CPU usage
             animateValue(document.getElementById("cpu_number"), last_cpu_usage,
-                response_pc_stats["cpu_usage"], refresh_rate * 500, false);
+                cpuUsage, refresh_rate * 500, false);
+            
+            // Add to history and update chart
+            addToHistory('cpu', cpuUsage);
+            updateChart('cpu', cpuUsage);
+            
             document.getElementById("memory_usage_percent").innerHTML = response_pc_stats["memory_usage_percent"] + "%";
             document.getElementById("memory_usage").innerHTML =
-
                 formatBytes(response_pc_stats["memory_usage_used"], 2, false) + "/" +
                 formatBytes(response_pc_stats["memory_usage_total"]);
             document.getElementById("cpu_temp").innerHTML = response_pc_stats["cpu_temp"];
@@ -42,9 +98,11 @@ function get_homepage_data_loop() {
             animateValue(document.getElementById("download_number"), last_download, download, refresh_rate * 500, true);
             animateValue(document.getElementById("upload_number"), last_upload, upload, refresh_rate * 500, true);
 
-            document.getElementById("cover_state").innerHTML = response_pc_stats["cover_state"];
-
+            // Update LED FPS
             document.getElementById("led_fps").innerHTML = response_pc_stats.led_fps;
+            addToHistory('ledFps', ledFps);
+            updateChart('ledFps', ledFps);
+            
             if (document.getElementById("system_state")) {
                 document.getElementById("system_state").innerHTML = response_pc_stats.system_state || 'UNKNOWN';
             }
@@ -54,7 +112,20 @@ function get_homepage_data_loop() {
             document.getElementById("memory_pid").innerHTML =
                 formatBytes(response_pc_stats.memory_pid, 2, false);
 
-            document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
+            // Update cover state with badge styling
+            const coverState = response_pc_stats.cover_state;
+            const coverStateElement = document.getElementById("cover_state");
+            const coverStateBadge = document.getElementById("cover_state_badge");
+            if (coverStateElement) {
+                coverStateElement.innerHTML = coverState;
+            }
+            if (coverStateBadge) {
+                if (coverState === 'Opened') {
+                    coverStateBadge.className = "inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 dark:bg-green-700 text-green-800 dark:text-white";
+                } else {
+                    coverStateBadge.className = "inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white";
+                }
+            }
 
             // change value of select based on response_pc_stats.screen_on
             document.getElementById("screen_on").value = response_pc_stats.screen_on;

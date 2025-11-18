@@ -999,3 +999,92 @@ main {
 .dark .border-r {
     border-color: rgba(75, 85, 99, 0.3);
 }
+
+/* Interactive Status Items */
+.status-item {
+    transition: all 0.2s ease;
+}
+
+.status-item:hover {
+    transform: translateY(-2px);
+}
+
+.status-item:active {
+    transform: translateY(0);
+}
+
+/* Collapsible Section Headers */
+button[class*="hover:glass-light"] {
+    transition: all 0.2s ease;
+}
+
+button[class*="hover:glass-light"]:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark button[class*="hover:glass-light"]:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Chart Container Styling */
+canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Chart Background Styling for Homepage Cards */
+#cpu_chart,
+#led_fps_chart {
+    pointer-events: none;
+    z-index: 0;
+}
+
+.dark #cpu_chart,
+.dark #led_fps_chart {
+    opacity: 0.25;
+}
+
+/* Compact Stat Cards */
+.col-span-6 .p-4 {
+    padding: 1rem;
+}
+
+/* Cover State Badge */
+#cover_state_badge {
+    transition: all 0.2s ease;
+}
+
+/* Improved spacing for control sections */
+.space-y-3 > * + * {
+    margin-top: 0.75rem;
+}
+
+/* Better visual hierarchy for section headers */
+.font-semibold.text-sm {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* Smooth transitions for collapsible content */
+[x-show] {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+[x-show="false"] {
+    display: none !important;
+}
+
+/* Chart responsive adjustments */
+@media (max-width: 640px) {
+    canvas {
+        max-height: 48px;
+    }
+    
+    .w-32 {
+        width: 6rem;
+    }
+    
+    .h-16 {
+        height: 4rem;
+    }
+}

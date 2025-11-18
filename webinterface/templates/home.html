@@ -1,48 +1,58 @@
 <div class="slide-in-content col-span-12 mt-1 w-full lg:w-4/5 xl:w-4/5 2xl:w-4/5 m-auto">
-    <div class="flex items-center h-1 intro-y">
-        <div class="relative advanced-content mr-4">
-            <div class="absolute inset-y-0 left-0 flex items-center px-2 pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                     stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-            </div>
-            <select id="refresh_rate" class="block appearance-none h-8 w-1 glass-light
-        px-1 pr-8 pl-8 rounded-glass leading-tight transition-smooth-fast">
-                <option value="1">1 second</option>
-                <option value="2">2 seconds</option>
-                <option value="3">3 seconds</option>
-                <option value="5">5 seconds</option>
-                <option value="10">10 seconds</option>
-                <option value="0">never</option>
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                    <path
-                            d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-                </svg>
+    <!-- Header Controls -->
+    <div class="flex items-center justify-between mb-4 intro-y">
+        <div class="flex items-center space-x-4">
+            <div class="relative advanced-content">
+                <div class="absolute inset-y-0 left-0 flex items-center px-2 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </div>
+                <select id="refresh_rate" class="block appearance-none h-8 w-32 glass-light
+            px-2 pr-8 pl-8 rounded-glass leading-tight transition-smooth-fast text-sm">
+                    <option value="1">1 second</option>
+                    <option value="2">2 seconds</option>
+                    <option value="3">3 seconds</option>
+                    <option value="5">5 seconds</option>
+                    <option value="10">10 seconds</option>
+                    <option value="0">never</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path
+                                d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                    </svg>
+                </div>
             </div>
         </div>
-        <div class="absolute right-0">
-            <label for="modeSwitch">
+        <div class="flex items-center space-x-4">
+            <label for="modeSwitch" class="flex items-center cursor-pointer">
                 <input style="margin-top: 0px;margin-right:4px" type="checkbox" id="modeSwitch" onchange="setAdvancedMode(this.checked);">
-                <div class="contents" data-translate="advanced_mode">Advanced mode</div>
+                <div class="contents text-sm" data-translate="advanced_mode">Advanced mode</div>
             </label>
         </div>
     </div>
-    <div class="grid grid-cols-12 gap-6 mt-4">
+
+    <!-- Priority Stats: CPU and LED FPS with Charts -->
+    <div class="grid grid-cols-12 gap-6 mb-6">
+        <!-- CPU Usage Card with Chart -->
         <a class="glass shadow-glass-lg rounded-glass hover-lift col-span-12
-        sm:col-span-6 xl:col-span-3 intro-y transition-smooth">
-            <div class="p-5">
-                <div class="flex justify-between">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0
-                            002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
-                    </svg>
-                    <div class="h-6 flex justify-items-center text-white font-semibold text-sm">
+        sm:col-span-6 xl:col-span-6 intro-y transition-smooth relative overflow-hidden m-1">
+            <canvas id="cpu_chart" class="absolute inset-0 w-full h-full opacity-20" style="filter: blur(2px); -webkit-filter: blur(2px);"></canvas>
+            <div class="relative z-10 p-3">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0
+                                002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                        </svg>
+                        <span class="text-sm font-semibold text-gray-600 dark:text-gray-400" data-translate="system_cpu_usage">System CPU Usage</span>
+                    </div>
+                    <div class="h-6 flex justify-items-center text-white font-semibold text-xs space-x-1">
                         <div class="bg-blue-500 rounded-full px-2 flex">
                             <span class="flex items-center"><span id="cpu_freq"></span> Mhz</span>
                         </div>
@@ -51,77 +61,86 @@
                         </div>
                     </div>
                 </div>
-                <div class="ml-2 w-full flex-1">
-                    <div>
-                        <div id="cpu_usage" class="mt-3 text-3xl font-bold leading-8"><span id='cpu_number'></span>%
-                        </div>
-
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400"><div data-translate="system_cpu_usage">System CPU Usage</div> (<span id="cpu_count"></span> CPU)
-                        </div>
-                    </div>
+                <div>
+                    <div id="cpu_usage" class="text-6xl font-bold leading-tight"><span id='cpu_number'></span>%</div>
+                    <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">(<span id="cpu_count"></span> CPU)</div>
                 </div>
             </div>
         </a>
+        <!-- LED FPS Card with Chart -->
         <a class="glass shadow-glass-lg rounded-glass hover-lift col-span-12
-        sm:col-span-6 xl:col-span-3 intro-y transition-smooth">
-            <div class="p-5">
-                <div class="flex justify-between">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+        sm:col-span-6 xl:col-span-6 intro-y transition-smooth relative overflow-hidden m-1">
+            <canvas id="led_fps_chart" class="absolute inset-0 w-full h-full opacity-20" style="filter: blur(2px); -webkit-filter: blur(2px);"></canvas>
+            <div class="relative z-10 p-3">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                        </svg>
+                        <span class="text-sm font-semibold text-gray-600 dark:text-gray-400">LED FPS</span>
+                    </div>
+                    <div class="text-xs text-gray-500 dark:text-gray-500">
+                        <span id='system_state'>UNKNOWN</span>
+                    </div>
+                </div>
+                <div>
+                    <div id="led_fps_div" class="text-6xl font-bold leading-tight"><span id='led_fps'>--.--</span></div>
+                    <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">Frames per second</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Secondary Stats: Compact -->
+    <div id="secondary_stats_grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        <a class="glass shadow-glass-lg rounded-glass hover-lift intro-y transition-smooth m-1">
+            <div class="p-3">
+                <div class="flex justify-between items-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5
                             12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
                     </svg>
-                    <div class="bg-green-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
+                    <div class="bg-green-500 rounded-full h-5 px-2 flex justify-items-center text-white font-semibold text-xs">
                         <span id="memory_usage_percent" class="flex items-center">--%</span>
                     </div>
                 </div>
-                <div class="ml-2 w-full flex-1">
-                    <div>
-                        <div id="memory_usage" class="mt-3 text-3xl font-bold leading-8">---/---MB</div>
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">
-                            <div data-translate="ram_usage">RAM Usage</div>
-                        </div>
-                    </div>
+                <div id="memory_usage" class="text-xl font-bold">---/---MB</div>
+                <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    <div data-translate="ram_usage">RAM Usage</div>
                 </div>
             </div>
         </a>
-        <a class="glass shadow-glass-lg rounded-glass hover-lift col-span-12
-        sm:col-span-6 xl:col-span-3 intro-y transition-smooth">
-            <div class="p-5">
-                <div class="flex justify-between">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+        <a class="glass shadow-glass-lg rounded-glass hover-lift intro-y transition-smooth m-1">
+            <div class="p-3">
+                <div class="flex justify-between items-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
                     </svg>
-                    <div class="bg-yellow-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
+                    <div class="bg-yellow-500 rounded-full h-5 px-2 flex justify-items-center text-white font-semibold text-xs">
                         <span id="card_usage_percent" class="flex items-center">50%</span>
                     </div>
                 </div>
-                <div class="ml-2 w-full flex-1">
-                    <div>
-                        <div id="card_usage" class="mt-3 text-3xl font-bold leading-8">---/---GB</div>
-
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">
-                            <div data-translate="disk_usage">Disk Usage</div>
-                        </div>
-                    </div>
+                <div id="card_usage" class="text-xl font-bold">---/---GB</div>
+                <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    <div data-translate="disk_usage">Disk Usage</div>
                 </div>
             </div>
         </a>
-        <a class="glass shadow-glass-lg rounded-glass hover-lift col-span-12
-        sm:col-span-6 xl:col-span-3 intro-y transition-smooth">
-            <div class="p-5">
-                <div class="flex justify-between">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 " fill="none"
+        <a class="glass shadow-glass-lg rounded-glass hover-lift intro-y transition-smooth m-1">
+            <div class="p-3">
+                <div class="flex justify-between items-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
                     </svg>
-                    <div class="bg-blue-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
-                        <span id="upload" class="flex items-center"><span id="upload_number">---</span>/s
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-6" fill="none" viewBox="0 0 24 24"
+                    <div class="bg-blue-500 rounded-full h-5 px-2 flex justify-items-center text-white font-semibold text-xs">
+                        <span id="upload" class="flex items-center text-xs"><span id="upload_number">---</span>/s
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-4" fill="none" viewBox="0 0 24 24"
                                  stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
@@ -129,83 +148,124 @@
                         </span>
                     </div>
                 </div>
-                <div class="ml-2 w-full flex-1">
-                    <div>
-                        <div id="download" class="flex mt-3 text-3xl font-bold leading-8 whitespace-nowrap"><span
-                                id="download_number">---</span>/s
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-6" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                            </svg>
-                        </div>
-
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">
-                            <div data-translate="bandwidth_usage">Bandwidth Usage</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </a>
-        <a class="glass shadow-glass-lg rounded-glass hover-lift col-span-12
-        sm:col-span-6 xl:col-span-3 intro-y transition-smooth">
-            <div class="p-5">
-                <div class="flex justify-between">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                <div id="download" class="flex text-xl font-bold whitespace-nowrap"><span
+                        id="download_number">---</span>/s
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-4" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
                 </div>
-                <div class="ml-2 w-full flex-1">
-                    <div>
-                        <div id="led_fps_div" class="mt-3 text-3xl font-bold leading-8"><span id='led_fps'>--.--</span>
-                        </div>
-
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">
-                            LED FPS <span class="text-sm">(<span id='system_state'>UNKNOWN</span>)</span>
-                        </div>
-                    </div>
+                <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    <div data-translate="bandwidth_usage">Bandwidth Usage</div>
                 </div>
             </div>
         </a>
-        <a class="advanced-content glass shadow-glass-lg rounded-glass hover-lift col-span-12
-        sm:col-span-6 xl:col-span-3 intro-y transition-smooth">
-            <div class="p-5">
-                <div class="flex justify-between">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+        <a class="advanced-content glass shadow-glass-lg rounded-glass hover-lift intro-y transition-smooth m-1">
+            <div class="p-3">
+                <div class="flex justify-between items-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0
                             002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
                     </svg>
-                    <div class="h-6 flex justify-items-center text-white font-semibold text-sm">
+                    <div class="h-5 flex justify-items-center text-white font-semibold text-xs">
                         <div class="bg-blue-500 rounded-full px-2 flex">
                             <span class="flex items-center"><span id="memory_pid"></span> MB</span>
                         </div>
                     </div>
                 </div>
-                <div class="ml-2 w-full flex-1">
-                    <div>
-                        <div id="cpu_pid_div" class="mt-3 text-3xl font-bold leading-8"><span id='cpu_pid'>--</span>%
-                        </div>
-
-                        <div class="mt-1 text-base text-gray-600 dark:text-gray-400">
-                            <div data-translate="process_cpu_usage">Process CPU usage</div>
-                        </div>
-                    </div>
+                <div id="cpu_pid_div" class="text-xl font-bold"><span id='cpu_pid'>--</span>%</div>
+                <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    <div data-translate="process_cpu_usage">Process CPU usage</div>
                 </div>
             </div>
         </a>
+    </div>
 
-        <a class="cursor-default glass shadow-glass-lg rounded-glass col-span-12 sm:col-span-12 xl:col-span-12 intro-y
-        transition-smooth">
-            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-7">
-                <div class="p-5">
-                    <label data-translate="screen" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        Screen
-                    </label>
+    <!-- Control Panels: Collapsible Sections -->
+    <div class="grid grid-cols-12 gap-6 mb-6" x-data="{ 
+        systemControlsOpen: true,
+        displaySettingsOpen: true,
+        visualizerControlsOpen: true,
+        settingsOpen: true
+    }">
+        <!-- System Controls -->
+        <div class="col-span-12 sm:col-span-6 xl:col-span-3 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+            <button @click="systemControlsOpen = !systemControlsOpen" class="w-full flex items-center justify-between p-3 hover:glass-light transition-smooth-fast">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span class="font-semibold text-sm" data-translate="system_controls">System Controls</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" :class="{'rotate-180': systemControlsOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div x-show="systemControlsOpen" x-transition class="p-3 pt-0 space-y-3">
+                <div>
+                    <label data-translate="restart_rpi" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Restart RPi</label>
+                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
+                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('restart_rpi', '0');temporary_disable_button(this, 25000);"
+                            class="w-full h-10 outline-none glass-light font-bold py-2 px-2 rounded-glass inline-flex items-center justify-center hidden">
+                        <span class="uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
+                    </button>
+                </div>
+                <div>
+                    <label data-translate="power_off" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Power Off</label>
+                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
+                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('turnoff_rpi', '0');temporary_disable_button(this, 25000);"
+                            class="w-full h-10 outline-none glass-light font-bold py-2 px-2 rounded-glass inline-flex items-center justify-center hidden">
+                        <span class="uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
+                    </button>
+                </div>
+                <div class="advanced-content">
+                    <label data-translate="update_visualizer" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Update Visualizer</label>
+                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
+                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('update_rpi', '0');temporary_disable_button(this, 25000);"
+                            class="w-full h-10 outline-none glass-light font-bold py-2 px-2 rounded-glass inline-flex items-center justify-center hidden">
+                        <span class="uppercase text-xs" data-translate="confirm">Confirm</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display Settings -->
+        <div class="col-span-12 sm:col-span-6 xl:col-span-3 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+            <button @click="displaySettingsOpen = !displaySettingsOpen" class="w-full flex items-center justify-between p-3 hover:glass-light transition-smooth-fast">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span class="font-semibold text-sm" data-translate="display_settings">Display Settings</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" :class="{'rotate-180': displaySettingsOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div x-show="displaySettingsOpen" x-transition class="p-3 pt-0 space-y-3">
+                <div>
+                    <label data-translate="screen" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Screen</label>
                     <div class="relative">
-                        <select id="screen_on" class="h-10 block appearance-none w-full glass-light
-        py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
+                        <select id="screen_on" class="h-10 block appearance-none w-full glass-light py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
                                 onchange="change_setting('screen_on', this.value)">
                             <option value="1">Enabled</option>
                             <option value="0">Disabled</option>
@@ -217,14 +277,10 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="p-5 advanced-content">
-                    <label data-translate="lcd_type" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        LCD Type
-                    </label>
+                <div class="advanced-content">
+                    <label data-translate="lcd_type" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">LCD Type</label>
                     <div class="relative">
-                        <select id="display_type" class="h-10 block appearance-none w-full glass-light
-        py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
+                        <select id="display_type" class="h-10 block appearance-none w-full glass-light py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
                                 onchange="handleDisplayTypeChange(this.value, this)">
                             <option value="1in44">1.44 inch</option>
                             <option value="1in3">1.3 inch</option>
@@ -236,14 +292,10 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="p-5 advanced-content">
-                    <label data-translate="led_pin" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        LED Pin
-                    </label>
+                <div class="advanced-content">
+                    <label data-translate="led_pin" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">LED Pin</label>
                     <div class="relative">
-                        <select id="led_pin" class="h-10 block appearance-none w-full glass-light
-        py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
+                        <select id="led_pin" class="h-10 block appearance-none w-full glass-light py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
                                 onchange="handleLedPinChange(this.value, this)">
                             <option value="12">12</option>
                             <option value="13">13</option>
@@ -257,209 +309,171 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="p-5">
-                    <label data-translate="reset_settings_to_default" class="h-8 overflow-auto block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        Reset settings to default
-                    </label>
-                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
-                            class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
-                        </svg>
-                    </button>
-                    <button onclick="change_setting('reset_to_default', '0');temporary_disable_button(this, 2000);"
-                            class="w-full h-12 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs" data-translate="confirm">
-                            Confirm
-                        </span>
-                    </button>
+        <!-- Visualizer Controls -->
+        <div class="col-span-12 sm:col-span-6 xl:col-span-3 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+            <button @click="visualizerControlsOpen = !visualizerControlsOpen" class="w-full flex items-center justify-between p-3 hover:glass-light transition-smooth-fast">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                    </svg>
+                    <span class="font-semibold text-sm" data-translate="visualizer_controls">Visualizer Controls</span>
                 </div>
-
-                <div class="p-5">
-                    <label data-translate="restart_rpi" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        Restart RPi
-                    </label>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" :class="{'rotate-180': visualizerControlsOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div x-show="visualizerControlsOpen" x-transition class="p-3 pt-0 space-y-3">
+                <div class="advanced-content">
+                    <label data-translate="restart_visualizer" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Restart Visualizer</label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
-                            class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
-                             viewBox="0 0 24 24"
-                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
-                    </button>
-                    <button onclick="change_setting('restart_rpi', '0');temporary_disable_button(this, 25000);"
-                            class="w-full h-10 outline-none mb-2 glass-light font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">
-                            Confirm
-                        </span></button>
-                </div>
-
-                <div class="p-5 advanced-content">
-                    <label data-translate="restart_visualizer" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        Restart Visualizer
-                    </label>
-                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
-                            class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
-                             viewBox="0 0 24 24"
-                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
                     </button>
                     <button onclick="change_setting('restart_visualizer', '0');temporary_disable_button(this, 25000);"
-                            class="w-full h-10 outline-none mb-2 glass-light font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">
-                            Confirm
-                        </span></button>
-                </div>
-
-                <div class="p-5">
-                    <label data-translate="power_off" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        Power Off
-                    </label>
-                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
-                            class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+                            class="w-full h-10 outline-none glass-light font-bold py-2 px-2 rounded-glass inline-flex items-center justify-center hidden">
+                        <span class="uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
                     </button>
-                    <button onclick="change_setting('turnoff_rpi', '0');temporary_disable_button(this, 25000);"
-                            class="w-full h-10 outline-none mb-2 glass-light font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">
-                            Confirm
-                        </span></button>
                 </div>
-
-                <div class="p-5 advanced-content">
-                    <label data-translate="update_visualizer" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        Update Visualizer
-                    </label>
+                <div>
+                    <label data-translate="connect_ports" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Connect ports</label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
-                            class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                        </svg>
-                    </button>
-                    <button onclick="change_setting('update_rpi', '0');temporary_disable_button(this, 25000);"
-                            class="w-full h-10 outline-none mb-2 glass-light font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs" data-translate="confirm">
-                            Confirm
-                        </span></button>
-                </div>
-
-                <div class="p-5">
-                    <label data-translate="connect_ports" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        Connect ports
-                    </label>
-                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
-                            class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
                         </svg>
                     </button>
                     <button onclick="change_setting('connect_ports', '0');temporary_disable_button(this, 5000);"
-                            class="w-full h-10 outline-none mb-2 glass-light font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
-                        <span class="w-full uppercase text-xs" data-translate="confirm">
-                            Confirm
-                        </span></button>
+                            class="w-full h-10 outline-none glass-light font-bold py-2 px-2 rounded-glass inline-flex items-center justify-center hidden">
+                        <span class="uppercase text-xs" data-translate="confirm">Confirm</span>
+                    </button>
                 </div>
-
-                <div class="p-5">
-                    <label data-translate="clean_led_strip" class="h-8 block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        Clean led strip
-                    </label>
+                <div>
+                    <label data-translate="clean_led_strip" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Clean led strip</label>
                     <button onclick="change_setting('clean_ledstrip', '0');
                     element = this;
                     element.classList.add('pointer-events-none', 'animate-pulse');
                     setTimeout(function () {
                         element.classList.remove('pointer-events-none', 'animate-pulse');
                     }, 1000);"
-                            class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
+                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"></path>
                         </svg>
                     </button>
                 </div>
             </div>
-        </a>
+        </div>
 
-        <a class="glass shadow-glass-lg rounded-glass col-span-12 sm:col-span-12 xl:col-span-12 intro-y
-        transition-smooth">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="color_mode">
-                        Color Mode
-                    </div>
-                    <div class="flex items-center pt-1">
-                        <div id="color_mode" class="text-2xl font-bold" data-translate="single">
-                            Single
-                        </div>
-                    </div>
+        <!-- Settings -->
+        <div class="col-span-12 sm:col-span-6 xl:col-span-3 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+            <button @click="settingsOpen = !settingsOpen" class="w-full flex items-center justify-between p-3 hover:glass-light transition-smooth-fast">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span class="font-semibold text-sm" data-translate="settings">Settings</span>
                 </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="light_mode">
-                        Light Mode
-                    </div>
-                    <div class="flex items-center pt-1">
-                        <div id="light_mode" class="text-2xl font-bold" data-translate="normal">
-                            Normal
-                        </div>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="brightness">
-                        Brightness
-                    </div>
-                    <div class="flex items-center pt-1">
-                        <div id="brightness_percent" class="text-2xl font-bold ">100%</div>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="backlight_brightness">
-                        Backlight Brightness
-                    </div>
-                    <div class="flex items-center pt-1">
-                        <div id="backlight_brightness_percent" class="text-2xl font-bold ">0%</div>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="input_port">
-                        Input Port
-                    </div>
-                    <div class="flex items-center pt-1 overflow-auto">
-                        <div id="input_port" class="text-2xl font-bold "></div>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="playback_port">
-                        Playback Port
-                    </div>
-                    <div class="flex items-center pt-1 overflow-auto">
-                        <div id="playback_port" class="text-2xl font-bold "></div>
-                    </div>
-                </div>
-                <div class="p-5">
-                    <div class="text-base text-gray-600 dark:text-gray-400" data-translate="cover_state">
-                        Cover State
-                    </div>
-                    <div class="flex items-center pt-1">
-                        <div id="cover_state" class="text-2xl font-bold"></div>
-                    </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" :class="{'rotate-180': settingsOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div x-show="settingsOpen" x-transition class="p-3 pt-0">
+                <div>
+                    <label data-translate="reset_settings_to_default" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Reset settings to default</label>
+                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
+                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('reset_to_default', '0');temporary_disable_button(this, 2000);"
+                            class="w-full h-12 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center hidden">
+                        <span class="uppercase text-xs" data-translate="confirm">Confirm</span>
+                    </button>
                 </div>
             </div>
-        </a>
+        </div>
+    </div>
+
+    <!-- Status Display: Interactive -->
+    <div class="glass shadow-glass-lg rounded-glass col-span-12 sm:col-span-12 xl:col-span-12 intro-y transition-smooth mb-6 m-1">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 p-3">
+            <div class="status-item cursor-pointer hover:glass-light rounded-glass p-3 transition-smooth-fast" 
+                 onclick="history.pushState({}, '', '#ledsettings'); loadAjax('ledsettings'); setTimeout(() => { document.getElementById('color_mode')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 500);">
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="color_mode">Color Mode</div>
+                <div class="flex items-center space-x-2">
+                    <div id="color_mode" class="text-xl font-bold" data-translate="single">Single</div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+            <div class="status-item cursor-pointer hover:glass-light rounded-glass p-3 transition-smooth-fast"
+                 onclick="history.pushState({}, '', '#ledsettings'); loadAjax('ledsettings'); setTimeout(() => { document.getElementById('light_mode')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 500);">
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="light_mode">Light Mode</div>
+                <div class="flex items-center space-x-2">
+                    <div id="light_mode" class="text-xl font-bold" data-translate="normal">Normal</div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+            <div class="status-item cursor-pointer hover:glass-light rounded-glass p-3 transition-smooth-fast"
+                 onclick="history.pushState({}, '', '#ledsettings'); loadAjax('ledsettings'); setTimeout(() => { document.getElementById('brightness')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 500);">
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="brightness">Brightness</div>
+                <div class="flex items-center space-x-2">
+                    <div id="brightness_percent" class="text-xl font-bold">100%</div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+            <div class="status-item cursor-pointer hover:glass-light rounded-glass p-3 transition-smooth-fast"
+                 onclick="history.pushState({}, '', '#ledsettings'); loadAjax('ledsettings'); setTimeout(() => { document.getElementById('backlight_brightness')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 500);">
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="backlight_brightness">Backlight Brightness</div>
+                <div class="flex items-center space-x-2">
+                    <div id="backlight_brightness_percent" class="text-xl font-bold">0%</div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+            <div class="status-item cursor-pointer hover:glass-light rounded-glass p-3 transition-smooth-fast"
+                 onclick="history.pushState({}, '', '#ports'); loadAjax('ports'); setTimeout(() => { const el = document.getElementById('active_input'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 500);">
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="input_port">Input Port</div>
+                <div class="flex items-center space-x-2">
+                    <div id="input_port" class="text-xl font-bold truncate"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+            <div class="status-item cursor-pointer hover:glass-light rounded-glass p-3 transition-smooth-fast"
+                 onclick="history.pushState({}, '', '#ports'); loadAjax('ports'); setTimeout(() => { const el = document.getElementById('playback_input'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 500);">
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="playback_port">Playback Port</div>
+                <div class="flex items-center space-x-2">
+                    <div id="playback_port" class="text-xl font-bold truncate"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+            <div class="status-item rounded-glass p-3">
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="cover_state">Cover State</div>
+                <div class="flex items-center space-x-2">
+                    <span id="cover_state_badge" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white">
+                        <span id="cover_state" class="mr-1"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
 
         <div class="glass shadow-glass-lg rounded-glass col-span-12 sm:col-span-12 xl:col-span-12 intro-y transition-smooth advanced-content">
             <div class="p-4">
