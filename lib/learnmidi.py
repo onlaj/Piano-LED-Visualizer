@@ -217,6 +217,19 @@ class LearnMIDI:
         except Exception:
             self.current_song_name = song_path
         self.loading = 1  # 1 = Load..
+        # Update start point for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    section_list = pm.get_learning_section(int(profile_id), self.current_song_name)
+                    app_state.learning.start_point = section_list["start"]
+                    app_state.learning.end_point = section_list["end"]
+        except Exception as e:
+            logger.warning(f"Failed to fetch learning section: {e}")
         self.is_started_midi = False  # Stop current learning song
         self.t = threading.currentThread()
 

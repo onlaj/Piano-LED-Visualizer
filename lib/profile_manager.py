@@ -2,6 +2,7 @@ import sqlite3
 import threading
 import os
 from typing import List, Dict, Optional
+from lib.log_setup import logger
 
 class ProfileManager:
     """Manage user profiles and per-song highscores.
@@ -59,6 +60,19 @@ class ProfileManager:
                 )
                 """
             )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS learning (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    profile_id INTEGER NOT NULL,
+                    song_name TEXT NOT NULL,
+                    start_point REAL NOT NULL DEFAULT 0,
+                    end_point REAL NOT NULL DEFAULT 100,
+                    UNIQUE(profile_id, song_name),
+                    FOREIGN KEY(profile_id) REFERENCES profiles(id) ON DELETE CASCADE       
+                )
+                """
+            )
             conn.commit()
 
     def _list_song_files(self) -> List[str]:
@@ -104,7 +118,7 @@ class ProfileManager:
             return pid
         return self.create_profile(name)
 
-    # --------------- Highscore operations ---------------
+    # --------------- Highscore and Learning segment operations ---------------
     def ensure_song_entries(self, profile_id: int):
         songs = self._list_song_files()
         if not songs:
@@ -114,6 +128,10 @@ class ProfileManager:
             for song in songs:
                 cur.execute(
                     "INSERT OR IGNORE INTO highscores(profile_id, song_name, high_score) VALUES(?,?,0)",
+                    (profile_id, song)
+                )
+                cur.execute(
+                    "INSERT OR IGNORE INTO learning(profile_id, song_name, start_point, end_point) VALUES(?,?,0,100)",
                     (profile_id, song)
                 )
             conn.commit()
@@ -144,6 +162,44 @@ class ProfileManager:
             cur.execute(
                 "UPDATE highscores SET high_score=? WHERE profile_id=? AND song_name=? AND high_score < ?",
                 (new_score, profile_id, song_name, new_score)
+            )
+            changed = cur.rowcount > 0
+            conn.commit()
+        return changed
+
+    def get_learning_section(self, profile_id: int, song_name: str) -> Dict[str, int]:
+        # Populate missing songs with 0
+        self.ensure_song_entries(profile_id)
+        with self._lock, self._connect() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT start_point, end_point FROM learning WHERE profile_id=? AND song_name=?",
+                (profile_id, song_name)
+            )
+        row = cur.fetchone()
+        if row:
+            ret_dict = {"start": row[0], "end": row[1]}
+        else:
+            logger.warning(f"No learning section found for profile {profile_id} and song {song_name}. Returning defaults.")
+            ret_dict = {"start": 0, "end": 100}
+        return ret_dict
+
+    def update_learning_section(self, profile_id: int, song_name: str, new_start: int, new_end: int) -> bool:
+        song_name = song_name.strip()
+        logger.info(f"Updating learning sections for song {song_name} to {new_start} and {new_end}")
+        if not song_name:
+            return False
+        with self._lock, self._connect() as conn:
+            cur = conn.cursor()
+            # Make sure row exists
+            cur.execute(
+                "INSERT OR IGNORE INTO learning(profile_id, song_name, start_point, end_point) VALUES(?,?,0,100)",
+                (profile_id, song_name)
+            )
+            # Update
+            cur.execute(
+                "UPDATE learning SET start_point=?, end_point=? WHERE profile_id=? AND song_name=?",
+                (new_start, new_end, profile_id, song_name)
             )
             changed = cur.rowcount > 0
             conn.commit()

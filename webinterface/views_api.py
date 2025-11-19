@@ -1212,7 +1212,17 @@ def change_setting():
         app_state.learning.start_point = value
         app_state.learning.start_point = clamp(app_state.learning.start_point, 0,
                                                   app_state.learning.end_point - 1)
-        app_state.usersettings.change_setting_value("start_point", app_state.learning.start_point)
+        # Update start point for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_section(int(profile_id), app_state.learning.current_song_name, app_state.learning.start_point, app_state.learning.end_point)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         app_state.learning.restart_learning()
 
         return jsonify(success=True)
@@ -1222,7 +1232,17 @@ def change_setting():
         app_state.learning.end_point = value
         app_state.learning.end_point = clamp(app_state.learning.end_point, app_state.learning.start_point + 1,
                                                 100)
-        app_state.usersettings.change_setting_value("end_point", app_state.learning.end_point)
+        # Update start point for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_section(int(profile_id), app_state.learning.current_song_name, app_state.learning.start_point, app_state.learning.end_point)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         app_state.learning.restart_learning()
 
         return jsonify(success=True)
@@ -1232,7 +1252,17 @@ def change_setting():
             float(app_state.learning.current_idx * 100 / float(len(app_state.learning.song_tracks))), 3)
         app_state.learning.start_point = clamp(app_state.learning.start_point, 0,
                                                   app_state.learning.end_point - 1)
-        app_state.usersettings.change_setting_value("start_point", app_state.learning.start_point)
+        # Update start point for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_section(int(profile_id), app_state.learning.current_song_name, app_state.learning.start_point, app_state.learning.end_point)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         app_state.learning.restart_learning()
 
         return jsonify(success=True, reload_learning_settings=True)
@@ -1242,7 +1272,17 @@ def change_setting():
             float(app_state.learning.current_idx * 100 / float(len(app_state.learning.song_tracks))), 3)
         app_state.learning.end_point = clamp(app_state.learning.end_point, app_state.learning.start_point + 1,
                                                 100)
-        app_state.usersettings.change_setting_value("end_point", app_state.learning.end_point)
+        # Update start point for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_section(int(profile_id), app_state.learning.current_song_name, app_state.learning.start_point, app_state.learning.end_point)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         app_state.learning.restart_learning()
 
         return jsonify(success=True, reload_learning_settings=True)
@@ -1616,12 +1656,25 @@ def get_recording_status():
 
 @webinterface.route('/api/get_learning_status', methods=['GET'])
 def get_learning_status():
+    # Update start point for current song from DB in case we changed the song
+    try:
+        profile_id = getattr(app_state, 'current_profile_id', None)
+        # Only update if a profile is selected and we know the song name
+        if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+            # Use ProfileManager directly if available
+            pm = getattr(app_state, 'profile_manager', None)
+            if pm:
+                section_list = pm.get_learning_section(int(profile_id), app_state.learning.current_song_name)
+                app_state.learning.start_point = section_list["start"]
+                app_state.learning.end_point = section_list["end"]
+    except Exception as e:
+        logger.warning(f"Failed to update learning section: {e}")
     response = {"loading": app_state.learning.loading,
                 "practice": app_state.usersettings.get_setting_value("practice"),
                 "hands": app_state.usersettings.get_setting_value("hands"),
                 "mute_hand": app_state.usersettings.get_setting_value("mute_hand"),
-                "start_point": app_state.usersettings.get_setting_value("start_point"),
-                "end_point": app_state.usersettings.get_setting_value("end_point"),
+                "start_point": app_state.learning.start_point,
+                "end_point": app_state.learning.end_point,
                 "set_tempo": app_state.usersettings.get_setting_value("set_tempo"),
                 "hand_colorR": app_state.usersettings.get_setting_value("hand_colorR"),
                 "hand_colorL": app_state.usersettings.get_setting_value("hand_colorL"),
@@ -2112,7 +2165,6 @@ def delete_port_connection():
 
 def pretty_print(dom):
     return '\n'.join([line for line in dom.toprettyxml(indent=' ' * 4).split('\n') if line.strip()])
-
 
 def pretty_save(file_path, sequences_tree):
     with open(file_path, "w", encoding="utf8") as outfile:
