@@ -119,6 +119,7 @@ class MIDIEventProcessor:
                         processed += 1
                         if processed >= 512:
                             break
+        return processed > 0
     
     def handle_note_off(self, msg, msg_timestamp, note_position):
         """

@@ -151,13 +151,11 @@ class VisualizerApp:
             event_loop_time = loop_start - self.event_loop_stamp
             self.event_loop_stamp = loop_start
 
-            self.led_effects_processor.process_fade_effects(event_loop_time)
-            self.midi_event_processor.process_midi_events()
+            fade_processed = self.led_effects_processor.process_fade_effects(event_loop_time)
+            midi_processed = self.midi_event_processor.process_midi_events()
 
-            # Only update LEDs if not in IDLE or if there are pending MIDI events
-            should_update = (not self.state_manager.is_idle() or 
-                           len(midiports.midi_queue) > 0 or 
-                           len(midiports.midifile_queue) > 0)
+            # Only update LEDs if effects changed them or MIDI events occurred
+            should_update = fade_processed or midi_processed
             
             if should_update:
                 ledstrip.strip.show()
