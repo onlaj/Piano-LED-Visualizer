@@ -24,7 +24,7 @@
 
 </head>
 
-<body class="bg-gray-800">
+<body class="bg-gray-100 dark:bg-gray-900">
 
 
 <script>
@@ -157,7 +157,7 @@
 
 
 <div id="slider">
-    <div class="flex min-h-screen overflow-y-hidden bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+    <div class="flex min-h-screen overflow-y-hidden bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"
          x-data="setup()" x-init="$refs.loading.classList.add('hidden')">
         <!-- Loading screen -->
         <div
@@ -188,8 +188,8 @@
                 x-transition:leave-start="translate-x-0 opacity-100 ease-out"
                 x-transition:leave-end="-translate-x-full opacity-0 ease-in"
                 class="fixed inset-y-0 z-10 flex flex-col flex-shrink-0 w-64 overflow-hidden transition-all
-        transform bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-gray-200 border-none shadow-lg lg:z-auto
-        lg:static lg:shadow-none"
+        transform glass-strong shadow-glass-lg text-gray-900 dark:text-gray-200 border-r border-white/10 lg:z-auto
+        lg:static"
                 :class="{'-translate-x-full lg:translate-x-0 lg:w-20': !isSidebarOpen}"
         >
             <!-- sidebar header -->
@@ -217,7 +217,7 @@
                         <a
                                 href="#"
                                 id="home"
-                                class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                                class="flex items-center p-2 space-x-2 rounded-glass-sm transition-smooth-fast hover:glass-light hover:shadow-glass"
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
                 <span>
@@ -241,7 +241,7 @@
                         <a
                                 onclick="history.pushState({}, '', '#ledsettings')"
                                 id="ledsettings"
-                                class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                                class="flex items-center p-2 space-x-2 rounded-glass-sm transition-smooth-fast hover:glass-light hover:shadow-glass"
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
                 <span>
@@ -265,7 +265,7 @@
                         <a
                                 onclick="history.pushState({}, '', '#songs')"
                                 id="songs"
-                                class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                                class="flex items-center p-2 space-x-2 rounded-glass-sm transition-smooth-fast hover:glass-light hover:shadow-glass"
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
                 <span>
@@ -287,7 +287,7 @@
                         <a
                                 onclick="history.pushState({}, '', '#sequences')"
                                 id="sequences"
-                                class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                                class="flex items-center p-2 space-x-2 rounded-glass-sm transition-smooth-fast hover:glass-light hover:shadow-glass"
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
                 <span>
@@ -309,7 +309,7 @@
                         <a
                                 onclick="history.pushState({}, '', '#ports')"
                                 id="ports"
-                                class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                                class="flex items-center p-2 space-x-2 rounded-glass-sm transition-smooth-fast hover:glass-light hover:shadow-glass"
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
                 <span>
@@ -338,8 +338,7 @@
                         <a
                                 onclick="history.pushState({}, '', '#ledanimations')"
                                 id="ledanimations"
-                                class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100
-                                dark:hover:bg-gray-700"
+                                class="flex items-center p-2 space-x-2 rounded-glass-sm transition-smooth-fast hover:glass-light hover:shadow-glass"
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
                 <span>
@@ -361,8 +360,7 @@
                         <a
                                 onclick="history.pushState({}, '', '#network')"
                                 id="network"
-                                class="flex items-center p-2 space-x-2 rounded-md hover:bg-gray-100
-                                dark:hover:bg-gray-700"
+                                class="flex items-center p-2 space-x-2 rounded-glass-sm transition-smooth-fast hover:glass-light hover:shadow-glass"
                                 :class="{'justify-center': !isSidebarOpen}"
                         >
                 <span>
@@ -383,7 +381,7 @@
             <!-- Sidebar footer -->
             <div class="flex-shrink-0 p-2 max-h-20">
                 <button id="switch_ports_sidebar" class="flex items-center justify-center w-full px-4 py-2 space-x-1 font-medium
-              tracking-wider uppercase bg-gray-100 dark:bg-gray-700 rounded-2xl focus:outline-none focus:ring">
+              tracking-wider uppercase glass hover:glass-light rounded-glass transition-smooth-fast focus:outline-none focus:ring-2 focus:ring-cyan-500/50">
                 <span class="flex">
                     <svg class="fill-current text-gray-800 dark:text-gray-200" xmlns="http://www.w3.org/2000/svg"
                          width="24" height="24"
@@ -493,7 +491,7 @@
                                 <!-- input -->
                                 <input type="checkbox" id="toggleDark" class="sr-only" onclick="change_dark_mode();">
                                 <!-- line -->
-                                <div class="block bg-gray-200 dark:bg-gray-700 w-14 h-8 rounded-full"></div>
+                                <div class="block glass-light w-14 h-8 rounded-full"></div>
                                 <!-- dot -->
                                 <div id="dot_icon"
                                      class="dot absolute left-1 top-1 text-gray-400 dark:text-gray-200  w-6 h-6
@@ -525,13 +523,13 @@
 
 
     <!-- Main footer -->
-    <footer class="flex items-center justify-between flex-shrink-0 p-4 border-t bg-gray-200 dark:bg-gray-900
-    dark:text-gray-400 border-none max-h-14">
+    <footer class="flex items-center justify-between flex-shrink-0 p-4 border-t glass-strong shadow-glass-lg
+    text-gray-900 dark:text-gray-200 border-white/10 max-h-14">
         <div>Onlaj &copy; 2025</div>
         <div class="text-sm">
             Made by
             <a
-                    class="text-blue-400 dark:text-blue-800 underline"
+                    class="text-blue-600 dark:text-cyan-400 underline hover:text-blue-700 dark:hover:text-cyan-300 transition-colors"
                     href="https://github.com/onlaj/"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -600,6 +598,7 @@
 <script src="../static/js/initialize.js" defer></script>
 <script src="../static/js/metronome.js" defer></script>
 <script src="../static/js/utils.js" defer></script>
+<script src="../static/js/globals.js"></script>
 <script src="../static/js/ui.js"></script>
 <script src="../static/js/profiles.js" defer></script>
 <script src="../static/index.js" defer></script>

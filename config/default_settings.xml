@@ -1,8 +1,10 @@
 <settings>
 	<screen_on>1</screen_on>
+	<display_type>1in44</display_type>
 	<brightness_percent>50</brightness_percent>
-	<background_color>BLACK</background_color>
-	<text_color>WHITE</text_color>
+	<background_color>#27272a</background_color>
+	<text_color>#FFFFFF</text_color>
+	<pointer_color>14,165,233</pointer_color>
 
 	<mode>Normal</mode>
 	<red>255</red>
@@ -90,6 +92,7 @@
 	<led_animation>Scanner</led_animation>
     <led_animation_brightness_percent>50</led_animation_brightness_percent>
     <disable_backlight_on_idle>1</disable_backlight_on_idle>
+	<idle_timeout_minutes>10</idle_timeout_minutes>
 
 	<led_count>176</led_count>
 	<leds_per_meter>144</leds_per_meter>
@@ -127,6 +130,12 @@
 
 	<led_gamma>1</led_gamma>
 
+	<led_pin>18</led_pin>
+	<led_channel>0</led_channel>
+
     <hotspot_password>visualizer</hotspot_password>
+
+    <web_listen_ip></web_listen_ip>
+    <web_listen_port></web_listen_port>
 
 </settings>

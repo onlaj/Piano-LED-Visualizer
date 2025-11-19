@@ -102,7 +102,7 @@
             };
             profiles.forEach(p=>{
                 const row = document.createElement('div');
-                row.className = 'flex items-center justify-between px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer text-left';
+                row.className = 'flex items-center justify-between px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:glass-light cursor-pointer text-left transition-smooth-fast';
                 const nameSpan = document.createElement('span');
                 // Let the name take available space and truncate before the delete button; keep left aligned
                 nameSpan.className = 'truncate flex-1 min-w-0 pr-3 text-left';

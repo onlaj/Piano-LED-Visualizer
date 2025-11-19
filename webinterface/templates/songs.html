@@ -1,15 +1,15 @@
-<div class="transition duration-300 slide-in-content grid grid-cols-1 gap-6 w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto">
+<div class="transition duration-300 slide-in-content grid grid-cols-1 gap-8 w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto">
     <!-- Profiles Section -->
-    <div id="profiles_section" class="flex-1 bg-gray-200 dark:bg-gray-700 shadow-md rounded-lg p-4">
+    <div id="profiles_section" class="flex-1 glass shadow-glass-lg rounded-glass p-3 m-1 transition-smooth">
         <div class="flex flex-wrap items-center gap-3 mb-2">
             <label for="profile_select" class="text-sm font-semibold text-gray-600 dark:text-gray-300" data-translate="profile_label">Profile</label>
             <select id="profile_select" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm text-gray-700 dark:text-gray-200 min-w-[160px]"></select>
             <input id="profile_name_input" type="text" placeholder="New profile" data-translate-placeholder="new_profile" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 w-40" />
-            <button id="create_profile_btn" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-3 py-1 rounded" data-translate="create_profile">Create</button>
+            <button id="create_profile_btn" class="bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold px-3 py-1 rounded-glass transition-smooth-fast hover-lift" data-translate="create_profile">Create</button>
         </div>
         <div id="profile_message" class="text-xs text-gray-500 dark:text-gray-400"></div>
     </div>
-    <div class="flex-1 bg-gray-200 dark:bg-gray-700">
+    <div class="flex-1 glass shadow-glass rounded-glass p-3 m-1 transition-smooth">
         <div class="flex m-4">
             <div class="flex w-1/2">
                 <div class="inline pr-2 text-gray-600 dark:text-gray-400" data-translate="input_port">
@@ -40,7 +40,7 @@
                     document.getElementById('recording_status').innerHTML = '<p class=\'text-red-400\' data-translate=\'starting\'>starting</p>';
                     startRecordingTimer();"
                             class="w-auto px-10 h-10 outline-none mb-2
-                            bg-gray-100 dark:bg-gray-600 font-bold py-2 rounded-2xl inline-flex items-center">
+                            glass-light hover:glass font-bold py-2 rounded-glass transition-smooth-fast inline-flex items-center">
                         <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"
                              class="h-6 w-6 inline m-auto fill-current text-red-500">
                             <path d="M20 0a20 20 0 100 40 20 20 0 000-40zm0 28a8 8 0 110-16 8 8 0 010 16z"/>
@@ -57,8 +57,8 @@
                     </label>
                     <button id="save_recording_button"
                             onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                            class="w-auto px-10 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
-                            py-2 rounded-2xl inline-flex items-center">
+                            class="w-auto px-10 h-10 outline-none mb-2 glass-light hover:glass font-bold
+                            py-2 rounded-glass transition-smooth-fast inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline m-auto" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -71,8 +71,8 @@
                     document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');
                     document.getElementById('recording_status').innerHTML = '<p>saving</p>';
                     stopRecordingTimer();"
-                            class="w-auto px-10 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
-                            py-2 rounded-2xl inline-flex items-center hidden">
+                            class="w-auto px-10 h-10 outline-none mb-2 glass-light hover:glass font-bold
+                            py-2 rounded-glass transition-smooth-fast inline-flex items-center hidden">
                         <span class="w-full uppercase text-xs text-green-400" data-translate="confirm">Confirm</span>
                     </button>
                 </div>
@@ -85,8 +85,8 @@
                     </label>
                     <button id="cancel_recording_button"
                             onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                            class="w-auto px-10 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
-                                py-2 rounded-2xl inline-flex items-center">
+                            class="w-auto px-10 h-10 outline-none mb-2 glass-light hover:glass font-bold
+                                py-2 rounded-glass transition-smooth-fast inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline m-auto" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -99,8 +99,8 @@
                     document.getElementById('cancel_recording_button').classList.add('pointer-events-none', 'opacity-50');
                     document.getElementById('recording_status').innerHTML = '<p data-translate=\'canceling\'>canceling</p>';
                     hideRecordingTimer();"
-                            class="w-full h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold
-                            py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                            class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold
+                            py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center hidden">
                         <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
                     </button>
                 </div>
@@ -112,7 +112,7 @@
         </div>
     </div>
 
-    <div class="flex-1 bg-gray-200 dark:bg-gray-700" href="#/">
+    <div class="flex-1 glass shadow-glass rounded-glass p-3 m-1 transition-smooth" href="#/">
         <div data-translate="metronome" class="m-4 text-base text-gray-600 dark:text-gray-400 absolute">Metronom</div>
         <div class="grid grid-cols-1 justify-items-center">
             <div class="text-2xl mb-2"><span id="beats_per_minute">160</span> BPM</div>
@@ -124,7 +124,7 @@
             <button id="metronome_start" onclick="ticker.start();this.classList.add('hidden');
                         this.nextElementSibling.classList.remove('hidden');
                         is_playing = 1;"
-                    class="w-20 h-8 outline-none my-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
+                    class="w-20 h-8 outline-none my-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                      viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -137,7 +137,7 @@
                     this.classList.add('hidden');
                     this.previousElementSibling.classList.remove('hidden');
                     is_playing = 0;"
-                    class="w-20 h-8 outline-none my-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center animate-pulse hidden">
+                    class="w-20 h-8 outline-none my-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass inline-flex items-centers animate-pulse hidden transition-smooth-fast">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
                      viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -164,7 +164,7 @@
                             if(this.value >= 13){this.value = 12};
                             change_beats_per_measure(this.value);" min="3" max="12" type="number" id="beats_per_measure"
                            class="h-8 py-2 px-2 w-20 mb-2
-                            rounded-2xl bg-gray-100 dark:bg-gray-600 appearance-none">
+                            rounded-glass transition-smooth-fast glass-light hover:glass appearance-none">
                     <svg onclick="input = document.getElementById('beats_per_measure');
                             input.value = parseInt(input.value) + 1;
                             if(input.value >= 13){input.value = 12};
@@ -192,7 +192,7 @@
                             if(this.value >= 100){this.value = 100};
                             change_volume(this.value);" value="50" min="0" max="100" step="10" type="number"
                            id="metronome_volume" class="h-8 py-2 px-2 w-20 mb-2
-                            rounded-2xl bg-gray-100 dark:bg-gray-600 appearance-none">
+                            rounded-glass transition-smooth-fast glass-light hover:glass appearance-none">
                     <svg onclick="input = document.getElementById('metronome_volume');
                             input.value = parseInt(input.value) + 10;
                             if(input.value >= 100){input.value = 100};
@@ -209,7 +209,7 @@
         </div>
     </div>
 
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 grid p-3 m-1 glass-light shadow-xl rounded-lg">
 
         <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="upload_songs">
             Upload songs
@@ -237,9 +237,9 @@
         </div>
     </div>
 
-    <div id="player_and_songs" class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div id="player_and_songs" class="flex-1 grid p-3 m-1 glass-light shadow-xl rounded-lg">
         <div id="midi_player_wrapper" class="contents hidden">
-            <div class="flex bg-gray-100 dark:bg-gray-600 rounded-2xl m-auto mb-2">
+            <div class="flex glass-light hover:glass rounded-glass transition-smooth-fast m-auto mb-2">
                 <midi-player
                         src=""
                         sound-font id="midi_player"
@@ -271,7 +271,7 @@
                         change_setting('start_midi_play', song_name);
                         this.classList.add('hidden');
                         this.nextElementSibling.classList.remove('hidden');"
-                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center">
+                            class="w-40 h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
                         <span class="flex uppercase text-xs m-auto ">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 " fill="none" viewBox="0 0 24 24"
                                  stroke="currentColor">
@@ -287,7 +287,7 @@
                     <button id="stop_midi_play" onclick="change_setting('stop_midi_play', '');
                     this.classList.add('hidden');
                     this.previousElementSibling.classList.remove('hidden');"
-                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2 rounded-2xl inline-flex items-center hidden">
+                            class="w-40 h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center hidden">
                         <span class="flex uppercase text-xs m-auto">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                  stroke="currentColor">
@@ -332,8 +332,8 @@
                     <button id="start_learning" onclick="change_setting('start_learning_song', '');
                         this.classList.add('hidden');
                         this.nextElementSibling.classList.remove('hidden');"
-                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
-                            rounded-2xl inline-flex items-center pointer-events-none opacity-50">
+                            class="w-40 h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2
+                            rounded-glass transition-smooth-fast inline-flex items-center pointer-events-none opacity-50">
                         <span class="flex uppercase text-xs m-auto ">
                             <div id="learning_status" class="align-middle">...</div>
                         </span>
@@ -342,8 +342,8 @@
                     <button id="stop_learning" onclick="change_setting('stop_learning_song', '');
                     this.classList.add('hidden');
                     this.previousElementSibling.classList.remove('hidden');"
-                            class="w-40 h-10 outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold py-2 px-2
-                            rounded-2xl inline-flex items-center hidden">
+                            class="w-40 h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2
+                            rounded-glass transition-smooth-fast inline-flex items-center hidden">
                         <span class="flex uppercase text-xs m-auto">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                  stroke="currentColor">
@@ -377,8 +377,8 @@
                     </label>
                     <div class="relative">
                         <select onchange="change_setting('change_practice', this.value)" id="practice"
-                                class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                                class="h-10 block appearance-none w-full glass-light hover:glass
+                py-2 px-2 pr-8 rounded-glass transition-smooth-fast leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                             <option value="0" data-translate="melody">Melody</option>
                             <option value="1" data-translate="rhythm">Rhythm</option>
                             <option value="2" data-translate="listen">Listen</option>
@@ -433,8 +433,8 @@
                         Hands
                     </label>
                     <div class="relative">
-                        <select onchange="change_setting('change_hands', this.value)" id="hands" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <select onchange="change_setting('change_hands', this.value)" id="hands" class="h-10 block appearance-none w-full glass-light hover:glass
+                py-2 px-2 pr-8 rounded-glass transition-smooth-fast leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                             <option value="0" data-translate="both">Both</option>
                             <option value="1" data-translate="right">Right</option>
                             <option value="2" data-translate="left">Left</option>
@@ -452,8 +452,8 @@
                         Mute hands
                     </label>
                     <div class="relative">
-                        <select onchange="change_setting('change_mute_hand', this.value)" id="mute_hand" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <select onchange="change_setting('change_mute_hand', this.value)" id="mute_hand" class="h-10 block appearance-none w-full glass-light hover:glass
+                py-2 px-2 pr-8 rounded-glass transition-smooth-fast leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                             <option value="0" data-translate="off">Off</option>
                             <option value="1" data-translate="right">Right</option>
                             <option value="2" data-translate="left">Left</option>
@@ -474,8 +474,8 @@
                         Wrong notes
                     </label>
                     <div class="relative">
-                        <select onchange="change_setting('change_wrong_notes', this.value)" id="wrong_notes" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <select onchange="change_setting('change_wrong_notes', this.value)" id="wrong_notes" class="h-10 block appearance-none w-full glass-light hover:glass
+                py-2 px-2 pr-8 rounded-glass transition-smooth-fast leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                             <option value="0" data-translate="disabled">Disabled</option>
                             <option value="1" data-translate="enabled">Enabled</option>
                         </select>
@@ -492,8 +492,8 @@
                         Future notes
                     </label>
                     <div class="relative">
-                        <select onchange="change_setting('change_future_notes', this.value)" id="future_notes" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <select onchange="change_setting('change_future_notes', this.value)" id="future_notes" class="h-10 block appearance-none w-full glass-light hover:glass
+                py-2 px-2 pr-8 rounded-glass transition-smooth-fast leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                             <option value="0" data-translate="disabled">Disabled</option>
                             <option value="1" data-translate="enabled">Enabled</option>
                         </select>
@@ -523,8 +523,8 @@
                         </svg>
                         <input onchange="change_setting('number_of_mistakes', document.getElementById('number_of_mistakes').value)"
                                id="number_of_mistakes" name="field_name" type="number" value="0" min="0" max="255"
-                               class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600 text-center
-                               rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                               class="h-10 block appearance-none w-full glass-light hover:glass text-center
+                               rounded-glass transition-smooth-fast leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                         <svg onclick="document.getElementById('number_of_mistakes').stepUp();
                         document.getElementById('number_of_mistakes').dispatchEvent(new Event('change'));
                         " xmlns="http://www.w3.org/2000/svg"
@@ -721,37 +721,33 @@
                 <span id="score_update_feedback" class="ml-2 text-lg font-bold"></span>
             </div>
 
-            <!-- Session Summary Window -->
-            <div id="session_summary_window" 
-                 class="fixed inset-0 flex items-center justify-center z-50 hidden 
-                        bg-black bg-opacity-50 dark:bg-opacity-70">
-                 <div class="relative p-12 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-xl 
-                             border border-gray-300 dark:border-gray-600 
-                             w-full md:w-full lg:w-full xl:w-full h-auto max-h-[95vh] 
-                             flex flex-col 
-                             transform translate-y-full opacity-0 transition-all duration-500 ease-in-out">
-                    <div class="flex justify-between items-center mb-6 flex-shrink-0">
-                        <h3 class="text-3xl font-semibold text-gray-700 dark:text-gray-300" data-translate="session_summary">Session Summary</h3>
-                        <button id="close_summary_button" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="text-lg text-gray-600 dark:text-gray-400 space-y-2 mb-8 flex-shrink-0 grid grid-cols-2 gap-x-8">
-                        <p><strong data-translate="left_hand_mistakes">Left Hand Mistakes:</strong> <span id="summary_mistakes_l_count">0</span></p>
-                         <p><strong data-translate="right_hand_mistakes">Right Hand Mistakes:</strong> <span id="summary_mistakes_r_count">0</span></p>
-                         <p><strong data-translate="left_hand_delay">Left Hand Max Delay Count:</strong> <span id="summary_delay_l">0</span></p>
-                         <p><strong data-translate="right_hand_delay">Right Hand Max Delay Count:</strong> <span id="summary_delay_r">0</span></p>
-                    </div>
-                    <!-- Graph Canvas -->
-                    <div class="flex-grow relative min-h-[300px]">
-                         <canvas id="summary_graph_canvas"></canvas>
-                         <button id="reset_zoom_button" 
-                                 class="absolute top-2 right-2 z-20 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 px-6 rounded-md text-base shadow"
-                                 data-translate="reset_zoom">
-                             Reset Zoom
-                         </button>
+            <!-- Session Summary - Inline Collapsible Section -->
+            <div id="session_summary_window" class="w-full glass-light rounded-lg shadow-md mb-4 hidden">
+                <!-- Collapsible Header -->
+                <button id="session_summary_toggle" class="w-full flex justify-between items-center p-4 text-left hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors rounded-lg">
+                    <h3 class="text-xl font-bold text-gray-600 dark:text-gray-400" data-translate="session_summary">Session Summary</h3>
+                    <svg id="session_summary_arrow" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 dark:text-gray-400 transition-transform duration-300 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <!-- Collapsible Content -->
+                <div id="session_summary_content" class="overflow-hidden transition-all duration-300 ease-in-out" style="max-height: 5000px;">
+                    <div class="p-6 pt-0">
+                        <div class="text-lg text-gray-600 dark:text-gray-400 space-y-2 mb-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+                            <p><strong data-translate="left_hand_mistakes">Left Hand Mistakes:</strong> <span id="summary_mistakes_l_count">0</span></p>
+                            <p><strong data-translate="right_hand_mistakes">Right Hand Mistakes:</strong> <span id="summary_mistakes_r_count">0</span></p>
+                            <p><strong data-translate="left_hand_delay">Left Hand Max Delay Count:</strong> <span id="summary_delay_l">0</span></p>
+                            <p><strong data-translate="right_hand_delay">Right Hand Max Delay Count:</strong> <span id="summary_delay_r">0</span></p>
+                        </div>
+                        <!-- Graph Canvas -->
+                        <div class="relative min-h-[300px] w-full overflow-x-auto">
+                            <canvas id="summary_graph_canvas" class="w-full"></canvas>
+                            <button id="reset_zoom_button" 
+                                    class="absolute top-2 right-2 z-20 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 px-6 rounded-md text-base shadow"
+                                    data-translate="reset_zoom">
+                                Reset Zoom
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -776,7 +772,7 @@
                 <input onkeyup="clearTimeout(search_song);search_song =
                 setTimeout(function(){ document.getElementById('songs_page').value = 1;get_songs(); }, 1200);"
                        id="song_search"
-                       class="h-10 py-2 text-sm mb-2 rounded-2xl bg-gray-100 dark:bg-gray-600 pl-10 focus:outline-none focus:bg-white">
+                       class="h-10 py-2 text-sm mb-2 rounded-glass transition-smooth-fast glass-light hover:glass pl-10 focus:outline-none focus:bg-white">
                 <span onclick="this.previousElementSibling.value = '';
                     get_songs();" id="clear_input"
                       class="h-10 absolute right-0 top-0 flex items-center cursor-pointer">

@@ -1,13 +1,61 @@
 get_colormap_gradients();
 
+// Homepage history tracking for charts
+window.homepageHistory = {
+    cpu: [],
+    ledFps: [],
+    maxPoints: 60
+};
+
+function addToHistory(type, value) {
+    if (!window.homepageHistory[type]) {
+        window.homepageHistory[type] = [];
+    }
+    window.homepageHistory[type].push(value);
+    if (window.homepageHistory[type].length > window.homepageHistory.maxPoints) {
+        window.homepageHistory[type].shift();
+    }
+}
+
+function updateChart(chartId, value) {
+    let chart;
+    if (chartId === 'cpu') {
+        chart = window.cpuChart;
+    } else if (chartId === 'ledFps') {
+        chart = window.ledFpsChart;
+    }
+    
+    if (chart) {
+        chart.data.labels.push('');
+        chart.data.datasets[0].data.push(value);
+        if (chart.data.labels.length > window.homepageHistory.maxPoints) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+        }
+        
+        // For LED FPS chart, set max to 2x the displayed average (so average appears at 50% height)
+        if (chartId === 'ledFps' && chart.data.datasets[0].data.length > 0) {
+            const data = chart.data.datasets[0].data;
+            const sum = data.reduce((a, b) => a + b, 0);
+            const average = sum / data.length;
+            const maxValue = average * 2; // 2x average so it appears at 50% height
+            
+            // Ensure minimum max value to avoid issues with very low values
+            chart.options.scales.y.max = Math.max(maxValue, value * 1.5);
+        }
+        
+        chart.update('none');
+    }
+}
+
 function remove_page_indicators() {
-    document.getElementById("home").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("ledsettings").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("songs").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("sequences").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("ports").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("ledanimations").classList.remove("dark:bg-gray-700", "bg-gray-100");
-    document.getElementById("network").classList.remove("dark:bg-gray-700", "bg-gray-100");
+    document.getElementById("home").classList.remove("glass-light");
+    document.getElementById("ledsettings").classList.remove("glass-light");
+    document.getElementById("songs").classList.remove("glass-light");
+    document.getElementById("sequences").classList.remove("glass-light");
+    document.getElementById("ports").classList.remove("glass-light");
+    document.getElementById("ledanimations").classList.remove("glass-light");
+    document.getElementById("network").classList.remove("glass-light");
 }
 
 function get_homepage_data_loop() {
@@ -26,11 +74,19 @@ function get_homepage_data_loop() {
                 download = 0;
                 upload = 0;
             }
+            const cpuUsage = response_pc_stats["cpu_usage"];
+            const ledFps = parseFloat(response_pc_stats.led_fps) || 0;
+            
+            // Update CPU usage
             animateValue(document.getElementById("cpu_number"), last_cpu_usage,
-                response_pc_stats["cpu_usage"], refresh_rate * 500, false);
+                cpuUsage, refresh_rate * 500, false);
+            
+            // Add to history and update chart
+            addToHistory('cpu', cpuUsage);
+            updateChart('cpu', cpuUsage);
+            
             document.getElementById("memory_usage_percent").innerHTML = response_pc_stats["memory_usage_percent"] + "%";
             document.getElementById("memory_usage").innerHTML =
-
                 formatBytes(response_pc_stats["memory_usage_used"], 2, false) + "/" +
                 formatBytes(response_pc_stats["memory_usage_total"]);
             document.getElementById("cpu_temp").innerHTML = response_pc_stats["cpu_temp"];
@@ -42,19 +98,57 @@ function get_homepage_data_loop() {
             animateValue(document.getElementById("download_number"), last_download, download, refresh_rate * 500, true);
             animateValue(document.getElementById("upload_number"), last_upload, upload, refresh_rate * 500, true);
 
-            document.getElementById("cover_state").innerHTML = response_pc_stats["cover_state"];
-
+            // Update LED FPS
             document.getElementById("led_fps").innerHTML = response_pc_stats.led_fps;
+            addToHistory('ledFps', ledFps);
+            updateChart('ledFps', ledFps);
+            
+            if (document.getElementById("system_state")) {
+                document.getElementById("system_state").innerHTML = response_pc_stats.system_state || 'UNKNOWN';
+            }
             document.getElementById("cpu_count").innerHTML = response_pc_stats.cpu_count;
             document.getElementById("cpu_pid").innerHTML = response_pc_stats.cpu_pid;
             document.getElementById("cpu_freq").innerHTML = response_pc_stats.cpu_freq;
             document.getElementById("memory_pid").innerHTML =
                 formatBytes(response_pc_stats.memory_pid, 2, false);
 
-            document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
+            // Update cover state with badge styling
+            const coverState = response_pc_stats.cover_state;
+            const coverStateElement = document.getElementById("cover_state");
+            const coverStateBadge = document.getElementById("cover_state_badge");
+            if (coverStateElement) {
+                coverStateElement.innerHTML = coverState;
+            }
+            if (coverStateBadge) {
+                if (coverState === 'Opened') {
+                    coverStateBadge.className = "inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-200 dark:bg-green-700 text-green-800 dark:text-white";
+                } else {
+                    coverStateBadge.className = "inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white";
+                }
+            }
 
             // change value of select based on response_pc_stats.screen_on
             document.getElementById("screen_on").value = response_pc_stats.screen_on;
+
+            // change value of select based on response_pc_stats.display_type
+            if (response_pc_stats.display_type) {
+                const displayTypeSelect = document.getElementById("display_type");
+                if (displayTypeSelect) {
+                    displayTypeSelect.value = response_pc_stats.display_type;
+                    // Store current value for confirmation handler
+                    displayTypeSelect.setAttribute('data-current-value', response_pc_stats.display_type);
+                }
+            }
+
+            // change value of select based on response_pc_stats.led_pin
+            if (response_pc_stats.led_pin) {
+                const ledPinSelect = document.getElementById("led_pin");
+                if (ledPinSelect) {
+                    ledPinSelect.value = response_pc_stats.led_pin;
+                    // Store current value for confirmation handler
+                    ledPinSelect.setAttribute('data-current-value', response_pc_stats.led_pin);
+                }
+            }
 
             document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
 
@@ -166,7 +260,7 @@ function update_wifi_list(response) {
     // Loop through wifi_list
     wifi_list.forEach(wifi => {
         const listItem = document.createElement("div");
-        listItem.className = "bg-gray-100 dark:bg-gray-600 mb-4 p-2 rounded-md";
+        listItem.className = "glass-light mb-4 p-2 rounded-glass transition-smooth-fast";
 
         const partial_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" ' +
             'stroke-width="1.5" stroke="currentColor" class="w-6 h-6 absolute">' + getWifiIcon(wifi["Signal Strength"]) + '</svg>';
@@ -188,14 +282,14 @@ function update_wifi_list(response) {
                 <button onclick="this.classList.add('hidden');                            
                             document.getElementById('wifi_${wifi["ESSID"]}').classList.remove('hidden');
                             document.getElementById('wifi_password_${wifi["ESSID"]}').focus()"
-                    class="w-20 outline-none bg-blue-500 dark:bg-blue-500 py-2 font-bold rounded-2xl" data-translate="connect">
+                    class="w-20 outline-none bg-blue-500 dark:bg-blue-500 py-2 font-bold rounded-glass transition-smooth-fast" data-translate="connect">
                     ${translate("connect")}
                 </button>            
             
             </div>
             <div id="wifi_${wifi["ESSID"]}" class="hidden ">
                 <div class="relative">
-                    <input id="wifi_password_${wifi["ESSID"]}" class="mt-4 h-10 block a w-full dark:text-black bg-gray-200 dark:bg-gray-700 py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="password" placeholder="Type Wi-Fi password here">
+                    <input id="wifi_password_${wifi["ESSID"]}" class="mt-4 h-10 block a w-full dark:text-black glass-light py-2 px-2 rounded-glass leading-tight transition-smooth-fast" type="password" placeholder="Type Wi-Fi password here">
                     <button class="absolute top-1/4 right-2" onclick="togglePasswordVisibility(this, 'wifi_password_${wifi["ESSID"]}');">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" id="toggle-eye-${wifi["ESSID"]}">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
@@ -523,6 +617,15 @@ function get_led_idle_animation_settings(){
             document.getElementById("led_animation").value = response["led_animation"];
             document.getElementById("brightness_percent").value = response["led_animation_brightness_percent"];
             document.getElementById("brightness").value = response["led_animation_brightness_percent"];
+            if (document.getElementById("idle_timeout_minutes")) {
+                document.getElementById("idle_timeout_minutes").value = response["idle_timeout_minutes"];
+            }
+            if (document.getElementById("screensaver_delay")) {
+                document.getElementById("screensaver_delay").value = response["screensaver_delay"];
+            }
+            if (document.getElementById("screen_off_delay")) {
+                document.getElementById("screen_off_delay").value = response["screen_off_delay"];
+            }
         }
     }
     xhttp.open("GET", "/api/get_idle_animation_settings", true);
@@ -703,8 +806,20 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             if (response["color_mode"] === "Rainbow") {
                 const now = Date.now();
                 let rainbow_example = '';
-                rainbow_example += '<div class="flex overflow-hidden mt-2">';
-                rainbow_example += '<canvas id="RainbowPreview" style="width: 100%; height: 50px;"></canvas></div>';
+                rainbow_example += '<svg width="100%" height="45px">';
+                rainbow_example += '<defs>';
+                rainbow_example += '<linearGradient id="rainbowGradient">';
+                // Gradient stops will be added dynamically
+                rainbow_example += '</linearGradient>';
+                rainbow_example += '<linearGradient id="rainbowGradientOverlay" x1=".5" x2=".5" y2="1">';
+                rainbow_example += '<stop stop-color="#000" stop-opacity="0"/>';
+                rainbow_example += '<stop offset=".59" stop-color="#000" stop-opacity=".34217436974789917"/>';
+                rainbow_example += '<stop offset="1" stop-color="#000"/>';
+                rainbow_example += '</linearGradient>';
+                rainbow_example += '</defs>';
+                rainbow_example += '<rect width="100%" height="45px" fill="url(#rainbowGradient)"/>';
+                rainbow_example += '<rect width="100%" height="45px" fill="url(#rainbowGradientOverlay)"/>';
+                rainbow_example += '</svg>';
                 rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
                 rainbow_example += '<p class="text-xs italic text-right text-gray-600 dark:text-gray-400">*approximate look</p>';
                 document.getElementById("current_led_color").innerHTML = rainbow_example;
@@ -712,43 +827,49 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 window.cancelAnimationFrame(rainbow_animation);
                 let count = -1;
                 function update_rainbowctx() {
-                    const canvas = document.getElementById('RainbowPreview');
-                    if (!canvas)
+                    const svg = document.getElementById("current_led_color")?.querySelector("svg");
+                    const gradient = svg?.querySelector("#rainbowGradient");
+                    if (!gradient)
                         return;
 
                     count++;
                     if (count % 2 === 0) { // 60fps from window.requestAnimationFrame may be excessive...
-                        const width = canvas.clientWidth;
-                        const height = canvas.clientHeight;
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext("2d");
-                        //ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        const grd = ctx.createLinearGradient(0, 0, width, 0);
-                        const cmap = gradients[response.rainbow_colormap] ?? [];
+                        const rainbow_colormap = document.getElementById("rainbow_colormap")?.value ?? response.rainbow_colormap;
+                        if (!gradients || !gradients[rainbow_colormap]) {
+                            return;
+                        }
+                        const cmap = gradients[rainbow_colormap] ?? [];
 
                         const led_count = +(config_settings["led_count"] ?? 176);
                         const reverse = (+config_settings["led_reverse"] === 1 ? -1 : 1);
                         const reverse_offset = (reverse === -1 ? led_count : 0);
                         const density = +(config_settings["leds_per_meter"] ?? 144) / 72;
 
+                        const rainbow_offset = Number(document.getElementById("rainbow_offset")?.value ?? response["rainbow_offset"]);
+                        const rainbow_scale = Number(document.getElementById("rainbow_scale")?.value ?? response["rainbow_scale"]);
+                        const rainbow_timeshift = Number(document.getElementById("rainbow_timeshift")?.value ?? response.rainbow_timeshift);
+
                         const curtime = Date.now();
+                        
+                        // Clear existing stops
+                        gradient.innerHTML = '';
+                        
                         for (let i=0; i<=88; i+=2) {   // i+=2: it's a preview gradient, 44 gradient stops should be fine
-                            const shift = ((curtime - now) * response.rainbow_timeshift) / 1000;
+                            const shift = ((curtime - now) * rainbow_timeshift) / 1000;
 
                             // Approximate get_note_position
                             const note_position = ~~(reverse * i * density + reverse_offset)
-                            const rainbow_value = ~~((note_position + response["rainbow_offset"] + shift) *
-                                    (response["rainbow_scale"] / 100)) & 255;
-                            x = (rainbow_value/255) * (cmap.length - 1);
-                            grd.addColorStop(i/88, rgbToHexA(cmap[~~x]));
+                            const rainbow_value = ~~((note_position + rainbow_offset + shift) *
+                                    (rainbow_scale / 100)) & 255;
+                            const x = (rainbow_value/255) * (cmap.length - 1);
+                            const color = rgbToHexA(cmap[~~x]);
+                            const offset = (i/88 * 100).toFixed(2) + '%';
+                            gradient.innerHTML += '<stop offset="' + offset + '" stop-color="' + color + '"/>';
                         }
-                        ctx.fillStyle = grd;
-                        ctx.fillRect(0, 0, width, height);
                     }
 
-                    if (Number(document.getElementById("rainbow_timeshift").value) !== 0
-                            && document.getElementById("color_mode").value === "Rainbow"
+                    if (Number(document.getElementById("rainbow_timeshift")?.value ?? 0) !== 0
+                            && document.getElementById("color_mode")?.value === "Rainbow"
                             && current_page === "ledsettings") {
                         rainbow_animation = window.requestAnimationFrame(update_rainbowctx);
                     }
@@ -777,26 +898,41 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 const curve = ~~document.getElementById("velocityrainbow_curve").value;
                 const colormap = document.getElementById("velocityrainbow_colormap").value;
 
-                document.getElementById("current_led_color").innerHTML = '<canvas id="VelocityRainbowPreview" style="width: 100%; height: 40px;"></canvas>';
-                const canvas = document.getElementById('VelocityRainbowPreview');
-                const width = canvas.clientWidth;
-                const height = canvas.clientHeight;
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext("2d");
-                const grd = ctx.createLinearGradient(0, 0, width, 0);
+                if (!gradients || !gradients[colormap]) {
+                    return;
+                }
                 const cmap = gradients[colormap] ?? [];
                 const stops = cmap.length - 1;
+                
+                let gradientStops = '';
                 for (let i = 0; i <= stops; i++) {
                     const vel = ~~(i * 255 / stops);
                     const vel2 = 255 * powercurve(i / stops, curve / 100);
                     const vel3 = (~~(vel2 * scale / 100) % 256 + 256) % 256;
                     const vel4 = (~~(vel3 + offset) % 256 + 256) % 256;
 
-                    grd.addColorStop(i / stops, rgbToHexA(cmap[~~(vel4 * stops / 255)]));
+                    const color = rgbToHexA(cmap[~~(vel4 * stops / 255)]);
+                    const offsetPercent = (i / stops * 100).toFixed(2) + '%';
+                    gradientStops += '<stop offset="' + offsetPercent + '" stop-color="' + color + '"/>';
                 }
-                ctx.fillStyle = grd;
-                ctx.fillRect(0, 0, width, height);
+                
+                let velocity_rainbow_example = '<svg width="100%" height="45px">';
+                velocity_rainbow_example += '<defs>';
+                velocity_rainbow_example += '<linearGradient id="velocityRainbowGradient">';
+                velocity_rainbow_example += gradientStops;
+                velocity_rainbow_example += '</linearGradient>';
+                velocity_rainbow_example += '<linearGradient id="velocityRainbowGradientOverlay" x1=".5" x2=".5" y2="1">';
+                velocity_rainbow_example += '<stop stop-color="#000" stop-opacity="0"/>';
+                velocity_rainbow_example += '<stop offset=".59" stop-color="#000" stop-opacity=".34217436974789917"/>';
+                velocity_rainbow_example += '<stop offset="1" stop-color="#000"/>';
+                velocity_rainbow_example += '</linearGradient>';
+                velocity_rainbow_example += '</defs>';
+                velocity_rainbow_example += '<rect width="100%" height="45px" fill="url(#velocityRainbowGradient)"/>';
+                velocity_rainbow_example += '<rect width="100%" height="45px" fill="url(#velocityRainbowGradientOverlay)"/>';
+                velocity_rainbow_example += '</svg>';
+                velocity_rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
+                
+                document.getElementById("current_led_color").innerHTML = velocity_rainbow_example;
 
 
                 if (is_editing_sequence === "true") {
@@ -972,57 +1108,57 @@ function set_step_properties(sequence, step) {
 }
 
 function get_ports() {
-    const refresh_ports_button = document.getElementById("refresh-ports");
-    refresh_ports_button.classList.add("animate-spin", "pointer-events-none");
-
     const xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
     xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200 && document.getElementById('active_input') != null) {
-            const active_input_select = document.getElementById('active_input');
-            const secondary_input_select = document.getElementById('secondary_input');
-            const playback_select = document.getElementById('playback_input');
+        if (this.readyState === 4 && this.status === 200) {
             let response = JSON.parse(this.responseText);
-            const length = active_input_select.options.length;
-            for (let i = length - 1; i >= 0; i--) {
-                active_input_select.options[i] = null;
-                secondary_input_select.options[i] = null;
-                playback_select.options[i] = null;
+            
+            // Update old dropdowns if they exist
+            if (document.getElementById('active_input') != null) {
+                const active_input_select = document.getElementById('active_input');
+                const secondary_input_select = document.getElementById('secondary_input');
+                const playback_select = document.getElementById('playback_input');
+                const length = active_input_select.options.length;
+                for (let i = length - 1; i >= 0; i--) {
+                    active_input_select.options[i] = null;
+                    secondary_input_select.options[i] = null;
+                    playback_select.options[i] = null;
+                }
+                response["ports_list"].forEach(function (item, index) {
+                    const opt = document.createElement('option');
+                    const opt2 = document.createElement('option');
+                    const opt3 = document.createElement('option');
+                    opt.appendChild(document.createTextNode(item));
+                    opt2.appendChild(document.createTextNode(item));
+                    opt3.appendChild(document.createTextNode(item));
+                    opt.value = item;
+                    opt2.value = item;
+                    opt3.value = item;
+                    active_input_select.appendChild(opt);
+                    secondary_input_select.appendChild(opt2);
+                    playback_select.appendChild(opt3);
+                });
+                active_input_select.value = response["input_port"];
+                secondary_input_select.value = response["secondary_input_port"];
+                playback_select.value = response["play_port"];
             }
-            response["ports_list"].forEach(function (item, index) {
-                const opt = document.createElement('option');
-                const opt2 = document.createElement('option');
-                const opt3 = document.createElement('option');
-                opt.appendChild(document.createTextNode(item));
-                opt2.appendChild(document.createTextNode(item));
-                opt3.appendChild(document.createTextNode(item));
-                opt.value = item;
-                opt2.value = item;
-                opt3.value = item;
-                active_input_select.appendChild(opt);
-                secondary_input_select.appendChild(opt2);
-                playback_select.appendChild(opt3);
-            });
-            active_input_select.value = response["input_port"];
-            secondary_input_select.value = response["secondary_input_port"];
-            playback_select.value = response["play_port"];
-            let connected_ports = response["connected_ports"];
-            connected_ports = connected_ports.replaceAll("\\n", "&#10;")
-            connected_ports = connected_ports.replaceAll("\\t", "        ")
-            connected_ports = connected_ports.replaceAll("b\"", "")
-            document.getElementById('connect_all_textarea').innerHTML = connected_ports;
+            
+            // Update raw textarea
+            if (document.getElementById('connect_all_textarea') != null) {
+                let connected_ports = response["connected_ports"];
+                connected_ports = connected_ports.replaceAll("\\n", "&#10;")
+                connected_ports = connected_ports.replaceAll("\\t", "        ")
+                connected_ports = connected_ports.replaceAll("b\"", "")
+                document.getElementById('connect_all_textarea').innerHTML = connected_ports;
+            }
+            
             if (response["midi_logging"] === "1") {
-                document.getElementById("midi_events_checkbox").checked = true;
+                const checkbox = document.getElementById("midi_events_checkbox");
+                if (checkbox) checkbox.checked = true;
             }
-            refresh_ports_button.classList.remove("animate-spin", "pointer-events-none");
         }
     };
-    xhttp.onerror = function () {
-        refresh_ports_button.classList.remove("animate-spin", "pointer-events-none");
-    }
-    xhttp.ontimeout = function () {
-        refresh_ports_button.classList.remove("animate-spin", "pointer-events-none");
-    }
     xhttp.open("GET", "/api/get_ports", true);
     xhttp.send();
 }
@@ -1353,15 +1489,15 @@ function show_multicolors(colors, ranges, iteration) {
     let i = 0;
     multicolor_element.innerHTML = "<div class=\"flex items-center mb-4\">\n" +
         "            <input onclick=\"change_setting('multicolor_iteration', this.checked)\" id=\"multicolor_iteration_checkbox\" " +
-        "           type=\"checkbox\" value=\"\" class=\"w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 " +
-        "focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600\">\n" +
+        "           type=\"checkbox\" value=\"\" class=\"w-4 h-4 text-blue-600 glass-light rounded border-gray-300 " +
+        "focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2\">\n" +
         "            <label for=\"default-checkbox\" class=\"pl-2 block uppercase tracking-wide text-xs font-bold mt-2 " +
         "text-gray-600 dark:text-gray-400\">Cycle through colors</label>\n" +
         "        </div>";
 
     const add_button = "<button onclick=\"this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')\" " +
-        "id=\"multicolor_add\" class=\"w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 " +
-        "rounded-2xl inline-flex items-center\">\n" +
+        "id=\"multicolor_add\" class=\"w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-2 px-2 " +
+        "rounded-glass inline-flex items-center transition-smooth-fast\">\n" +
         "   <svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-full justify-items-center text-green-400\" " +
         "fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n" +
         "      <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 9v3m0 " +
@@ -1369,8 +1505,8 @@ function show_multicolors(colors, ranges, iteration) {
         "   </svg>\n" +
         "</button>\n" +
         "<button onclick=\"change_setting('add_multicolor', '0')\" id=\"multicolor_add\" " +
-        "class=\"hidden w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 " +
-        "rounded-2xl inline-flex items-center\">\n" +
+        "class=\"hidden w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-2 px-2 " +
+        "rounded-glass inline-flex items-center transition-smooth-fast\">\n" +
         "<span class=\"w-full text-green-400\">Click to confirm</span></button>";
     multicolor_element.classList.remove("pointer-events-none", "opacity-50");
     multicolor_element.innerHTML += add_button;
@@ -1390,7 +1526,7 @@ function show_multicolors(colors, ranges, iteration) {
         const value_right_percent_reverse = 100 - value_right_percent;
 
         //append multicolor slider
-        multicolor_element.innerHTML += '<div class="mb-2 bg-gray-100 dark:bg-gray-600" id="multicolor_' + i + '">' +
+        multicolor_element.innerHTML += '<div class="mb-2 glass-light rounded-glass p-2 transition-smooth-fast" id="multicolor_' + i + '">' +
             '<label class="ml-2 inline block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">\n' +
             '                    Color ' + parseInt(i + 1) + '\n' +
             '                </label><div onclick=\'this.classList.add("hidden");' +
@@ -1404,20 +1540,20 @@ function show_multicolors(colors, ranges, iteration) {
             'document.getElementById("Multicolor").classList.add("pointer-events-none","opacity-50")\' ' +
             'class="hidden inline float-right text-red-400">Click to confirm</div>' +
             '<input id="multicolor_input_' + i + '" type="color" value="' + hex_color + '"\n' +
-            '                        class="cursor-pointer px-2 pt-2 h-8 w-full bg-gray-100 dark:bg-gray-600" ' +
+            '                        class="cursor-pointer px-2 pt-2 h-8 w-full glass-light rounded-glass" ' +
             'oninput=\'editLedColor(event, "multicolor_' + i + '_")\'' +
             'onchange=\'change_setting("multicolor", this.value, ' + i + ')\'>\n' +
             '                <div id="multicolors_' + i + '" class="justify-center flex" ' +
             'onchange=\'change_color_input_multicolor(event, "multicolor_' + i + '_", "multicolor_input_' + i + '", "multicolor", ' + i + ')\'>\n' +
-            '                    <span class="w-1/12 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-red-400">R:</span>\n' +
+            '                    <span class="w-1/12 h-6 px-2 glass-light text-red-400">R:</span>\n' +
             '                    <input id="multicolor_' + i + '_red" type="number" value="' + element[0] + '" min="0" max="255"\n' +
-            '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
-            '                    <span class="w-1/12 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-green-400">G:</span>\n' +
+            '                           class="w-2/12 h-6 glass-light" onkeyup=enforceMinMax(this)>\n' +
+            '                    <span class="w-1/12 h-6 px-2 glass-light text-green-400">G:</span>\n' +
             '                    <input id="multicolor_' + i + '_green" type="number" value="' + element[1] + '" min="0" max="255"\n' +
-            '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
-            '                    <span class="w-1/12 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-blue-400">B:</span>\n' +
+            '                           class="w-2/12 h-6 glass-light" onkeyup=enforceMinMax(this)>\n' +
+            '                    <span class="w-1/12 h-6 px-2 glass-light text-blue-400">B:</span>\n' +
             '                    <input id="multicolor_' + i + '_blue" type="number" value="' + element[2] + '" min="0" max="255"\n' +
-            '                           class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>\n' +
+            '                           class="w-2/12 h-6 glass-light" onkeyup=enforceMinMax(this)>\n' +
             '                </div>' +
             '<div slider id="slider-distance">\n' +
             '  <div>\n' +
@@ -1464,17 +1600,17 @@ function show_note_offsets(note_offsets) {
     }
     var i = 0
     offset_element.innerHTML = "";
-    const add_button = `<button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')" id="note_offsets_add" class="w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
-   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    const add_button = `<button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')" id="note_offsets_add" class="w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-1 px-1 rounded-glass inline-flex items-centers transition-smooth-fast">
+   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-full justify-items-center text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
    </svg>
 </button>
-<button onclick="change_setting('add_note_offset', '0');temporary_show_chords_animation();" id="note_offsets_add" class="hidden w-full outline-none mb-2 bg-gray-100 dark:bg-gray-600 font-bold h-6 py-2 px-2 rounded-2xl inline-flex items-center">
+<button onclick="change_setting('add_note_offset', '0');temporary_show_chords_animation();" id="note_offsets_add" class="hidden w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-1 px-1 rounded-glass inline-flex items-centers transition-smooth-fast">
 <span class="w-full text-green-400">Click to confirm</span></button>`;
     offset_element.classList.remove("pointer-events-none", "opacity-50");
     offset_element.innerHTML += add_button;
     for (const element of note_offsets) {
-        offset_element.innerHTML += `<div class="mb-2 bg-gray-100 dark:bg-gray-600" id="noteoffset_${i}">
+        offset_element.innerHTML += `<div class="mb-2 glass-light rounded-glass p-2 transition-smooth-fast" id="noteoffset_${i}">
             <label class="ml-2 inline block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
                 ${translate("note_offset")} ${parseInt(i + 1)}
             </label>
@@ -1486,12 +1622,12 @@ function show_note_offsets(note_offsets) {
             <div onclick='change_setting("remove_note_offset", "${i}"); document.getElementById("NoteOffsetEntry").classList.add("pointer-events-none","opacity-50"); temporary_show_chords_animation();' class="hidden inline float-right text-red-400">Click to confirm</div>
             <div id="note_offset_${i}" class="justify-center flex" 
                 onchange='change_setting("update_note_offset", "${i}", (parseInt(document.getElementById("note_offset_${i}_num").value) + 20) + "," + document.getElementById("note_offset_${i}_off").value); temporary_show_chords_animation();'>
-                <span class="w-1/20 px-2 bg-gray-100 dark:bg-gray-600 text-red-400">${translate("light_number")}:</span>
+                <span class="w-1/20 px-2 glass-light text-red-400">${translate("light_number")}:</span>
                 <input id="note_offset_${i}_num" type="number" value="${element[0] - 20}" min="0" max="255"
-                       class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>
-                <span class="w-1/20 h-6 px-2 bg-gray-100 dark:bg-gray-600 text-green-400">${translate("offset")}:</span>
+                       class="w-2/12 h-6 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/20 h-6 px-2 glass-light text-green-400">${translate("offset")}:</span>
                 <input id="note_offset_${i}_off" type="number" value="${element[1]}" min="-255" max="255"
-                       class="w-2/12 h-6 bg-gray-100 dark:bg-gray-600" onkeyup=enforceMinMax(this)>
+                       class="w-2/12 h-6 glass-light" onkeyup=enforceMinMax(this)>
             </div>
         </div>`;
         i++;
@@ -1639,16 +1775,15 @@ function handleSessionSummary(data, retries = 5) {
         // If anything goes wrong, default to showing the popup
     }
     const summaryWindow = document.getElementById('session_summary_window');
-    const summaryContainer = summaryWindow ? summaryWindow.querySelector(':scope > div') : null; // Get the inner container for transform
+    const summaryContent = document.getElementById('session_summary_content');
     const delayR_el = document.getElementById('summary_delay_r');
     const delayL_el = document.getElementById('summary_delay_l');
     const mistakesR_el = document.getElementById('summary_mistakes_r_count');
     const mistakesL_el = document.getElementById('summary_mistakes_l_count');
-    const closeButton = document.getElementById('close_summary_button');
     const canvas = document.getElementById('summary_graph_canvas');
 
     // Check if elements are loaded
-    if (!summaryWindow || !summaryContainer || !delayR_el || !delayL_el || !mistakesR_el || !mistakesL_el || !closeButton || !canvas) {
+    if (!summaryWindow || !summaryContent || !delayR_el || !delayL_el || !mistakesR_el || !mistakesL_el || !canvas) {
         if (retries > 0) {
             console.log("Summary elements not found, retrying...");
             setTimeout(() => handleSessionSummary(data, retries - 1), 200); // Wait 200ms and retry
@@ -1939,7 +2074,10 @@ function handleSessionSummary(data, retries = 5) {
     // Add event listener for the reset zoom button
     const resetZoomButton = document.getElementById('reset_zoom_button');
     if (resetZoomButton && summaryChart) {
-        resetZoomButton.addEventListener('click', () => {
+        // Remove previous listeners by cloning
+        resetZoomButton.replaceWith(resetZoomButton.cloneNode(true));
+        const newResetButton = document.getElementById('reset_zoom_button');
+        newResetButton.addEventListener('click', () => {
             summaryChart.resetZoom();
         });
     } else {
@@ -1947,43 +2085,132 @@ function handleSessionSummary(data, retries = 5) {
         // summaryChart might not be initialized if canvas wasn't found, which is handled earlier
     }
 
-    // Show and animate the window (slide from bottom)
-    summaryWindow.classList.remove('hidden'); // Make parent visible first
-    // Wait a tick for display change, then trigger animation
-    requestAnimationFrame(() => {
-        summaryContainer.classList.remove('translate-y-full', 'opacity-0');
-        summaryContainer.classList.add('translate-y-0', 'opacity-100');
-    });
-
-    // Function to hide the window
-    const hideSummary = () => {
-        summaryContainer.classList.remove('translate-y-0', 'opacity-100');
-        summaryContainer.classList.add('translate-y-full', 'opacity-0');
-        // Use setTimeout to truly hide parent after transition ends
-        setTimeout(() => {
-             summaryWindow.classList.add('hidden');
-             // Destroy chart when hiding
-             if (summaryChart) {
-                 summaryChart.destroy();
-                 summaryChart = null;
-             }
-        }, 500); // Match transition duration
-        // Clear auto-hide timeout if closed manually
-        if (summaryTimeout) {
-             clearTimeout(summaryTimeout);
-             summaryTimeout = null;
+    // Add resize event listener to redraw chart on window resize
+    // Remove previous resize listener if it exists
+    if (window.__sessionSummaryResizeHandler) {
+        window.removeEventListener('resize', window.__sessionSummaryResizeHandler);
+    }
+    window.__sessionSummaryResizeHandler = () => {
+        if (summaryChart) {
+            summaryChart.resize();
         }
     };
+    window.addEventListener('resize', window.__sessionSummaryResizeHandler);
 
-    // Add event listener to close button (only once)
-    // Remove previous listener if it exists to avoid duplicates
-    closeButton.replaceWith(closeButton.cloneNode(true)); // Simple way to remove listeners
-    document.getElementById('close_summary_button').addEventListener('click', hideSummary);
-
-    // Optional timeout to auto-hide the summary after a certain period
-    // summaryTimeout = setTimeout(hideSummary, 30000); // Example: Hide after 30 seconds
+    // Show the inline section
+    summaryWindow.classList.remove('hidden');
+    
+    // Initialize toggle button
+    initSessionSummaryToggle();
+    
+    // Load and apply saved collapse state from cookie
+    const collapsedState = (typeof getCookie === 'function') ? getCookie('session_summary_collapsed') : null;
+    const shouldBeCollapsed = collapsedState === '1';
+    
+    // Initialize collapse state (default to expanded if no cookie)
+    if (shouldBeCollapsed) {
+        collapseSessionSummary();
+    } else {
+        expandSessionSummary();
+    }
 }
 window.handleSessionSummary = handleSessionSummary;
+
+// --- Session Summary Collapse/Expand Functions ---
+function collapseSessionSummary() {
+    const summaryContent = document.getElementById('session_summary_content');
+    const arrow = document.getElementById('session_summary_arrow');
+    
+    if (summaryContent && arrow) {
+        // Get the actual content height before collapsing
+        const contentHeight = summaryContent.scrollHeight;
+        // Set current height explicitly for smooth transition
+        summaryContent.style.maxHeight = contentHeight + 'px';
+        // Force reflow
+        summaryContent.offsetHeight;
+        // Now animate to 0
+        requestAnimationFrame(() => {
+            summaryContent.style.maxHeight = '0';
+        });
+        arrow.classList.remove('rotate-180');
+        arrow.classList.add('rotate-0');
+    }
+}
+
+function expandSessionSummary() {
+    const summaryContent = document.getElementById('session_summary_content');
+    const arrow = document.getElementById('session_summary_arrow');
+    
+    if (summaryContent && arrow) {
+        // Check if already expanded (has rotate-180 class)
+        const isAlreadyExpanded = arrow.classList.contains('rotate-180');
+        
+        if (!isAlreadyExpanded) {
+            // Get the actual content height (temporarily remove max-height restriction)
+            const currentMaxHeight = summaryContent.style.maxHeight;
+            summaryContent.style.maxHeight = 'none';
+            const contentHeight = summaryContent.scrollHeight;
+            summaryContent.style.maxHeight = currentMaxHeight;
+            
+            // Force reflow
+            summaryContent.offsetHeight;
+            // Now animate to full height
+            requestAnimationFrame(() => {
+                summaryContent.style.maxHeight = Math.max(contentHeight, 500) + 'px';
+                // Resize chart after expansion animation completes
+                setTimeout(() => {
+                    if (summaryChart) {
+                        summaryChart.resize();
+                    }
+                }, 350); // Slightly longer than transition duration (300ms)
+            });
+        } else {
+            // Already expanded, just ensure max-height is set properly
+            const contentHeight = summaryContent.scrollHeight;
+            summaryContent.style.maxHeight = Math.max(contentHeight, 500) + 'px';
+            // Resize chart if needed
+            if (summaryChart) {
+                summaryChart.resize();
+            }
+        }
+        arrow.classList.remove('rotate-0');
+        arrow.classList.add('rotate-180');
+    }
+}
+
+function toggleSessionSummary() {
+    const summaryContent = document.getElementById('session_summary_content');
+    const arrow = document.getElementById('session_summary_arrow');
+    
+    if (!summaryContent || !arrow) return;
+    
+    const isCollapsed = arrow.classList.contains('rotate-0');
+    
+    if (isCollapsed) {
+        expandSessionSummary();
+        // Save state: expanded (0)
+        if (typeof setCookie === 'function') {
+            setCookie('session_summary_collapsed', '0', 365);
+        }
+    } else {
+        collapseSessionSummary();
+        // Save state: collapsed (1)
+        if (typeof setCookie === 'function') {
+            setCookie('session_summary_collapsed', '1', 365);
+        }
+    }
+}
+
+// Initialize collapse toggle button event listener
+function initSessionSummaryToggle() {
+    const toggleButton = document.getElementById('session_summary_toggle');
+    if (toggleButton) {
+        // Remove previous listeners by cloning
+        toggleButton.replaceWith(toggleButton.cloneNode(true));
+        const newToggleButton = document.getElementById('session_summary_toggle');
+        newToggleButton.addEventListener('click', toggleSessionSummary);
+    }
+}
 
 // --- Initialize persisted preferences for Songs page toggles ---
 function initSongPagePreferences() {

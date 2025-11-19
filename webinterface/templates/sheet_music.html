@@ -31,7 +31,7 @@
         </div>
     </div>
     <div id="medbts" class="w-full flex-wrap">
-        <button class="flex h-12 items-center outline-none bg-gray-100 dark:bg-gray-600 rounded-2xl inline-flex items-center">
+        <button class="flex h-12 items-center outline-none glass-light rounded-2xl inline-flex items-center">
             <label class="w-40 flex flex-col items-center px-2 py-2 rounded-lg tracking-wide uppercase cursor-pointer">
                 <svg class="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                     <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z"/>
@@ -44,7 +44,7 @@
         </button>
 
         <div class="has-tooltip inline-flex h-12 items-center">
-                        <span class="inline-block tooltip rounded shadow-lg p-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400">
+                        <span class="inline-block tooltip rounded shadow-lg p-1 glass-light text-gray-600 dark:text-gray-400">
                             <div data-translate="sheet_tip_line_1">If the automatic conversion does not suit your expectations, you can load your own musical notation.</div>
                             <br><div data-translate="sheet_tip_line_2">The highlighted part of the music notation is only an approximate indicator. Use the offset tool to improve synchronization.</div>
                             <br><div data-translate="sheet_tip_line_3">For the best result do the following:</div>
@@ -70,7 +70,7 @@
                 </svg>
                 <input onchange="window.sheet_offset = parseInt(this.value);" id="sheet_offset" type="number" value="0"
                        min="-3000" max="3000" step="10"
-                       class="h-8 block appearance-none w-full bg-gray-100 dark:bg-gray-600 py-2 px-2 rounded-2xl
+                       class="h-8 block appearance-none w-full glass-light py-2 px-2 rounded-2xl
                        leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                 <svg onclick="document.getElementById('sheet_offset').value = parseInt(document.getElementById('sheet_offset').value) + 50"
                      xmlns="http://www.w3.org/2000/svg"

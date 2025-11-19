@@ -284,10 +284,29 @@
             <Text_Color text="DarkViolet"></Text_Color>
         </Display_Settings>
         <Display_Settings text="Background Color">
-            <Background_Color text="White"></Background_Color>
+            <Background_Color text="Default Grey"></Background_Color>
             <Background_Color text="Black"></Background_Color>
             <Background_Color text="Grey"></Background_Color>
         </Display_Settings>
+        <Display_Settings text="Pointer Color">
+            <Pointer_Color text="Pointer Color RGB">
+                <Pointer_Color_RGB text="Red"></Pointer_Color_RGB>
+                <Pointer_Color_RGB text="Green"></Pointer_Color_RGB>
+                <Pointer_Color_RGB text="Blue"></Pointer_Color_RGB>
+            </Pointer_Color>
+            <Pointer_Color text="Presets">
+                <Presets text="Default Blue" />
+                <Presets text="Crimson"></Presets>
+                <Presets text="Cyan"></Presets>
+                <Presets text="Orange"></Presets>
+                <Presets text="Lime"></Presets>
+                <Presets text="Magenta"></Presets>
+                <Presets text="Yellow"></Presets>
+                <Presets text="DeepPink"></Presets>
+                <Presets text="SpringGreen"></Presets>
+            </Pointer_Color>
+        </Display_Settings>
+    
     </menu>
     <menu text="Other Settings">
         <Other_Settings text="System Info"></Other_Settings>
@@ -311,6 +330,9 @@
             </Screensaver>
             <Screensaver text="Led animation delay">
                 <Led_animation_delay text="After minutes (0 - never)"></Led_animation_delay>
+            </Screensaver>
+            <Screensaver text="Idle timeout">
+                <Idle_timeout text="After minutes"></Idle_timeout>
             </Screensaver>
             <Screensaver text="Led animation">
                 <Led_animation text="Theater Chase"></Led_animation>

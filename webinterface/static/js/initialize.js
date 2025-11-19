@@ -5,20 +5,175 @@ function initialize_homepage() {
     clearInterval(homepage_interval);
     refresh_rate = getCookie("refresh_rate") || 3;
     setCookie("refresh_rate", refresh_rate, 365);
-    document.getElementById("refresh_rate").value = refresh_rate;
+    const refreshRateSelect = document.getElementById("refresh_rate");
+    if (refreshRateSelect) {
+        refreshRateSelect.value = refresh_rate;
+    }
     if (refresh_rate !== 0) {
         homepage_interval = setInterval(get_homepage_data_loop, refresh_rate * 1000)
     } else {
         setTimeout(get_homepage_data_loop, 1000)
     }
-    document.getElementById('refresh_rate').onchange = function () {
-        setCookie('refresh_rate', this.value, 365);
-        clearInterval(homepage_interval)
-        if (this.value !== 0) {
-            homepage_interval = setInterval(get_homepage_data_loop, this.value * 1000)
+    if (refreshRateSelect) {
+        refreshRateSelect.onchange = function () {
+            setCookie('refresh_rate', this.value, 365);
+            clearInterval(homepage_interval)
+            if (this.value !== 0) {
+                homepage_interval = setInterval(get_homepage_data_loop, this.value * 1000)
+            }
         }
     }
+    
+    // Initialize charts
+    initializeHomepageCharts();
+    
+    // Set correct grid columns based on advanced mode
+    const secondaryStatsGrid = document.getElementById('secondary_stats_grid');
+    if (secondaryStatsGrid && typeof advancedMode !== 'undefined') {
+        if (advancedMode) {
+            secondaryStatsGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6';
+        } else {
+            secondaryStatsGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6';
+        }
+    }
+    
     get_logs();
+}
+
+/**
+ * Initialize Chart.js charts for CPU and LED FPS
+ */
+function initializeHomepageCharts() {
+    // Check if Chart.js is available
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js not loaded, charts will not be initialized');
+        return;
+    }
+    
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                enabled: false
+            }
+        },
+        scales: {
+            x: {
+                display: false
+            },
+            y: {
+                display: false,
+                beginAtZero: true
+            }
+        },
+        elements: {
+            point: {
+                radius: 0
+            },
+            line: {
+                borderWidth: 3,
+                tension: 0.4
+            }
+        },
+        animation: {
+            duration: 0
+        },
+        layout: {
+            padding: 0
+        }
+    };
+    
+    // Helper function to resize chart canvas to fill parent card
+    function resizeChartCanvas(canvas, card) {
+        if (card && canvas) {
+            const rect = card.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+    }
+    
+    // CPU Chart
+    const cpuCtx = document.getElementById('cpu_chart');
+    if (cpuCtx) {
+        const cpuCard = cpuCtx.closest('a');
+        const isDark = document.documentElement.classList.contains('dark');
+        
+        // Resize canvas to fill card
+        setTimeout(() => {
+            resizeChartCanvas(cpuCtx, cpuCard);
+        }, 50);
+        
+        window.cpuChart = new Chart(cpuCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'CPU Usage %',
+                    data: [],
+                    borderColor: isDark ? 'rgba(59, 130, 246, 0.8)' : 'rgba(37, 99, 235, 0.8)',
+                    backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : 'rgba(37, 99, 235, 0.2)',
+                    fill: true
+                }]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    ...chartOptions.scales,
+                    y: {
+                        ...chartOptions.scales.y,
+                        max: 100
+                    }
+                }
+            }
+        });
+        
+        // Resize on window resize
+        window.addEventListener('resize', function() {
+            resizeChartCanvas(cpuCtx, cpuCard);
+            if (window.cpuChart) {
+                window.cpuChart.resize();
+            }
+        });
+    }
+    
+    // LED FPS Chart
+    const ledFpsCtx = document.getElementById('led_fps_chart');
+    if (ledFpsCtx) {
+        const fpsCard = ledFpsCtx.closest('a');
+        const isDark = document.documentElement.classList.contains('dark');
+        
+        // Resize canvas to fill card
+        setTimeout(() => {
+            resizeChartCanvas(ledFpsCtx, fpsCard);
+        }, 50);
+        
+        window.ledFpsChart = new Chart(ledFpsCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'LED FPS',
+                    data: [],
+                    borderColor: isDark ? 'rgba(251, 191, 36, 0.8)' : 'rgba(234, 179, 8, 0.8)',
+                    backgroundColor: isDark ? 'rgba(251, 191, 36, 0.2)' : 'rgba(234, 179, 8, 0.2)',
+                    fill: true
+                }]
+            },
+            options: chartOptions
+        });
+        
+        // Resize on window resize
+        window.addEventListener('resize', function() {
+            resizeChartCanvas(ledFpsCtx, fpsCard);
+            if (window.ledFpsChart) {
+                window.ledFpsChart.resize();
+            }
+        });
+    }
 }
 
 function initialize_led_settings() {
@@ -264,7 +419,11 @@ function initialize_sequences() {
 }
 
 function initialize_ports_settings() {
-    get_ports()
+    get_ports();
+    // Initialize the visual port connection manager if it exists
+    if (typeof initialize_port_connection_manager === 'function') {
+        initialize_port_connection_manager();
+    }
     document.getElementById('switch_ports').onclick = function () {
         document.getElementById('switch_ports').disabled = true;
         document.getElementById('switch_ports_sidebar').disabled = true;

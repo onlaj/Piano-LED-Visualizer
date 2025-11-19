@@ -17,6 +17,7 @@ import math
 from zipfile import ZipFile
 import json
 import ast
+import re
 from lib.rpi_drivers import GPIO
 from lib.log_setup import logger
 from flask import abort
@@ -141,7 +142,10 @@ def get_homepage_data():
         'card_space_percent': card_space.percent,
         'cover_state': 'Opened' if cover_opened else 'Closed',
         'led_fps': round(app_state.ledstrip.current_fps, 2),
+        'system_state': app_state.state_manager.current_state.value.upper() if app_state.state_manager else 'UNKNOWN',
         'screen_on': app_state.menu.screen_on,
+        'display_type': app_state.menu.args.display if app_state.menu and app_state.menu.args and app_state.menu.args.display else app_state.usersettings.get_setting_value("display_type") or '1in44',
+        'led_pin': app_state.usersettings.get_setting_value("led_pin") or '18',
     }
     return jsonify(homepage_data)
 
@@ -959,6 +963,42 @@ def change_setting():
         else:
             app_state.menu.enable_screen()
 
+    if setting_name == "display_type":
+        # Validate the value
+        if value in ['1in44', '1in3']:
+            app_state.usersettings.change_setting_value("display_type", value)
+            # Restart visualizer to apply the LCD type change
+            app_state.platform.restart_visualizer()
+            return jsonify(success=True, restart_required=True, message="LCD type changed. Restarting visualizer...")
+        else:
+            return jsonify(success=False, error="Invalid display type")
+
+    if setting_name == "led_pin":
+        # Validate the pin value
+        valid_pins = ['12', '13', '18', '19', '41', '45', '53']
+        pin_value = str(value)
+        if pin_value not in valid_pins:
+            return jsonify(success=False, error="Invalid LED pin. Valid pins are: " + ", ".join(valid_pins))
+        
+        # Auto-determine channel based on pin
+        # Channel 0: pins 12, 18
+        # Channel 1: pins 13, 19, 41, 45, 53
+        pin_int = int(pin_value)
+        if pin_int in [12, 18]:
+            channel_value = 0
+        elif pin_int in [13, 19, 41, 45, 53]:
+            channel_value = 1
+        else:
+            return jsonify(success=False, error="Invalid LED pin")
+        
+        # Save both pin and channel settings
+        app_state.usersettings.change_setting_value("led_pin", pin_value)
+        app_state.usersettings.change_setting_value("led_channel", channel_value)
+        
+        # Restart visualizer to apply the LED pin change
+        app_state.platform.restart_visualizer()
+        return jsonify(success=True, restart_required=True, message="LED pin changed. Restarting visualizer...")
+
     if setting_name == "reset_to_default":
         app_state.usersettings.reset_to_default()
 
@@ -1342,6 +1382,33 @@ def change_setting():
         if app_state.menu.led_animation_delay < 0:
             app_state.menu.led_animation_delay = 0
         app_state.usersettings.change_setting_value("led_animation_delay", app_state.menu.led_animation_delay)
+        return jsonify(success=True)
+
+    if setting_name == "idle_timeout_minutes":
+        value = max(int(value), 1)
+        app_state.menu.idle_timeout_minutes = value
+        app_state.usersettings.change_setting_value("idle_timeout_minutes", app_state.menu.idle_timeout_minutes)
+        # Reload state manager config
+        if app_state.state_manager:
+            app_state.state_manager.reload_config()
+        return jsonify(success=True)
+
+    if setting_name == "screensaver_delay":
+        value = max(int(value), 0)
+        app_state.menu.screensaver_delay = value
+        app_state.usersettings.change_setting_value("screensaver_delay", app_state.menu.screensaver_delay)
+        # Reload state manager config
+        if app_state.state_manager:
+            app_state.state_manager.reload_config()
+        return jsonify(success=True)
+
+    if setting_name == "screen_off_delay":
+        value = max(int(value), 0)
+        app_state.menu.screen_off_delay = value
+        app_state.usersettings.change_setting_value("screen_off_delay", app_state.menu.screen_off_delay)
+        # Reload state manager config
+        if app_state.state_manager:
+            app_state.state_manager.reload_config()
 
         return jsonify(success=True)
 
@@ -1461,7 +1528,10 @@ def get_sequence_setting():
 def get_idle_animation_settings():
     response = {"led_animation_delay": app_state.usersettings.get_setting_value("led_animation_delay"),
                 "led_animation": app_state.usersettings.get_setting_value("led_animation"),
-                "led_animation_brightness_percent": app_state.ledsettings.led_animation_brightness_percent}
+                "led_animation_brightness_percent": app_state.ledsettings.led_animation_brightness_percent,
+                "idle_timeout_minutes": app_state.usersettings.get_setting_value("idle_timeout_minutes"),
+                "screensaver_delay": app_state.usersettings.get_setting_value("screensaver_delay"),
+                "screen_off_delay": app_state.usersettings.get_setting_value("screen_off_delay")}
     return jsonify(response)
 
 @webinterface.route('/api/get_settings', methods=['GET'])
@@ -1885,6 +1955,213 @@ def api_update_highscore():
         return jsonify(success=False, error="Invalid payload"), 400
     changed = app_state.profile_manager.update_highscore(profile_id, song_name, new_score)
     return jsonify(success=True, updated=changed)
+
+# ========== Port Manager Helper Functions ==========
+
+def parse_aconnect_ports(output, port_type="input"):
+    """
+    Parse aconnect output to extract port information.
+    Returns a list of dicts with port info: {id, client_id, port_id, name, full_name}
+    """
+    ports = []
+    current_client = None
+    current_client_name = ""
+    
+    for line in output.split('\n'):
+        line = line.strip()
+        
+        # Match client lines: "client 20: 'Midi Through' [type=kernel]"
+        client_match = re.match(r"client (\d+):\s+'([^']+)'", line)
+        if client_match:
+            current_client = client_match.group(1)
+            current_client_name = client_match.group(2)
+            
+            # Skip special clients
+            if current_client == "0" or "Through" in current_client_name or "RtMidi" in current_client_name:
+                current_client = None
+            continue
+        
+        # Match port lines: "    0 'Midi Through Port-0'"
+        if current_client and line and not line.startswith('client'):
+            port_match = re.match(r"(\d+)\s+'([^']+)'", line)
+            if port_match:
+                port_id = port_match.group(1)
+                port_name = port_match.group(2)
+                full_id = f"{current_client}:{port_id}"
+                
+                ports.append({
+                    'id': full_id,
+                    'client_id': current_client,
+                    'port_id': port_id,
+                    'name': port_name,
+                    'client_name': current_client_name,
+                    'full_name': f"{current_client_name} - {port_name}"
+                })
+    
+    return ports
+
+
+def parse_aconnect_connections(output):
+    """
+    Parse aconnect -l output to extract current connections.
+    Returns a list of dicts: {source, destination, source_name, dest_name}
+    """
+    connections = []
+    current_client = None
+    current_port = None
+    current_client_name = ""
+    current_port_name = ""
+    
+    for line in output.split('\n'):
+        line_stripped = line.strip()
+        
+        # Match client lines
+        client_match = re.match(r"client (\d+):\s+'([^']+)'", line_stripped)
+        if client_match:
+            current_client = client_match.group(1)
+            current_client_name = client_match.group(2)
+            current_port = None
+            continue
+        
+        # Match port lines with connections: "    0 'port name'"
+        if current_client and line.startswith('    ') and not line.startswith('\t'):
+            port_match = re.match(r"\s+(\d+)\s+'([^']+)'", line)
+            if port_match:
+                current_port = port_match.group(1)
+                current_port_name = port_match.group(2)
+                continue
+        
+        # Match connection lines: "\tConnecting To: 130:0" or "\tConnecting To: 130:0, 131:0, 132:0"
+        if current_client and current_port and '\t' in line:
+            # Only process "Connecting To:" to avoid duplicates
+            if "Connecting To:" in line:
+                # Find all port connections in the line (handles multiple connections)
+                conn_matches = re.findall(r"(\d+):(\d+)", line_stripped)
+                source_id = f"{current_client}:{current_port}"
+                
+                for conn_match in conn_matches:
+                    dest_id = f"{conn_match[0]}:{conn_match[1]}"
+                    connections.append({
+                        'source': source_id,
+                        'destination': dest_id,
+                        'source_name': f"{current_client_name} - {current_port_name}",
+                    })
+    
+    return connections
+
+
+def get_all_available_ports():
+    """
+    Get all available MIDI input and output ports.
+    Returns dict with 'inputs' and 'outputs' lists.
+    """
+    try:
+        input_output = subprocess.check_output(["aconnect", "-l"], text=True)
+        input_ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
+        output_ports = subprocess.check_output(["aconnect", "-o", "-l"], text=True)
+        
+        return {
+            'inputs': parse_aconnect_ports(input_ports, "input"),
+            'outputs': parse_aconnect_ports(output_ports, "output"),
+            'all': parse_aconnect_ports(input_output, "all")
+        }
+    except subprocess.CalledProcessError as e:
+        return {'inputs': [], 'outputs': [], 'all': []}
+
+
+def get_all_current_connections():
+    """
+    Get all current MIDI port connections.
+    Returns list of connection dicts.
+    """
+    try:
+        output = subprocess.check_output(["aconnect", "-l"], text=True)
+        return parse_aconnect_connections(output)
+    except subprocess.CalledProcessError:
+        return []
+
+
+def create_midi_port_connection(source, destination):
+    """
+    Create a connection between two MIDI ports.
+    Args:
+        source: Source port in format "client:port" (e.g., "20:0")
+        destination: Destination port in format "client:port"
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        result = subprocess.call(["aconnect", source, destination])
+        return result == 0
+    except Exception as e:
+        print(f"Error creating connection: {e}")
+        return False
+
+
+def delete_midi_port_connection(source, destination):
+    """
+    Delete a connection between two MIDI ports.
+    Args:
+        source: Source port in format "client:port"
+        destination: Destination port in format "client:port"
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        result = subprocess.call(["aconnect", "-d", source, destination])
+        return result == 0
+    except Exception as e:
+        print(f"Error deleting connection: {e}")
+        return False
+
+
+# ========== Port Connection API Endpoints ==========
+
+@webinterface.route('/api/get_available_ports', methods=['GET'])
+def get_available_ports():
+    """Get all available MIDI ports (inputs and outputs)"""
+    ports = get_all_available_ports()
+    return jsonify(ports)
+
+
+@webinterface.route('/api/get_port_connections', methods=['GET'])
+def get_port_connections():
+    """Get all current MIDI port connections"""
+    connections = get_all_current_connections()
+    return jsonify({'connections': connections})
+
+
+@webinterface.route('/api/create_port_connection', methods=['POST'])
+def create_port_connection():
+    """Create a connection between two MIDI ports"""
+    data = request.get_json()
+    source = data.get('source')
+    destination = data.get('destination')
+    
+    if not source or not destination:
+        return jsonify({'success': False, 'error': 'Missing source or destination'}), 400
+    
+    # Prevent self-connection
+    if source == destination:
+        return jsonify({'success': False, 'error': 'Cannot connect a port to itself'}), 400
+    
+    success = create_midi_port_connection(source, destination)
+    return jsonify({'success': success})
+
+
+@webinterface.route('/api/delete_port_connection', methods=['POST'])
+def delete_port_connection():
+    """Delete a connection between two MIDI ports"""
+    data = request.get_json()
+    source = data.get('source')
+    destination = data.get('destination')
+    
+    if not source or not destination:
+        return jsonify({'success': False, 'error': 'Missing source or destination'}), 400
+    
+    success = delete_midi_port_connection(source, destination)
+    return jsonify({'success': success})
+
 
 def pretty_print(dom):
     return '\n'.join([line for line in dom.toprettyxml(indent=' ' * 4).split('\n') if line.strip()])

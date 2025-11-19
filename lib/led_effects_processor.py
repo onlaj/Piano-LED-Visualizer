@@ -11,6 +11,7 @@ class LEDEffectsProcessor:
         self.pedal_deadzone = pedal_deadzone
 
     def process_fade_effects(self, event_loop_time):
+        any_led_changed = False
         for n, strength in enumerate(self.ledstrip.keylist):
             if strength <= 0:
                 continue
@@ -65,3 +66,5 @@ class LEDEffectsProcessor:
             if led_changed:
                 self.ledstrip.strip.setPixelColor(n, Color(int(red), int(green), int(blue)))
                 self.ledstrip.set_adjacent_colors(n, Color(int(red), int(green), int(blue)), False, fading)
+                any_led_changed = True
+        return any_led_changed

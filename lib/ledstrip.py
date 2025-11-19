@@ -28,13 +28,20 @@ class LedStrip:
 
         # LED strip configuration:
         #self.LED_COUNT = int(self.led_number)  # Number of LED pixels.
-        self.LED_PIN = 18  # GPIO pin connected to the pixels (18 uses PWM!).
+        # Read LED pin and channel from settings, with fallback to defaults
+        try:
+            self.LED_PIN = int(self.usersettings.get_setting_value("led_pin"))
+        except (ValueError, TypeError):
+            self.LED_PIN = 18  # Default GPIO pin (18 uses PWM!)
         # LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
         self.LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
         self.LED_DMA = 10  # DMA channel to use for generating signal (try 10)
         #self.LED_BRIGHTNESS = int(self.brightness)  # Set to 0 for darkest and 255 for brightest
         self.LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
-        self.LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
+        try:
+            self.LED_CHANNEL = int(self.usersettings.get_setting_value("led_channel"))
+        except (ValueError, TypeError):
+            self.LED_CHANNEL = 0  # Default channel (set to '1' for GPIOs 13, 19, 41, 45 or 53)
 
         self.WEBEMU_FPS = 10
 

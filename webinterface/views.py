@@ -19,6 +19,9 @@ def before_request():
     if request.path not in excluded_routes:
         app_state.menu.last_activity = time.time()
         app_state.menu.is_idle_animation_running = False
+        # Update state manager for user activity
+        if app_state.state_manager:
+            app_state.state_manager.update_user_activity()
 
 
 @webinterface.route('/')

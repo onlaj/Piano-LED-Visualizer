@@ -1,6 +1,7 @@
 import argparse
 
 from lib.rpi_drivers import RPiException
+from lib.usersettings import UserSettings
 
 
 class ArgumentParser:
@@ -24,4 +25,13 @@ class ArgumentParser:
         parser.add_argument('-a', '--appmode', default=appmode_default, help="appmode: 'platform' (default) | 'app'")
         parser.add_argument('-l', '--leddriver', default="rpi_ws281x",
                             help="leddriver: 'rpi_ws281x' (default) | 'emu' ")
-        return parser.parse_args()
+        args = parser.parse_args()
+        
+        # Load display_type from settings if not provided via CLI
+        if args.display is None:
+            usersettings = UserSettings()
+            display_type = usersettings.get_setting_value("display_type")
+            if display_type:
+                args.display = display_type
+        
+        return args

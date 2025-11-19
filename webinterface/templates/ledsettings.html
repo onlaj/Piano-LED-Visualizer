@@ -1,14 +1,14 @@
 <div class="transition duration-300 slide-in-content w-full lg:w-11/12 xl:w-11/12 2xl:w-11/12 m-auto
-grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-    <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
+    <div class="flex-1 p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         {% include 'ledcolor.html' %}
     </div>
 
-    <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         {% include 'lightmode.html' %}
     </div>
 
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="brightness">
             Brightness
         </div>
@@ -19,34 +19,34 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
             <div class="advanced-content">
                 <label for="gamma_correction">Gamma Correction:</label>
                 <input id="gamma_correction" name="led_gamma" type="number" value="1" min="0.01" max="10.0"
-                    class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                            py-2 px-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 rounded-glass leading-tight transition-smooth-fast"
                     title="Use 2.8 for linear perception"
                     onchange="change_setting('led_gamma', this.value);">
             </div>
         </div>
     </div>
 
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="backlight">
             Backlight
         </div>
         <div class="flex-1">
             <input id="backlight_color" type="color" value="#ffffff"
-                   class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                   class="cursor-pointer h-8 w-full glass-light"
                    oninput="editLedColor(event, 'backlight_');"
                    onclick="editLedColor(event, 'backlight_');"
                    onchange="change_setting('backlight_color', this.value);">
             <div id="backlightcolors" class="justify-center flex">
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-red-400">R:</span>
                 <input id="backlight_red" name="field_name" type="number" value="255" min="0" max="255"
-                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                       class="h-8 w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-green-400">G:</span>
                 <input id="backlight_green" name="field_name" type="number" value="255" min="0" max="255"
-                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                       class="h-8 w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-blue-400">B:</span>
                 <input id="backlight_blue" name="field_name" type="number" value="255" min="0" max="255"
-                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                       class="h-8 w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
             </div>
         </div>
         <div class="content-center flex-1">
@@ -66,14 +66,14 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
         </div>
     </div>
 
-    <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="sides_colors">
             Sides Colors
         </div>
 
         <div class="relative">
-            <select id="sides_color_mode" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-        py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+            <select id="sides_color_mode" class="h-10 block appearance-none w-full glass-light
+        py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
                 <option value="Off" data-translate="off">Off</option>
                 <option value="Main" data-translate="same_as_led_color">Same as led color</option>
                 <option value="RGB" data-translate="rgb">RGB</option>
@@ -87,28 +87,28 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
 
         <div id="sides_color_choose" class="flex-1">
             <input id="sides_color" type="color" value="#ffffff"
-                   class="cursor-pointer h-8 w-full bg-gray-200 dark:bg-gray-700"
+                   class="cursor-pointer h-8 w-full glass-light"
                    onclick="editLedColor(event, 'sides_');"
                    oninput="editLedColor(event, 'sides_');"
                    onchange="change_setting('sides_color', this.value)"
             >
             <div id="sidescolors" class="justify-center flex">
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-red-400">R:</span>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-red-400">R:</span>
                 <input id="sides_red" name="field_name" type="number" value="255" min="0" max="255"
-                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-green-400">G:</span>
+                       class="h-8 w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-green-400">G:</span>
                 <input id="sides_green" name="field_name" type="number" value="255" min="0" max="255"
-                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
-                <span class="w-1/12 h-8 px-2 py-1 bg-gray-200 dark:bg-gray-700 text-blue-400">B:</span>
+                       class="h-8 w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
+                <span class="w-1/12 h-8 px-2 py-1 glass-light text-blue-400">B:</span>
                 <input id="sides_blue" name="field_name" type="number" value="255" min="0" max="255"
-                       class="h-8 w-2/12 h-8 bg-gray-200 dark:bg-gray-700" onkeyup=enforceMinMax(this)>
+                       class="h-8 w-2/12 h-8 glass-light" onkeyup=enforceMinMax(this)>
             </div>
         </div>
 
 
     </div>
 
-    <div class="flex-1 grid p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="adjustments">
             Adjustments
         </div>
@@ -135,8 +135,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
                     </div>
                 </label>
                 <div class="relative">
-                    <select id="skipped_notes" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    <select id="skipped_notes" class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
                         <option value="None" data-translate="none">None</option>
                         <option value="Normal" data-translate="normal">Normal</option>
                         <option value="Finger-based" data-translate="finger_based">Finger Based</option>
@@ -155,8 +155,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
                     Reverse
                 </label>
                 <div class="relative">
-                    <select id="reverse" class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            py-2 px-2 pr-8 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    <select id="reverse" class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 pr-8 rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                         <option value="0" data-translate="normal">Normal</option>
                         <option value="1" data-translate="inverted">Inverted</option>
                     </select>
@@ -186,8 +186,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
                               d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <input id="shift" name="field_name" type="number" value="176" min="-255" max="255"
-                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-                text-center rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                           class="h-10 block appearance-none w-full glass-light
+                text-center rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                     <svg onclick="document.getElementById('shift').stepUp();
                         document.getElementById('shift').dispatchEvent(new Event('change'));
                         temporary_show_chords_animation();" xmlns="http://www.w3.org/2000/svg"
@@ -214,8 +214,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
                               d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <input id="led_count" name="field_name" type="number" value="176" min="0" max="255"
-                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            text-center rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                           class="h-10 block appearance-none w-full glass-light
+            text-center rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                     <svg onclick="document.getElementById('led_count').stepUp();
                         document.getElementById('led_count').dispatchEvent(new Event('change'));
                         temporary_show_chords_animation(true);" xmlns="http://www.w3.org/2000/svg"
@@ -242,8 +242,8 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
                               d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <input id="leds_per_meter" name="field_name" type="number" value="144" min="1" max="255"
-                           class="h-10 block appearance-none w-full bg-gray-100 dark:bg-gray-600
-            text-center rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                           class="h-10 block appearance-none w-full glass-light
+            text-center rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
                     <svg onclick="document.getElementById('leds_per_meter').stepUp();
                         document.getElementById('leds_per_meter').dispatchEvent(new Event('change'));
                         temporary_show_chords_animation();" xmlns="http://www.w3.org/2000/svg"
@@ -259,7 +259,7 @@ grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4
 
     </div>
 
-    <div class="flex-1 p-5 bg-gray-200 dark:bg-gray-700 shadow-xl rounded-lg">
+    <div class="flex-1 p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div class="flex">
             <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400"
                  data-translate="led_note_offsets">
