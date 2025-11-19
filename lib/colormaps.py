@@ -13,7 +13,7 @@ gradients = {}
 # Hard-coded gradients:
 
 # Rainbow, as existing in lib/functions.py, equiv to FastLED-HSV Spectrum
-gradients["Rainbow "] = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 0, 0)]
+gradients["Rainbow"] = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 0, 0)]
 
 # FastLED Rainbow - https://github.com/FastLED/FastLED/wiki/FastLED-HSV-Colors
 gradients["Rainbow-FastLED"] = [(0.0, (255, 0, 0)), (0.125, (170, 85, 0)), (0.25, (170, 170, 0)), (0.375, (0, 255, 0)),
