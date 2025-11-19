@@ -17,7 +17,6 @@ let uploadProgress = [];
 
 let advancedMode = false;
 
-let gradients;
 let config_settings;
 let live_settings;
 let current_page = "main";

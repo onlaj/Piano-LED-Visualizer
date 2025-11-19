@@ -828,6 +828,9 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         const ctx = canvas.getContext("2d");
                         //ctx.clearRect(0, 0, canvas.width, canvas.height);
                         const grd = ctx.createLinearGradient(0, 0, width, 0);
+                        if (!gradients || !gradients[response.rainbow_colormap]) {
+                            return;
+                        }
                         const cmap = gradients[response.rainbow_colormap] ?? [];
 
                         const led_count = +(config_settings["led_count"] ?? 176);
@@ -888,6 +891,9 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 canvas.height = height;
                 const ctx = canvas.getContext("2d");
                 const grd = ctx.createLinearGradient(0, 0, width, 0);
+                if (!gradients || !gradients[colormap]) {
+                    return;
+                }
                 const cmap = gradients[colormap] ?? [];
                 const stops = cmap.length - 1;
                 for (let i = 0; i <= stops; i++) {
