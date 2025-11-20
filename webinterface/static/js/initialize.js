@@ -384,7 +384,11 @@ function initialize_songs() {
     get_songs();
     initialize_upload();
     window.addEventListener('resize', function (event) {
-        document.getElementById('myVisualizer').config.whiteNoteWidth = document.getElementById('player_and_songs').offsetWidth / 54;
+        const visualizer = document.getElementById('myVisualizer');
+        const playerContainer = document.getElementById('player_and_songs');
+        if (visualizer && visualizer.config && playerContainer) {
+            visualizer.config.whiteNoteWidth = playerContainer.offsetWidth / 54;
+        }
     }, true);
 
     if (is_playing) {

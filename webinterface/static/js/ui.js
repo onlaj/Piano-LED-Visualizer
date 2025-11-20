@@ -78,39 +78,76 @@ function get_homepage_data_loop() {
             const ledFps = parseFloat(response_pc_stats.led_fps) || 0;
             
             // Update CPU usage
-            animateValue(document.getElementById("cpu_number"), last_cpu_usage,
-                cpuUsage, refresh_rate * 500, false);
+            const cpuNumberEl = document.getElementById("cpu_number");
+            if (cpuNumberEl) {
+                animateValue(cpuNumberEl, last_cpu_usage, cpuUsage, refresh_rate * 500, false);
+            }
             
             // Add to history and update chart
             addToHistory('cpu', cpuUsage);
             updateChart('cpu', cpuUsage);
             
-            document.getElementById("memory_usage_percent").innerHTML = response_pc_stats["memory_usage_percent"] + "%";
-            document.getElementById("memory_usage").innerHTML =
-                formatBytes(response_pc_stats["memory_usage_used"], 2, false) + "/" +
-                formatBytes(response_pc_stats["memory_usage_total"]);
-            document.getElementById("cpu_temp").innerHTML = response_pc_stats["cpu_temp"];
+            const memoryUsagePercentEl = document.getElementById("memory_usage_percent");
+            if (memoryUsagePercentEl) {
+                memoryUsagePercentEl.innerHTML = response_pc_stats["memory_usage_percent"] + "%";
+            }
+            const memoryUsageEl = document.getElementById("memory_usage");
+            if (memoryUsageEl) {
+                memoryUsageEl.innerHTML =
+                    formatBytes(response_pc_stats["memory_usage_used"], 2, false) + "/" +
+                    formatBytes(response_pc_stats["memory_usage_total"]);
+            }
+            const cpuTempEl = document.getElementById("cpu_temp");
+            if (cpuTempEl) {
+                cpuTempEl.innerHTML = response_pc_stats["cpu_temp"];
+            }
 
-            document.getElementById("card_usage").innerHTML =
-                formatBytes(response_pc_stats["card_space_used"], 2, false) + "/" +
-                formatBytes(response_pc_stats["card_space_total"]);
-            document.getElementById("card_usage_percent").innerHTML = response_pc_stats["card_space_percent"] + "%";
-            animateValue(document.getElementById("download_number"), last_download, download, refresh_rate * 500, true);
-            animateValue(document.getElementById("upload_number"), last_upload, upload, refresh_rate * 500, true);
+            const cardUsageEl = document.getElementById("card_usage");
+            if (cardUsageEl) {
+                cardUsageEl.innerHTML =
+                    formatBytes(response_pc_stats["card_space_used"], 2, false) + "/" +
+                    formatBytes(response_pc_stats["card_space_total"]);
+            }
+            const cardUsagePercentEl = document.getElementById("card_usage_percent");
+            if (cardUsagePercentEl) {
+                cardUsagePercentEl.innerHTML = response_pc_stats["card_space_percent"] + "%";
+            }
+            const downloadNumberEl = document.getElementById("download_number");
+            if (downloadNumberEl) {
+                animateValue(downloadNumberEl, last_download, download, refresh_rate * 500, true);
+            }
+            const uploadNumberEl = document.getElementById("upload_number");
+            if (uploadNumberEl) {
+                animateValue(uploadNumberEl, last_upload, upload, refresh_rate * 500, true);
+            }
 
             // Update LED FPS
-            document.getElementById("led_fps").innerHTML = response_pc_stats.led_fps;
+            const ledFpsEl = document.getElementById("led_fps");
+            if (ledFpsEl) {
+                ledFpsEl.innerHTML = response_pc_stats.led_fps;
+            }
             addToHistory('ledFps', ledFps);
             updateChart('ledFps', ledFps);
             
             if (document.getElementById("system_state")) {
                 document.getElementById("system_state").innerHTML = response_pc_stats.system_state || 'UNKNOWN';
             }
-            document.getElementById("cpu_count").innerHTML = response_pc_stats.cpu_count;
-            document.getElementById("cpu_pid").innerHTML = response_pc_stats.cpu_pid;
-            document.getElementById("cpu_freq").innerHTML = response_pc_stats.cpu_freq;
-            document.getElementById("memory_pid").innerHTML =
-                formatBytes(response_pc_stats.memory_pid, 2, false);
+            const cpuCountEl = document.getElementById("cpu_count");
+            if (cpuCountEl) {
+                cpuCountEl.innerHTML = response_pc_stats.cpu_count;
+            }
+            const cpuPidEl = document.getElementById("cpu_pid");
+            if (cpuPidEl) {
+                cpuPidEl.innerHTML = response_pc_stats.cpu_pid;
+            }
+            const cpuFreqEl = document.getElementById("cpu_freq");
+            if (cpuFreqEl) {
+                cpuFreqEl.innerHTML = response_pc_stats.cpu_freq;
+            }
+            const memoryPidEl = document.getElementById("memory_pid");
+            if (memoryPidEl) {
+                memoryPidEl.innerHTML = formatBytes(response_pc_stats.memory_pid, 2, false);
+            }
 
             // Update cover state with badge styling
             const coverState = response_pc_stats.cover_state;
@@ -128,7 +165,10 @@ function get_homepage_data_loop() {
             }
 
             // change value of select based on response_pc_stats.screen_on
-            document.getElementById("screen_on").value = response_pc_stats.screen_on;
+            const screenOnEl = document.getElementById("screen_on");
+            if (screenOnEl) {
+                screenOnEl.value = response_pc_stats.screen_on;
+            }
 
             // change value of select based on response_pc_stats.display_type
             if (response_pc_stats.display_type) {
@@ -150,7 +190,7 @@ function get_homepage_data_loop() {
                 }
             }
 
-            document.getElementById("cover_state").innerHTML = response_pc_stats.cover_state;
+            // cover_state is already handled above with null check
 
 
             download_start = response_pc_stats.download;
@@ -840,10 +880,12 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         }
                         const cmap = gradients[rainbow_colormap] ?? [];
 
-                        const led_count = +(config_settings["led_count"] ?? 176);
-                        const reverse = (+config_settings["led_reverse"] === 1 ? -1 : 1);
+                        // Use config_settings if available, otherwise fallback to response or defaults
+                        const settings = config_settings || response || {};
+                        const led_count = +(settings["led_count"] ?? 176);
+                        const reverse = (+(settings["led_reverse"] ?? 0) === 1 ? -1 : 1);
                         const reverse_offset = (reverse === -1 ? led_count : 0);
-                        const density = +(config_settings["leds_per_meter"] ?? 144) / 72;
+                        const density = +(settings["leds_per_meter"] ?? 144) / 72;
 
                         const rainbow_offset = Number(document.getElementById("rainbow_offset")?.value ?? response["rainbow_offset"]);
                         const rainbow_scale = Number(document.getElementById("rainbow_scale")?.value ?? response["rainbow_scale"]);

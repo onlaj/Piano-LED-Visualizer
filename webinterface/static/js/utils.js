@@ -50,6 +50,7 @@ function formatBytes(bytes, decimals = 2, suffix = true) {
 }
 
 function animateValue(obj, start, end, duration, format = false) {
+    if (!obj) return;
     let startTimestamp = null;
     const step = (timestamp) => {
         if (!startTimestamp) startTimestamp = timestamp;

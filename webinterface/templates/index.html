@@ -142,15 +142,15 @@
         socket.addEventListener('error', function (event) {
             console.log('WebSocket error:', event);
         });
+
+        window.onbeforeunload = function () {
+            socket.onclose = function () {
+            }; // disable onclose handler first
+            socket.close();
+        };
     }
 
     establish_socket_connection(0);
-
-    window.onbeforeunload = function () {
-        socket.onclose = function () {
-        }; // disable onclose handler first
-        socket.close();
-    };
 
 
 </script>
