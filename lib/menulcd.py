@@ -705,6 +705,17 @@ class MenuLCD:
                     value = self.ledsettings.velocityrainbow_scale
                 elif choice == "Curve":
                     value = self.ledsettings.velocityrainbow_curve
+
+            # --- Pulse Settings ---
+            elif location == "Pulse":
+                if choice == "Animation Speed":
+                    value = self.ledsettings.pulse_animation_speed
+                elif choice == "Animation Distance":
+                    value = self.ledsettings.pulse_animation_distance
+                elif choice == "Flicker Strength":
+                    value = self.ledsettings.pulse_flicker_strength
+                elif choice == "Flicker Speed":
+                    value = self.ledsettings.pulse_flicker_speed
         
             # RGB color values (existing logic)
             elif location == "RGB":
@@ -1463,6 +1474,11 @@ class MenuLCD:
                 self.ledsettings.fadingspeed = mode_mapping[location][choice]
                 self.usersettings.change_setting_value("fadingspeed", self.ledsettings.fadingspeed)
 
+        if location == "Pulse" and choice == "Activate":
+            self.ledsettings.mode = "Pulse"
+            self.usersettings.change_setting_value("mode", self.ledsettings.mode)
+            fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
+
         if location == "Light_mode":
             if choice == "Disabled":
                 self.ledsettings.mode = "Disabled"
@@ -1764,6 +1780,30 @@ class MenuLCD:
             if self.current_choice == "Curve":
                 self.ledsettings.velocityrainbow_curve = \
                     self.ledsettings.velocityrainbow_curve + value * self.speed_multiplier
+
+        if self.current_location == "Pulse":
+            if self.current_choice == "Animation Speed":
+                self.ledsettings.pulse_animation_speed += value * 10 * self.speed_multiplier
+                if self.ledsettings.pulse_animation_speed < 0:
+                    self.ledsettings.pulse_animation_speed = 0
+                self.usersettings.change_setting_value("pulse_animation_speed", self.ledsettings.pulse_animation_speed)
+
+            if self.current_choice == "Animation Distance":
+                self.ledsettings.pulse_animation_distance += value * self.speed_multiplier
+                if self.ledsettings.pulse_animation_distance < 0:
+                    self.ledsettings.pulse_animation_distance = 0
+                self.usersettings.change_setting_value("pulse_animation_distance", self.ledsettings.pulse_animation_distance)
+
+            if self.current_choice == "Flicker Strength":
+                self.ledsettings.pulse_flicker_strength += value * self.speed_multiplier
+                self.ledsettings.pulse_flicker_strength = clamp(self.ledsettings.pulse_flicker_strength, 0, 100)
+                self.usersettings.change_setting_value("pulse_flicker_strength", self.ledsettings.pulse_flicker_strength)
+
+            if self.current_choice == "Flicker Speed":
+                self.ledsettings.pulse_flicker_speed += value * self.speed_multiplier
+                if self.ledsettings.pulse_flicker_speed < 0:
+                    self.ledsettings.pulse_flicker_speed = 0
+                self.usersettings.change_setting_value("pulse_flicker_speed", self.ledsettings.pulse_flicker_speed)
 
         if self.current_location == "Start_delay":
             self.screensaver_delay = int(self.screensaver_delay) + (value * self.speed_multiplier)

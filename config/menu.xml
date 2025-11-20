@@ -134,6 +134,13 @@
                 <Pedal text="Slow"></Pedal>
                 <Pedal text="Very slow"></Pedal>
             </Light_mode>
+            <Light_mode text="Pulse">
+                <Pulse text="Activate"></Pulse>
+                <Pulse text="Animation Speed"></Pulse>
+                <Pulse text="Animation Distance"></Pulse>
+                <Pulse text="Flicker Strength"></Pulse>
+                <Pulse text="Flicker Speed"></Pulse>
+            </Light_mode>
             <Light_mode text="Disabled"></Light_mode>
         </LED_Strip_Settings>
         <LED_Strip_Settings text="Brightness">
