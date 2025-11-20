@@ -246,6 +246,11 @@ function initialize_led_settings() {
         change_setting("pulse_flicker_strength", value, false, true)
     }
 
+    document.getElementById('pulse_flicker_speed').onchange = function () {
+        let value = this.value || "30";
+        change_setting("pulse_flicker_speed", value, false, true)
+    }
+
     document.getElementById('light_mode').onchange = function () {
         if (this.value === "Fading") {
             document.getElementById('fading').hidden = false;
@@ -264,6 +269,7 @@ function initialize_led_settings() {
             document.getElementById('pulse_animation_speed').onchange();
             document.getElementById('pulse_animation_distance').onchange();
             document.getElementById('pulse_flicker_strength').onchange();
+            document.getElementById('pulse_flicker_speed').onchange();
         } else {
             document.getElementById('pulse').hidden = true;
         }

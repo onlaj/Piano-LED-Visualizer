@@ -80,11 +80,21 @@
         </div>
     </div>
 
-    <div class="mb-2">
-        <label class="block text-gray-600 dark:text-gray-400 text-sm font-bold mb-1" for="pulse_flicker_strength" data-translate="flicker_strength">
-            Flicker Strength
-        </label>
-        <input id="pulse_flicker_strength" type="number" min="0" max="100" value="50" class="block appearance-none w-full glass-light
-            py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast text-gray-700 dark:text-gray-200">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+        <div>
+            <label class="block text-gray-600 dark:text-gray-400 text-sm font-bold mb-1" for="pulse_flicker_strength" data-translate="flicker_strength">
+                Flicker Strength
+            </label>
+            <input id="pulse_flicker_strength" type="number" min="0" max="100" value="50" class="block appearance-none w-full glass-light
+                py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast text-gray-700 dark:text-gray-200">
+        </div>
+
+        <div>
+            <label class="block text-gray-600 dark:text-gray-400 text-sm font-bold mb-1" for="pulse_flicker_speed" data-translate="flicker_speed">
+                Flicker Speed
+            </label>
+            <input id="pulse_flicker_speed" type="number" min="1" max="100" value="30" class="block appearance-none w-full glass-light
+                py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast text-gray-700 dark:text-gray-200">
+        </div>
     </div>
 </div>

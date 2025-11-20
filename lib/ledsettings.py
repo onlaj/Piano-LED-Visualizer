@@ -26,6 +26,7 @@ class LedSettings:
         self.pulse_animation_speed = int(usersettings.get_setting_value("pulse_animation_speed"))
         self.pulse_animation_distance = int(usersettings.get_setting_value("pulse_animation_distance"))
         self.pulse_flicker_strength = int(usersettings.get_setting_value("pulse_flicker_strength"))
+        self.pulse_flicker_speed = int(usersettings.get_setting_value("pulse_flicker_speed"))
         self.fadepedal_notedrop = int(usersettings.get_setting_value("fadepedal_notedrop"))
         self.color_mode = usersettings.get_setting_value("color_mode")
         self.rainbow_offset = int(usersettings.get_setting_value("rainbow_offset"))

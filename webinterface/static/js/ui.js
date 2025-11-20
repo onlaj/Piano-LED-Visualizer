@@ -602,6 +602,7 @@ function get_settings(home = true) {
                     document.getElementById('pulse_animation_speed').value = response.pulse_animation_speed;
                     document.getElementById('pulse_animation_distance').value = response.pulse_animation_distance;
                     document.getElementById('pulse_flicker_strength').value = response.pulse_flicker_strength;
+                    document.getElementById('pulse_flicker_speed').value = response.pulse_flicker_speed;
                 }
 
                 document.getElementById("led_color").value = response["led_color"];

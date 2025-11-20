@@ -140,7 +140,7 @@ class LEDEffectsProcessor:
             if attack_progress >= 1.0 and state != "release":
                 # Sustain phase - apply flicker
                 # Simple sine wave flicker
-                v_val = (math.sin(current_time * 30) + 1) / 2  # 0 to 1
+                v_val = (math.sin(current_time * self.ledsettings.pulse_flicker_speed) + 1) / 2  # 0 to 1
                 # Modulate intensity down by strength
                 current_intensity = velocity * (1.0 - (flicker_strength * v_val))
                 

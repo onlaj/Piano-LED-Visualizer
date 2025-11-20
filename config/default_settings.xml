@@ -15,6 +15,7 @@
 	<pulse_animation_speed>1000</pulse_animation_speed>
 	<pulse_animation_distance>10</pulse_animation_distance>
 	<pulse_flicker_strength>5</pulse_flicker_strength>
+	<pulse_flicker_speed>30</pulse_flicker_speed>
 	<fadepedal_notedrop>0</fadepedal_notedrop>
 	<color_mode>Single</color_mode>
 

@@ -217,6 +217,12 @@ def change_setting():
         app_state.ledsettings.pulse_flicker_strength = int(value)
         app_state.usersettings.change_setting_value("pulse_flicker_strength", app_state.ledsettings.pulse_flicker_strength)
 
+    if setting_name == "pulse_flicker_speed":
+        if not int(value):
+            value = 30
+        app_state.ledsettings.pulse_flicker_speed = int(value)
+        app_state.usersettings.change_setting_value("pulse_flicker_speed", app_state.ledsettings.pulse_flicker_speed)
+
     if setting_name == "brightness":
         app_state.usersettings.change_setting_value("brightness_percent", int(value))
         app_state.ledstrip.change_brightness(int(value), True)
@@ -1544,6 +1550,7 @@ def get_settings():
     response["pulse_animation_speed"] = app_state.usersettings.get_setting_value("pulse_animation_speed")
     response["pulse_animation_distance"] = app_state.usersettings.get_setting_value("pulse_animation_distance")
     response["pulse_flicker_strength"] = app_state.usersettings.get_setting_value("pulse_flicker_strength")
+    response["pulse_flicker_speed"] = app_state.usersettings.get_setting_value("pulse_flicker_speed")
 
     response["brightness"] = brightness
     response["backlight_brightness"] = backlight_brightness
