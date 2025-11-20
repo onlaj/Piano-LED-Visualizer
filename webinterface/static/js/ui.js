@@ -597,6 +597,12 @@ function get_settings(home = true) {
                     document.getElementById('velocity').hidden = false;
                     document.getElementById('velocity_speed').value = response.fading_speed;
                 }
+                if (response.light_mode === "Pulse") {
+                    document.getElementById('pulse').hidden = false;
+                    document.getElementById('pulse_animation_speed').value = response.pulse_animation_speed;
+                    document.getElementById('pulse_animation_distance').value = response.pulse_animation_distance;
+                    document.getElementById('pulse_flicker_strength').value = response.pulse_flicker_strength;
+                }
 
                 document.getElementById("led_color").value = response["led_color"];
 

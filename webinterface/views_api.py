@@ -199,6 +199,24 @@ def change_setting():
         app_state.ledsettings.fadingspeed = int(value)
         app_state.usersettings.change_setting_value("fadingspeed", app_state.ledsettings.fadingspeed)
 
+    if setting_name == "pulse_animation_speed":
+        if not int(value):
+            value = 1000
+        app_state.ledsettings.pulse_animation_speed = int(value)
+        app_state.usersettings.change_setting_value("pulse_animation_speed", app_state.ledsettings.pulse_animation_speed)
+
+    if setting_name == "pulse_animation_distance":
+        if not int(value):
+            value = 10
+        app_state.ledsettings.pulse_animation_distance = int(value)
+        app_state.usersettings.change_setting_value("pulse_animation_distance", app_state.ledsettings.pulse_animation_distance)
+
+    if setting_name == "pulse_flicker_strength":
+        if not int(value):
+            value = 5
+        app_state.ledsettings.pulse_flicker_strength = int(value)
+        app_state.usersettings.change_setting_value("pulse_flicker_strength", app_state.ledsettings.pulse_flicker_strength)
+
     if setting_name == "brightness":
         app_state.usersettings.change_setting_value("brightness_percent", int(value))
         app_state.ledstrip.change_brightness(int(value), True)
@@ -1523,6 +1541,9 @@ def get_settings():
     response["led_color"] = led_color
     response["light_mode"] = light_mode
     response["fading_speed"] = fading_speed
+    response["pulse_animation_speed"] = app_state.usersettings.get_setting_value("pulse_animation_speed")
+    response["pulse_animation_distance"] = app_state.usersettings.get_setting_value("pulse_animation_distance")
+    response["pulse_flicker_strength"] = app_state.usersettings.get_setting_value("pulse_flicker_strength")
 
     response["brightness"] = brightness
     response["backlight_brightness"] = backlight_brightness

@@ -231,6 +231,21 @@ function initialize_led_settings() {
         change_setting("velocity_speed", value, false, true)
     }
 
+    document.getElementById('pulse_animation_speed').onchange = function () {
+        let value = this.value || "1000";
+        change_setting("pulse_animation_speed", value, false, true)
+    }
+
+    document.getElementById('pulse_animation_distance').onchange = function () {
+        let value = this.value || "10";
+        change_setting("pulse_animation_distance", value, false, true)
+    }
+
+    document.getElementById('pulse_flicker_strength').onchange = function () {
+        let value = this.value || "50";
+        change_setting("pulse_flicker_strength", value, false, true)
+    }
+
     document.getElementById('light_mode').onchange = function () {
         if (this.value === "Fading") {
             document.getElementById('fading').hidden = false;
@@ -243,6 +258,14 @@ function initialize_led_settings() {
             document.getElementById('velocity_speed').onchange();
         } else {
             document.getElementById('velocity').hidden = true;
+        }
+        if (this.value === "Pulse") {
+            document.getElementById('pulse').hidden = false;
+            document.getElementById('pulse_animation_speed').onchange();
+            document.getElementById('pulse_animation_distance').onchange();
+            document.getElementById('pulse_flicker_strength').onchange();
+        } else {
+            document.getElementById('pulse').hidden = true;
         }
         change_setting("light_mode", this.value, false, true)
     }

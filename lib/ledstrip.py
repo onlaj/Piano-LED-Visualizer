@@ -52,6 +52,8 @@ class LedStrip:
         self.keylist_status = [0] * self.led_number
         self.keylist_color = [0] * self.led_number
         self.keylist_sustained = [0] * self.led_number  # Track notes sustained by pedal
+        self.active_pulses = [] # For Pulse mode
+
 
         if self.driver == "rpi_ws281x":
             try:
