@@ -49,33 +49,35 @@
 </div>
 
 <div hidden="true" id="pulse" class="relative">
-    <div class="mb-2">
-        <label class="block text-gray-600 dark:text-gray-400 text-sm font-bold mb-1" for="pulse_animation_speed" data-translate="speed">
-            Speed
-        </label>
-        <div class="relative">
-            <select id="pulse_animation_speed" class="block appearance-none w-full glass-light
-                py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
-                <option value="200" data-translate="very_fast">Very Fast</option>
-                <option value="500" data-translate="fast">Fast</option>
-                <option value="1000" selected data-translate="medium">Medium</option>
-                <option value="2000" data-translate="slow">Slow</option>
-                <option value="3000" data-translate="very_slow">Very Slow</option>
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                </svg>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+        <div>
+            <label class="block text-gray-600 dark:text-gray-400 text-sm font-bold mb-1" for="pulse_animation_speed" data-translate="speed">
+                Speed
+            </label>
+            <div class="relative">
+                <select id="pulse_animation_speed" class="block appearance-none w-full glass-light
+                    py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
+                    <option value="200" data-translate="very_fast">Very Fast</option>
+                    <option value="500" data-translate="fast">Fast</option>
+                    <option value="1000" selected data-translate="medium">Medium</option>
+                    <option value="2000" data-translate="slow">Slow</option>
+                    <option value="3000" data-translate="very_slow">Very Slow</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                    </svg>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="mb-2">
-        <label class="block text-gray-600 dark:text-gray-400 text-sm font-bold mb-1" for="pulse_animation_distance" data-translate="distance">
-            Distance
-        </label>
-        <input id="pulse_animation_distance" type="number" min="1" max="100" value="10" class="block appearance-none w-full glass-light
-            py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast text-gray-700 dark:text-gray-200">
+        <div>
+            <label class="block text-gray-600 dark:text-gray-400 text-sm font-bold mb-1" for="pulse_animation_distance" data-translate="distance">
+                Distance
+            </label>
+            <input id="pulse_animation_distance" type="number" min="1" max="100" value="10" class="block appearance-none w-full glass-light
+                py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast text-gray-700 dark:text-gray-200">
+        </div>
     </div>
 
     <div class="mb-2">
