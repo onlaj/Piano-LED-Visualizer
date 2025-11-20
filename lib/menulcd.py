@@ -566,14 +566,13 @@ class MenuLCD:
             text = text[:-1]
         return text + ellipsis
 
-    def _draw_label_with_legacy_scroll(self, text, x, y, max_w, font, is_selected, refresh):
+    def _draw_label_with_legacy_scroll(self, text, x, y, max_w, font, is_selected, refresh, window_len=18):
         """Legacy character-based scrolling (exactly like menulcd(old).py).
         Fixed 18-char window; only selected row scrolls; cut_count/scroll_hold; start delay -6; end hold 8 ticks.
         max_w is intentionally ignored to keep legacy behavior."""
         if text is None:
             return
         s = str(text)
-        window_len = 18
         cut = 0
         to_be_continued = ""
 
@@ -588,7 +587,7 @@ class MenuLCD:
                 cut = 0
                 self.cut_count = -6
 
-            if self.cut_count > (len(s) - 16):
+            if self.cut_count > (len(s) - (window_len - 2)):
                 if getattr(self, "scroll_hold", 0) < 8:
                     self.cut_count -= 1
                     self.scroll_hold = getattr(self, "scroll_hold", 0) + 1
@@ -1053,7 +1052,7 @@ class MenuLCD:
                 # Truncate label if needed
                 label_text = self._truncate_text(sid, label_max_width, self.font)
                 # Draw label
-                self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh)
+                self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh, window_len=12)
 
                 # Calculate value position, accounting for color box if needed
                 value_right_margin = value_right_margin_px
@@ -1065,7 +1064,7 @@ class MenuLCD:
                 # Just draw label centered vertically
                 label_max_width = item_x1 - item_x0 - scale(theme.item_padding_h * 2)
                 label_text = self._truncate_text(sid, label_max_width, self.font)
-                self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh)
+                self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh, window_len=18)
 
             current_y += total_item_height
         # Update scroll_needed flag based on actually selected item (legacy rule >18 chars)
