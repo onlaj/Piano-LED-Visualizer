@@ -377,6 +377,35 @@ class LedSettings:
                         self.pedal_speed = int(speed_node)
                     except (ValueError, IndexError, AttributeError):
                         self.pedal_speed = 1000
+            elif self.mode == "Pulse":
+                try:
+                    speed_node = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                                               0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "pulse_animation_speed")[0].firstChild.nodeValue
+                    self.pulse_animation_speed = int(speed_node)
+                except (ValueError, IndexError, AttributeError):
+                    self.pulse_animation_speed = 1000
+                try:
+                    distance_node = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                                               0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "pulse_animation_distance")[0].firstChild.nodeValue
+                    self.pulse_animation_distance = int(distance_node)
+                except (ValueError, IndexError, AttributeError):
+                    self.pulse_animation_distance = 10
+                try:
+                    flicker_strength_node = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                                               0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "pulse_flicker_strength")[0].firstChild.nodeValue
+                    self.pulse_flicker_strength = int(flicker_strength_node)
+                except (ValueError, IndexError, AttributeError):
+                    self.pulse_flicker_strength = 5
+                try:
+                    flicker_speed_node = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                                               0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "pulse_flicker_speed")[0].firstChild.nodeValue
+                    self.pulse_flicker_speed = int(flicker_speed_node)
+                except (ValueError, IndexError, AttributeError):
+                    self.pulse_flicker_speed = 30
             if self.color_mode == "RGB" or self.color_mode == "Single":
                 self.color_mode = "Single"
                 self.red = int(self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[

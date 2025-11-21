@@ -1689,6 +1689,10 @@ def get_sequence_setting():
     response["velocityrainbow_colormap"] = velocityrainbow_colormap
     response["speed_max_notes"] = app_state.ledsettings.speed_max_notes
     response["speed_period_in_seconds"] = app_state.ledsettings.speed_period_in_seconds
+    response["pulse_animation_speed"] = app_state.ledsettings.pulse_animation_speed
+    response["pulse_animation_distance"] = app_state.ledsettings.pulse_animation_distance
+    response["pulse_flicker_strength"] = app_state.ledsettings.pulse_flicker_strength
+    response["pulse_flicker_speed"] = app_state.ledsettings.pulse_flicker_speed
     return jsonify(response)
 
 
