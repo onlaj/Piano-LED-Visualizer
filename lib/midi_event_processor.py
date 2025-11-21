@@ -149,8 +149,16 @@ class MIDIEventProcessor:
                 # Set to fading state (1000+ indicates fading)
                 self.ledstrip.keylist[note_position] = 1000
             elif self.ledsettings.mode == "Normal":
-                # Turn off immediately
+                # Standard mode - full brightness while key is pressed
                 self.ledstrip.keylist[note_position] = 0
+            elif self.ledsettings.mode == "Pulse":
+                # Find the active pulse for this note and trigger release
+                for pulse in self.ledstrip.active_pulses:
+                    if pulse["position"] == note_position and pulse.get("state") != "release":
+                        pulse["state"] = "release"
+                        pulse["release_time"] = time.perf_counter()
+                        # Keep the pulse active in the list so led_effects_processor handles the animation
+                        # We don't set keylist to 0 because the pulse effect handles the LED status
             elif self.ledsettings.mode == "Pedal":
                 # Gradually reduce brightness based on pedal settings
                 self.ledstrip.keylist[note_position] *= (100 - self.ledsettings.fadepedal_notedrop) / 100
@@ -211,6 +219,17 @@ class MIDIEventProcessor:
         elif self.ledsettings.mode == "Pedal":
             # For pedal mode, start at 999 (will be affected by pedal status)
             self.ledstrip.keylist[note_position] = 999
+        elif self.ledsettings.mode == "Pulse":
+            # Create a new pulse effect
+            self.ledstrip.active_pulses.append({
+                "position": note_position,
+                "color": (red, green, blue),
+                "start_time": time.perf_counter(),
+                "velocity": velocity / 127.0,
+                "state": "attack",
+                "release_time": None
+            })
+            self.ledstrip.keylist[note_position] = 0  # Pulse handles lighting
 
         # Handle special channels for hand coloring (channels 11 and 12)
         channel = find_between(str(msg), "channel=", " ")

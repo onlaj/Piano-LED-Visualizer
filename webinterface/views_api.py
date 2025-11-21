@@ -193,11 +193,52 @@ def change_setting():
         app_state.ledsettings.mode = value
         app_state.usersettings.change_setting_value("mode", value)
 
-    if setting_name == "fading_speed" or setting_name == "velocity_speed":
+    if setting_name == "fading_speed":
         if not int(value):
             value = 1000
         app_state.ledsettings.fadingspeed = int(value)
         app_state.usersettings.change_setting_value("fadingspeed", app_state.ledsettings.fadingspeed)
+    
+    if setting_name == "velocity_speed":
+        if not int(value):
+            value = 1000
+        app_state.ledsettings.velocity_speed = int(value)
+        app_state.usersettings.change_setting_value("velocity_speed", app_state.ledsettings.velocity_speed)
+    
+    if setting_name == "pedal_speed":
+        if not int(value):
+            value = 1000
+        app_state.ledsettings.pedal_speed = int(value)
+        app_state.usersettings.change_setting_value("pedal_speed", app_state.ledsettings.pedal_speed)
+
+    if setting_name == "pulse_animation_speed":
+        if not int(value):
+            value = 1000
+        app_state.ledsettings.pulse_animation_speed = int(value)
+        app_state.usersettings.change_setting_value("pulse_animation_speed", app_state.ledsettings.pulse_animation_speed)
+
+    if setting_name == "pulse_animation_distance":
+        if not int(value):
+            value = 10
+        app_state.ledsettings.pulse_animation_distance = int(value)
+        app_state.usersettings.change_setting_value("pulse_animation_distance", app_state.ledsettings.pulse_animation_distance)
+
+    if setting_name == "pulse_flicker_strength":
+        if not int(value):
+            value = 5
+        app_state.ledsettings.pulse_flicker_strength = int(value)
+        app_state.usersettings.change_setting_value("pulse_flicker_strength", app_state.ledsettings.pulse_flicker_strength)
+
+    if setting_name == "pulse_flicker_speed":
+        # Value is already in radians/sec from JavaScript conversion
+        try:
+            float_value = float(value)
+            if float_value <= 0:
+                float_value = 30.0  # Default: ~4.77 Hz in radians/sec
+        except (ValueError, TypeError):
+            float_value = 30.0  # Default: ~4.77 Hz in radians/sec
+        app_state.ledsettings.pulse_flicker_speed = float_value
+        app_state.usersettings.change_setting_value("pulse_flicker_speed", app_state.ledsettings.pulse_flicker_speed)
 
     if setting_name == "brightness":
         app_state.usersettings.change_setting_value("brightness_percent", int(value))
@@ -735,11 +776,19 @@ def change_setting():
         mode.appendChild(sequences_tree.createTextNode(str(app_state.ledsettings.mode)))
         step.appendChild(mode)
 
-        # if mode is equal "Fading" or "Velocity", load fadingspeed from ledsettings and put it into step node
-        if app_state.ledsettings.mode in ["Fading", "Velocity"]:
+        # Save mode-specific speed settings
+        if app_state.ledsettings.mode == "Fading":
             fadingspeed = sequences_tree.createElement("fadingspeed")
             fadingspeed.appendChild(sequences_tree.createTextNode(str(app_state.ledsettings.fadingspeed)))
             step.appendChild(fadingspeed)
+        elif app_state.ledsettings.mode == "Velocity":
+            velocity_speed = sequences_tree.createElement("velocity_speed")
+            velocity_speed.appendChild(sequences_tree.createTextNode(str(app_state.ledsettings.velocity_speed)))
+            step.appendChild(velocity_speed)
+        elif app_state.ledsettings.mode == "Pedal":
+            pedal_speed = sequences_tree.createElement("pedal_speed")
+            pedal_speed.appendChild(sequences_tree.createTextNode(str(app_state.ledsettings.pedal_speed)))
+            step.appendChild(pedal_speed)
 
         # if color_mode is equal to "Single" load color from app_state.ledsettings and put it into step node
         if app_state.ledsettings.color_mode == "Single":
@@ -1562,7 +1611,15 @@ def get_sequence_setting():
 
     light_mode = app_state.ledsettings.mode
 
-    fading_speed = app_state.ledsettings.fadingspeed
+    # Get mode-specific speed
+    if light_mode == "Fading":
+        fading_speed = app_state.ledsettings.fadingspeed
+    elif light_mode == "Velocity":
+        fading_speed = app_state.ledsettings.velocity_speed
+    elif light_mode == "Pedal":
+        fading_speed = app_state.ledsettings.pedal_speed
+    else:
+        fading_speed = app_state.ledsettings.fadingspeed
 
     red = app_state.ledsettings.red
     green = app_state.ledsettings.green
@@ -1637,6 +1694,10 @@ def get_sequence_setting():
     response["velocityrainbow_colormap"] = velocityrainbow_colormap
     response["speed_max_notes"] = app_state.ledsettings.speed_max_notes
     response["speed_period_in_seconds"] = app_state.ledsettings.speed_period_in_seconds
+    response["pulse_animation_speed"] = app_state.ledsettings.pulse_animation_speed
+    response["pulse_animation_distance"] = app_state.ledsettings.pulse_animation_distance
+    response["pulse_flicker_strength"] = app_state.ledsettings.pulse_flicker_strength
+    response["pulse_flicker_speed"] = app_state.ledsettings.pulse_flicker_speed
     return jsonify(response)
 
 
@@ -1670,7 +1731,19 @@ def get_settings():
     sides_color = wc.rgb_to_hex((int(sides_red), int(sides_green), int(sides_blue)))
 
     light_mode = app_state.usersettings.get_setting_value("mode")
-    fading_speed = app_state.usersettings.get_setting_value("fadingspeed")
+    # Get mode-specific speed
+    if light_mode == "Fading":
+        fading_speed = app_state.usersettings.get_setting_value("fadingspeed")
+    elif light_mode == "Velocity":
+        fading_speed = app_state.usersettings.get_setting_value("velocity_speed")
+        if not fading_speed:
+            fading_speed = app_state.usersettings.get_setting_value("fadingspeed")  # Fallback
+    elif light_mode == "Pedal":
+        fading_speed = app_state.usersettings.get_setting_value("pedal_speed")
+        if not fading_speed:
+            fading_speed = app_state.usersettings.get_setting_value("fadingspeed")  # Fallback
+    else:
+        fading_speed = app_state.usersettings.get_setting_value("fadingspeed")
 
     brightness = app_state.usersettings.get_setting_value("brightness_percent")
     backlight_brightness = app_state.usersettings.get_setting_value("backlight_brightness_percent")
@@ -1679,6 +1752,10 @@ def get_settings():
     response["led_color"] = led_color
     response["light_mode"] = light_mode
     response["fading_speed"] = fading_speed
+    response["pulse_animation_speed"] = app_state.usersettings.get_setting_value("pulse_animation_speed")
+    response["pulse_animation_distance"] = app_state.usersettings.get_setting_value("pulse_animation_distance")
+    response["pulse_flicker_strength"] = app_state.usersettings.get_setting_value("pulse_flicker_strength")
+    response["pulse_flicker_speed"] = app_state.usersettings.get_setting_value("pulse_flicker_speed")
 
     response["brightness"] = brightness
     response["backlight_brightness"] = backlight_brightness

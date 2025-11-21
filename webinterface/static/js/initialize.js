@@ -231,6 +231,33 @@ function initialize_led_settings() {
         change_setting("velocity_speed", value, false, true)
     }
 
+    document.getElementById('pedal_speed').onchange = function () {
+        let value = this.value || "8";
+        change_setting("pedal_speed", value, false, true)
+    }
+
+    document.getElementById('pulse_animation_speed').onchange = function () {
+        let value = this.value || "1000";
+        change_setting("pulse_animation_speed", value, false, true)
+    }
+
+    document.getElementById('pulse_animation_distance').onchange = function () {
+        let value = this.value || "10";
+        change_setting("pulse_animation_distance", value, false, true)
+    }
+
+    document.getElementById('pulse_flicker_strength').onchange = function () {
+        let value = this.value || "50";
+        change_setting("pulse_flicker_strength", value, false, true)
+    }
+
+    document.getElementById('pulse_flicker_speed').onchange = function () {
+        let hz = parseFloat(this.value) || 4.77;
+        // Convert Hz to radians per second for storage
+        let radiansPerSecond = hz * 2 * Math.PI;
+        change_setting("pulse_flicker_speed", radiansPerSecond.toString(), false, true)
+    }
+
     document.getElementById('light_mode').onchange = function () {
         if (this.value === "Fading") {
             document.getElementById('fading').hidden = false;
@@ -238,11 +265,26 @@ function initialize_led_settings() {
         } else {
             document.getElementById('fading').hidden = true;
         }
-        if (this.value === "Velocity" || this.value === "Pedal") {
+        if (this.value === "Velocity") {
             document.getElementById('velocity').hidden = false;
+            document.getElementById('pedal').hidden = true;
             document.getElementById('velocity_speed').onchange();
+        } else if (this.value === "Pedal") {
+            document.getElementById('velocity').hidden = true;
+            document.getElementById('pedal').hidden = false;
+            document.getElementById('pedal_speed').onchange();
         } else {
             document.getElementById('velocity').hidden = true;
+            document.getElementById('pedal').hidden = true;
+        }
+        if (this.value === "Pulse") {
+            document.getElementById('pulse').hidden = false;
+            document.getElementById('pulse_animation_speed').onchange();
+            document.getElementById('pulse_animation_distance').onchange();
+            document.getElementById('pulse_flicker_strength').onchange();
+            document.getElementById('pulse_flicker_speed').onchange();
+        } else {
+            document.getElementById('pulse').hidden = true;
         }
         change_setting("light_mode", this.value, false, true)
     }

@@ -591,11 +591,22 @@ function get_settings(home = true) {
                 }
                 if (response.light_mode === "Velocity") {
                     document.getElementById('velocity').hidden = false;
+                    document.getElementById('pedal').hidden = true;
                     document.getElementById('velocity_speed').value = response.fading_speed;
                 }
                 if (response.light_mode === "Pedal") {
-                    document.getElementById('velocity').hidden = false;
-                    document.getElementById('velocity_speed').value = response.fading_speed;
+                    document.getElementById('velocity').hidden = true;
+                    document.getElementById('pedal').hidden = false;
+                    document.getElementById('pedal_speed').value = response.fading_speed;
+                }
+                if (response.light_mode === "Pulse") {
+                    document.getElementById('pulse').hidden = false;
+                    document.getElementById('pulse_animation_speed').value = response.pulse_animation_speed;
+                    document.getElementById('pulse_animation_distance').value = response.pulse_animation_distance;
+                    document.getElementById('pulse_flicker_strength').value = response.pulse_flicker_strength;
+                    // Convert radians per second to Hz for display
+                    let hz = parseFloat(response.pulse_flicker_speed) / (2 * Math.PI);
+                    document.getElementById('pulse_flicker_speed').value = hz.toFixed(2);
                 }
 
                 document.getElementById("led_color").value = response["led_color"];
@@ -695,14 +706,29 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             if (is_editing_sequence === "true") {
                 document.getElementById('fading').hidden = true;
                 document.getElementById('velocity').hidden = true;
+                document.getElementById('pedal').hidden = true;
+                document.getElementById('pulse').hidden = true;
                 document.getElementById("light_mode").value = response["light_mode"];
                 if (response["light_mode"] === "Fading") {
                     document.getElementById('fading').hidden = false;
                     document.getElementById('fading_speed').value = response["fading_speed"];
                 }
-                if (response["light_mode"] === "Velocity" || response["light_mode"] === "Pedal") {
+                if (response["light_mode"] === "Velocity") {
                     document.getElementById('velocity').hidden = false;
-                    document.getElementById('fading_speed').value = response["fading_speed"];
+                    document.getElementById('velocity_speed').value = response["fading_speed"];
+                }
+                if (response["light_mode"] === "Pedal") {
+                    document.getElementById('pedal').hidden = false;
+                    document.getElementById('pedal_speed').value = response["fading_speed"];
+                }
+                if (response["light_mode"] === "Pulse") {
+                    document.getElementById('pulse').hidden = false;
+                    document.getElementById('pulse_animation_speed').value = response["pulse_animation_speed"];
+                    document.getElementById('pulse_animation_distance').value = response["pulse_animation_distance"];
+                    document.getElementById('pulse_flicker_strength').value = response["pulse_flicker_strength"];
+                    // Convert radians per second to Hz for display
+                    let hz = parseFloat(response["pulse_flicker_speed"]) / (2 * Math.PI);
+                    document.getElementById('pulse_flicker_speed').value = hz.toFixed(2);
                 }
                 document.getElementById("color_mode").value = response["color_mode"];
                 change_setting("color_mode", response["color_mode"], "no_reload", true);

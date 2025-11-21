@@ -116,23 +116,48 @@
             <Light_mode text="Normal"></Light_mode>
             <Light_mode text="Fading">
                 <Fading text="Instant"></Fading>
-                <Fading text="Very fast"></Fading>
-                <Fading text="Fast"></Fading>
-                <Fading text="Medium"></Fading>
-                <Fading text="Slow"></Fading>
-                <Fading text="Very slow"></Fading>
+                <Fading text="0.2 sec"></Fading>
+                <Fading text="0.5 sec"></Fading>
+                <Fading text="1 sec"></Fading>
+                <Fading text="2 sec"></Fading>
+                <Fading text="3 sec"></Fading>
+                <Fading text="5 sec"></Fading>
+                <Fading text="10 sec"></Fading>
             </Light_mode>
             <Light_mode text="Velocity">
-                <Velocity text="Fast"></Velocity>
-                <Velocity text="Medium"></Velocity>
-                <Velocity text="Slow"></Velocity>
-                <Velocity text="Very slow"></Velocity>
+                <Velocity text="0.5 sec"></Velocity>
+                <Velocity text="1 sec"></Velocity>
+                <Velocity text="2 sec"></Velocity>
+                <Velocity text="3 sec"></Velocity>
+                <Velocity text="4 sec"></Velocity>
+                <Velocity text="5 sec"></Velocity>
+                <Velocity text="8 sec"></Velocity>
+                <Velocity text="10 sec"></Velocity>
             </Light_mode>
             <Light_mode text="Pedal">
-                <Pedal text="Fast"></Pedal>
-                <Pedal text="Medium"></Pedal>
-                <Pedal text="Slow"></Pedal>
-                <Pedal text="Very slow"></Pedal>
+                <Pedal text="0.5 sec"></Pedal>
+                <Pedal text="1 sec"></Pedal>
+                <Pedal text="2 sec"></Pedal>
+                <Pedal text="3 sec"></Pedal>
+                <Pedal text="4 sec"></Pedal>
+                <Pedal text="5 sec"></Pedal>
+                <Pedal text="8 sec"></Pedal>
+                <Pedal text="10 sec"></Pedal>
+            </Light_mode>
+            <Light_mode text="Pulse">
+                <Pulse text="Activate"></Pulse>
+                <Pulse text="Animation Speed">
+                    <Animation_Speed text="0.2 sec"></Animation_Speed>
+                    <Animation_Speed text="0.5 sec"></Animation_Speed>
+                    <Animation_Speed text="1 sec"></Animation_Speed>
+                    <Animation_Speed text="2 sec"></Animation_Speed>
+                    <Animation_Speed text="3 sec"></Animation_Speed>
+                    <Animation_Speed text="5 sec"></Animation_Speed>
+                    <Animation_Speed text="10 sec"></Animation_Speed>
+                </Pulse>
+                <Pulse text="Animation Distance"></Pulse>
+                <Pulse text="Flicker Strength"></Pulse>
+                <Pulse text="Flicker Speed"></Pulse>
             </Light_mode>
             <Light_mode text="Disabled"></Light_mode>
         </LED_Strip_Settings>

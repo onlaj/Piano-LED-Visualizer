@@ -566,14 +566,13 @@ class MenuLCD:
             text = text[:-1]
         return text + ellipsis
 
-    def _draw_label_with_legacy_scroll(self, text, x, y, max_w, font, is_selected, refresh):
+    def _draw_label_with_legacy_scroll(self, text, x, y, max_w, font, is_selected, refresh, window_len=18):
         """Legacy character-based scrolling (exactly like menulcd(old).py).
         Fixed 18-char window; only selected row scrolls; cut_count/scroll_hold; start delay -6; end hold 8 ticks.
         max_w is intentionally ignored to keep legacy behavior."""
         if text is None:
             return
         s = str(text)
-        window_len = 18
         cut = 0
         to_be_continued = ""
 
@@ -588,7 +587,7 @@ class MenuLCD:
                 cut = 0
                 self.cut_count = -6
 
-            if self.cut_count > (len(s) - 16):
+            if self.cut_count > (len(s) - (window_len - 2)):
                 if getattr(self, "scroll_hold", 0) < 8:
                     self.cut_count -= 1
                     self.scroll_hold = getattr(self, "scroll_hold", 0) + 1
@@ -705,6 +704,18 @@ class MenuLCD:
                     value = self.ledsettings.velocityrainbow_scale
                 elif choice == "Curve":
                     value = self.ledsettings.velocityrainbow_curve
+
+            # --- Pulse Settings ---
+            elif location == "Pulse":
+                if choice == "Animation Distance":
+                    value = self.ledsettings.pulse_animation_distance
+                elif choice == "Flicker Strength":
+                    value = self.ledsettings.pulse_flicker_strength
+                elif choice == "Flicker Speed":
+                    # Convert radians/sec to Hz for display
+                    import math
+                    hz = self.ledsettings.pulse_flicker_speed / (2 * math.pi)
+                    value = f"{hz:.2f} Hz"
         
             # RGB color values (existing logic)
             elif location == "RGB":
@@ -1042,7 +1053,7 @@ class MenuLCD:
                 # Truncate label if needed
                 label_text = self._truncate_text(sid, label_max_width, self.font)
                 # Draw label
-                self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh)
+                self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh, window_len=12)
 
                 # Calculate value position, accounting for color box if needed
                 value_right_margin = value_right_margin_px
@@ -1054,7 +1065,7 @@ class MenuLCD:
                 # Just draw label centered vertically
                 label_max_width = item_x1 - item_x0 - scale(theme.item_padding_h * 2)
                 label_text = self._truncate_text(sid, label_max_width, self.font)
-                self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh)
+                self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh, window_len=18)
 
             current_y += total_item_height
         # Update scroll_needed flag based on actually selected item (legacy rule >18 chars)
@@ -1435,24 +1446,34 @@ class MenuLCD:
 
         mode_mapping = {
             "Fading": {
-                "Very fast": 200,
-                "Fast": 500,
-                "Medium": 1000,
-                "Slow": 2000,
-                "Very slow": 4000,
-                "Instant": 10
+                "Instant": 10,
+                "0.2 sec": 200,
+                "0.5 sec": 500,
+                "1 sec": 1000,
+                "2 sec": 2000,
+                "3 sec": 3000,
+                "5 sec": 5000,
+                "10 sec": 10000
             },
             "Velocity": {
-                "Fast": 1000,
-                "Medium": 3000,
-                "Slow": 4000,
-                "Very slow": 6000
+                "0.5 sec": 500,
+                "1 sec": 1000,
+                "2 sec": 2000,
+                "3 sec": 3000,
+                "4 sec": 4000,
+                "5 sec": 5000,
+                "8 sec": 8000,
+                "10 sec": 10000
             },
             "Pedal": {
-                "Fast": 1000,
-                "Medium": 3000,
-                "Slow": 4000,
-                "Very slow": 6000
+                "0.5 sec": 500,
+                "1 sec": 1000,
+                "2 sec": 2000,
+                "3 sec": 3000,
+                "4 sec": 4000,
+                "5 sec": 5000,
+                "8 sec": 8000,
+                "10 sec": 10000
             }
         }
 
@@ -1460,8 +1481,36 @@ class MenuLCD:
             self.ledsettings.mode = location
             self.usersettings.change_setting_value("mode", self.ledsettings.mode)
             if choice in mode_mapping[location]:
-                self.ledsettings.fadingspeed = mode_mapping[location][choice]
-                self.usersettings.change_setting_value("fadingspeed", self.ledsettings.fadingspeed)
+                speed_value = mode_mapping[location][choice]
+                if location == "Fading":
+                    self.ledsettings.fadingspeed = speed_value
+                    self.usersettings.change_setting_value("fadingspeed", self.ledsettings.fadingspeed)
+                elif location == "Velocity":
+                    self.ledsettings.velocity_speed = speed_value
+                    self.usersettings.change_setting_value("velocity_speed", self.ledsettings.velocity_speed)
+                elif location == "Pedal":
+                    self.ledsettings.pedal_speed = speed_value
+                    self.usersettings.change_setting_value("pedal_speed", self.ledsettings.pedal_speed)
+
+        # Handle Pulse Animation Speed submenu
+        pulse_speed_mapping = {
+            "0.2 sec": 200,
+            "0.5 sec": 500,
+            "1 sec": 1000,
+            "2 sec": 2000,
+            "3 sec": 3000,
+            "5 sec": 5000,
+            "10 sec": 10000
+        }
+        
+        if location == "Animation_Speed" and choice in pulse_speed_mapping:
+            self.ledsettings.pulse_animation_speed = pulse_speed_mapping[choice]
+            self.usersettings.change_setting_value("pulse_animation_speed", self.ledsettings.pulse_animation_speed)
+
+        if location == "Pulse" and choice == "Activate":
+            self.ledsettings.mode = "Pulse"
+            self.usersettings.change_setting_value("mode", self.ledsettings.mode)
+            fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
 
         if location == "Light_mode":
             if choice == "Disabled":
@@ -1764,6 +1813,30 @@ class MenuLCD:
             if self.current_choice == "Curve":
                 self.ledsettings.velocityrainbow_curve = \
                     self.ledsettings.velocityrainbow_curve + value * self.speed_multiplier
+
+        if self.current_location == "Pulse":            
+            if self.current_choice == "Animation Distance":
+                self.ledsettings.pulse_animation_distance += value * self.speed_multiplier
+                if self.ledsettings.pulse_animation_distance < 0:
+                    self.ledsettings.pulse_animation_distance = 0
+                self.usersettings.change_setting_value("pulse_animation_distance", self.ledsettings.pulse_animation_distance)
+
+            if self.current_choice == "Flicker Strength":
+                self.ledsettings.pulse_flicker_strength += value * self.speed_multiplier
+                self.ledsettings.pulse_flicker_strength = clamp(self.ledsettings.pulse_flicker_strength, 0, 100)
+                self.usersettings.change_setting_value("pulse_flicker_strength", self.ledsettings.pulse_flicker_strength)
+
+            if self.current_choice == "Flicker Speed":
+                import math
+                # Adjust in 0.1 Hz increments, convert to radians/sec for storage
+                hz_adjustment = value * 0.1 * self.speed_multiplier
+                current_hz = self.ledsettings.pulse_flicker_speed / (2 * math.pi)
+                new_hz = current_hz + hz_adjustment
+                if new_hz < 0:
+                    new_hz = 0
+                # Convert back to radians/sec for storage
+                self.ledsettings.pulse_flicker_speed = new_hz * 2 * math.pi
+                self.usersettings.change_setting_value("pulse_flicker_speed", self.ledsettings.pulse_flicker_speed)
 
         if self.current_location == "Start_delay":
             self.screensaver_delay = int(self.screensaver_delay) + (value * self.speed_multiplier)
