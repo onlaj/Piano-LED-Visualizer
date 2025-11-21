@@ -707,14 +707,15 @@ class MenuLCD:
 
             # --- Pulse Settings ---
             elif location == "Pulse":
-                if choice == "Animation Speed":
-                    value = self.ledsettings.pulse_animation_speed
-                elif choice == "Animation Distance":
+                if choice == "Animation Distance":
                     value = self.ledsettings.pulse_animation_distance
                 elif choice == "Flicker Strength":
                     value = self.ledsettings.pulse_flicker_strength
                 elif choice == "Flicker Speed":
-                    value = self.ledsettings.pulse_flicker_speed
+                    # Convert radians/sec to Hz for display
+                    import math
+                    hz = self.ledsettings.pulse_flicker_speed / (2 * math.pi)
+                    value = f"{hz:.2f} Hz"
         
             # RGB color values (existing logic)
             elif location == "RGB":
@@ -1491,6 +1492,21 @@ class MenuLCD:
                     self.ledsettings.pedal_speed = speed_value
                     self.usersettings.change_setting_value("pedal_speed", self.ledsettings.pedal_speed)
 
+        # Handle Pulse Animation Speed submenu
+        pulse_speed_mapping = {
+            "0.2 sec": 200,
+            "0.5 sec": 500,
+            "1 sec": 1000,
+            "2 sec": 2000,
+            "3 sec": 3000,
+            "5 sec": 5000,
+            "10 sec": 10000
+        }
+        
+        if location == "Animation_Speed" and choice in pulse_speed_mapping:
+            self.ledsettings.pulse_animation_speed = pulse_speed_mapping[choice]
+            self.usersettings.change_setting_value("pulse_animation_speed", self.ledsettings.pulse_animation_speed)
+
         if location == "Pulse" and choice == "Activate":
             self.ledsettings.mode = "Pulse"
             self.usersettings.change_setting_value("mode", self.ledsettings.mode)
@@ -1798,13 +1814,7 @@ class MenuLCD:
                 self.ledsettings.velocityrainbow_curve = \
                     self.ledsettings.velocityrainbow_curve + value * self.speed_multiplier
 
-        if self.current_location == "Pulse":
-            if self.current_choice == "Animation Speed":
-                self.ledsettings.pulse_animation_speed += value * 10 * self.speed_multiplier
-                if self.ledsettings.pulse_animation_speed < 0:
-                    self.ledsettings.pulse_animation_speed = 0
-                self.usersettings.change_setting_value("pulse_animation_speed", self.ledsettings.pulse_animation_speed)
-
+        if self.current_location == "Pulse":            
             if self.current_choice == "Animation Distance":
                 self.ledsettings.pulse_animation_distance += value * self.speed_multiplier
                 if self.ledsettings.pulse_animation_distance < 0:
@@ -1817,9 +1827,15 @@ class MenuLCD:
                 self.usersettings.change_setting_value("pulse_flicker_strength", self.ledsettings.pulse_flicker_strength)
 
             if self.current_choice == "Flicker Speed":
-                self.ledsettings.pulse_flicker_speed += value * self.speed_multiplier
-                if self.ledsettings.pulse_flicker_speed < 0:
-                    self.ledsettings.pulse_flicker_speed = 0
+                import math
+                # Adjust in 0.1 Hz increments, convert to radians/sec for storage
+                hz_adjustment = value * 0.1 * self.speed_multiplier
+                current_hz = self.ledsettings.pulse_flicker_speed / (2 * math.pi)
+                new_hz = current_hz + hz_adjustment
+                if new_hz < 0:
+                    new_hz = 0
+                # Convert back to radians/sec for storage
+                self.ledsettings.pulse_flicker_speed = new_hz * 2 * math.pi
                 self.usersettings.change_setting_value("pulse_flicker_speed", self.ledsettings.pulse_flicker_speed)
 
         if self.current_location == "Start_delay":

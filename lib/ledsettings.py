@@ -30,7 +30,8 @@ class LedSettings:
         self.pulse_animation_speed = int(usersettings.get_setting_value("pulse_animation_speed"))
         self.pulse_animation_distance = int(usersettings.get_setting_value("pulse_animation_distance"))
         self.pulse_flicker_strength = int(usersettings.get_setting_value("pulse_flicker_strength"))
-        self.pulse_flicker_speed = int(usersettings.get_setting_value("pulse_flicker_speed"))
+        pulse_flicker_speed_val = usersettings.get_setting_value("pulse_flicker_speed")
+        self.pulse_flicker_speed = float(pulse_flicker_speed_val) if pulse_flicker_speed_val else 30.0
         self.fadepedal_notedrop = int(usersettings.get_setting_value("fadepedal_notedrop"))
         self.color_mode = usersettings.get_setting_value("color_mode")
         self.rainbow_offset = int(usersettings.get_setting_value("rainbow_offset"))
@@ -403,9 +404,9 @@ class LedSettings:
                     flicker_speed_node = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                                                0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
                         "pulse_flicker_speed")[0].firstChild.nodeValue
-                    self.pulse_flicker_speed = int(flicker_speed_node)
+                    self.pulse_flicker_speed = float(flicker_speed_node)
                 except (ValueError, IndexError, AttributeError):
-                    self.pulse_flicker_speed = 30
+                    self.pulse_flicker_speed = 30.0  # Default: ~4.77 Hz in radians/sec
             if self.color_mode == "RGB" or self.color_mode == "Single":
                 self.color_mode = "Single"
                 self.red = int(self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[

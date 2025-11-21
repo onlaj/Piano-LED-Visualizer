@@ -81,11 +81,13 @@
             <div class="relative">
                 <select id="pulse_animation_speed" class="block appearance-none w-full glass-light
                     py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
-                    <option value="200" data-translate="very_fast">Very Fast</option>
-                    <option value="500" data-translate="fast">Fast</option>
-                    <option value="1000" selected data-translate="medium">Medium</option>
-                    <option value="2000" data-translate="slow">Slow</option>
-                    <option value="3000" data-translate="very_slow">Very Slow</option>
+                    <option value="200">0.2 Seconds</option>
+                    <option value="500">0.5 Seconds</option>
+                    <option value="1000" selected>1 Second</option>
+                    <option value="2000">2 Seconds</option>
+                    <option value="3000">3 Seconds</option>
+                    <option value="5000">5 Seconds</option>
+                    <option value="10000">10 Seconds</option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                     <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -97,7 +99,20 @@
 
         <div>
             <label class="block text-gray-600 dark:text-gray-400 text-sm font-bold mb-1" for="pulse_animation_distance" data-translate="distance">
-                Distance
+                <div class="flex">
+                    <div>Distance</div>
+                    <div class='has-tooltip'>
+                        <span class='inline-block tooltip rounded shadow-lg p-1 glass shadow-glass text-gray-600 dark:text-gray-400 -mt-8'>
+                            <div data-translate="pulse_distance_tooltip">Controls how far the pulse animation expands from the pressed key in LED positions.</div>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
             </label>
             <input id="pulse_animation_distance" type="number" min="1" max="100" value="10" class="block appearance-none w-full glass-light
                 py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast text-gray-700 dark:text-gray-200">
@@ -107,7 +122,20 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
         <div>
             <label class="block text-gray-600 dark:text-gray-400 text-sm font-bold mb-1" for="pulse_flicker_strength" data-translate="flicker_strength">
-                Flicker Strength
+                <div class="flex">
+                    <div>Flicker Strength</div>
+                    <div class='has-tooltip'>
+                        <span class='inline-block tooltip rounded shadow-lg p-1 glass shadow-glass text-gray-600 dark:text-gray-400 -mt-8'>
+                            <div data-translate="pulse_flicker_strength_tooltip">Controls the intensity of the flicker effect on the pulse animation. Higher values create more pronounced flickering.</div>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
             </label>
             <input id="pulse_flicker_strength" type="number" min="0" max="100" value="50" class="block appearance-none w-full glass-light
                 py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast text-gray-700 dark:text-gray-200">
@@ -115,9 +143,9 @@
 
         <div>
             <label class="block text-gray-600 dark:text-gray-400 text-sm font-bold mb-1" for="pulse_flicker_speed" data-translate="flicker_speed">
-                Flicker Speed
+                Flicker Speed (Hz)
             </label>
-            <input id="pulse_flicker_speed" type="number" min="1" max="100" value="30" class="block appearance-none w-full glass-light
+            <input id="pulse_flicker_speed" type="number" min="0.1" max="20" step="0.1" value="4.77" class="block appearance-none w-full glass-light
                 py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast text-gray-700 dark:text-gray-200">
         </div>
     </div>

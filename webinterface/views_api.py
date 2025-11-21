@@ -230,9 +230,14 @@ def change_setting():
         app_state.usersettings.change_setting_value("pulse_flicker_strength", app_state.ledsettings.pulse_flicker_strength)
 
     if setting_name == "pulse_flicker_speed":
-        if not int(value):
-            value = 30
-        app_state.ledsettings.pulse_flicker_speed = int(value)
+        # Value is already in radians/sec from JavaScript conversion
+        try:
+            float_value = float(value)
+            if float_value <= 0:
+                float_value = 30.0  # Default: ~4.77 Hz in radians/sec
+        except (ValueError, TypeError):
+            float_value = 30.0  # Default: ~4.77 Hz in radians/sec
+        app_state.ledsettings.pulse_flicker_speed = float_value
         app_state.usersettings.change_setting_value("pulse_flicker_speed", app_state.ledsettings.pulse_flicker_speed)
 
     if setting_name == "brightness":

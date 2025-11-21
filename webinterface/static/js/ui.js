@@ -604,7 +604,9 @@ function get_settings(home = true) {
                     document.getElementById('pulse_animation_speed').value = response.pulse_animation_speed;
                     document.getElementById('pulse_animation_distance').value = response.pulse_animation_distance;
                     document.getElementById('pulse_flicker_strength').value = response.pulse_flicker_strength;
-                    document.getElementById('pulse_flicker_speed').value = response.pulse_flicker_speed;
+                    // Convert radians per second to Hz for display
+                    let hz = parseFloat(response.pulse_flicker_speed) / (2 * Math.PI);
+                    document.getElementById('pulse_flicker_speed').value = hz.toFixed(2);
                 }
 
                 document.getElementById("led_color").value = response["led_color"];
@@ -724,7 +726,9 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     document.getElementById('pulse_animation_speed').value = response["pulse_animation_speed"];
                     document.getElementById('pulse_animation_distance').value = response["pulse_animation_distance"];
                     document.getElementById('pulse_flicker_strength').value = response["pulse_flicker_strength"];
-                    document.getElementById('pulse_flicker_speed').value = response["pulse_flicker_speed"];
+                    // Convert radians per second to Hz for display
+                    let hz = parseFloat(response["pulse_flicker_speed"]) / (2 * Math.PI);
+                    document.getElementById('pulse_flicker_speed').value = hz.toFixed(2);
                 }
                 document.getElementById("color_mode").value = response["color_mode"];
                 change_setting("color_mode", response["color_mode"], "no_reload", true);

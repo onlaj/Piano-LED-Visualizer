@@ -146,7 +146,15 @@
             </Light_mode>
             <Light_mode text="Pulse">
                 <Pulse text="Activate"></Pulse>
-                <Pulse text="Animation Speed"></Pulse>
+                <Pulse text="Animation Speed">
+                    <Animation_Speed text="0.2 sec"></Animation_Speed>
+                    <Animation_Speed text="0.5 sec"></Animation_Speed>
+                    <Animation_Speed text="1 sec"></Animation_Speed>
+                    <Animation_Speed text="2 sec"></Animation_Speed>
+                    <Animation_Speed text="3 sec"></Animation_Speed>
+                    <Animation_Speed text="5 sec"></Animation_Speed>
+                    <Animation_Speed text="10 sec"></Animation_Speed>
+                </Pulse>
                 <Pulse text="Animation Distance"></Pulse>
                 <Pulse text="Flicker Strength"></Pulse>
                 <Pulse text="Flicker Speed"></Pulse>

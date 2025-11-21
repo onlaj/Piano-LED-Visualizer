@@ -252,8 +252,10 @@ function initialize_led_settings() {
     }
 
     document.getElementById('pulse_flicker_speed').onchange = function () {
-        let value = this.value || "30";
-        change_setting("pulse_flicker_speed", value, false, true)
+        let hz = parseFloat(this.value) || 4.77;
+        // Convert Hz to radians per second for storage
+        let radiansPerSecond = hz * 2 * Math.PI;
+        change_setting("pulse_flicker_speed", radiansPerSecond.toString(), false, true)
     }
 
     document.getElementById('light_mode').onchange = function () {
