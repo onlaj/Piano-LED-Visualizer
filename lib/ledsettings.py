@@ -336,33 +336,13 @@ class LedSettings:
                     "step_" + str(self.step_number))[0].getElementsByTagName("light_mode")[0].firstChild.nodeValue
 
             if self.mode == "Velocity" or self.mode == "Fading" or self.mode == "Pedal":
-                self.fadingspeed = int(self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
-                                           0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
-                    "fadingspeed")[
-                                           0].firstChild.nodeValue)
-                if self.mode == "Fading":
-                    if self.fadingspeed == "Very fast":
-                        self.fadingspeed = 200
-                    elif self.fadingspeed == "Fast":
-                        self.fadingspeed = 500
-                    elif self.fadingspeed == "Medium":
-                        self.fadingspeed = 1000
-                    elif self.fadingspeed == "Slow":
-                        self.fadingspeed = 2000
-                    elif self.fadingspeed == "Very slow":
-                        self.fadingspeed = 4000
-                    elif self.fadingspeed == "Instant":
-                        self.fadingspeed = 10
-
-                if self.mode == "Velocity" or self.mode == "Pedal":
-                    if self.fadingspeed == "Fast":
-                        self.fadingspeed = 1000
-                    elif self.fadingspeed == "Medium":
-                        self.fadingspeed = 3000
-                    elif self.fadingspeed == "Slow":
-                        self.fadingspeed = 4000
-                    elif self.fadingspeed == "Very slow":
-                        self.fadingspeed = 6000
+                try:
+                    speed_node = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                                               0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "fadingspeed")[0].firstChild.nodeValue
+                    self.fadingspeed = int(speed_node)
+                except (ValueError, IndexError, AttributeError):
+                    self.fadingspeed = 1000
             if self.color_mode == "RGB" or self.color_mode == "Single":
                 self.color_mode = "Single"
                 self.red = int(self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
