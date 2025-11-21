@@ -145,7 +145,7 @@ class ProfileManager:
                     (profile_id, song)
                 )
                 cur.execute(
-                    "INSERT OR IGNORE INTO learning(profile_id, song_name, start_point, end_point) VALUES(?,?,0,100)",
+                    "INSERT OR IGNORE INTO learning_settings(profile_id, song_name, loop, tempo, hands, mute_hands, wrong_notes, future_notes, mistakes, start, end, lh_color, rh_color, prev_lh_color, prev_rh_color, lh_active, rh_active) VALUES(?,?,1,100,0,0,1,0,0,0,100,5,0,0,0,1,1)",
                     (profile_id, song)
                 )
             conn.commit()
