@@ -217,8 +217,35 @@ class LearnMIDI:
         except Exception:
             self.current_song_name = song_path
         self.loading = 1  # 1 = Load..
+        # Update learning settings for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    section_list = pm.get_learning_settings(int(profile_id), self.current_song_name)
+                    app_state.learning.is_loop_active = section_list["loop"]
+                    app_state.learning.practice = section_list["practice"]
+                    app_state.learning.hands = section_list["hands"]
+                    app_state.learning.mute_hand = section_list["mute_hands"]
+                    app_state.learning.show_wrong_notes = section_list["wrong_notes"]
+                    app_state.learning.show_future_notes = section_list["future_notes"]
+                    app_state.learning.number_of_mistakes = section_list["mistakes"]
+                    app_state.learning.set_tempo = section_list["tempo"]
+                    app_state.learning.start_point = section_list["start"]
+                    app_state.learning.end_point = section_list["end"]
+                    app_state.learning.hand_colorR = section_list["rh_color"]
+                    app_state.learning.hand_colorL = section_list["lh_color"]
+                    app_state.learning.prev_hand_colorR = section_list["prev_rh_color"]
+                    app_state.learning.prev_hand_colorL = section_list["prev_lh_color"]
+                    app_state.learning.is_led_activeL = section_list["lh_active"]
+                    app_state.learning.is_led_activeR = section_list["rh_active"]
+        except Exception as e:
+            logger.warning(f"Failed to fetch learning section: {e}")
         self.is_started_midi = False  # Stop current learning song
-        self.t = threading.currentThread()
+        self.t = threading.current_thread()
 
         # Load song from cache
         if self.load_song_from_cache(song_path):
