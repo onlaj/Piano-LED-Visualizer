@@ -23,6 +23,10 @@ class LedSettings:
         self.blue = int(usersettings.get_setting_value("blue"))
         self.mode = usersettings.get_setting_value("mode")
         self.fadingspeed = int(usersettings.get_setting_value("fadingspeed"))
+        velocity_speed_val = usersettings.get_setting_value("velocity_speed")
+        self.velocity_speed = int(velocity_speed_val) if velocity_speed_val else 1000
+        pedal_speed_val = usersettings.get_setting_value("pedal_speed")
+        self.pedal_speed = int(pedal_speed_val) if pedal_speed_val else 1000
         self.pulse_animation_speed = int(usersettings.get_setting_value("pulse_animation_speed"))
         self.pulse_animation_distance = int(usersettings.get_setting_value("pulse_animation_distance"))
         self.pulse_flicker_strength = int(usersettings.get_setting_value("pulse_flicker_strength"))
@@ -335,7 +339,7 @@ class LedSettings:
                     0].getElementsByTagName(
                     "step_" + str(self.step_number))[0].getElementsByTagName("light_mode")[0].firstChild.nodeValue
 
-            if self.mode == "Velocity" or self.mode == "Fading" or self.mode == "Pedal":
+            if self.mode == "Fading":
                 try:
                     speed_node = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                                                0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
@@ -343,6 +347,36 @@ class LedSettings:
                     self.fadingspeed = int(speed_node)
                 except (ValueError, IndexError, AttributeError):
                     self.fadingspeed = 1000
+            elif self.mode == "Velocity":
+                try:
+                    speed_node = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                                               0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "velocity_speed")[0].firstChild.nodeValue
+                    self.velocity_speed = int(speed_node)
+                except (ValueError, IndexError, AttributeError):
+                    # Fallback to fadingspeed for backward compatibility
+                    try:
+                        speed_node = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                                                   0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                            "fadingspeed")[0].firstChild.nodeValue
+                        self.velocity_speed = int(speed_node)
+                    except (ValueError, IndexError, AttributeError):
+                        self.velocity_speed = 1000
+            elif self.mode == "Pedal":
+                try:
+                    speed_node = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                                               0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                        "pedal_speed")[0].firstChild.nodeValue
+                    self.pedal_speed = int(speed_node)
+                except (ValueError, IndexError, AttributeError):
+                    # Fallback to fadingspeed for backward compatibility
+                    try:
+                        speed_node = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                                                   0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
+                            "fadingspeed")[0].firstChild.nodeValue
+                        self.pedal_speed = int(speed_node)
+                    except (ValueError, IndexError, AttributeError):
+                        self.pedal_speed = 1000
             if self.color_mode == "RGB" or self.color_mode == "Single":
                 self.color_mode = "Single"
                 self.red = int(self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[

@@ -1480,8 +1480,16 @@ class MenuLCD:
             self.ledsettings.mode = location
             self.usersettings.change_setting_value("mode", self.ledsettings.mode)
             if choice in mode_mapping[location]:
-                self.ledsettings.fadingspeed = mode_mapping[location][choice]
-                self.usersettings.change_setting_value("fadingspeed", self.ledsettings.fadingspeed)
+                speed_value = mode_mapping[location][choice]
+                if location == "Fading":
+                    self.ledsettings.fadingspeed = speed_value
+                    self.usersettings.change_setting_value("fadingspeed", self.ledsettings.fadingspeed)
+                elif location == "Velocity":
+                    self.ledsettings.velocity_speed = speed_value
+                    self.usersettings.change_setting_value("velocity_speed", self.ledsettings.velocity_speed)
+                elif location == "Pedal":
+                    self.ledsettings.pedal_speed = speed_value
+                    self.usersettings.change_setting_value("pedal_speed", self.ledsettings.pedal_speed)
 
         if location == "Pulse" and choice == "Activate":
             self.ledsettings.mode = "Pulse"

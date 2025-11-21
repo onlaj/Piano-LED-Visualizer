@@ -231,6 +231,11 @@ function initialize_led_settings() {
         change_setting("velocity_speed", value, false, true)
     }
 
+    document.getElementById('pedal_speed').onchange = function () {
+        let value = this.value || "8";
+        change_setting("pedal_speed", value, false, true)
+    }
+
     document.getElementById('pulse_animation_speed').onchange = function () {
         let value = this.value || "1000";
         change_setting("pulse_animation_speed", value, false, true)
@@ -258,11 +263,17 @@ function initialize_led_settings() {
         } else {
             document.getElementById('fading').hidden = true;
         }
-        if (this.value === "Velocity" || this.value === "Pedal") {
+        if (this.value === "Velocity") {
             document.getElementById('velocity').hidden = false;
+            document.getElementById('pedal').hidden = true;
             document.getElementById('velocity_speed').onchange();
+        } else if (this.value === "Pedal") {
+            document.getElementById('velocity').hidden = true;
+            document.getElementById('pedal').hidden = false;
+            document.getElementById('pedal_speed').onchange();
         } else {
             document.getElementById('velocity').hidden = true;
+            document.getElementById('pedal').hidden = true;
         }
         if (this.value === "Pulse") {
             document.getElementById('pulse').hidden = false;

@@ -591,11 +591,13 @@ function get_settings(home = true) {
                 }
                 if (response.light_mode === "Velocity") {
                     document.getElementById('velocity').hidden = false;
+                    document.getElementById('pedal').hidden = true;
                     document.getElementById('velocity_speed').value = response.fading_speed;
                 }
                 if (response.light_mode === "Pedal") {
-                    document.getElementById('velocity').hidden = false;
-                    document.getElementById('velocity_speed').value = response.fading_speed;
+                    document.getElementById('velocity').hidden = true;
+                    document.getElementById('pedal').hidden = false;
+                    document.getElementById('pedal_speed').value = response.fading_speed;
                 }
                 if (response.light_mode === "Pulse") {
                     document.getElementById('pulse').hidden = false;
@@ -707,9 +709,15 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     document.getElementById('fading').hidden = false;
                     document.getElementById('fading_speed').value = response["fading_speed"];
                 }
-                if (response["light_mode"] === "Velocity" || response["light_mode"] === "Pedal") {
+                if (response["light_mode"] === "Velocity") {
                     document.getElementById('velocity').hidden = false;
-                    document.getElementById('fading_speed').value = response["fading_speed"];
+                    document.getElementById('pedal').hidden = true;
+                    document.getElementById('velocity_speed').value = response["fading_speed"];
+                }
+                if (response["light_mode"] === "Pedal") {
+                    document.getElementById('velocity').hidden = true;
+                    document.getElementById('pedal').hidden = false;
+                    document.getElementById('pedal_speed').value = response["fading_speed"];
                 }
                 document.getElementById("color_mode").value = response["color_mode"];
                 change_setting("color_mode", response["color_mode"], "no_reload", true);

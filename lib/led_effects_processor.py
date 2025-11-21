@@ -39,7 +39,17 @@ class LEDEffectsProcessor:
                 green = int(green * fading)
                 blue = int(blue * fading)
 
-                decrease_amount = int((event_loop_time / float(self.ledsettings.fadingspeed / 1000)) * 1000)
+                # Use mode-specific speed
+                if self.ledsettings.mode == "Fading":
+                    speed = self.ledsettings.fadingspeed
+                elif self.ledsettings.mode == "Velocity":
+                    speed = self.ledsettings.velocity_speed
+                elif self.ledsettings.mode == "Pedal":
+                    speed = self.ledsettings.pedal_speed
+                else:
+                    speed = self.ledsettings.fadingspeed
+
+                decrease_amount = int((event_loop_time / float(speed / 1000)) * 1000)
                 self.ledstrip.keylist[n] = max(0, self.ledstrip.keylist[n] - decrease_amount)
                 led_changed = True
 
