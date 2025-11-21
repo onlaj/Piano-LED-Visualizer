@@ -62,12 +62,26 @@ class ProfileManager:
             )
             cur.execute(
                 """
-                CREATE TABLE IF NOT EXISTS learning (
+                CREATE TABLE IF NOT EXISTS learning_settings (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     profile_id INTEGER NOT NULL,
                     song_name TEXT NOT NULL,
-                    start_point REAL NOT NULL DEFAULT 0,
-                    end_point REAL NOT NULL DEFAULT 100,
+                    loop INTEGER NOT NULL DEFAULT 1,
+                    practice INTEGER NOT NULL DEFAULT 0,
+                    tempo INTEGER NOT NULL DEFAULT 100,
+                    hands INTEGER NOT NULL DEFAULT 0,
+                    mute_hands INTEGER NOT NULL DEFAULT 0,
+                    wrong_notes INTEGER NOT NULL DEFAULT 1,
+                    future_notes INTEGER NOT NULL DEFAULT 0,
+                    mistakes INTEGER NOT NULL DEFAULT 0,
+                    start REAL NOT NULL DEFAULT 0,
+                    end REAL NOT NULL DEFAULT 100,
+                    lh_color INTEGER NOT NULL DEFAULT 5,
+                    rh_color INTEGER NOT NULL DEFAULT 0,
+                    prev_lh_color INTEGER NOT NULL DEFAULT 0,
+                    prev_rh_color INTEGER NOT NULL DEFAULT 0,
+                    lh_active INTEGER NOT NULL DEFAULT 1,
+                    rh_active INTEGER NOT NULL DEFAULT 1,
                     UNIQUE(profile_id, song_name),
                     FOREIGN KEY(profile_id) REFERENCES profiles(id) ON DELETE CASCADE       
                 )
@@ -167,39 +181,39 @@ class ProfileManager:
             conn.commit()
         return changed
 
-    def get_learning_section(self, profile_id: int, song_name: str) -> Dict[str, int]:
+    def get_learning_settings(self, profile_id: int, song_name: str) -> Dict[str, int]:
         # Populate missing songs with 0
         self.ensure_song_entries(profile_id)
         with self._lock, self._connect() as conn:
             cur = conn.cursor()
             cur.execute(
-                "SELECT start_point, end_point FROM learning WHERE profile_id=? AND song_name=?",
+                "SELECT loop, practice, tempo, hands, mute_hands, wrong_notes, future_notes, mistakes, start, end, lh_color, rh_color, prev_lh_color, prev_rh_color, lh_active, rh_active FROM learning_settings WHERE profile_id=? AND song_name=?",
                 (profile_id, song_name)
             )
         row = cur.fetchone()
         if row:
-            ret_dict = {"start": row[0], "end": row[1]}
+            ret_dict = {"loop": row[0], "practice": row[1], "tempo": row[2], "hands": row[3], "mute_hands": row[4], "wrong_notes": row[5], "future_notes": row[6], "mistakes": row[7], "start": row[8], "end": row[9], "lh_color": row[10], "rh_color": row[11], "prev_lh_color": row[12], "prev_rh_color": row[13], "lh_active": row[14], "rh_active": row[15]}
         else:
             logger.warning(f"No learning section found for profile {profile_id} and song {song_name}. Returning defaults.")
-            ret_dict = {"start": 0, "end": 100}
+            ret_dict = {"loop": 1, "practice": 0, "tempo": 100, "hands": 0, "mute_hands": 0, "wrong_notes": 1, "future_notes": 0, "mistakes": 0, "start": 0, "end": 100, "lh_color": 5, "rh_color": 0, "prev_lh_color": 0, "prev_lh_color": 0, "lh_active": 1, "rh_active": 1}
         return ret_dict
 
-    def update_learning_section(self, profile_id: int, song_name: str, new_start: int, new_end: int) -> bool:
+    def update_learning_setting(self, profile_id: int, song_name: str, key: str, val: int) -> bool:
         song_name = song_name.strip()
-        logger.info(f"Updating learning sections for song {song_name} to {new_start} and {new_end}")
+        logger.info(f"Updating learning setting {key} for song {song_name} to {val}")
         if not song_name:
             return False
         with self._lock, self._connect() as conn:
             cur = conn.cursor()
-            # Make sure row exists
+            # Make sure row exists, we enter defaults first
             cur.execute(
-                "INSERT OR IGNORE INTO learning(profile_id, song_name, start_point, end_point) VALUES(?,?,0,100)",
+                "INSERT OR IGNORE INTO learning_settings(profile_id, song_name, loop, tempo, hands, mute_hands, wrong_notes, future_notes, mistakes, start, end, lh_color, rh_color, prev_lh_color, prev_rh_color, lh_active, rh_active) VALUES(?,?,1,100,0,0,1,0,0,0,100,0,0,0,0,1,1)",
                 (profile_id, song_name)
             )
             # Update
             cur.execute(
-                "UPDATE learning SET start_point=?, end_point=? WHERE profile_id=? AND song_name=?",
-                (new_start, new_end, profile_id, song_name)
+                "UPDATE learning_settings SET " + key + "=? WHERE profile_id=? AND song_name=?",
+                (val, profile_id, song_name)
             )
             changed = cur.rowcount > 0
             conn.commit()
