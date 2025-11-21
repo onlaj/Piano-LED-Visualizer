@@ -1311,6 +1311,7 @@ function get_learning_status(loop_call = false) {
 
                 document.getElementById("practice").value = response["practice"];
                 document.getElementById("tempo_slider").value = response["set_tempo"];
+                document.getElementById("tempo").innerHTML = response["set_tempo"];
                 document.getElementById("hands").value = response["hands"];
                 document.getElementById("mute_hand").value = response["mute_hand"];
 
@@ -1329,12 +1330,13 @@ function get_learning_status(loop_call = false) {
 
                 document.getElementById("hand_colorR").style.fill = 'rgb(' + hand_colorR_RGB + ')';
                 document.getElementById("hand_colorL").style.fill = 'rgb(' + hand_colorL_RGB + ')';
+                
+                document.getElementById("is_led_activeR").checked = response["is_led_activeR"];
+                document.getElementById("is_led_activeL").checked = response["is_led_activeL"];
 
                 document.getElementById("number_of_mistakes").value = response["number_of_mistakes"];
 
-                if (response["is_loop_active"] === 1) {
-                    document.getElementById("is_loop_active").checked = true;
-                }
+                document.getElementById("is_loop_active").checked = response["is_loop_active"];
 
                 const min = 0;
                 const max = 100;
@@ -2372,4 +2374,3 @@ if (document.readyState === 'loading') {
         }
     } catch (e) { /* no-op */ }
 })();
-

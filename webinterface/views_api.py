@@ -1178,15 +1178,34 @@ def change_setting():
         app_state.learning.practice = value
         app_state.learning.practice = clamp(app_state.learning.practice, 0,
                                                len(app_state.learning.practiceList) - 1)
-        app_state.usersettings.change_setting_value("practice", app_state.learning.practice)
-
+        # Update tempo for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "practice", app_state.learning.practice)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         return jsonify(success=True)
 
     if setting_name == "change_tempo":
         value = int(value)
         app_state.learning.set_tempo = value
         app_state.learning.set_tempo = clamp(app_state.learning.set_tempo, 10, 200)
-        app_state.usersettings.change_setting_value("set_tempo", app_state.learning.set_tempo)
+        # Update tempo for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "tempo", app_state.learning.set_tempo)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
 
         return jsonify(success=True)
 
@@ -1194,7 +1213,17 @@ def change_setting():
         value = int(value)
         app_state.learning.hands = value
         app_state.learning.hands = clamp(app_state.learning.hands, 0, len(app_state.learning.handsList) - 1)
-        app_state.usersettings.change_setting_value("hands", app_state.learning.hands)
+        # Update tempo for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "hands", app_state.learning.hands)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
 
         return jsonify(success=True)
 
@@ -1203,8 +1232,17 @@ def change_setting():
         app_state.learning.mute_hand = value
         app_state.learning.mute_hand = clamp(app_state.learning.mute_hand, 0,
                                                 len(app_state.learning.mute_handList) - 1)
-        app_state.usersettings.change_setting_value("mute_hand", app_state.learning.mute_hand)
-
+        # Update tempo for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "mute_hands", app_state.learning.mute_hand)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         return jsonify(success=True)
 
     if setting_name == "learning_start_point":
@@ -1212,7 +1250,18 @@ def change_setting():
         app_state.learning.start_point = value
         app_state.learning.start_point = clamp(app_state.learning.start_point, 0,
                                                   app_state.learning.end_point - 1)
-        app_state.usersettings.change_setting_value("start_point", app_state.learning.start_point)
+        # Update start point for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "start", app_state.learning.start_point)
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "end", app_state.learning.end_point)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         app_state.learning.restart_learning()
 
         return jsonify(success=True)
@@ -1222,7 +1271,18 @@ def change_setting():
         app_state.learning.end_point = value
         app_state.learning.end_point = clamp(app_state.learning.end_point, app_state.learning.start_point + 1,
                                                 100)
-        app_state.usersettings.change_setting_value("end_point", app_state.learning.end_point)
+        # Update start point for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "start", app_state.learning.start_point)
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "end", app_state.learning.end_point)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         app_state.learning.restart_learning()
 
         return jsonify(success=True)
@@ -1232,7 +1292,18 @@ def change_setting():
             float(app_state.learning.current_idx * 100 / float(len(app_state.learning.song_tracks))), 3)
         app_state.learning.start_point = clamp(app_state.learning.start_point, 0,
                                                   app_state.learning.end_point - 1)
-        app_state.usersettings.change_setting_value("start_point", app_state.learning.start_point)
+        # Update start point for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "start", app_state.learning.start_point)
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "end", app_state.learning.end_point)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         app_state.learning.restart_learning()
 
         return jsonify(success=True, reload_learning_settings=True)
@@ -1242,7 +1313,18 @@ def change_setting():
             float(app_state.learning.current_idx * 100 / float(len(app_state.learning.song_tracks))), 3)
         app_state.learning.end_point = clamp(app_state.learning.end_point, app_state.learning.start_point + 1,
                                                 100)
-        app_state.usersettings.change_setting_value("end_point", app_state.learning.end_point)
+        # Update start point for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "start", app_state.learning.start_point)
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "end", app_state.learning.end_point)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         app_state.learning.restart_learning()
 
         return jsonify(success=True, reload_learning_settings=True)
@@ -1253,7 +1335,17 @@ def change_setting():
             app_state.learning.hand_colorL += value
             app_state.learning.hand_colorL = clamp(app_state.learning.hand_colorL, 0,
                                                     len(app_state.learning.hand_colorList) - 1)
-            app_state.usersettings.change_setting_value("hand_colorL", app_state.learning.hand_colorL)
+            # Update LED setting for current song
+            try:
+                profile_id = getattr(app_state, 'current_profile_id', None)
+                # Only update if a profile is selected and we know the song name
+                if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                    # Use ProfileManager directly if available
+                    pm = getattr(app_state, 'profile_manager', None)
+                    if pm:
+                        updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "lh_color", app_state.learning.hand_colorL)
+            except Exception as e:
+                logger.warning(f"Failed to update learning section: {e}")
 
         return jsonify(success=True, reload_learning_settings=True)
 
@@ -1263,62 +1355,126 @@ def change_setting():
             app_state.learning.hand_colorR += value
             app_state.learning.hand_colorR = clamp(app_state.learning.hand_colorR, 0,
                                                     len(app_state.learning.hand_colorList) - 1)
-            app_state.usersettings.change_setting_value("hand_colorR", app_state.learning.hand_colorR)
+            # Update LED setting for current song
+            try:
+                profile_id = getattr(app_state, 'current_profile_id', None)
+                # Only update if a profile is selected and we know the song name
+                if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                    # Use ProfileManager directly if available
+                    pm = getattr(app_state, 'profile_manager', None)
+                    if pm:
+                        updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "rh_color", app_state.learning.hand_colorR)
+            except Exception as e:
+                logger.warning(f"Failed to update learning section: {e}")
 
         return jsonify(success=True, reload_learning_settings=True)
 
     if setting_name == "change_wrong_notes":
         value = int(value)
         app_state.learning.show_wrong_notes = value
-        app_state.usersettings.change_setting_value("show_wrong_notes", app_state.learning.show_wrong_notes)
+        # Update tempo for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "wrong_notes", app_state.learning.show_wrong_notes)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
 
     if setting_name == "change_future_notes":
         value = int(value)
         app_state.learning.show_future_notes = value
-        app_state.usersettings.change_setting_value("show_future_notes", app_state.learning.show_future_notes)
+        # Update tempo for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "future_notes", app_state.learning.show_future_notes)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
 
     if setting_name == "change_learning_loop":
         value = int(value == 'true')
         app_state.learning.is_loop_active = value
-        app_state.usersettings.change_setting_value("is_loop_active", app_state.learning.is_loop_active)
-
+        # Update tempo for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "loop", app_state.learning.is_loop_active)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         return jsonify(success=True)
 
     if setting_name == "number_of_mistakes":
         value = int(value)
         app_state.learning.number_of_mistakes = value
-        app_state.usersettings.change_setting_value("number_of_mistakes", app_state.learning.number_of_mistakes)
-
+        # Update tempo for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "mistakes", app_state.learning.number_of_mistakes)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         return jsonify(success=True)
 
     if setting_name == "change_left_led_active":
         value = int(value == 'true')
         app_state.learning.is_led_activeL = value
-        app_state.usersettings.change_setting_value("is_led_activeL", app_state.learning.is_led_activeL)
         if value == 0:
             app_state.learning.prev_hand_colorL = app_state.learning.hand_colorL
-            app_state.usersettings.change_setting_value("prev_hand_colorL", app_state.learning.hand_colorL)
             app_state.learning.hand_colorL = 8
-            app_state.usersettings.change_setting_value("hand_colorL", 8)
         else:
-            app_state.usersettings.change_setting_value("hand_colorL", app_state.learning.prev_hand_colorL)
             app_state.learning.hand_colorL = app_state.learning.prev_hand_colorL
-        
+        # Update LED setting for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "lh_active", app_state.learning.is_led_activeL)
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "prev_lh_color", app_state.learning.prev_hand_colorL)
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "lh_color", app_state.learning.hand_colorL)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         return jsonify(success=True, reload_learning_settings=True)
 
     if setting_name == "change_right_led_active":
         value = int(value == 'true')
         app_state.learning.is_led_activeR = value
-        app_state.usersettings.change_setting_value("is_led_activeR", app_state.learning.is_led_activeR)
         if value == 0:
             app_state.learning.prev_hand_colorR = app_state.learning.hand_colorR
-            app_state.usersettings.change_setting_value("prev_hand_colorR", app_state.learning.hand_colorR)
             app_state.learning.hand_colorR = 8
-            app_state.usersettings.change_setting_value("hand_colorR", 8)
         else:
-            app_state.usersettings.change_setting_value("hand_colorR", app_state.learning.prev_hand_colorR)
             app_state.learning.hand_colorR = app_state.learning.prev_hand_colorR
-        
+        # Update LED setting for current song
+        try:
+            profile_id = getattr(app_state, 'current_profile_id', None)
+            # Only update if a profile is selected and we know the song name
+            if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+                # Use ProfileManager directly if available
+                pm = getattr(app_state, 'profile_manager', None)
+                if pm:
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "rh_active", app_state.learning.is_led_activeR)
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "prev_rh_color", app_state.learning.prev_hand_colorR)
+                    updated = pm.update_learning_setting(int(profile_id), app_state.learning.current_song_name, "rh_color", app_state.learning.hand_colorR)
+        except Exception as e:
+            logger.warning(f"Failed to update learning section: {e}")
         return jsonify(success=True, reload_learning_settings=True)
 
     if setting_name == "connect_to_wifi":
@@ -1616,24 +1772,50 @@ def get_recording_status():
 
 @webinterface.route('/api/get_learning_status', methods=['GET'])
 def get_learning_status():
+    # Update learning settings for current song from DB in case we changed the song
+    try:
+        profile_id = getattr(app_state, 'current_profile_id', None)
+        # Only update if a profile is selected and we know the song name
+        if profile_id and hasattr(app_state.learning, 'current_song_name') and app_state.learning.current_song_name:
+            # Use ProfileManager directly if available
+            pm = getattr(app_state, 'profile_manager', None)
+            if pm:
+                section_list = pm.get_learning_settings(int(profile_id), app_state.learning.current_song_name)
+                app_state.learning.is_loop_active = section_list["loop"]
+                app_state.learning.practice = section_list["practice"]
+                app_state.learning.hands = section_list["hands"]
+                app_state.learning.mute_hand = section_list["mute_hands"]
+                app_state.learning.show_wrong_notes = section_list["wrong_notes"]
+                app_state.learning.show_future_notes = section_list["future_notes"]
+                app_state.learning.number_of_mistakes = section_list["mistakes"]
+                app_state.learning.start_point = section_list["start"]
+                app_state.learning.end_point = section_list["end"]
+                app_state.learning.hand_colorR = section_list["rh_color"]
+                app_state.learning.hand_colorL = section_list["lh_color"]
+                app_state.learning.prev_hand_colorR = section_list["prev_rh_color"]
+                app_state.learning.prev_hand_colorL = section_list["prev_lh_color"]
+                app_state.learning.is_led_activeR = section_list["rh_active"]
+                app_state.learning.is_led_activeL = section_list["lh_active"]
+    except Exception as e:
+        logger.warning(f"Failed to get learning status: {e}")
     response = {"loading": app_state.learning.loading,
-                "practice": app_state.usersettings.get_setting_value("practice"),
-                "hands": app_state.usersettings.get_setting_value("hands"),
-                "mute_hand": app_state.usersettings.get_setting_value("mute_hand"),
-                "start_point": app_state.usersettings.get_setting_value("start_point"),
-                "end_point": app_state.usersettings.get_setting_value("end_point"),
-                "set_tempo": app_state.usersettings.get_setting_value("set_tempo"),
-                "hand_colorR": app_state.usersettings.get_setting_value("hand_colorR"),
-                "hand_colorL": app_state.usersettings.get_setting_value("hand_colorL"),
-                "prev_hand_colorR": app_state.usersettings.get_setting_value("prev_hand_colorR"),
-                "prev_hand_colorL": app_state.usersettings.get_setting_value("prev_hand_colorL"),
-                "show_wrong_notes": app_state.usersettings.get_setting_value("show_wrong_notes"),
-                "show_future_notes": app_state.usersettings.get_setting_value("show_future_notes"),
-                "hand_colorList": ast.literal_eval(app_state.usersettings.get_setting_value("hand_colorList")),
-                "is_loop_active": ast.literal_eval(app_state.usersettings.get_setting_value("is_loop_active")),
-                "number_of_mistakes": ast.literal_eval(app_state.usersettings.get_setting_value("number_of_mistakes")),
-                "is_led_activeL": ast.literal_eval(app_state.usersettings.get_setting_value("is_led_activeL")),
-                "is_led_activeR": ast.literal_eval(app_state.usersettings.get_setting_value("is_led_activeR"))}
+                "is_loop_active": app_state.learning.is_loop_active,
+                "practice": app_state.learning.practice,
+                "hands": app_state.learning.hands,
+                "mute_hand": app_state.learning.mute_hand,
+                "show_wrong_notes": app_state.learning.show_wrong_notes,
+                "show_future_notes": app_state.learning.show_future_notes,
+                "number_of_mistakes": app_state.learning.number_of_mistakes,
+                "start_point": app_state.learning.start_point,
+                "end_point": app_state.learning.end_point,
+                "set_tempo": app_state.learning.set_tempo,
+                "hand_colorR": app_state.learning.hand_colorR,
+                "hand_colorL": app_state.learning.hand_colorL,
+                "prev_hand_colorR": app_state.learning.prev_hand_colorR,
+                "prev_hand_colorL": app_state.learning.prev_hand_colorL,
+                "is_led_activeL": app_state.learning.is_led_activeL,
+                "is_led_activeR": app_state.learning.is_led_activeR,
+                "hand_colorList": ast.literal_eval(app_state.usersettings.get_setting_value("hand_colorList"))}
 
     return jsonify(response)
 
@@ -2112,7 +2294,6 @@ def delete_port_connection():
 
 def pretty_print(dom):
     return '\n'.join([line for line in dom.toprettyxml(indent=' ' * 4).split('\n') if line.strip()])
-
 
 def pretty_save(file_path, sequences_tree):
     with open(file_path, "w", encoding="utf8") as outfile:
