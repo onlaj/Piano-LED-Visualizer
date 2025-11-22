@@ -191,7 +191,7 @@
         </div>
     </div>
 
-    <div class="flex-1 grid p-3 m-1 glass-light shadow-xl rounded-lg">
+    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
 
         <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="upload_songs">
             Upload songs
@@ -219,7 +219,7 @@
         </div>
     </div>
 
-    <div id="player_and_songs" class="flex-1 grid p-3 m-1 glass-light shadow-xl rounded-lg">
+    <div id="player_and_songs" class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
         <div id="midi_player_wrapper" class="contents hidden">
             <div class="flex glass-light hover:glass rounded-glass transition-smooth-fast m-auto mb-2">
                 <midi-player
@@ -724,35 +724,44 @@
         </div>
 
 
-        <div class="flex">
-            <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="songs_list">
-                Songs list
+        <!-- Songs List Section -->
+        <div class="glass shadow-glass-lg rounded-glass p-3 sm:p-4 m-1 transition-smooth mb-6 w-full overflow-hidden">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                    </svg>
+                    <h2 class="text-xl font-bold text-gray-600 dark:text-gray-400" data-translate="songs_list">
+                        Songs list
+                    </h2>
+                </div>
+                <div class="relative w-full sm:w-auto sm:min-w-[250px]">
+                    <span class="absolute left-0 top-0 flex items-center h-10 pl-3 pointer-events-none">
+                        <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                             viewBox="0 0 24 24" class="w-5 h-5 text-gray-400">
+                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </span>
+                    <input onkeyup="clearTimeout(search_song);search_song =
+                    setTimeout(function(){ document.getElementById('songs_page').value = 1;get_songs(); }, 1200);"
+                           id="song_search"
+                           class="h-10 w-full py-2 pl-10 pr-10 text-sm rounded-glass transition-smooth-fast glass-light hover:glass focus:outline-none focus:ring-2 focus:ring-cyan-500/50 text-gray-700 dark:text-gray-200"
+                           placeholder="Search songs..." data-translate-placeholder="search_songs">
+                    <span onclick="this.previousElementSibling.value = '';
+                        get_songs();" id="clear_input"
+                          class="absolute right-0 top-0 flex items-center h-10 pr-3 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </span>
+                </div>
             </div>
-            <div class="relative">
-              <span class="absolute left-0 flex items-center pl-2">
-                  <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                       viewBox="0 0 24 24" class="w-6 h-6 mt-2"><path
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                  </svg>
-              </span>
-                <input onkeyup="clearTimeout(search_song);search_song =
-                setTimeout(function(){ document.getElementById('songs_page').value = 1;get_songs(); }, 1200);"
-                       id="song_search"
-                       class="h-10 py-2 text-sm mb-2 rounded-glass transition-smooth-fast glass-light hover:glass pl-10 focus:outline-none focus:bg-white">
-                <span onclick="this.previousElementSibling.value = '';
-                    get_songs();" id="clear_input"
-                      class="h-10 absolute right-0 top-0 flex items-center cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                       stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-              </span>
-            </div>
-        </div>
-        <div id="sort_by" value=""></div>
-        <div class="overflow-auto lg:overflow-visible " id="songs_list_table">
-            <div class="text-center" data-translate="getting_songs_list">
-                Getting songs list
+            <div id="sort_by" value=""></div>
+            <div class="w-full overflow-x-hidden" id="songs_list_table">
+                <div class="text-center py-8 text-gray-500 dark:text-gray-400" data-translate="getting_songs_list">
+                    Getting songs list
+                </div>
             </div>
         </div>
 

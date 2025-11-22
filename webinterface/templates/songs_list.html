@@ -1,184 +1,230 @@
-<table class="w-full table text-gray-400 border-separate space-y-6">
-    <thead class="glass-light hidden md:table-header-group">
-    <tr>
-        <th class="p-3 text-left">
-            <div class="flex" id="sort_by_name">
-                <div data-translate="name">Name</div>
-                <svg onclick="this.nextElementSibling.classList.remove('hidden');
-                this.classList.add('hidden');
-                change_setting('sort_by', 'nameDesc');
-                get_songs();"
-                     id="sort_icon_nameAsc" xmlns="http://www.w3.org/2000/svg"
-                     class="ml-2 h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
-                </svg>
-                <svg onclick="this.previousElementSibling.classList.remove('hidden');
-                this.classList.add('hidden');
-                change_setting('sort_by', 'nameAsc');
-                get_songs();"
-                     id="sort_icon_nameDesc" xmlns="http://www.w3.org/2000/svg"
-                     class="ml-2 h-6 w-6 cursor-pointer hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"/>
-                </svg>
-            </div>
-        </th>
-        <th class="p-3 text-left">
-            <div class="flex" id="sort_by_date">
-                <div data-translate="date">Date</div>
-                <svg onclick="this.nextElementSibling.classList.remove('hidden');
-                this.classList.add('hidden');
-                change_setting('sort_by', 'dateDesc');
-                get_songs();"
-                     id="sort_icon_dateAsc" xmlns="http://www.w3.org/2000/svg"
-                     class="ml-2 h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
-                </svg>
-                <svg onclick="this.previousElementSibling.classList.remove('hidden');
-                this.classList.add('hidden');
-                change_setting('sort_by', 'dateAsc');
-                get_songs();"
-                     id="sort_icon_dateDesc" xmlns="http://www.w3.org/2000/svg"
-                     class="ml-2 h-6 w-6 cursor-pointer hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"/>
-                </svg>
-            </div>
-        </th>
-    <th class="p-3 text-left" data-translate="highscore">Highscore</th>
-    <th class="p-3 text-center w-[184px]" data-translate="action">Action</th>
-    </tr>
-    </thead>
-    <tbody>
+<!-- Sort Controls -->
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-white/10">
+    <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2" id="sort_by_name">
+            <span class="text-sm font-semibold text-gray-600 dark:text-gray-400" data-translate="name">Name</span>
+            <svg onclick="this.nextElementSibling.classList.remove('hidden');
+            this.classList.add('hidden');
+            change_setting('sort_by', 'nameDesc');
+            get_songs();"
+                 id="sort_icon_nameAsc" xmlns="http://www.w3.org/2000/svg"
+                 class="h-5 w-5 cursor-pointer text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+            </svg>
+            <svg onclick="this.previousElementSibling.classList.remove('hidden');
+            this.classList.add('hidden');
+            change_setting('sort_by', 'nameAsc');
+            get_songs();"
+                 id="sort_icon_nameDesc" xmlns="http://www.w3.org/2000/svg"
+                 class="h-5 w-5 cursor-pointer text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"/>
+            </svg>
+        </div>
+        <div class="flex items-center space-x-2" id="sort_by_date">
+            <span class="text-sm font-semibold text-gray-600 dark:text-gray-400" data-translate="date">Date</span>
+            <svg onclick="this.nextElementSibling.classList.remove('hidden');
+            this.classList.add('hidden');
+            change_setting('sort_by', 'dateDesc');
+            get_songs();"
+                 id="sort_icon_dateAsc" xmlns="http://www.w3.org/2000/svg"
+                 class="h-5 w-5 cursor-pointer text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+            </svg>
+            <svg onclick="this.previousElementSibling.classList.remove('hidden');
+            this.classList.add('hidden');
+            change_setting('sort_by', 'dateAsc');
+            get_songs();"
+                 id="sort_icon_dateDesc" xmlns="http://www.w3.org/2000/svg"
+                 class="h-5 w-5 cursor-pointer text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"/>
+            </svg>
+        </div>
+    </div>
+    <div class="text-sm text-gray-500 dark:text-gray-400">
+        <span data-translate="total_songs">Total songs:</span> <span class="font-semibold">{{total_songs}}</span>
+    </div>
+</div>
 
+<!-- Songs Grid -->
+{% if songs_list_dict|length > 0 %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-6 w-full">
     {% for key, segment in songs_list_dict.items() %}
-    <tr class="glass-light text-gray-800 dark:text-gray-200 block md:table-row mb-3">
-        <td class="p-3 text-center flex flex-wrap song_wrapper">
-            <div>
-                <svg onclick="this.closest('.song_wrapper').querySelector('.song_name').classList.remove('pointer-events-none');
-                            this.closest('.song_wrapper').querySelector('.song_name').focus();
-                            this.closest('.song_wrapper').querySelector('.song_name').classList.add('text-gray-400');
-                            this.closest('.song_wrapper').querySelector('.song_name_actions').classList.remove('hidden');
-                            this.closest('.song_wrapper').querySelector('.song_name_actions').classList.add('flex');"
-                     xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 cursor-pointer" fill="none"
-                     viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                </svg>
+    <div class="glass shadow-glass-lg rounded-glass hover-lift transition-smooth p-3 sm:p-4 song_card w-full max-w-full min-w-0 overflow-hidden box-border">
+        <!-- Song Header -->
+        <div class="mb-3">
+            <div class="flex items-start justify-between mb-2">
+                <div class="flex-1 min-w-0 song_wrapper">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <svg onclick="this.closest('.song_wrapper').querySelector('.song_name').classList.remove('pointer-events-none');
+                        this.closest('.song_wrapper').querySelector('.song_name').focus();
+                        this.closest('.song_wrapper').querySelector('.song_name').classList.add('text-gray-400');
+                        this.closest('.song_wrapper').querySelector('.song_name_actions').classList.remove('hidden');
+                        this.closest('.song_wrapper').querySelector('.song_name_actions').classList.add('flex');"
+                             xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors flex-shrink-0" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                        </svg>
+                        <input class="flex-1 min-w-0 glass-light pointer-events-none text-left song_name truncate text-sm font-semibold text-gray-800 dark:text-gray-200 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-cyan-500/50 rounded px-2 py-1"
+                               type="text"
+                               value="{{key}}">
+                        <div class="hidden song_name_actions flex items-center space-x-1">
+                            <svg onclick="change_setting('change_song_name', '{{key}}', this.closest('.song_wrapper').querySelector('.song_name').value+'.mid');
+                            this.closest('.song_name_actions').classList.add('hidden');
+                            this.closest('.song_name_actions').classList.remove('flex');
+                            this.closest('.song_wrapper').querySelector('.song_name').classList.add('pointer-events-none');
+                            this.closest('.song_wrapper').querySelector('.song_name').classList.remove('text-gray-400');"
+                                 xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 cursor-pointer text-green-500 hover:text-green-600 transition-colors" fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <svg onclick="this.closest('.song_name_actions').classList.add('hidden');
+                            this.closest('.song_name_actions').classList.remove('flex');
+                            this.closest('.song_wrapper').querySelector('.song_name').classList.add('pointer-events-none');
+                            this.closest('.song_wrapper').querySelector('.song_name').classList.remove('text-gray-400');"
+                                 xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 cursor-pointer text-red-500 hover:text-red-600 transition-colors" fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="flex grow">
-                <input class="w-full glass-light pointer-events-none text-left song_name truncate"
-                       type="text"
-                       value="{{key}}">
-            </div>
-            <div class="hidden song_name_actions">
-                <svg onclick="change_setting('change_song_name', '{{key}}', this.closest('.song_wrapper').querySelector('.song_name').value+'.mid');
-                                    this.closest('.song_name_actions').classList.add('hidden');
-                                    this.closest('.song_name_actions').classList.remove('flex');
-                                    this.closest('.song_wrapper').querySelector('.song_name').classList.add('pointer-events-none');
-                                    this.closest('.song_wrapper').querySelector('.song_name').classList.remove('text-gray-400');"
-                     xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none"
-                     viewBox="0 0 24 24"
-                     stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                <svg onclick="this.closest('.song_name_actions').classList.add('hidden');
-                                    this.closest('.song_name_actions').classList.remove('flex');
-                                    this.closest('.song_wrapper').querySelector('.song_name').classList.add('pointer-events-none');
-                                    this.closest('.song_wrapper').querySelector('.song_name').classList.remove('text-gray-400');"
-                     xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2 cursor-pointer" fill="none"
-                     viewBox="0 0 24 24"
-                     stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </div>
-        </td>
-    <td class="p-3 song_date text-xs">{{ segment }}</td>
-    <td class="p-3 song_highscore_cell" data-song="{{key}}"><span class="song_highscore_value">0</span></td>
-    <td class="p-3 flex flex-wrap justify-between">
-            <svg onclick="document.getElementById('midi_player').src =
-            'api/change_setting?setting_name=download_song&value={{key}}';
-            document.getElementById('midi_player_wrapper').classList.remove('hidden');
+        </div>
 
-            document.getElementById('midi_player').addEventListener('load', function (e) {
-                if(document.getElementById('player_and_songs').offsetWidth > 500 && document.getElementById('midi_player').noteSequence.notes.length < 6000){
-                    document.getElementById('myVisualizer').src =
-                    'api/change_setting?setting_name=download_song&value={{key}}';
-                    document.getElementById('midi_visualizer_wrapper').classList.remove('hidden');
-                    document.getElementById('midi_player').addVisualizer(document.getElementById('myVisualizer'));
-                    var note_width = document.getElementById('player_and_songs').offsetWidth / 54;
-                    document.getElementById('myVisualizer').config.whiteNoteWidth = note_width;
-                    document.getElementById('midi_player').addEventListener('start', function (e) { clearTimeout(scrolldelay);pageScroll(); }, false);
-                    document.getElementById('midi_player').addEventListener('stop', function (e) { clearTimeout(scrolldelay); }, false);
-                    document.getElementById('visualizer_error').classList.add('hidden');
-                }else{
-                    document.getElementById('myVisualizer').src = '';
-                    document.getElementById('midi_visualizer_wrapper').classList.add('hidden');
-                    clearTimeout(scrolldelay);
+        <!-- Song Info Badges -->
+        <div class="flex flex-wrap items-center gap-2 mb-4 overflow-x-auto">
+            <div class="flex items-center space-x-1 px-2 py-1 rounded-full glass-light text-xs text-gray-600 dark:text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span class="song_date text-xs">{{ segment }}</span>
+            </div>
+            <div class="flex items-center space-x-1 px-2 py-1 rounded-full glass-light text-xs text-gray-600 dark:text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                </svg>
+                <span class="song_highscore_cell" data-song="{{key}}">
+                    <span class="song_highscore_value font-semibold">0</span>
+                </span>
+            </div>
+        </div>
 
-                    if(document.getElementById('midi_player').noteSequence.notes.length > 6000){
-                        document.getElementById('visualizer_error_name').innerHTML = 'Visualizer could not be loaded';
-                        document.getElementById('visualizer_error_description').innerHTML = 'Midi file has too many notes';
-                        document.getElementById('visualizer_error').classList.remove('hidden');
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center justify-center sm:justify-between gap-2 pt-3 border-t border-white/10">
+            <div class="flex items-center space-x-2">
+                <button onclick="document.getElementById('midi_player').src =
+                'api/change_setting?setting_name=download_song&value={{key}}';
+                document.getElementById('midi_player_wrapper').classList.remove('hidden');
+
+                document.getElementById('midi_player').addEventListener('load', function (e) {
+                    if(document.getElementById('player_and_songs').offsetWidth > 500 && document.getElementById('midi_player').noteSequence.notes.length < 6000){
+                        document.getElementById('myVisualizer').src =
+                        'api/change_setting?setting_name=download_song&value={{key}}';
+                        document.getElementById('midi_visualizer_wrapper').classList.remove('hidden');
+                        document.getElementById('midi_player').addVisualizer(document.getElementById('myVisualizer'));
+                        var note_width = document.getElementById('player_and_songs').offsetWidth / 54;
+                        document.getElementById('myVisualizer').config.whiteNoteWidth = note_width;
+                        document.getElementById('midi_player').addEventListener('start', function (e) { clearTimeout(scrolldelay);pageScroll(); }, false);
+                        document.getElementById('midi_player').addEventListener('stop', function (e) { clearTimeout(scrolldelay); }, false);
+                        document.getElementById('visualizer_error').classList.add('hidden');
+                    }else{
+                        document.getElementById('myVisualizer').src = '';
+                        document.getElementById('midi_visualizer_wrapper').classList.add('hidden');
+                        clearTimeout(scrolldelay);
+
+                        if(document.getElementById('midi_player').noteSequence.notes.length > 6000){
+                            document.getElementById('visualizer_error_name').innerHTML = 'Visualizer could not be loaded';
+                            document.getElementById('visualizer_error_description').innerHTML = 'Midi file has too many notes';
+                            document.getElementById('visualizer_error').classList.remove('hidden');
+                        }
+
                     }
+                 }, false);"
+                        class="p-2 glass-light hover:glass rounded-glass transition-smooth-fast cursor-pointer group"
+                        title="Play" data-translate-title="play">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-cyan-500 transition-colors" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </button>
 
-                }
-             }, false);"
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-10 cursor-pointer" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+                <button onclick="change_setting('learning_load_song', '{{key}}');get_learning_status();
+                document.getElementById('learn_midi_wrapper').classList.remove('hidden');
+                document.getElementById('stop_learning').click();window.loadSheet('{{key}}')"
+                        class="p-2 glass-light hover:glass rounded-glass transition-smooth-fast cursor-pointer group"
+                        title="Learn" data-translate-title="learn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path d="M12 14l9-5-9-5-9 5 9 5z"/>
+                        <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0
+                        00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012
+                              20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/>
+                    </svg>
+                </button>
 
-            <svg onclick="change_setting('learning_load_song', '{{key}}');get_learning_status();
-            document.getElementById('learn_midi_wrapper').classList.remove('hidden');
-            document.getElementById('stop_learning').click();window.loadSheet('{{key}}')"
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-10 cursor-pointer" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor">
-                <path d="M12 14l9-5-9-5-9 5 9 5z"/>
-                <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0
-                00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012
-                      20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/>
-            </svg>
+                <a href="/api/change_setting?setting_name=download_song&value={{key}}"
+                   class="p-2 glass-light hover:glass rounded-glass transition-smooth-fast cursor-pointer group"
+                   title="Download" data-translate-title="download">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-green-500 transition-colors" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                </a>
+            </div>
 
-            <svg onclick="window.location = '/api/change_setting?setting_name=download_song&value={{key}}';"
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-10 cursor-pointer" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-            </svg>
-            <svg onclick="this.classList.add('hidden');
-            this.nextElementSibling.classList.remove('hidden');" xmlns="http://www.w3.org/2000/svg"
-                 class="h-6 w-10 cursor-pointer" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
+            <button onclick="this.classList.add('hidden');
+            this.nextElementSibling.classList.remove('hidden');"
+                    class="p-2 glass-light hover:glass rounded-glass transition-smooth-fast cursor-pointer group"
+                    title="Delete" data-translate-title="delete">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </button>
             <button onclick="change_setting('remove_song', '{{key}}');
-            this.parentElement.parentElement.classList.add('pointer-events-none', 'animate-pulse');" class="w-14 h-6 outline-none
-            glass-light text-red-400 rounded-2xl inline-flex items-center hidden">
+            this.closest('.song_card').classList.add('pointer-events-none', 'animate-pulse', 'opacity-50');"
+                    class="p-2 glass-light hover:glass rounded-glass transition-smooth-fast cursor-pointer hidden text-red-400 font-semibold text-xs"
+                    data-translate="confirm">
                 Confirm
             </button>
-        </td>
-    </tr>
-    {% endfor %}
-
-</table>
-<div class="flex justify-between flex-wrap">
-
-    <div class="flex w-1/3">
-        <div class="text-xs font-bold mt-2 text-gray-600 dark:text-gray-400 mr-2" data-translate="songs_per_page">
-            Songs per page
         </div>
-        <div class="relative w-1/3">
-            <select onchange="get_songs();" id="songs_per_page" class="block appearance-none w-full glass-light
-                    py-1 h-8 px-2 pr-8 mb-2 rounded-2xl leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-12 mb-6">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+    </svg>
+    <p class="text-gray-500 dark:text-gray-400 text-lg" data-translate="no_songs_found">No songs found</p>
+</div>
+{% endif %}
+
+<!-- Pagination and Controls -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-white/10">
+    <!-- Songs per page -->
+    <div class="flex items-center space-x-3">
+        <label for="songs_per_page" class="text-sm font-semibold text-gray-600 dark:text-gray-400" data-translate="songs_per_page">
+            Songs per page
+        </label>
+        <div class="relative">
+            <select onchange="get_songs();" id="songs_per_page" class="block appearance-none h-10 glass-light
+                    py-2 px-4 pr-8 rounded-glass leading-tight transition-smooth-fast text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/50">
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="50">50</option>
@@ -190,49 +236,50 @@
                     <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
                 </svg>
             </div>
-
         </div>
     </div>
 
-
-    <div class="justify-center w-1/3 flex space-x-4">
-        <svg onclick="document.getElementById('songs_page').value = 1;
-    get_songs();"
-             xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24"
-             stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
-        </svg>
-        <svg onclick="document.getElementById('songs_page').value = parseInt(document.getElementById('songs_page').value) - 1;
-    get_songs();" xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24"
-             stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-        <input onchange="get_songs();" id="songs_page"
-               class="text-center h-8 py-2 px-2 w-10 mb-2 rounded-2xl glass-light appearance-none"
-               type="number" value="{{page + 1}}" min=0 max="{{max_page}}">
-        <div class="pt-1">/</div>
-        <input class="text-center h-8 py-2 px-2 w-10 mb-2 rounded-2xl glass-light appearance-none"
-               type="number" value="{{max_page}}" disabled>
-        <svg onclick="document.getElementById('songs_page').value = parseInt(document.getElementById('songs_page').value) + 1;
-        get_songs();" xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24"
-             stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-        <svg onclick="document.getElementById('songs_page').value = parseInt(document.getElementById('songs_page').max);
-        get_songs();"
-             xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24"
-             stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
-        </svg>
-    </div>
-
-    <div class="w-1/3 block float-right text-right">
-        <div class="text-xs font-bold mt-2 text-gray-600 dark:text-gray-400 mr-2">
-            <div class="inline-flex">
-                <div data-translate="total_songs">Total songs: </div> {{total_songs}}
-            </div>
+    <!-- Pagination -->
+    <div class="flex items-center space-x-2">
+        <button onclick="document.getElementById('songs_page').value = 1; get_songs();"
+                class="p-2 glass-light hover:glass rounded-glass transition-smooth-fast cursor-pointer"
+                title="First page" data-translate-title="first_page">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+            </svg>
+        </button>
+        <button onclick="document.getElementById('songs_page').value = parseInt(document.getElementById('songs_page').value) - 1; get_songs();"
+                class="p-2 glass-light hover:glass rounded-glass transition-smooth-fast cursor-pointer"
+                title="Previous page" data-translate-title="previous_page">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        <div class="flex items-center space-x-2 px-3">
+            <input onchange="get_songs();" id="songs_page"
+                   class="text-center h-10 w-12 py-2 rounded-glass glass-light appearance-none text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                   type="number" value="{{page + 1}}" min="1" max="{{max_page}}">
+            <span class="text-gray-600 dark:text-gray-400">/</span>
+            <input class="text-center h-10 w-12 py-2 rounded-glass glass-light appearance-none text-sm text-gray-700 dark:text-gray-200"
+                   type="number" value="{{max_page}}" disabled>
         </div>
+        <button onclick="document.getElementById('songs_page').value = parseInt(document.getElementById('songs_page').value) + 1; get_songs();"
+                class="p-2 glass-light hover:glass rounded-glass transition-smooth-fast cursor-pointer"
+                title="Next page" data-translate-title="next_page">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </button>
+        <button onclick="document.getElementById('songs_page').value = parseInt(document.getElementById('songs_page').max); get_songs();"
+                class="p-2 glass-light hover:glass rounded-glass transition-smooth-fast cursor-pointer"
+                title="Last page" data-translate-title="last_page">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+            </svg>
+        </button>
     </div>
-
-
 </div>
