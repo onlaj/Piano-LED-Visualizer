@@ -1,6 +1,6 @@
 <div class="slide-in-content text-gray-700 dark:text-gray-200 text-lg w-full lg:w-4/5 xl:w-4/5 2xl:w-4/5 m-auto">
 
-    <div class="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+    <div class="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 items-start">
         <!-- Single animation selector card -->
         <div class="glass-light rounded-lg p-4">
             <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="start_animation">Start Animation</div>
@@ -27,6 +27,35 @@
                     data-translate="start">
                 Start
             </button>
+        </div>
+
+        <!-- Animation Speed Settings Card -->
+        <div class="glass-light rounded-lg p-4">
+            <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="animation_speed">Animation Speed</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3" data-translate="global_speed_info">Global speed for all animations</div>
+            <div class="flex mb-3">
+                <div class="w-1/2 pr-2">
+                    <select id="led_animation_speed_preset" onchange="handle_speed_preset_change()"
+                            class="block m-auto appearance-none w-full glass-light
+                        py-2 px-2 pr-8 rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <option value="Slow">Slow</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Fast">Fast</option>
+                        <option value="custom">Custom (ms)</option>
+                    </select>
+                </div>
+                <div class="w-1/2 pl-2">
+                    <input id="led_animation_speed_custom" type="number" min="1" max="1000" placeholder="ms"
+                           onchange="change_animation_speed_custom(this.value);"
+                           class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass
+                           leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                           style="display: none;">
+                    <div id="custom_speed_description" class="text-xs text-gray-500 dark:text-gray-400 mt-1" style="display: none;" data-translate="custom_speed_description">
+                        Delay in ms (higher value = slower)
+                    </div>
+                </div>
+            </div>
+            <div id="current_speed_display" class="text-sm text-gray-600 dark:text-gray-400 text-center"></div>
         </div>
 
         <!-- Chords (keep as-is) -->
@@ -127,186 +156,174 @@
             </button>
         </div>
 
-        <!-- Animation Speed Settings Card -->
-        <div class="glass-light rounded-lg p-4">
-            <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="animation_speed">Animation Speed</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3" data-translate="global_speed_info">Global speed for all animations</div>
-            <div class="flex mb-3">
-                <div class="w-1/2 pr-2">
-                    <select id="led_animation_speed_preset" onchange="handle_speed_preset_change()"
-                            class="block m-auto appearance-none w-full glass-light
-                        py-2 px-2 pr-8 rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                        <option value="Slow">Slow</option>
-                        <option value="Medium" selected>Medium</option>
-                        <option value="Fast">Fast</option>
-                        <option value="custom">Custom (ms)</option>
-                    </select>
+        <!-- IDLE Animation Settings Card -->
+        <div class="glass-light rounded-lg p-4 sm:col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2">
+            <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400 mb-4" data-translate="led_animation_on_idle">LED animation on IDLE</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Left Column -->
+                <div class="space-y-4">
+                    <div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400 mb-2" data-translate="after_minutes">after minutes (0 - never)</div>
+                        <div class="flex mb-4">
+                            <svg onclick="document.getElementById('animation_delay').stepDown();
+                            document.getElementById('animation_delay').dispatchEvent(new Event('change'));
+                            change_setting('animation_delay', document.getElementById('animation_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <input id="animation_delay" name="field_name" type="number" value="0" min="0" max="9999"
+                                   class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass
+                                   leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                            <svg onclick="document.getElementById('animation_delay').stepUp();
+                                document.getElementById('animation_delay').dispatchEvent(new Event('change'));
+                                change_setting('animation_delay', document.getElementById('animation_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="animation_type">Animation type</div>
+                        <div class="relative w-full">
+                            <select onchange="change_setting('led_animation', document.getElementById('led_animation').value);"
+                            id="led_animation" class="block m-auto appearance-none w-full glass-light
+                        py-2 px-2 pr-8 mb-2 rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                                <option value="Rainbow">Rainbow</option>
+                                <option value="Theater Chase">Theater Chase</option>
+                                <option value="Breathing">Breathing</option>
+                                <option value="Rainbow Cycle">Rainbow Cycle</option>
+                                <option value="Theater Chase Rainbow">Theater Chase Rainbow</option>
+                                <option value="Fireplace">Fireplace</option>
+                                <option value="Sound of da police">Sound of da police</option>
+                                <option value="Scanner">Scanner</option>
+
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="brightness">
+                            Brightness
+                        </div>
+                        <div class="content-center">
+                            <input onchange="change_setting('led_animation_brightness_percent', this.value);" id="brightness" class="w-full" type="range" value="50" min="1" max="100"
+                                   oninput="this.nextElementSibling.value = this.value+'%' ">
+                            <output id="brightness_percent" class="flex justify-center">50%</output>
+                        </div>
+                    </div>
                 </div>
-                <div class="w-1/2 pl-2">
-                    <input id="led_animation_speed_custom" type="number" min="1" max="1000" placeholder="ms"
-                           onchange="change_animation_speed_custom(this.value);"
-                           class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass
-                           leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                           style="display: none;">
-                    <div id="custom_speed_description" class="text-xs text-gray-500 dark:text-gray-400 mt-1" style="display: none;" data-translate="custom_speed_description">
-                        Delay in ms (higher value = slower)
+
+                <!-- Right Column -->
+                <div class="space-y-4">
+                    <div>
+                        <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">
+                            <div class="inline-flex">
+                                <div data-translate="idle_timeout">Idle timeout (minutes)</div>
+                                <div class="has-tooltip">
+                                    <span class="inline-block tooltip rounded shadow-lg p-1 glass-light text-gray-600 dark:text-gray-400 -mt-8" data-translate="idle_timeout_tooltip">
+                                        Time before entering IDLE state for CPU saving
+                                        <br>Main loop runs at 0.9s delay in IDLE (vs 0.006s normally)
+                                        <br>Minimum: 1 minute
+                                    </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex mb-4">
+                            <svg onclick="document.getElementById('idle_timeout_minutes').stepDown();
+                            document.getElementById('idle_timeout_minutes').dispatchEvent(new Event('change'));
+                            change_setting('idle_timeout_minutes', document.getElementById('idle_timeout_minutes').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <input id="idle_timeout_minutes" name="field_name" type="number" value="10" min="1" max="9999"
+                                   onchange="change_setting('idle_timeout_minutes', this.value);"
+                                   class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass
+                                   leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                            <svg onclick="document.getElementById('idle_timeout_minutes').stepUp();
+                                document.getElementById('idle_timeout_minutes').dispatchEvent(new Event('change'));
+                                change_setting('idle_timeout_minutes', document.getElementById('idle_timeout_minutes').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">
+                            <div class="inline-flex">
+                                <div data-translate="screensaver_delay">Screensaver delay (minutes)</div>
+                                <div class="has-tooltip">
+                                    <span class="inline-block tooltip rounded shadow-lg p-1 glass-light text-gray-600 dark:text-gray-400 -mt-8" data-translate="screensaver_delay_tooltip">
+                                        Time before screensaver starts
+                                        <br>0 = never start screensaver
+                                        <br>Refreshes at 5Hz in NORMAL, 1Hz in IDLE state
+                                    </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex mb-4">
+                            <svg onclick="document.getElementById('screensaver_delay').stepDown();
+                            document.getElementById('screensaver_delay').dispatchEvent(new Event('change'));
+                            change_setting('screensaver_delay', document.getElementById('screensaver_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <input id="screensaver_delay" name="field_name" type="number" value="10" min="0" max="9999"
+                                   onchange="change_setting('screensaver_delay', this.value);"
+                                   class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass
+                                   leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                            <svg onclick="document.getElementById('screensaver_delay').stepUp();
+                                document.getElementById('screensaver_delay').dispatchEvent(new Event('change'));
+                                change_setting('screensaver_delay', document.getElementById('screensaver_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">
+                            <div class="inline-flex">
+                                <div data-translate="screen_off_delay">Screen off delay (minutes)</div>
+                                <div class="has-tooltip">
+                                    <span class="inline-block tooltip rounded shadow-lg p-1 glass-light text-gray-600 dark:text-gray-400 -mt-8" data-translate="screen_off_delay_tooltip">
+                                        Time before physical screen turns off
+                                        <br>0 = never turn off screen
+                                        <br>Independent from IDLE state
+                                    </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex mb-4">
+                            <svg onclick="document.getElementById('screen_off_delay').stepDown();
+                            document.getElementById('screen_off_delay').dispatchEvent(new Event('change'));
+                            change_setting('screen_off_delay', document.getElementById('screen_off_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <input id="screen_off_delay" name="field_name" type="number" value="60" min="0" max="9999"
+                                   onchange="change_setting('screen_off_delay', this.value);"
+                                   class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass
+                                   leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                            <svg onclick="document.getElementById('screen_off_delay').stepUp();
+                                document.getElementById('screen_off_delay').dispatchEvent(new Event('change'));
+                                change_setting('screen_off_delay', document.getElementById('screen_off_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div id="current_speed_display" class="text-sm text-gray-600 dark:text-gray-400 text-center"></div>
-        </div>
-
-        <!-- IDLE Animation Settings Card -->
-        <div class="glass-light rounded-lg p-4">
-                <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="led_animation_on_idle">LED animation on IDLE</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400" data-translate="after_minutes">after minutes (0 - never)</div>
-                <div class="flex mb-4">
-                    <svg onclick="document.getElementById('animation_delay').stepDown();
-                    document.getElementById('animation_delay').dispatchEvent(new Event('change'));
-                    change_setting('animation_delay', document.getElementById('animation_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <input id="animation_delay" name="field_name" type="number" value="0" min="0" max="9999"
-                           class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass
-                           leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                    <svg onclick="document.getElementById('animation_delay').stepUp();
-                        document.getElementById('animation_delay').dispatchEvent(new Event('change'));
-                        change_setting('animation_delay', document.getElementById('animation_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-                <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="animation_type">Animation type</div>
-                <div class="relative w-full">
-                    <select onchange="change_setting('led_animation', document.getElementById('led_animation').value);"
-                    id="led_animation" class="block m-auto appearance-none w-full glass-light
-                py-2 px-2 pr-8 mb-2 rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                        <option value="Rainbow">Rainbow</option>
-                        <option value="Theater Chase">Theater Chase</option>
-                        <option value="Breathing">Breathing</option>
-                        <option value="Rainbow Cycle">Rainbow Cycle</option>
-                        <option value="Theater Chase Rainbow">Theater Chase Rainbow</option>
-                        <option value="Fireplace">Fireplace</option>
-                        <option value="Sound of da police">Sound of da police</option>
-                        <option value="Scanner">Scanner</option>
-
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="flex-1 font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400" data-translate="brightness">
-                    Brightness
-                </div>
-                <div class="content-center flex-1">
-                    <input onchange="change_setting('led_animation_brightness_percent', this.value);" id="brightness" class="w-full" type="range" value="50" min="1" max="100"
-                           oninput="this.nextElementSibling.value = this.value+'%' ">
-                    <output id="brightness_percent" class="flex justify-center">50%</output>
-                </div>
-
-                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400">
-                    <div class="inline-flex">
-                        <div data-translate="idle_timeout">Idle timeout (minutes)</div>
-                        <div class="has-tooltip">
-                            <span class="inline-block tooltip rounded shadow-lg p-1 glass-light text-gray-600 dark:text-gray-400 -mt-8" data-translate="idle_timeout_tooltip">
-                                Time before entering IDLE state for CPU saving
-                                <br>Main loop runs at 0.9s delay in IDLE (vs 0.006s normally)
-                                <br>Minimum: 1 minute
-                            </span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex mb-4">
-                    <svg onclick="document.getElementById('idle_timeout_minutes').stepDown();
-                    document.getElementById('idle_timeout_minutes').dispatchEvent(new Event('change'));
-                    change_setting('idle_timeout_minutes', document.getElementById('idle_timeout_minutes').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <input id="idle_timeout_minutes" name="field_name" type="number" value="10" min="1" max="9999"
-                           onchange="change_setting('idle_timeout_minutes', this.value);"
-                           class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass
-                           leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                    <svg onclick="document.getElementById('idle_timeout_minutes').stepUp();
-                        document.getElementById('idle_timeout_minutes').dispatchEvent(new Event('change'));
-                        change_setting('idle_timeout_minutes', document.getElementById('idle_timeout_minutes').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-
-                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400">
-                    <div class="inline-flex">
-                        <div data-translate="screensaver_delay">Screensaver delay (minutes)</div>
-                        <div class="has-tooltip">
-                            <span class="inline-block tooltip rounded shadow-lg p-1 glass-light text-gray-600 dark:text-gray-400 -mt-8" data-translate="screensaver_delay_tooltip">
-                                Time before screensaver starts
-                                <br>0 = never start screensaver
-                                <br>Refreshes at 5Hz in NORMAL, 1Hz in IDLE state
-                            </span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex mb-4">
-                    <svg onclick="document.getElementById('screensaver_delay').stepDown();
-                    document.getElementById('screensaver_delay').dispatchEvent(new Event('change'));
-                    change_setting('screensaver_delay', document.getElementById('screensaver_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <input id="screensaver_delay" name="field_name" type="number" value="10" min="0" max="9999"
-                           onchange="change_setting('screensaver_delay', this.value);"
-                           class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass
-                           leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                    <svg onclick="document.getElementById('screensaver_delay').stepUp();
-                        document.getElementById('screensaver_delay').dispatchEvent(new Event('change'));
-                        change_setting('screensaver_delay', document.getElementById('screensaver_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-
-                <div class="font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400">
-                    <div class="inline-flex">
-                        <div data-translate="screen_off_delay">Screen off delay (minutes)</div>
-                        <div class="has-tooltip">
-                            <span class="inline-block tooltip rounded shadow-lg p-1 glass-light text-gray-600 dark:text-gray-400 -mt-8" data-translate="screen_off_delay_tooltip">
-                                Time before physical screen turns off
-                                <br>0 = never turn off screen
-                                <br>Independent from IDLE state
-                            </span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex mb-4">
-                    <svg onclick="document.getElementById('screen_off_delay').stepDown();
-                    document.getElementById('screen_off_delay').dispatchEvent(new Event('change'));
-                    change_setting('screen_off_delay', document.getElementById('screen_off_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <input id="screen_off_delay" name="field_name" type="number" value="60" min="0" max="9999"
-                           onchange="change_setting('screen_off_delay', this.value);"
-                           class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass
-                           leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                    <svg onclick="document.getElementById('screen_off_delay').stepUp();
-                        document.getElementById('screen_off_delay').dispatchEvent(new Event('change'));
-                        change_setting('screen_off_delay', document.getElementById('screen_off_delay').value);" xmlns="http://www.w3.org/2000/svg" class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
         </div>
     </div>
 </div>
