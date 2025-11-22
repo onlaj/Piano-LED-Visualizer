@@ -680,17 +680,17 @@ function get_led_idle_animation_settings(){
                     speedPreset.value = "custom";
                     speedCustom.style.display = "block";
                     speedCustom.value = speedValue;
-                    if (speedDisplay) speedDisplay.textContent = `Current: ${speedValue}ms`;
+                    if (speedDisplay) speedDisplay.textContent = `${translate("current")} ${speedValue}ms`;
                 } else if (speedValue && ["Slow", "Medium", "Fast"].includes(speedValue)) {
                     // Preset value
                     speedPreset.value = speedValue;
                     speedCustom.style.display = "none";
-                    if (speedDisplay) speedDisplay.textContent = `Current: ${speedValue}`;
+                    if (speedDisplay) speedDisplay.textContent = `${translate("current")} ${speedValue}`;
                 } else {
                     // No speed set - use default
                     speedPreset.value = "Medium";
                     speedCustom.style.display = "none";
-                    if (speedDisplay) speedDisplay.textContent = "Current: Medium";
+                    if (speedDisplay) speedDisplay.textContent = `${translate("current")} Medium`;
                 }
             }
             
@@ -751,9 +751,9 @@ function update_speed_display(speedValue) {
     const speedDisplay = document.getElementById('current_speed_display');
     if (!speedDisplay) return;
     if (speedValue && !isNaN(speedValue)) {
-        speedDisplay.textContent = `Current: ${speedValue}ms`;
+        speedDisplay.textContent = `${translate("current")} ${speedValue}ms`;
     } else if (speedValue) {
-        speedDisplay.textContent = `Current: ${speedValue}`;
+        speedDisplay.textContent = `${translate("current")} ${speedValue}`;
     } else {
         speedDisplay.textContent = '';
     }

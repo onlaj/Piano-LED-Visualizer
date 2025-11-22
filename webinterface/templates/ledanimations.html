@@ -3,7 +3,7 @@
     <div class="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
         <!-- Single animation selector card -->
         <div class="glass-light rounded-lg p-4">
-            <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Start Animation</div>
+            <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="start_animation">Start Animation</div>
             <div class="relative w-full mb-3">
                 <select id="animation_select" class="block m-auto appearance-none w-full glass-light
                     py-2 px-2 pr-8 rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
@@ -23,7 +23,8 @@
                 </div>
             </div>
             <button onclick="start_led_animation(document.getElementById('animation_select').value, null)" 
-                    class="w-full h-12 transform hover:scale-105 transition duration-300 shadow-xl glass-light font-bold rounded-lg">
+                    class="w-full h-12 transform hover:scale-105 transition duration-300 shadow-xl glass-light font-bold rounded-lg"
+                    data-translate="start">
                 Start
             </button>
         </div>
@@ -35,8 +36,8 @@
                     <div>Chords</div>
                     <div class="has-tooltip">
                         <span class="inline-block tooltip rounded shadow-lg p-1 glass-light text-gray-600 dark:text-gray-400 -mt-8">
-                            Colors are taken from Scale color mode
-                            <br>Brightness is taken from backlight settings
+                            <span data-translate="colors_from_scale_mode">Colors are taken from Scale color mode</span>
+                            <br><span data-translate="brightness_from_backlight">Brightness is taken from backlight settings</span>
                         </span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24"
                              stroke="currentColor">
@@ -85,7 +86,8 @@
                     </div>
                 </button>
                 <button onclick="start_led_animation('chords', document.getElementById('chord').value)" class="w-1/2 glass-light font-bold border border-gray-100 dark:border-gray-900  m-0 rounded-br-lg
-        transform  hover:scale-105 transition duration-600 shadow-xl">
+        transform  hover:scale-105 transition duration-600 shadow-xl"
+                    data-translate="start">
                     Start
                 </button>
             </div>
@@ -109,7 +111,8 @@
                 </button>
             
                 <button onclick="start_led_animation('colormap_animation', document.getElementById('colormap_anim_id').value)" class="w-1/2 glass-light font-bold border border-gray-100 dark:border-gray-900  m-0 rounded-br-lg
-            transform  hover:scale-105 transition duration-600 shadow-xl">
+            transform  hover:scale-105 transition duration-600 shadow-xl"
+                    data-translate="start">
                     Start
                 </button>
             </div>
@@ -127,7 +130,7 @@
         <!-- Animation Speed Settings Card -->
         <div class="glass-light rounded-lg p-4">
             <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="animation_speed">Animation Speed</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">Global speed for all animations</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3" data-translate="global_speed_info">Global speed for all animations</div>
             <div class="flex mb-3">
                 <div class="w-1/2 pr-2">
                     <select id="led_animation_speed_preset" onchange="handle_speed_preset_change()"
