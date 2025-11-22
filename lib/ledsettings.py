@@ -17,97 +17,102 @@ class LedSettings:
         self.ledstrip = None
         self.menu = None
         self.usersettings = usersettings
+        self._load_settings()
 
-        self.red = int(usersettings.get_setting_value("red"))
-        self.green = int(usersettings.get_setting_value("green"))
-        self.blue = int(usersettings.get_setting_value("blue"))
-        self.mode = usersettings.get_setting_value("mode")
-        self.fadingspeed = int(usersettings.get_setting_value("fadingspeed"))
-        velocity_speed_val = usersettings.get_setting_value("velocity_speed")
+    def _load_settings(self):
+        """Load all settings from usersettings. Can be called to reload settings without recreating the object."""
+        us = self.usersettings
+        
+        self.red = int(us.get_setting_value("red"))
+        self.green = int(us.get_setting_value("green"))
+        self.blue = int(us.get_setting_value("blue"))
+        self.mode = us.get_setting_value("mode")
+        self.fadingspeed = int(us.get_setting_value("fadingspeed"))
+        velocity_speed_val = us.get_setting_value("velocity_speed")
         self.velocity_speed = int(velocity_speed_val) if velocity_speed_val else 1000
-        pedal_speed_val = usersettings.get_setting_value("pedal_speed")
+        pedal_speed_val = us.get_setting_value("pedal_speed")
         self.pedal_speed = int(pedal_speed_val) if pedal_speed_val else 1000
-        self.pulse_animation_speed = int(usersettings.get_setting_value("pulse_animation_speed"))
-        self.pulse_animation_distance = int(usersettings.get_setting_value("pulse_animation_distance"))
-        self.pulse_flicker_strength = int(usersettings.get_setting_value("pulse_flicker_strength"))
-        pulse_flicker_speed_val = usersettings.get_setting_value("pulse_flicker_speed")
+        self.pulse_animation_speed = int(us.get_setting_value("pulse_animation_speed"))
+        self.pulse_animation_distance = int(us.get_setting_value("pulse_animation_distance"))
+        self.pulse_flicker_strength = int(us.get_setting_value("pulse_flicker_strength"))
+        pulse_flicker_speed_val = us.get_setting_value("pulse_flicker_speed")
         self.pulse_flicker_speed = float(pulse_flicker_speed_val) if pulse_flicker_speed_val else 30.0
-        self.fadepedal_notedrop = int(usersettings.get_setting_value("fadepedal_notedrop"))
-        self.color_mode = usersettings.get_setting_value("color_mode")
-        self.rainbow_offset = int(usersettings.get_setting_value("rainbow_offset"))
-        self.rainbow_scale = int(usersettings.get_setting_value("rainbow_scale"))
-        self.rainbow_timeshift = int(usersettings.get_setting_value("rainbow_timeshift"))
-        self.rainbow_colormap = usersettings.get_setting_value("rainbow_colormap")
-        self.velocityrainbow_offset = int(usersettings.get_setting_value("velocityrainbow_offset"))
-        self.velocityrainbow_scale = int(usersettings.get_setting_value("velocityrainbow_scale"))
-        self.velocityrainbow_curve = int(usersettings.get_setting_value("velocityrainbow_curve"))
-        self.velocityrainbow_colormap = usersettings.get_setting_value("velocityrainbow_colormap")
+        self.fadepedal_notedrop = int(us.get_setting_value("fadepedal_notedrop"))
+        self.color_mode = us.get_setting_value("color_mode")
+        self.rainbow_offset = int(us.get_setting_value("rainbow_offset"))
+        self.rainbow_scale = int(us.get_setting_value("rainbow_scale"))
+        self.rainbow_timeshift = int(us.get_setting_value("rainbow_timeshift"))
+        self.rainbow_colormap = us.get_setting_value("rainbow_colormap")
+        self.velocityrainbow_offset = int(us.get_setting_value("velocityrainbow_offset"))
+        self.velocityrainbow_scale = int(us.get_setting_value("velocityrainbow_scale"))
+        self.velocityrainbow_curve = int(us.get_setting_value("velocityrainbow_curve"))
+        self.velocityrainbow_colormap = us.get_setting_value("velocityrainbow_colormap")
 
-        self.multicolor = ast.literal_eval(usersettings.get_setting_value("multicolor"))
-        self.multicolor_range = ast.literal_eval(usersettings.get_setting_value("multicolor_range"))
+        self.multicolor = ast.literal_eval(us.get_setting_value("multicolor"))
+        self.multicolor_range = ast.literal_eval(us.get_setting_value("multicolor_range"))
         self.multicolor_index = 0
-        self.multicolor_iteration = ast.literal_eval(usersettings.get_setting_value("multicolor_iteration"))
+        self.multicolor_iteration = ast.literal_eval(us.get_setting_value("multicolor_iteration"))
 
-        self.sequence_active = usersettings.get_setting_value("sequence_active")
+        self.sequence_active = us.get_setting_value("sequence_active")
 
-        self.backlight_brightness = int(usersettings.get_setting_value("backlight_brightness"))
-        self.backlight_brightness_percent = int(usersettings.get_setting_value("backlight_brightness_percent"))
-        self.disable_backlight_on_idle = usersettings.get_setting_value("disable_backlight_on_idle")
+        self.backlight_brightness = int(us.get_setting_value("backlight_brightness"))
+        self.backlight_brightness_percent = int(us.get_setting_value("backlight_brightness_percent"))
+        self.disable_backlight_on_idle = us.get_setting_value("disable_backlight_on_idle")
         self.backlight_stopped = False
 
-        self.led_animation_brightness_percent = int(usersettings.get_setting_value("led_animation_brightness_percent"))
+        self.led_animation_brightness_percent = int(us.get_setting_value("led_animation_brightness_percent"))
         
         # Animation speed settings
-        self.animation_speed_slow = int(usersettings.get_setting_value("animation_speed_slow") or 50)
-        self.animation_speed_medium = int(usersettings.get_setting_value("animation_speed_medium") or 20)
-        self.animation_speed_fast = int(usersettings.get_setting_value("animation_speed_fast") or 5)
-        self.led_animation_speed = usersettings.get_setting_value("led_animation_speed") or ""
+        self.animation_speed_slow = int(us.get_setting_value("animation_speed_slow") or 50)
+        self.animation_speed_medium = int(us.get_setting_value("animation_speed_medium") or 20)
+        self.animation_speed_fast = int(us.get_setting_value("animation_speed_fast") or 5)
+        self.led_animation_speed = us.get_setting_value("led_animation_speed") or ""
 
-        self.backlight_red = int(usersettings.get_setting_value("backlight_red"))
-        self.backlight_green = int(usersettings.get_setting_value("backlight_green"))
-        self.backlight_blue = int(usersettings.get_setting_value("backlight_blue"))
+        self.backlight_red = int(us.get_setting_value("backlight_red"))
+        self.backlight_green = int(us.get_setting_value("backlight_green"))
+        self.backlight_blue = int(us.get_setting_value("backlight_blue"))
 
-        self.adjacent_mode = usersettings.get_setting_value("adjacent_mode")
-        self.adjacent_red = int(usersettings.get_setting_value("adjacent_red"))
-        self.adjacent_green = int(usersettings.get_setting_value("adjacent_green"))
-        self.adjacent_blue = int(usersettings.get_setting_value("adjacent_blue"))
+        self.adjacent_mode = us.get_setting_value("adjacent_mode")
+        self.adjacent_red = int(us.get_setting_value("adjacent_red"))
+        self.adjacent_green = int(us.get_setting_value("adjacent_green"))
+        self.adjacent_blue = int(us.get_setting_value("adjacent_blue"))
 
-        self.skipped_notes = usersettings.get_setting_value("skipped_notes")
+        self.skipped_notes = us.get_setting_value("skipped_notes")
 
-        self.note_offsets = ast.literal_eval(usersettings.get_setting_value("note_offsets"))
+        self.note_offsets = ast.literal_eval(us.get_setting_value("note_offsets"))
 
         self.speed_period_in_seconds = 0.8
 
-        self.speed_slowest = {"red": int(usersettings.get_setting_value("speed_slowest_red")),
-                              "green": int(usersettings.get_setting_value("speed_slowest_green")),
-                              "blue": int(usersettings.get_setting_value("speed_slowest_blue"))}
+        self.speed_slowest = {"red": int(us.get_setting_value("speed_slowest_red")),
+                              "green": int(us.get_setting_value("speed_slowest_green")),
+                              "blue": int(us.get_setting_value("speed_slowest_blue"))}
 
-        self.speed_fastest = {"red": int(usersettings.get_setting_value("speed_fastest_red")),
-                              "green": int(usersettings.get_setting_value("speed_fastest_green")),
-                              "blue": int(usersettings.get_setting_value("speed_fastest_blue"))}
+        self.speed_fastest = {"red": int(us.get_setting_value("speed_fastest_red")),
+                              "green": int(us.get_setting_value("speed_fastest_green")),
+                              "blue": int(us.get_setting_value("speed_fastest_blue"))}
 
-        self.speed_period_in_seconds = float(usersettings.get_setting_value("speed_period_in_seconds"))
-        self.speed_max_notes = int(usersettings.get_setting_value("speed_max_notes"))
+        self.speed_period_in_seconds = float(us.get_setting_value("speed_period_in_seconds"))
+        self.speed_max_notes = int(us.get_setting_value("speed_max_notes"))
 
-        self.gradient_start = {"red": int(usersettings.get_setting_value("gradient_start_red")),
-                               "green": int(usersettings.get_setting_value("gradient_start_green")),
-                               "blue": int(usersettings.get_setting_value("gradient_start_blue"))}
+        self.gradient_start = {"red": int(us.get_setting_value("gradient_start_red")),
+                               "green": int(us.get_setting_value("gradient_start_green")),
+                               "blue": int(us.get_setting_value("gradient_start_blue"))}
 
-        self.gradient_end = {"red": int(usersettings.get_setting_value("gradient_end_red")),
-                             "green": int(usersettings.get_setting_value("gradient_end_green")),
-                             "blue": int(usersettings.get_setting_value("gradient_end_blue"))}
+        self.gradient_end = {"red": int(us.get_setting_value("gradient_end_red")),
+                             "green": int(us.get_setting_value("gradient_end_green")),
+                             "blue": int(us.get_setting_value("gradient_end_blue"))}
 
-        self.key_in_scale = {"red": int(usersettings.get_setting_value("key_in_scale_red")),
-                             "green": int(usersettings.get_setting_value("key_in_scale_green")),
-                             "blue": int(usersettings.get_setting_value("key_in_scale_blue"))}
+        self.key_in_scale = {"red": int(us.get_setting_value("key_in_scale_red")),
+                             "green": int(us.get_setting_value("key_in_scale_green")),
+                             "blue": int(us.get_setting_value("key_in_scale_blue"))}
 
-        self.key_not_in_scale = {"red": int(usersettings.get_setting_value("key_not_in_scale_red")),
-                                 "green": int(usersettings.get_setting_value("key_not_in_scale_green")),
-                                 "blue": int(usersettings.get_setting_value("key_not_in_scale_blue"))}
+        self.key_not_in_scale = {"red": int(us.get_setting_value("key_not_in_scale_red")),
+                                 "green": int(us.get_setting_value("key_not_in_scale_green")),
+                                 "blue": int(us.get_setting_value("key_not_in_scale_blue"))}
 
         self.scales = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B", "C m", "C# m", "D m", "Eb m",
                        "E m", "F m", "F# m", "G m", "G# m", "A bm", "A m", "Bb m", "B m"]
-        self.scale_key = int(usersettings.get_setting_value("scale_key"))
+        self.scale_key = int(us.get_setting_value("scale_key"))
 
         self.sequence_number = 0
 
@@ -115,6 +120,10 @@ class LedSettings:
 
         # if self.mode == "Disabled" and self.color_mode != "disabled":
         #    usersettings.change_setting_value("color_mode", "disabled")
+
+    def reload_settings(self):
+        """Reload all settings from usersettings. Useful when settings have been updated externally."""
+        self._load_settings()
 
     def add_instance(self, menu, ledstrip):
         self.menu = menu

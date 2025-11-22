@@ -161,6 +161,7 @@
          x-data="setup()" x-init="$refs.loading.classList.add('hidden')">
         <!-- Loading screen -->
         <div
+                id="loading_screen"
                 x-ref="loading"
                 class="fixed inset-0 z-50 flex items-center justify-center text-white bg-black bg-opacity-50"
                 style="backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)"
@@ -736,6 +737,213 @@
             translateStaticContent();
             content.classList.toggle("hidden");
         });
+    }
+
+    function get_presets() {
+        if(document.getElementById("preset_list") == null) return;
+        
+        $.ajax({
+            url: '/api/presets',
+            type: 'GET',
+            success: function (response) {
+                if (response.success) {
+                    var select = document.getElementById("preset_list");
+                    var current = select.value;
+                    select.innerHTML = '<option value="" disabled selected>Select Preset</option>';
+                    response.presets.forEach(function (preset) {
+                        var option = document.createElement("option");
+                        option.value = preset;
+                        option.text = preset.replace('.xml', '');
+                        select.appendChild(option);
+                    });
+                    if(current && Array.from(select.options).some(opt => opt.value === current)) {
+                        select.value = current;
+                    } else {
+                        select.value = "";
+                    }
+                }
+            }
+        });
+    }
+
+    function save_preset() {
+        var name = prompt("Enter preset name:");
+        if (name) {
+            $.ajax({
+                url: '/api/presets',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({name: name}),
+                success: function (response) {
+                    if (response.success) {
+                        get_presets();
+                        alert("Preset saved successfully");
+                    } else {
+                        alert("Error: " + response.error);
+                    }
+                }
+            });
+        }
+    }
+
+    function overwrite_preset() {
+        var select = document.getElementById("preset_list");
+        var name = select.value;
+        if (!name) {
+            alert("Please select a preset to save to");
+            return;
+        }
+        
+        if (confirm("Overwrite preset '" + name.replace('.xml', '') + "' with current settings?")) {
+            $.ajax({
+                url: '/api/presets',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({name: name}),
+                success: function (response) {
+                    if (response.success) {
+                        alert("Preset saved successfully");
+                    } else {
+                        alert("Error: " + response.error);
+                    }
+                }
+            });
+        }
+    }
+
+    function load_preset() {
+        var select = document.getElementById("preset_list");
+        var name = select.value;
+        if (!name) {
+            alert("Please select a preset first");
+            return;
+        }
+        
+        if (confirm("Load preset '" + name.replace('.xml', '') + "'? This will reload LED settings (color modes, light modes, brightness).\n\nNote: This may take 30+ seconds to complete.")) {
+            var loading = document.getElementById("loading_screen");
+            if(loading) loading.classList.remove("hidden");
+            
+            $.ajax({
+                url: '/api/presets/load',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({name: name}),
+                timeout: 60000, // 60 second timeout
+                success: function (response) {
+                    if (response.success) {
+                        // Refresh settings without full page reload
+                        if (typeof get_settings === 'function') {
+                            get_settings(false); // Update homepage display
+                            if (document.getElementById('ledsettings') && document.getElementById('ledsettings').classList.contains('active')) {
+                                get_settings(true); // Update LED settings page if open
+                            }
+                        }
+                        if (typeof get_ports === 'function') {
+                            get_ports(); // Refresh port information
+                        }
+                        if(loading) loading.classList.add("hidden");
+                        alert("Preset loaded successfully");
+                    } else {
+                        if(loading) loading.classList.add("hidden");
+                        alert("Error: " + response.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    if(loading) loading.classList.add("hidden");
+                    if (status === 'timeout') {
+                        alert("Error: Request timed out. The preset may still be loading. Please refresh the page.");
+                    } else {
+                        alert("Error loading preset: " + error);
+                    }
+                }
+            });
+        }
+    }
+
+    function delete_preset() {
+        var select = document.getElementById("preset_list");
+        var name = select.value;
+        if (!name) {
+            alert("Please select a preset first");
+            return;
+        }
+        
+        if (confirm("Delete preset '" + name + "'?")) {
+            $.ajax({
+                url: '/api/presets/delete',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({name: name}),
+                success: function (response) {
+                    if (response.success) {
+                        get_presets();
+                        select.value = "";
+                    } else {
+                        alert("Error: " + response.error);
+                    }
+                }
+            });
+        }
+    }
+
+    function rename_preset() {
+        var select = document.getElementById("preset_list");
+        var old_name = select.value;
+        if (!old_name) {
+            alert("Please select a preset first");
+            return;
+        }
+        
+        var new_name = prompt("Enter new name:", old_name.replace('.xml', ''));
+        if (new_name && new_name + ".xml" != old_name) {
+            $.ajax({
+                url: '/api/presets/rename',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({old_name: old_name, new_name: new_name}),
+                success: function (response) {
+                    if (response.success) {
+                        get_presets();
+                    } else {
+                        alert("Error: " + response.error);
+                    }
+                }
+            });
+        }
+    }
+
+    function upload_preset(input) {
+        if (input.files && input.files[0]) {
+            var formData = new FormData();
+            formData.append('file', input.files[0]);
+            
+            $.ajax({
+                url: '/api/presets/upload',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        get_presets();
+                        alert("Preset uploaded successfully");
+                    } else {
+                        alert("Error: " + response.error);
+                    }
+                    input.value = ''; 
+                }
+            });
+        }
+    }
+
+    function download_preset() {
+        var select = document.getElementById("preset_list");
+        var name = select.value;
+        if (!name) {
+            alert("Please select a preset first");
+            return;
+        }
+        window.location.href = '/api/presets/download?name=' + encodeURIComponent(name);
     }
 
 </script>

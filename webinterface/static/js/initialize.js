@@ -38,6 +38,9 @@ function initialize_homepage() {
     }
     
     get_logs();
+    if(typeof get_presets === 'function') {
+        get_presets();
+    }
 }
 
 /**
