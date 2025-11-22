@@ -299,6 +299,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Advanced mode",
+        system_controls: "System Controls",
+        display_settings: "Display Settings",
+        visualizer_controls: "Visualizer Controls",
+        settings: "Settings",
         system_cpu_usage: "System CPU usage",
         ram_usage: "Ram usage",
         disk_usage: "Disk Usage",
@@ -605,6 +609,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Tryb zaawansowany",
+        system_controls: "Kontrola systemu",
+        display_settings: "Ustawienia wyświetlania",
+        visualizer_controls: "Kontrola wizualizatora",
+        settings: "Ustawienia",
         system_cpu_usage: "Użycie procesora przez system",
         ram_usage: "Użycie RAM",
         disk_usage: "Użycie dysku",
@@ -919,6 +927,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Mode avancé",
+        system_controls: "Contrôles système",
+        display_settings: "Paramètres d'affichage",
+        visualizer_controls: "Contrôles du visualiseur",
+        settings: "Paramètres",
         system_cpu_usage: "Utilisation du CPU du système",
         ram_usage: "Utilisation de la RAM",
         disk_usage: "Utilisation du disque",
@@ -1236,6 +1248,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Erweiterter Modus",
+        system_controls: "Systemsteuerung",
+        display_settings: "Anzeigeeinstellungen",
+        visualizer_controls: "Visualisierungssteuerung",
+        settings: "Einstellungen",
         system_cpu_usage: "Verwendung der System-CPU",
         ram_usage: "Ram-Verwendung",
         disk_usage: "Festplattenverbrauch",
@@ -1552,6 +1568,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Modo avanzado",
+        system_controls: "Controles del sistema",
+        display_settings: "Configuración de pantalla",
+        visualizer_controls: "Controles del visualizador",
+        settings: "Configuración",
         system_cpu_usage: "Uso de CPU del sistema",
         ram_usage: "Uso de RAM",
         disk_usage: "Uso del disco",
@@ -1867,6 +1887,10 @@ const translations = {
 
         //homepage
         advanced_mode: "高级模式",
+        system_controls: "系统控制",
+        display_settings: "显示设置",
+        visualizer_controls: "可视化器控制",
+        settings: "设置",
         system_cpu_usage: "系统CPU使用",
         ram_usage: "内存使用",
         disk_usage: "磁盘使用",
@@ -2181,6 +2205,10 @@ const translations = {
 
         //homepage
         advanced_mode: "उन्नत मोड",
+        system_controls: "सिस्टम नियंत्रण",
+        display_settings: "प्रदर्शन सेटिंग्स",
+        visualizer_controls: "विज़ुअलाइज़र नियंत्रण",
+        settings: "सेटिंग्स",
         system_cpu_usage: "सिस्टम सीपीयू उपयोग",
         ram_usage: "रैम उपयोग",
         disk_usage: "डिस्क उपयोग",
@@ -2498,6 +2526,10 @@ const translations = {
 
         //homepage
         advanced_mode: "Modo avançado",
+        system_controls: "Controles do sistema",
+        display_settings: "Configurações de exibição",
+        visualizer_controls: "Controles do visualizador",
+        settings: "Configurações",
         system_cpu_usage: "Uso de CPU do sistema",
         ram_usage: "Uso de RAM",
         disk_usage: "Uso de disco",
@@ -2816,6 +2848,10 @@ const translations = {
 
         //homepage
         advanced_mode: "アドバンストモード",
+        system_controls: "システム制御",
+        display_settings: "表示設定",
+        visualizer_controls: "ビジュアライザー制御",
+        settings: "設定",
         system_cpu_usage: "システムCPU使用率",
         ram_usage: "RAM使用量",
         disk_usage: "ディスク使用量",
@@ -3130,6 +3166,10 @@ const translations = {
 
     //homepage
     advanced_mode: "고급 모드",
+    system_controls: "시스템 제어",
+    display_settings: "디스플레이 설정",
+    visualizer_controls: "비주얼라이저 제어",
+    settings: "설정",
     system_cpu_usage: "시스템 CPU 사용량",
     ram_usage: "RAM 사용량",
     disk_usage: "디스크 사용량",
@@ -3426,6 +3466,10 @@ he: {
 
     //homepage
     advanced_mode: "מצב מתקדם",
+    system_controls: "בקרת מערכת",
+    display_settings: "הגדרות תצוגה",
+    visualizer_controls: "בקרת ויזואליזציה",
+    settings: "הגדרות",
     system_cpu_usage: "שימוש במעבד",
     ram_usage: "שימוש בזיכרון",
     disk_usage: "שימוש בדיסק",
@@ -3723,6 +3767,10 @@ ar:{
 
     // homepage
     advanced_mode: "الوضع المتقدم",
+    system_controls: "عناصر تحكم النظام",
+    display_settings: "إعدادات العرض",
+    visualizer_controls: "عناصر تحكم العارض",
+    settings: "الإعدادات",
     system_cpu_usage: "استهلاك المعالج",
     ram_usage: "استهلاك الرام",
     disk_usage: "استهلاك الهارد",
