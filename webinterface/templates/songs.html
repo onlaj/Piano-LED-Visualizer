@@ -151,29 +151,11 @@
                     na takt
                 </div>
                 <div class="justify-center flex">
-                    <svg onclick="input = document.getElementById('beats_per_measure');
-                            input.value = parseInt(input.value) - 1;
-                            if(input.value <= 2){input.value = 3};
-                            change_beats_per_measure(input.value);" id="subtract_beat_per_measure"
-                         xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
                     <input onchange="if(this.value <= 2){this.value = 3};
                             if(this.value >= 13){this.value = 12};
                             change_beats_per_measure(this.value);" min="3" max="12" type="number" id="beats_per_measure"
                            class="h-8 py-2 px-2 w-20 mb-2
                             rounded-glass transition-smooth-fast glass-light hover:glass appearance-none">
-                    <svg onclick="input = document.getElementById('beats_per_measure');
-                            input.value = parseInt(input.value) + 1;
-                            if(input.value >= 13){input.value = 12};
-                            change_beats_per_measure(input.value);" id="add_beat_per_measure"
-                         xmlns="http://www.w3.org/2000/svg" class="h-8 w-6 cursor-pointer" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
                 </div>
 
                 <div class="mt-1 text-base text-gray-600 dark:text-gray-400" data-translate="volume">Głośność</div>
@@ -191,7 +173,7 @@
                     <input onchange="if(this.value <= 0){this.value = 0};
                             if(this.value >= 100){this.value = 100};
                             change_volume(this.value);" value="50" min="0" max="100" step="10" type="number"
-                           id="metronome_volume" class="h-8 py-2 px-2 w-20 mb-2
+                           id="metronome_volume" data-exclude-number-input="true" class="h-8 py-2 px-2 w-20 mb-2
                             rounded-glass transition-smooth-fast glass-light hover:glass appearance-none">
                     <svg onclick="input = document.getElementById('metronome_volume');
                             input.value = parseInt(input.value) + 10;
@@ -513,26 +495,10 @@
                         Number of mistakes to restart loop (0 - never)
                     </label>
                     <div class="flex">
-                        <svg onclick="document.getElementById('number_of_mistakes').stepDown();
-                    document.getElementById('number_of_mistakes').dispatchEvent(new Event('change'));
-                    " xmlns="http://www.w3.org/2000/svg"
-                             class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24"
-                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
                         <input onchange="change_setting('number_of_mistakes', document.getElementById('number_of_mistakes').value)"
                                id="number_of_mistakes" name="field_name" type="number" value="0" min="0" max="255"
                                class="h-10 block appearance-none w-full glass-light hover:glass text-center
                                rounded-glass transition-smooth-fast leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                        <svg onclick="document.getElementById('number_of_mistakes').stepUp();
-                        document.getElementById('number_of_mistakes').dispatchEvent(new Event('change'));
-                        " xmlns="http://www.w3.org/2000/svg"
-                             class="m-auto w-full h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24"
-                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
                     </div>
                 </div>
             </div>

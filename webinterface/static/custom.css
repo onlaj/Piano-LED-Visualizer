@@ -1088,3 +1088,94 @@ canvas {
         height: 4rem;
     }
 }
+
+/* ================================================
+   UNIFIED NUMBER INPUT MODULE
+   ================================================ */
+
+/* Number input wrapper container */
+.number-input-wrapper {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Buttons - hidden by default */
+.number-input-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    padding: 0 0.5rem;
+    opacity: 0;
+    transform: scale(0.9);
+    pointer-events: none;
+}
+
+.dark .number-input-btn {
+    background: rgba(60, 60, 60, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+}
+
+.number-input-btn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.05);
+}
+
+.dark .number-input-btn:hover {
+    background: rgba(75, 85, 99, 0.8);
+}
+
+.number-input-btn:active {
+    transform: scale(0.95);
+}
+
+/* Decrement button - left side */
+.number-input-btn-decrement {
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+/* Increment button - right side */
+.number-input-btn-increment {
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
+}
+
+/* When focused, show buttons and adjust input styling */
+.number-input-wrapper.focused .number-input-btn {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.number-input-wrapper.focused input[type="number"] {
+    border-radius: 0 !important;
+    border-left: none;
+    border-right: none;
+}
+
+/* Ensure input maintains its height and other styles */
+.number-input-wrapper input[type="number"] {
+    margin: 0;
+    flex: 1;
+}
