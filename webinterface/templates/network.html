@@ -1,128 +1,164 @@
-<div class="transition duration-300 slide-in-content grid grid-cols-1 gap-8 w-full lg:w-1/2 xl:w-4/5 2xl:w-3/5 m-auto">
-    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass mb--2 transition-smooth">
-        <div class="mb-2" data-translate="connected_wifi">
-            Connected Wi-Fi
-        </div>
-        <div id="connected-wifi-section" class="flex">
-            <div id="connected-wifi" class="text-xl font-bold">
-
+<div class="slide-in-content col-span-12 mt-1 w-full lg:w-4/5 xl:w-4/5 2xl:w-4/5 m-auto">
+    <!-- Network Settings Grid -->
+    <div class="grid grid-cols-12 gap-6 mb-6">
+        <!-- Connected Wi-Fi Section -->
+        <div class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+            <div class="w-full flex items-center p-3">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808
+                        13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z"/>
+                    </svg>
+                    <span class="font-semibold text-sm" data-translate="connected_wifi">Connected Wi-Fi</span>
+                </div>
             </div>
-            <div class="hidden" id="disconnect-button">
-                <button onclick="this.classList.add('hidden');
-                handle_confirmation_button(this.nextElementSibling, 3000);
-                document.getElementById('connected-wifi-section').classList.remove('flex');"
-                        class="w-full outline-none font-bold ml-2 rounded-glass transition-smooth-fast inline-flex items-center">
-                    <div class="has-tooltip h-6 w-full justify-items-center">
-                            <span class="text-sm inline-block tooltip rounded shadow-lg p-1
-                            glass shadow-glass text-gray-600 dark:text-gray-400 -mt-8"
-                                  data-translate="disconnect_wifi_and_create_hotspot">
-                                Disconnect Wi-Fi and create Hotspot
-                            </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center stroke-red-600"
-                             fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+            <div class="p-3 pt-0 space-y-3">
+                <div id="connected-wifi-section" class="flex items-center">
+                    <div id="connected-wifi" class="text-xl font-bold flex-1">
                     </div>
-                </button>
-                <div class="hidden">
-                    <div class="text-sm text-center text-red-400">
-                        <div data-translate="disconnecting_warning_line_1"> Disconnecting from Wi-Fi
-                            will start the process of creating a Hotspot. This might take a moment.
-                        </div>
-                        <br>
-                        <div data-translate="disconnecting_warning_line_2">You'll need to connect to the newly created
-                            Hotspot to access the web interface again.
+                    <div class="hidden" id="disconnect-button">
+                        <button onclick="this.classList.add('hidden');
+                        handle_confirmation_button(this.nextElementSibling, 3000);
+                        document.getElementById('connected-wifi-section').classList.remove('flex');"
+                                class="outline-none font-bold ml-2 rounded-glass transition-smooth-fast inline-flex items-center glass-light hover:glass p-2">
+                            <div class="has-tooltip h-6 w-6 justify-items-center">
+                                <span class="text-sm inline-block tooltip rounded shadow-lg p-1
+                                glass shadow-glass text-gray-600 dark:text-gray-400 -mt-8"
+                                      data-translate="disconnect_wifi_and_create_hotspot">
+                                    Disconnect Wi-Fi and create Hotspot
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 stroke-red-600"
+                                     fill="none"
+                                     viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </button>
+                        <div class="hidden">
+                            <div class="text-sm text-center text-red-400 mb-3">
+                                <div data-translate="disconnecting_warning_line_1"> Disconnecting from Wi-Fi
+                                    will start the process of creating a Hotspot. This might take a moment.
+                                </div>
+                                <br>
+                                <div data-translate="disconnecting_warning_line_2">You'll need to connect to the newly created
+                                    Hotspot to access the web interface again.
+                                </div>
+                            </div>
+                            <button onclick="change_setting('disconnect_wifi', '0');temporary_disable_button(this, 25000);"
+                                    class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                                <span class="uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
+                            </button>
                         </div>
                     </div>
-                    <button onclick="change_setting('disconnect_wifi', '0');temporary_disable_button(this, 25000);"
-                            class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
-                        <span class="w-full uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
-                    </button>
+                </div>
+                <div class="text-sm opacity-50 hidden" id="connected_wifi_address">
                 </div>
             </div>
         </div>
-        <div class="text-sm opacity-50 hidden" id="connected_wifi_address">
 
-        </div>
-    </div>
-    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
-        <div class="text-lg font-semibold mb-2" data-translate="wifi_list">
-            Wi-Fi List
-        </div>
-        <svg id="refresh-wifi-button" onclick="get_wifi_list()" xmlns="http://www.w3.org/2000/svg" fill="none"
-             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-             class="w-6 h-6 mb-4 cursor-pointer">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
-        </svg>
-
-        <div id="wifi-list">
-        </div>
-    </div>
-
-    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
-        <div class="text-lg font-semibold mb-2" data-translate="local_address">
-            Local Address
-        </div>
-        <div id="current-local-address" class="text-xl font-bold mb-4"></div>
-        <div class="mb-4">
-            <input
-                    id="new-local-address"
-                    class="w-full h-10 dark:text-black glass-light py-2 px-2 rounded-glass leading-tight transition-smooth-fast"
-                    type="text"
-                    placeholder="Enter new local address"
-                    data-translate-placeholder="enter_local_address"
-            >
-        </div>
-        <button onclick="changeLocalAddress()"
-                class="w-full h-10 outline-none mb-2 bg-blue-500 dark:bg-blue-600 text-white font-bold py-2 px-2 rounded-glass transition-smooth-fast hover-lift">
-            <span data-translate="change_address">Change Address</span>
-        </button>
-        <div id="address-change-message" class="text-sm text-center hidden"></div>
-    </div>
-
-    <div class="flex-1 grid p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
-        <div class="text-lg font-semibold mb-2" data-translate="hotspot_password_section_title">
-            Hotspot Password
-        </div>
-        <div class="mb-1 relative">
-            <input
-                    id="hotspot-password"
-                    class="w-full h-10 dark:text-black glass-light py-2 px-4 rounded-glass leading-tight transition-smooth-fast pr-10"
-                    type="password"
-                    placeholder="Enter new hotspot password (min 8 chars)"
-                    data-translate-placeholder="enter_hotspot_password"
-                    oninput="updatePasswordStrength('hotspot-password', 'password-strength-indicator', 'password-strength-text')"
-            >
-            <button
-                    type="button"
-                    onclick="togglePasswordVisibility(this, 'hotspot-password')"
-                    class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                    aria-label="Toggle password visibility">
-                <svg id="hotspot-password-eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <!-- Wi-Fi List Section -->
+        <div class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+            <div class="w-full flex items-center justify-between p-3">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <span class="font-semibold text-sm" data-translate="wifi_list">Wi-Fi List</span>
+                </div>
+                <svg id="refresh-wifi-button" onclick="get_wifi_list()" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                     class="w-5 h-5 cursor-pointer hover:scale-110 transition-smooth-fast">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
                 </svg>
-                <svg id="hotspot-password-eye-slash-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 hidden">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                </svg>
-            </button>
+            </div>
+            <div class="p-3 pt-0">
+                <div id="wifi-list">
+                </div>
+            </div>
         </div>
-        <div class="h-2 w-full bg-gray-300 dark:bg-gray-500 rounded-full mt-1 mb-1">
-            <div id="password-strength-indicator" class="h-full rounded-full" style="width: 0%; background-color: #EF4444;"></div>
-        </div>
-        <div id="password-strength-text" class="text-xs text-gray-500 dark:text-gray-400 mb-2 text-right"></div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mb-3" data-translate="hotspot_password_change_note">
-            Note: Changing the password will enable the hotspot if it's not already active and will restart it, disconnecting current users.
-        </p>
-        <button onclick="changeHotspotPassword()"
-                class="w-full h-10 outline-none mb-2 bg-blue-500 dark:bg-blue-600 text-white font-bold py-2 px-2 rounded-glass transition-smooth-fast hover-lift">
-            <span data-translate="change_hotspot_password_button">Change Hotspot Password</span>
-        </button>
-        <div id="hotspot-password-message" class="text-sm text-center hidden"></div>
     </div>
 
+    <!-- Network Configuration Grid -->
+    <div class="grid grid-cols-12 gap-6 mb-6">
+        <!-- Local Address Section -->
+        <div class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+            <div class="w-full flex items-center p-3">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                    </svg>
+                    <span class="font-semibold text-sm" data-translate="local_address">Local Address</span>
+                </div>
+            </div>
+            <div class="p-3 pt-0 space-y-3">
+                <div id="current-local-address" class="text-xl font-bold"></div>
+                <div>
+                    <input
+                            id="new-local-address"
+                            class="w-full h-10 dark:text-black glass-light py-2 px-2 rounded-glass leading-tight transition-smooth-fast"
+                            type="text"
+                            placeholder="Enter new local address"
+                            data-translate-placeholder="enter_local_address"
+                    >
+                </div>
+                <button onclick="changeLocalAddress()"
+                        class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center hover-lift">
+                    <span data-translate="change_address">Change Address</span>
+                </button>
+                <div id="address-change-message" class="text-sm text-center hidden"></div>
+            </div>
+        </div>
+
+        <!-- Hotspot Password Section -->
+        <div class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+            <div class="w-full flex items-center p-3">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <span class="font-semibold text-sm" data-translate="hotspot_password_section_title">Hotspot Password</span>
+                </div>
+            </div>
+            <div class="p-3 pt-0 space-y-3">
+                <div class="relative">
+                    <input
+                            id="hotspot-password"
+                            class="w-full h-10 dark:text-black glass-light py-2 px-4 rounded-glass leading-tight transition-smooth-fast pr-10"
+                            type="password"
+                            placeholder="Enter new hotspot password (min 8 chars)"
+                            data-translate-placeholder="enter_hotspot_password"
+                            oninput="updatePasswordStrength('hotspot-password', 'password-strength-indicator', 'password-strength-text')"
+                    >
+                    <button
+                            type="button"
+                            onclick="togglePasswordVisibility(this, 'hotspot-password')"
+                            class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                            aria-label="Toggle password visibility">
+                        <svg id="hotspot-password-eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <svg id="hotspot-password-eye-slash-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 hidden">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="h-2 w-full bg-gray-300 dark:bg-gray-500 rounded-full">
+                    <div id="password-strength-indicator" class="h-full rounded-full" style="width: 0%; background-color: #EF4444;"></div>
+                </div>
+                <div id="password-strength-text" class="text-xs text-gray-500 dark:text-gray-400 text-right"></div>
+                <p class="text-xs text-gray-500 dark:text-gray-400" data-translate="hotspot_password_change_note">
+                    Note: Changing the password will enable the hotspot if it's not already active and will restart it, disconnecting current users.
+                </p>
+                <button onclick="changeHotspotPassword()"
+                        class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center hover-lift">
+                    <span data-translate="change_hotspot_password_button">Change Hotspot Password</span>
+                </button>
+                <div id="hotspot-password-message" class="text-sm text-center hidden"></div>
+            </div>
+        </div>
+    </div>
 </div>
-
