@@ -75,6 +75,13 @@ const translations = {
         switch_ports: "Switch Ports",
         view_on_github: "View on GitHub",
         join_discord: "Join Discord server",
+        
+        //ledanimations
+        animation_speed: "Animation Speed",
+        global_speed_info: "Global speed for all animations",
+        use_preset: "Use preset",
+        custom_ms: "Custom (ms)",
+        custom_speed_description: "Delay in ms (higher value = slower)",
 
         //ledcolor
         led_color: "LED Color",
@@ -380,6 +387,13 @@ const translations = {
         color_for_not_in_scale: "Kolor dla nut poza skalą",
         scale_key: "Klucz skali",
 
+        //ledanimations
+        animation_speed: "Szybkość animacji",
+        global_speed_info: "Szybkość globalna dla wszystkich animacji",
+        use_preset: "Użyj presetu",
+        custom_ms: "Niestandardowe (ms)",
+        custom_speed_description: "Opóźnienie w ms (wyższa wartość = wolniej)",
+        stop_animation: "Zatrzymaj animację",
 
         //ledcolor
         led_color: "Kolor LED",
@@ -862,6 +876,11 @@ const translations = {
         password_too_short_strength: "Trop court",
 
         //ledanimations
+        animation_speed: "Vitesse d'animation",
+        global_speed_info: "Vitesse globale pour toutes les animations",
+        use_preset: "Utiliser un préréglage",
+        custom_ms: "Personnalisé (ms)",
+        custom_speed_description: "Délai en ms (valeur plus élevée = plus lent)",
         stop_animation: "Arrêter l'animation",
         led_animation_on_idle: "Animation LED en veille",
         after_minutes: "après minutes (0 - jamais)",
@@ -1167,6 +1186,11 @@ const translations = {
         password_too_short_strength: "Zu kurz",
 
         //ledanimations
+        animation_speed: "Animationsgeschwindigkeit",
+        global_speed_info: "Globale Geschwindigkeit für alle Animationen",
+        use_preset: "Preset verwenden",
+        custom_ms: "Benutzerdefiniert (ms)",
+        custom_speed_description: "Verzögerung in ms (höherer Wert = langsamer)",
         stop_animation: "Animation stoppen",
         led_animation_on_idle: "LED-Animation im Leerlauf",
         after_minutes: "nach Minuten (0 - niemals)",
@@ -1470,6 +1494,11 @@ const translations = {
         password_too_short_strength: "Demasiado corto",
 
         //ledanimations
+        animation_speed: "Velocidad de animación",
+        global_speed_info: "Velocidad global para todas las animaciones",
+        use_preset: "Usar preajuste",
+        custom_ms: "Personalizado (ms)",
+        custom_speed_description: "Retardo en ms (valor más alto = más lento)",
         stop_animation: "Detener animación",
         led_animation_on_idle: "Animación LED en reposo",
         after_minutes: "después de minutos (0 - nunca)",
@@ -1772,6 +1801,11 @@ const translations = {
         password_too_short_strength: "太短",
 
         //ledanimations
+        animation_speed: "动画速度",
+        global_speed_info: "所有动画的全局速度",
+        use_preset: "使用预设",
+        custom_ms: "自定义 (毫秒)",
+        custom_speed_description: "延迟（毫秒）（值越高 = 越慢）",
         stop_animation: "停止动画",
         led_animation_on_idle: "LED闲置动画",
         after_minutes: "几分钟后（0 - 从不）",
@@ -2073,6 +2107,11 @@ const translations = {
         password_too_short_strength: "बहुत छोटा",
 
         //ledanimations
+        animation_speed: "एनिमेशन की गति",
+        global_speed_info: "सभी एनिमेशन के लिए वैश्विक गति",
+        use_preset: "प्रीसेट का उपयोग करें",
+        custom_ms: "कस्टम (ms)",
+        custom_speed_description: "मिलीसेकंड में देरी (उच्च मान = धीमा)",
         stop_animation: "एनिमेशन रोकें",
         led_animation_on_idle: "आईडल पर एलईडी एनिमेशन",
         after_minutes: "मिनटों के बाद (0 - कभी नहीं)",
@@ -2377,6 +2416,11 @@ const translations = {
         password_too_short_strength: "Muito curta",
 
         //ledanimations
+        animation_speed: "Velocidade da animação",
+        global_speed_info: "Velocidade global para todas as animações",
+        use_preset: "Usar predefinição",
+        custom_ms: "Personalizado (ms)",
+        custom_speed_description: "Atraso em ms (valor mais alto = mais lento)",
         stop_animation: "Parar animação",
         led_animation_on_idle: "Animação de LED em ociosidade",
         after_minutes: "depois de minutos (0 - nunca)",
@@ -2498,6 +2542,14 @@ const translations = {
         color_for_in_scale: "スケール内の色",
         color_for_not_in_scale: "スケール外の色",
         scale_key: "スケールキー",
+
+        //ledanimations
+        animation_speed: "アニメーション速度",
+        global_speed_info: "すべてのアニメーションのグローバル速度",
+        use_preset: "プリセットを使用",
+        custom_ms: "カスタム (ms)",
+        custom_speed_description: "ミリ秒単位の遅延（値が大きいほど遅くなります）",
+        stop_animation: "アニメーションを停止",
 
         //ledcolor
         led_color: "LEDの色",
@@ -2979,8 +3031,13 @@ const translations = {
     password_strength_very_strong: "매우 강함",
     password_too_short_strength: "너무 짧음",
 
-    //ledanimations
-    stop_animation: "애니메이션 중지",
+        //ledanimations
+        animation_speed: "애니메이션 속도",
+        global_speed_info: "모든 애니메이션의 전역 속도",
+        use_preset: "프리셋 사용",
+        custom_ms: "사용자 정의 (ms)",
+        custom_speed_description: "ms 단위 지연 (값이 클수록 느림)",
+        stop_animation: "애니메이션 중지",
     led_animation_on_idle: "대기 중 LED 애니메이션",
     after_minutes: "몇 분 후 (0 - 사용안함)",
     animation_type: "애니메이션 유형",
@@ -3262,8 +3319,13 @@ he: {
     change_address: "שנה כתובת",
     enter_local_address: "הזן כתובת מקומית",
 
-    //ledanimations
-    stop_animation: "עצור אנימציה",
+        //ledanimations
+        animation_speed: "מהירות אנימציה",
+        global_speed_info: "מהירות גלובלית לכל האנימציות",
+        use_preset: "השתמש בהגדרה מראש",
+        custom_ms: "מותאם אישית (ms)",
+        custom_speed_description: "השהיה ב-ms (ערך גבוה יותר = איטי יותר)",
+        stop_animation: "עצור אנימציה",
     led_animation_on_idle: "אנימציית לד במצב מנוחה",
     after_minutes: "לאחר דקות",
     animation_type: "סוג אנימציה",
@@ -3388,6 +3450,14 @@ ar:{
     color_for_in_scale: "لون للنغمات داخل السلم",
     color_for_not_in_scale: "لون للنغمات خارج السلم",
     scale_key: "مفتاح السلم",
+
+    //ledanimations
+    animation_speed: "سرعة الرسوم المتحركة",
+    global_speed_info: "سرعة عالمية لجميع الرسوم المتحركة",
+    use_preset: "استخدام الإعداد المسبق",
+    custom_ms: "مخصص (مللي ثانية)",
+    custom_speed_description: "تأخير بالمللي ثانية (قيمة أعلى = أبطأ)",
+    stop_animation: "إيقاف الرسوم المتحركة",
 
     // lightmode
     fading: "تلاشي",

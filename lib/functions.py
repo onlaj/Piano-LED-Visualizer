@@ -136,6 +136,8 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
 
 
 def manage_idle_animation(ledstrip, ledsettings, menu, midiports, state_manager=None):
+    from lib.led_animations import get_registry
+    
     animation_delay_minutes = int(menu.led_animation_delay)
     if animation_delay_minutes == 0:
         return
@@ -170,51 +172,52 @@ def manage_idle_animation(ledstrip, ledsettings, menu, midiports, state_manager=
     # Start animation if not already running
     if menu.is_idle_animation_running:
         return
-        
-    menu.is_idle_animation_running = True
-
-    if menu.led_animation == "Theater Chase":
-            menu.t = threading.Thread(target=theaterChase, args=(ledstrip,
-                                                                 Color(127, 127, 127),
-                                                                 ledsettings,
-                                                                 menu))
-            menu.t.start()
-    if menu.led_animation == "Fireplace":
-            menu.t = threading.Thread(target=theaterChase, args=(ledstrip,
-                                                                 Color(127, 127, 127),
-                                                                 ledsettings,
-                                                                 menu))
-            menu.t.start()
-    if menu.led_animation == "Breathing Slow":
-            menu.t = threading.Thread(target=breathing, args=(ledstrip,
-                                                              ledsettings,
-                                                              menu, "Slow"))
-            menu.t.start()
-    if menu.led_animation == "Rainbow Slow":
-            menu.t = threading.Thread(target=rainbow, args=(ledstrip,
-                                                            ledsettings,
-                                                            menu, 50))
-            menu.t.start()
-    if menu.led_animation == "Rainbow Cycle Slow":
-            menu.t = threading.Thread(target=rainbowCycle, args=(ledstrip,
-                                                                 ledsettings,
-                                                                 menu, 50))
-            menu.t.start()
-    if menu.led_animation == "Theater Chase Rainbow":
-            menu.t = threading.Thread(target=theaterChaseRainbow, args=(ledstrip,
-                                                                        ledsettings,
-                                                                        menu, 5))
-            menu.t.start()
-    if menu.led_animation == "Sound of da police":
-            menu.t = threading.Thread(target=sound_of_da_police, args=(ledstrip,
-                                                                       ledsettings,
-                                                                       menu, 1))
-            menu.t.start()
-    if menu.led_animation == "Scanner":
-            menu.t = threading.Thread(target=scanner, args=(ledstrip,
-                                                            ledsettings,
-                                                            menu, 1))
-            menu.t.start()
+    
+    # Get animation name (handle backward compatibility with old format)
+    animation_name = menu.led_animation
+    
+    # Handle old format: "Animation Name Speed" (e.g., "Rainbow Slow", "Breathing Slow")
+    # Extract speed keyword from animation name if present (for backward compatibility)
+    speed_keywords = ["Slow", "Medium", "Fast"]
+    for keyword in speed_keywords:
+        if animation_name.endswith(" " + keyword):
+            animation_name = animation_name[:-len(" " + keyword)].strip()
+            break
+    
+    # Track animation for speed change restart
+    menu.current_animation_name = animation_name
+    menu.current_animation_param = None
+    menu.was_idle_animation = True
+    
+    # Use registry to start animation (always uses global speed)
+    registry = get_registry()
+    success = registry.start_animation(
+        name=animation_name,
+        ledstrip=ledstrip,
+        ledsettings=ledsettings,
+        menu=menu,
+        usersettings=ledsettings.usersettings,
+        is_idle=True
+    )
+    
+    if not success:
+        # Fallback: try to find animation by partial match
+        # This handles edge cases and backward compatibility
+        all_animations = registry.get_all()
+        for anim_info in all_animations:
+            if anim_info.name.lower() in animation_name.lower() or animation_name.lower() in anim_info.name.lower():
+                if not anim_info.requires_param:  # Only use animations without parameters for IDLE
+                    menu.current_animation_name = anim_info.name
+                    registry.start_animation(
+                        name=anim_info.name,
+                        ledstrip=ledstrip,
+                        ledsettings=ledsettings,
+                        menu=menu,
+                        usersettings=ledsettings.usersettings,
+                        is_idle=True
+                    )
+                    break
+    
     time.sleep(1)
 
 
@@ -507,12 +510,16 @@ def stop_animations(menu):
     menu.is_idle_animation_running = temp_is_idle_animation_running
     menu.is_animation_running = temp_is_animation_running
 
-def theaterChase(ledstrip, ledsettings, menu, wait_ms=20):
+def theaterChase(ledstrip, ledsettings, menu, speed_ms=None):
     """Movie theater light style chaser animation."""
+    from lib.animation_speed import get_global_speed_ms
     stop_animations(menu)
     strip = ledstrip.strip
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
     brightness = calculate_brightness(ledsettings)
 
@@ -559,17 +566,14 @@ def wheel(pos, ledsettings):
         return Color(0, int((pos * 3) * brightness), int((255 - pos * 3) * brightness))
 
 
-def rainbow(ledstrip, ledsettings, menu, speed="Medium"):
+def rainbow(ledstrip, ledsettings, menu, speed_ms=None):
+    """Draw rainbow that fades across all pixels at once."""
+    from lib.animation_speed import get_global_speed_ms
     stop_animations(menu)
 
-    speed_map = {
-        "Slow": 50,
-        "Fast": 2,
-    }
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
-    wait_ms = speed_map.get(speed, 20)
-
-    """Draw rainbow that fades across all pixels at once."""
     strip = ledstrip.strip
 
     fastColorWipe(strip, True, ledsettings)
@@ -598,11 +602,13 @@ def rainbow(ledstrip, ledsettings, menu, speed="Medium"):
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
 
-def fireplace(ledstrip, ledsettings, menu):
+def fireplace(ledstrip, ledsettings, menu, speed_ms=None):
+    """Fireplace flickering animation."""
+    from lib.animation_speed import get_global_speed_ms
     stop_animations(menu)
 
-
-    wait_ms = 20
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
     strip = ledstrip.strip
     fastColorWipe(strip, True, ledsettings)
@@ -636,16 +642,14 @@ def fireplace(ledstrip, ledsettings, menu):
     fastColorWipe(strip, True, ledsettings)
 
 
-def rainbowCycle(ledstrip, ledsettings, menu, speed="Medium"):
-    stop_animations(menu)
-    speed_map = {
-        "Slow": 50,
-        "Fast": 1,
-    }
-
-    wait_ms = speed_map.get(speed, 20)
-
+def rainbowCycle(ledstrip, ledsettings, menu, speed_ms=None):
     """Draw rainbow that uniformly distributes itself across all pixels."""
+    from lib.animation_speed import get_global_speed_ms
+    stop_animations(menu)
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
+
     strip = ledstrip.strip
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
@@ -725,16 +729,14 @@ def startup_animation(ledstrip, ledsettings, duration_ms=2000, max_leds=30):
     strip.show()
 
 
-def theaterChaseRainbow(ledstrip, ledsettings, menu, speed="Medium"):
-    stop_animations(menu)
-    speed_map = {
-        "Slow": 10,
-        "Fast": 2,
-    }
-
-    wait_ms = speed_map.get(speed, 5)
-
+def theaterChaseRainbow(ledstrip, ledsettings, menu, speed_ms=None):
     """Rainbow movie theater light style chaser animation."""
+    from lib.animation_speed import get_global_speed_ms
+    stop_animations(menu)
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
+
     strip = ledstrip.strip
 
     fastColorWipe(strip, True, ledsettings)
@@ -769,14 +771,13 @@ def theaterChaseRainbow(ledstrip, ledsettings, menu, speed="Medium"):
     fastColorWipe(strip, True, ledsettings)
 
 
-def breathing(ledstrip, ledsettings, menu, speed="Medium"):
+def breathing(ledstrip, ledsettings, menu, speed_ms=None):
+    """Breathing/pulsing animation."""
+    from lib.animation_speed import get_global_speed_ms
     stop_animations(menu)
-    speed_map = {
-        "Slow": 25,
-        "Fast": 5,
-    }
 
-    wait_ms = speed_map.get(speed, 10)
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
     strip = ledstrip.strip
 
@@ -817,8 +818,13 @@ def breathing(ledstrip, ledsettings, menu, speed="Medium"):
     fastColorWipe(strip, True, ledsettings)
 
 
-def sound_of_da_police(ledstrip, ledsettings, menu, wait_ms=5):
+def sound_of_da_police(ledstrip, ledsettings, menu, speed_ms=None):
+    """Police-style alternating red/blue animation."""
+    from lib.animation_speed import get_global_speed_ms
     stop_animations(menu)
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
     strip = ledstrip.strip
 
@@ -860,8 +866,13 @@ def sound_of_da_police(ledstrip, ledsettings, menu, wait_ms=5):
     fastColorWipe(strip, True, ledsettings)
 
 
-def scanner(ledstrip, ledsettings, menu, wait_ms=1):
+def scanner(ledstrip, ledsettings, menu, speed_ms=None):
+    """Scanner beam animation."""
+    from lib.animation_speed import get_global_speed_ms
     stop_animations(menu)
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
     strip = ledstrip.strip
 

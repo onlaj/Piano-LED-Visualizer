@@ -134,9 +134,19 @@ class MenuLCD:
         self.screen_on = int(usersettings.get_setting_value("screen_on"))
         self.screen_status = 1
         self.screensaver_is_running = False
+        
+        # Track current animation for speed change restart
+        self.current_animation_name = None
+        self.current_animation_param = None
+        self.was_idle_animation = False
         self.last_activity = time.time()
         self.is_idle_animation_running = False
         self.is_animation_running = False
+        
+        # Track current animation for speed change restart
+        self.current_animation_name = None
+        self.current_animation_param = None
+        self.was_idle_animation = False
         
         # Load menu title image
         self.menu_title_image = None
@@ -637,6 +647,19 @@ class MenuLCD:
 
             elif location == "Led_animation_delay":
                 value = self.led_animation_delay
+
+            elif location == "Animation_Speed":
+                speed_setting = self.usersettings.get_setting_value("led_animation_speed") or ""
+                if speed_setting and speed_setting.strip():
+                    # Check if it's a numeric value
+                    try:
+                        speed_ms = int(speed_setting)
+                        value = f"{speed_ms}ms"
+                    except (ValueError, TypeError):
+                        # It's a preset name
+                        value = speed_setting
+                else:
+                    value = "Medium"
 
             elif location == "Idle_timeout":
                 value = self.idle_timeout_minutes
@@ -1539,57 +1562,89 @@ class MenuLCD:
 
         if location == "LED_animations":
             self.is_animation_running = True
-            if choice == "Theater Chase":
-                self.t = threading.Thread(target=theaterChase, args=(self.ledstrip, self.ledsettings, self))
-                self.t.start()
-            if choice == "Theater Chase Rainbow":
-                self.t = threading.Thread(target=theaterChaseRainbow, args=(self.ledstrip, self.ledsettings,
-                                                                            self, "Medium"))
-                self.t.start()
-            if choice == "Fireplace":
-                self.t = threading.Thread(target=fireplace, args=(self.ledstrip, self.ledsettings, self))
-                self.t.start()
-            if choice == "Sound of da police":
-                self.t = threading.Thread(target=sound_of_da_police, args=(self.ledstrip, self.ledsettings,
-                                                                           self, 1))
-                self.t.start()
-            if choice == "Scanner":
-                self.t = threading.Thread(target=scanner, args=(self.ledstrip, self.ledsettings, self, 1))
-                self.t.start()
+            from lib.led_animations import get_registry
+            registry = get_registry()
+            
             if choice == "Clear":
                 fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
+                self.current_animation_name = None
+            else:
+                # Track current animation
+                self.current_animation_name = choice
+                self.current_animation_param = None
+                self.was_idle_animation = False
+                # Use registry to start animation (uses global speed)
+                registry.start_animation(
+                    name=choice,
+                    ledstrip=self.ledstrip,
+                    ledsettings=self.ledsettings,
+                    menu=self,
+                    usersettings=self.usersettings,
+                    is_idle=False
+                )
         if location == "Chords":
             chord = self.ledsettings.scales.index(choice)
-            self.t = threading.Thread(target=chords, args=(chord, self.ledstrip, self.ledsettings, self))
-            self.t.start()
-
-        speed_map = {
-            "Rainbow": {
-                "Fast": rainbow,
-                "Medium": rainbow,
-                "Slow": rainbow
-            },
-            "Rainbow_Cycle": {
-                "Fast": rainbowCycle,
-                "Medium": rainbowCycle,
-                "Slow": rainbowCycle
-            },
-            "Breathing": {
-                "Fast": breathing,
-                "Medium": breathing,
-                "Slow": breathing
-            }
-        }
-
-        if location in speed_map and choice in speed_map[location]:
-            speed_func = speed_map[location][choice]
-            self.t = threading.Thread(target=speed_func, args=(self.ledstrip, self.ledsettings, self, choice))
-            self.t.start()
+            from lib.led_animations import get_registry
+            registry = get_registry()
+            # Track current animation
+            self.current_animation_name = "Chords"
+            self.current_animation_param = chord
+            self.was_idle_animation = False
+            registry.start_animation(
+                name="Chords",
+                ledstrip=self.ledstrip,
+                ledsettings=self.ledsettings,
+                menu=self,
+                param=chord,
+                usersettings=self.usersettings,
+                is_idle=False
+            )
+        
+        # Handle animation speed change
+        if location == "Animation_Speed":
+            from lib.led_animations import get_registry
+            registry = get_registry()
+            
+            # Map choice to speed value
+            speed_value = None
+            if choice == "Slow":
+                speed_value = "Slow"
+            elif choice == "Medium":
+                speed_value = "Medium"
+            elif choice == "Fast":
+                speed_value = "Fast"
+            elif choice == "Custom":
+                # Custom speed will be set via change_value
+                return
+            
+            if speed_value:
+                self.usersettings.change_setting_value("led_animation_speed", speed_value)
+                # Restart animation if running
+                if (self.is_animation_running or self.is_idle_animation_running) and self.current_animation_name:
+                    # Stop current animation
+                    self.is_animation_running = False
+                    self.is_idle_animation_running = False
+                    import time
+                    time.sleep(0.2)
+                    
+                    # Restart with new speed
+                    is_idle = self.was_idle_animation
+                    registry.start_animation(
+                        name=self.current_animation_name,
+                        ledstrip=self.ledstrip,
+                        ledsettings=self.ledsettings,
+                        menu=self,
+                        param=self.current_animation_param,
+                        usersettings=self.usersettings,
+                        is_idle=is_idle
+                    )
 
         if location == "LED_animations":
             if choice == "Stop animation":
                 self.is_animation_running = False
                 self.is_idle_animation_running = False
+                self.current_animation_name = None
+                self.current_animation_param = None
 
         if location == "Other_Settings":
             if choice == "System Info":
@@ -1837,6 +1892,38 @@ class MenuLCD:
                 # Convert back to radians/sec for storage
                 self.ledsettings.pulse_flicker_speed = new_hz * 2 * math.pi
                 self.usersettings.change_setting_value("pulse_flicker_speed", self.ledsettings.pulse_flicker_speed)
+
+        if self.current_location == "Animation_Speed":
+            # Handle custom speed value input
+            if self.current_choice == "Custom":
+                current_speed = self.usersettings.get_setting_value("led_animation_speed") or "20"
+                try:
+                    speed_ms = int(current_speed) + (value * self.speed_multiplier)
+                    if speed_ms < 1:
+                        speed_ms = 1
+                    elif speed_ms > 1000:
+                        speed_ms = 1000
+                    self.usersettings.change_setting_value("led_animation_speed", str(speed_ms))
+                    # Restart animation if running
+                    if (self.is_animation_running or self.is_idle_animation_running) and self.current_animation_name:
+                        from lib.led_animations import get_registry
+                        registry = get_registry()
+                        self.is_animation_running = False
+                        self.is_idle_animation_running = False
+                        import time
+                        time.sleep(0.2)
+                        is_idle = self.was_idle_animation
+                        registry.start_animation(
+                            name=self.current_animation_name,
+                            ledstrip=self.ledstrip,
+                            ledsettings=self.ledsettings,
+                            menu=self,
+                            param=self.current_animation_param,
+                            usersettings=self.usersettings,
+                            is_idle=is_idle
+                        )
+                except (ValueError, TypeError):
+                    pass
 
         if self.current_location == "Start_delay":
             self.screensaver_delay = int(self.screensaver_delay) + (value * self.speed_multiplier)

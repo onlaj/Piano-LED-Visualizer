@@ -1,96 +1,34 @@
 <div class="slide-in-content text-gray-700 dark:text-gray-200 text-lg w-full lg:w-4/5 xl:w-4/5 2xl:w-4/5 m-auto">
 
     <div class="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-        <div>
-            <button onclick="start_led_animation('theaterchase', 'normal')" class="transform  hover:scale-105 transition
-      duration-300 shadow-xl w-full h-20 glass-light font-bold rounded-lg">
-                Theater Chase
-            </button>
-        </div>
-        <div>
-            <button onclick="start_led_animation('theaterchaserainbow', 'normal')" class="transform  hover:scale-105 transition
-      duration-300 shadow-xl w-full h-20 glass-light font-bold rounded-lg">
-                Theater Chase Rainbow
-            </button>
-        </div>
-        <div>
-            <button onclick="start_led_animation('fireplace', 'normal')" class="transform  hover:scale-105 transition
-      duration-300 shadow-xl w-full h-20 glass-light font-bold rounded-lg">
-                Fireplace
-            </button>
-        </div>
-        <div>
-            <button onclick="start_led_animation('soundofdapolice', 'normal')" class="transform  hover:scale-105 transition
-      duration-300 shadow-xl w-full h-20 glass-light font-bold rounded-lg">
-                Sound Of Da Police
-            </button>
-        </div>
-        <div>
-            <button onclick="start_led_animation('scanner', 'normal')" class="transform  hover:scale-105 transition
-    duration-300 shadow-xl w-full h-20 glass-light font-bold rounded-lg">
-                Scanner
-            </button>
-        </div>
-        <div>
-            <button class="w-full h-8 glass-light cursor-default font-bold m-0 rounded-t-lg">
-                Breathing
-            </button>
-            <div class="h-12 text-sm whitespace-nowrap flex ">
-                <button onclick="start_led_animation('breathing', 'slow')" class="w-2/6 glass-light font-bold border border-gray-100 dark:border-gray-900 m-0 rounded-bl-lg
-        transform  hover:scale-105 transition duration-300 shadow-xl ">
-                    Slow
-                </button>
-                <button onclick="start_led_animation('breathing', 'medium')" class="w-2/6 glass-light font-bold border border-gray-100 dark:border-gray-900  m-0 rounded-none
-        transform  hover:scale-105 transition duration-300 shadow-xl">
-                    Medium
-                </button>
-                <button onclick="start_led_animation('breathing', 'fast')" class="w-2/6 glass-light font-bold border border-gray-100 dark:border-gray-900  m-0 rounded-br-lg
-        transform  hover:scale-105 transition duration-600 shadow-xl">
-                    Fast
-                </button>
+        <!-- Single animation selector card -->
+        <div class="glass-light rounded-lg p-4">
+            <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400">Start Animation</div>
+            <div class="relative w-full mb-3">
+                <select id="animation_select" class="block m-auto appearance-none w-full glass-light
+                    py-2 px-2 pr-8 rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                    <option value="theaterchase">Theater Chase</option>
+                    <option value="theaterchaserainbow">Theater Chase Rainbow</option>
+                    <option value="fireplace">Fireplace</option>
+                    <option value="soundofdapolice">Sound Of Da Police</option>
+                    <option value="scanner">Scanner</option>
+                    <option value="breathing">Breathing</option>
+                    <option value="rainbow">Rainbow</option>
+                    <option value="rainbowcycle">Rainbow Cycle</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                    </svg>
+                </div>
             </div>
+            <button onclick="start_led_animation(document.getElementById('animation_select').value, null)" 
+                    class="w-full h-12 transform hover:scale-105 transition duration-300 shadow-xl glass-light font-bold rounded-lg">
+                Start
+            </button>
         </div>
 
-        <div>
-            <button class="w-full h-8 glass-light cursor-default font-bold m-0 rounded-t-lg">
-                Rainbow
-            </button>
-            <div class="h-12 text-xs whitespace-nowrap flex ">
-                <button onclick="start_led_animation('rainbow', 'slow')" class="w-2/6 glass-light font-bold border border-gray-100 dark:border-gray-900 m-0 rounded-bl-lg
-        transform  hover:scale-105 transition duration-300 shadow-xl">
-                    Slow
-                </button>
-                <button onclick="start_led_animation('rainbow', 'medium')" class="w-2/6 glass-light font-bold border border-gray-100 dark:border-gray-900  m-0 rounded-none
-        transform  hover:scale-105 transition duration-300 shadow-xl">
-                    Medium
-                </button>
-                <button onclick="start_led_animation('rainbow', 'fast')" class="w-2/6 glass-light font-bold border border-gray-100 dark:border-gray-900  m-0 rounded-br-lg
-        transform  hover:scale-105 transition duration-600 shadow-xl">
-                    Fast
-                </button>
-            </div>
-        </div>
-
-        <div>
-            <button class="w-full h-8 glass-light cursor-default font-bold m-0 rounded-t-lg">
-                Rainbow Cycle
-            </button>
-            <div class="h-12 text-xs whitespace-nowrap flex ">
-                <button onclick="start_led_animation('rainbowcycle', 'slow')" class="w-2/6 glass-light font-bold border border-gray-100 dark:border-gray-900 m-0 rounded-bl-lg
-        transform  hover:scale-105 transition duration-300 shadow-xl">
-                    Slow
-                </button>
-                <button onclick="start_led_animation('rainbowcycle', 'medium')" class="w-2/6 glass-light font-bold border border-gray-100 dark:border-gray-900  m-0 rounded-none
-        transform  hover:scale-105 transition duration-300 shadow-xl">
-                    Medium
-                </button>
-                <button onclick="start_led_animation('rainbowcycle', 'fast')" class="w-2/6 glass-light font-bold border border-gray-100 dark:border-gray-900  m-0 rounded-br-lg
-        transform  hover:scale-105 transition duration-600 shadow-xl">
-                    Fast
-                </button>
-            </div>
-        </div>
-
+        <!-- Chords (keep as-is) -->
         <div>
             <button class="w-full h-8 glass-light cursor-default font-bold m-0 rounded-t-lg">
                 <div class="inline-flex">
@@ -153,6 +91,7 @@
             </div>
         </div>
 
+        <!-- Colormap (keep as-is) -->
         <div>
             <button class="w-full h-8 glass-light cursor-default font-bold m-0 rounded-t-lg">
                 Colormap
@@ -176,15 +115,46 @@
             </div>
         </div>
 
+        <!-- Stop Animation -->
         <div>
-            <button onclick="start_led_animation('stop', 'normal')" class="h-12 transform  hover:scale-105 transition
+            <button onclick="start_led_animation('stop', null)" class="h-12 transform  hover:scale-105 transition
       duration-300 shadow-xl w-full h-full glass-light font-bold rounded-lg"
                     data-translate="stop_animation">
                 Stop Animation
             </button>
         </div>
 
-        <div class="glass-light rounded-lg p-2">
+        <!-- Animation Speed Settings Card -->
+        <div class="glass-light rounded-lg p-4">
+            <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="animation_speed">Animation Speed</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400 mb-3">Global speed for all animations</div>
+            <div class="flex mb-3">
+                <div class="w-1/2 pr-2">
+                    <select id="led_animation_speed_preset" onchange="handle_speed_preset_change()"
+                            class="block m-auto appearance-none w-full glass-light
+                        py-2 px-2 pr-8 rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <option value="Slow">Slow</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Fast">Fast</option>
+                        <option value="custom">Custom (ms)</option>
+                    </select>
+                </div>
+                <div class="w-1/2 pl-2">
+                    <input id="led_animation_speed_custom" type="number" min="1" max="1000" placeholder="ms"
+                           onchange="change_animation_speed_custom(this.value);"
+                           class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass
+                           leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                           style="display: none;">
+                    <div id="custom_speed_description" class="text-xs text-gray-500 dark:text-gray-400 mt-1" style="display: none;" data-translate="custom_speed_description">
+                        Delay in ms (higher value = slower)
+                    </div>
+                </div>
+            </div>
+            <div id="current_speed_display" class="text-sm text-gray-600 dark:text-gray-400 text-center"></div>
+        </div>
+
+        <!-- IDLE Animation Settings Card -->
+        <div class="glass-light rounded-lg p-4">
                 <div class="font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="led_animation_on_idle">LED animation on IDLE</div>
                 <div class="text-sm text-gray-600 dark:text-gray-400" data-translate="after_minutes">after minutes (0 - never)</div>
                 <div class="flex mb-4">
@@ -207,11 +177,12 @@
                     <select onchange="change_setting('led_animation', document.getElementById('led_animation').value);"
                     id="led_animation" class="block m-auto appearance-none w-full glass-light
                 py-2 px-2 pr-8 mb-2 rounded-glass leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                        <option value="Rainbow Slow">Rainbow Slow</option>
+                        <option value="Rainbow">Rainbow</option>
                         <option value="Theater Chase">Theater Chase</option>
-                        <option value="Breathing Slow">Breathing Slow</option>
-                        <option value="Rainbow Cycle Slow">Rainbow Cycle Slow</option>
+                        <option value="Breathing">Breathing</option>
+                        <option value="Rainbow Cycle">Rainbow Cycle</option>
                         <option value="Theater Chase Rainbow">Theater Chase Rainbow</option>
+                        <option value="Fireplace">Fireplace</option>
                         <option value="Sound of da police">Sound of da police</option>
                         <option value="Scanner">Scanner</option>
 
@@ -223,7 +194,7 @@
                     </div>
                 </div>
 
-                <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="brightness">
+                <div class="flex-1 font-bold text-xl pb-2 pt-4 text-gray-600 dark:text-gray-400" data-translate="brightness">
                     Brightness
                 </div>
                 <div class="content-center flex-1">
@@ -336,3 +307,4 @@
         </div>
     </div>
 </div>
+

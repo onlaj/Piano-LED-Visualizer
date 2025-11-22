@@ -56,6 +56,12 @@ class LedSettings:
         self.backlight_stopped = False
 
         self.led_animation_brightness_percent = int(usersettings.get_setting_value("led_animation_brightness_percent"))
+        
+        # Animation speed settings
+        self.animation_speed_slow = int(usersettings.get_setting_value("animation_speed_slow") or 50)
+        self.animation_speed_medium = int(usersettings.get_setting_value("animation_speed_medium") or 20)
+        self.animation_speed_fast = int(usersettings.get_setting_value("animation_speed_fast") or 5)
+        self.led_animation_speed = usersettings.get_setting_value("led_animation_speed") or ""
 
         self.backlight_red = int(usersettings.get_setting_value("backlight_red"))
         self.backlight_green = int(usersettings.get_setting_value("backlight_green"))

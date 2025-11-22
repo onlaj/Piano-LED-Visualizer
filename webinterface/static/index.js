@@ -117,9 +117,13 @@ loadAjax(window.location.hash.substring(1));
 
 
 
-function start_led_animation(name, speed) {
+function start_led_animation(name, param) {
     const xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "/api/start_animation?name=" + name + "&speed=" + speed, true);
+    let url = "/api/start_animation?name=" + name;
+    if (param !== null && param !== undefined) {
+        url += "&param=" + encodeURIComponent(param);
+    }
+    xhttp.open("GET", url, true);
     xhttp.send();
 }
 
@@ -335,7 +339,7 @@ function temporary_show_chords_animation(force_start = false) {
         start_led_animation('chords', '0');
     }
     const stopAnimation = () => {
-        start_led_animation('stop', 'normal');
+        start_led_animation('stop', null);
         animation_timeout_id = '';
     };
 

@@ -668,6 +668,32 @@ function get_led_idle_animation_settings(){
             document.getElementById("led_animation").value = response["led_animation"];
             document.getElementById("brightness_percent").value = response["led_animation_brightness_percent"];
             document.getElementById("brightness").value = response["led_animation_brightness_percent"];
+            
+            // Handle animation speed
+            const speedValue = response["led_animation_speed"] || "";
+            const speedPreset = document.getElementById("led_animation_speed_preset");
+            const speedCustom = document.getElementById("led_animation_speed_custom");
+            const speedDisplay = document.getElementById("current_speed_display");
+            if (speedPreset && speedCustom) {
+                if (speedValue && !isNaN(speedValue) && speedValue !== "") {
+                    // Numeric value - use custom
+                    speedPreset.value = "custom";
+                    speedCustom.style.display = "block";
+                    speedCustom.value = speedValue;
+                    if (speedDisplay) speedDisplay.textContent = `Current: ${speedValue}ms`;
+                } else if (speedValue && ["Slow", "Medium", "Fast"].includes(speedValue)) {
+                    // Preset value
+                    speedPreset.value = speedValue;
+                    speedCustom.style.display = "none";
+                    if (speedDisplay) speedDisplay.textContent = `Current: ${speedValue}`;
+                } else {
+                    // No speed set - use default
+                    speedPreset.value = "Medium";
+                    speedCustom.style.display = "none";
+                    if (speedDisplay) speedDisplay.textContent = "Current: Medium";
+                }
+            }
+            
             if (document.getElementById("idle_timeout_minutes")) {
                 document.getElementById("idle_timeout_minutes").value = response["idle_timeout_minutes"];
             }
@@ -680,6 +706,71 @@ function get_led_idle_animation_settings(){
         }
     }
     xhttp.open("GET", "/api/get_idle_animation_settings", true);
+    xhttp.send();
+}
+
+// Animation Speed Control Functions
+function handle_speed_preset_change() {
+    const presetSelect = document.getElementById('led_animation_speed_preset');
+    const customInput = document.getElementById('led_animation_speed_custom');
+    const speedDisplay = document.getElementById('current_speed_display');
+    const speedDescription = document.getElementById('custom_speed_description');
+    
+    if (!presetSelect) return;
+    
+    if (presetSelect.value === 'custom') {
+        if (customInput) {
+            customInput.style.display = 'block';
+            customInput.focus();
+        }
+        if (speedDescription) speedDescription.style.display = 'block';
+        if (speedDisplay) speedDisplay.textContent = '';
+    } else {
+        if (customInput) customInput.style.display = 'none';
+        if (speedDescription) speedDescription.style.display = 'none';
+        if (presetSelect.value) {
+            // Use the dedicated animation speed change endpoint
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState === 4 && this.status === 200) {
+                    const response = JSON.parse(this.responseText);
+                    if (response.success) {
+                        update_speed_display(presetSelect.value);
+                    }
+                }
+            };
+            xhttp.open("GET", "/api/change_animation_speed?speed_value=" + encodeURIComponent(presetSelect.value), true);
+            xhttp.send();
+        } else {
+            if (speedDisplay) speedDisplay.textContent = '';
+        }
+    }
+}
+
+function update_speed_display(speedValue) {
+    const speedDisplay = document.getElementById('current_speed_display');
+    if (!speedDisplay) return;
+    if (speedValue && !isNaN(speedValue)) {
+        speedDisplay.textContent = `Current: ${speedValue}ms`;
+    } else if (speedValue) {
+        speedDisplay.textContent = `Current: ${speedValue}`;
+    } else {
+        speedDisplay.textContent = '';
+    }
+}
+
+function change_animation_speed_custom(value) {
+    if (!value || value < 1) return;
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            const response = JSON.parse(this.responseText);
+            if (response.success) {
+                update_speed_display(value);
+            }
+        }
+    };
+    xhttp.open("GET", "/api/change_animation_speed?speed_value=" + encodeURIComponent(value), true);
     xhttp.send();
 }
 

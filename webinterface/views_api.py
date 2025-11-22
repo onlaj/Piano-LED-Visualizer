@@ -1,8 +1,8 @@
 from webinterface import webinterface, app_state
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import (get_last_logs, find_between, theaterChase, theaterChaseRainbow, fireplace, sound_of_da_police, scanner,
-                           breathing, rainbow, rainbowCycle, chords, colormap_animation, fastColorWipe, play_midi, clamp)
+from lib.functions import (get_last_logs, find_between, fastColorWipe, play_midi, clamp)
+from lib.led_animations import get_registry
 import lib.colormaps as cmap
 import psutil
 import threading
@@ -32,79 +32,87 @@ pid = psutil.Process(os.getpid())
 @webinterface.route('/api/start_animation', methods=['GET'])
 def start_animation():
     choice = request.args.get('name')
-    speed = request.args.get('speed')
-    if choice == "theaterchase":
-        app_state.menu.is_animation_running = True
-        app_state.menu.t = threading.Thread(target=theaterChase, args=(app_state.ledstrip,
-                                                                          app_state.ledsettings,
-                                                                          app_state.menu))
-        app_state.menu.t.start()
-
-    if choice == "theaterchaserainbow":
-        app_state.menu.is_animation_running = True
-        webinterface.t = threading.Thread(target=theaterChaseRainbow, args=(app_state.ledstrip,
-                                                                            app_state.ledsettings,
-                                                                            app_state.menu, "Medium"))
-        webinterface.t.start()
-
-    if choice == "fireplace":
-        app_state.menu.is_animation_running = True
-        webinterface.t = threading.Thread(target=fireplace, args=(app_state.ledstrip,
-                                                                            app_state.ledsettings,
-                                                                            app_state.menu))
-        webinterface.t.start()
-
-    if choice == "soundofdapolice":
-        app_state.menu.is_animation_running = True
-        webinterface.t = threading.Thread(target=sound_of_da_police, args=(app_state.ledstrip,
-                                                                           app_state.ledsettings,
-                                                                           app_state.menu, 1))
-        webinterface.t.start()
-
-    if choice == "scanner":
-        app_state.menu.is_animation_running = True
-        webinterface.t = threading.Thread(target=scanner, args=(app_state.ledstrip,
-                                                                app_state.ledsettings,
-                                                                app_state.menu, 1))
-        webinterface.t.start()
-
-    if choice == "breathing":
-        app_state.menu.is_animation_running = True
-        webinterface.t = threading.Thread(target=breathing, args=(app_state.ledstrip,
-                                                                  app_state.ledsettings,
-                                                                  app_state.menu, speed.capitalize()))
-        webinterface.t.start()
-
-    if choice == "rainbow":
-        app_state.menu.is_animation_running = True
-        webinterface.t = threading.Thread(target=rainbow, args=(
-            app_state.ledstrip, app_state.ledsettings, app_state.menu, speed.capitalize()))
-        webinterface.t.start()
-
-    if choice == "rainbowcycle":
-        app_state.menu.is_animation_running = True
-        webinterface.t = threading.Thread(target=rainbowCycle, args=(
-            app_state.ledstrip, app_state.ledsettings, app_state.menu, speed.capitalize()))
-
-        webinterface.t.start()
-
-    if choice == "chords":
-        app_state.menu.is_animation_running = True
-        webinterface.t = threading.Thread(target=chords, args=(
-            speed, app_state.ledstrip, app_state.ledsettings, app_state.menu))
-        webinterface.t.start()
-
-    if choice == "colormap_animation":
-        app_state.menu.is_animation_running = True
-        webinterface.t = threading.Thread(target=colormap_animation, args=(
-            speed, app_state.ledstrip, app_state.ledsettings, app_state.menu))
-        webinterface.t.start()
-
+    param = request.args.get('param')  # For Chords and Colormap
+    
+    # Handle stop command
     if choice == "stop":
         app_state.menu.is_animation_running = False
         app_state.menu.is_idle_animation_running = False
+        # Clear running animation name
+        if hasattr(app_state.menu, 'current_animation_name'):
+            app_state.menu.current_animation_name = None
+        return jsonify(success=True)
+    
+    # Use registry to start animation (always uses global speed)
+    registry = get_registry()
+    anim_info = registry.get_by_web_id(choice)
+    
+    if anim_info is None:
+        return jsonify(success=False, error="Animation not found")
+    
+    # Convert param to appropriate type if needed
+    processed_param = param
+    if param is not None and anim_info.requires_param:
+        if anim_info.name == "Chords":
+            # Chords expects integer scale index
+            try:
+                processed_param = int(param)
+            except (ValueError, TypeError):
+                return jsonify(success=False, error="Invalid chord parameter")
+        # colormap_animation expects string, so keep as-is
+    
+    # Store current animation name for restart on speed change (use web_id for tracking)
+    app_state.menu.current_animation_name = choice
+    app_state.menu.current_animation_param = processed_param if anim_info.requires_param else None
+    
+    # Start animation using registry (uses global speed automatically)
+    # Use anim_info.name (internal name) not web_id
+    success = registry.start_animation(
+        name=anim_info.name,
+        ledstrip=app_state.ledstrip,
+        ledsettings=app_state.ledsettings,
+        menu=app_state.menu,
+        param=processed_param,
+        usersettings=app_state.usersettings,
+        is_idle=False
+    )
+    
+    return jsonify(success=success)
 
-    return jsonify(success=True)
+
+@webinterface.route('/api/change_animation_speed', methods=['GET'])
+def change_animation_speed():
+    speed_value = request.args.get('speed_value')
+    if not speed_value:
+        return jsonify(success=False, error="Speed value is required")
+
+    app_state.usersettings.change_setting_value("led_animation_speed", speed_value)
+    app_state.ledsettings.led_animation_speed = speed_value  # Update live setting
+
+    # Restart current animation if one is running
+    if (app_state.menu.is_animation_running or app_state.menu.is_idle_animation_running) and hasattr(app_state.menu, 'current_animation_name') and app_state.menu.current_animation_name:
+        registry = get_registry()
+        anim_info = registry.get_by_web_id(app_state.menu.current_animation_name)
+        if anim_info:
+            # Stop current animation
+            app_state.menu.is_animation_running = False
+            app_state.menu.is_idle_animation_running = False
+            import time
+            time.sleep(0.2)  # Give time for thread to stop
+
+            # Restart with new speed
+            is_idle = getattr(app_state.menu, 'was_idle_animation', False)
+            registry.start_animation(
+                name=anim_info.name,
+                ledstrip=app_state.ledstrip,
+                ledsettings=app_state.ledsettings,
+                menu=app_state.menu,
+                param=getattr(app_state.menu, 'current_animation_param', None),
+                usersettings=app_state.usersettings,
+                is_idle=is_idle
+            )
+            return jsonify(success=True, message="Animation speed changed and animation restarted.")
+    return jsonify(success=True, message="Animation speed changed.")
 
 
 @webinterface.route('/api/get_homepage_data')
@@ -1580,7 +1588,39 @@ def change_setting():
     if setting_name == "led_animation":
         app_state.menu.led_animation = value
         app_state.usersettings.change_setting_value("led_animation", value)
-
+        return jsonify(success=True)
+    
+    if setting_name == "led_animation_speed":
+        app_state.usersettings.change_setting_value("led_animation_speed", value)
+        # Update ledsettings if it has the attribute
+        if hasattr(app_state.ledsettings, 'led_animation_speed'):
+            app_state.ledsettings.led_animation_speed = value
+        
+        # Restart animation if one is running
+        if (app_state.menu.is_animation_running or app_state.menu.is_idle_animation_running) and hasattr(app_state.menu, 'current_animation_name'):
+            current_name = app_state.menu.current_animation_name
+            if current_name:
+                # Stop current animation
+                app_state.menu.is_animation_running = False
+                app_state.menu.is_idle_animation_running = False
+                import time
+                time.sleep(0.2)  # Brief pause to let animation stop
+                
+                # Restart with new speed
+                registry = get_registry()
+                is_idle = getattr(app_state.menu, 'was_idle_animation', False)
+                param = getattr(app_state.menu, 'current_animation_param', None)
+                
+                registry.start_animation(
+                    name=current_name,
+                    ledstrip=app_state.ledstrip,
+                    ledsettings=app_state.ledsettings,
+                    menu=app_state.menu,
+                    param=param,
+                    usersettings=app_state.usersettings,
+                    is_idle=is_idle
+                )
+        
         return jsonify(success=True)
 
     if setting_name == "led_gamma":
@@ -1706,6 +1746,7 @@ def get_idle_animation_settings():
     response = {"led_animation_delay": app_state.usersettings.get_setting_value("led_animation_delay"),
                 "led_animation": app_state.usersettings.get_setting_value("led_animation"),
                 "led_animation_brightness_percent": app_state.ledsettings.led_animation_brightness_percent,
+                "led_animation_speed": app_state.usersettings.get_setting_value("led_animation_speed") or "",
                 "idle_timeout_minutes": app_state.usersettings.get_setting_value("idle_timeout_minutes"),
                 "screensaver_delay": app_state.usersettings.get_setting_value("screensaver_delay"),
                 "screen_off_delay": app_state.usersettings.get_setting_value("screen_off_delay")}
