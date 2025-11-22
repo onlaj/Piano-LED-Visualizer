@@ -184,16 +184,11 @@
         </a>
     </div>
 
-    <!-- Control Panels: Collapsible Sections -->
-    <div class="grid grid-cols-12 gap-6 mb-6" x-data="{ 
-        systemControlsOpen: true,
-        displaySettingsOpen: true,
-        visualizerControlsOpen: true,
-        settingsOpen: true
-    }">
+    <!-- Control Panels: Sections -->
+    <div class="grid grid-cols-12 gap-6 mb-6">
         <!-- System Controls -->
         <div class="col-span-12 sm:col-span-6 xl:col-span-3 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
-            <button @click="systemControlsOpen = !systemControlsOpen" class="w-full flex items-center justify-between p-3 hover:glass-light transition-smooth-fast">
+            <div class="w-full flex items-center p-3">
                 <div class="flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -201,11 +196,8 @@
                     </svg>
                     <span class="font-semibold text-sm" data-translate="system_controls">System Controls</span>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" :class="{'rotate-180': systemControlsOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            <div x-show="systemControlsOpen" x-transition class="p-3 pt-0 space-y-3">
+            </div>
+            <div class="p-3 pt-0 space-y-3">
                 <div>
                     <label data-translate="restart_rpi" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Restart RPi</label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
@@ -250,18 +242,15 @@
 
         <!-- Display Settings -->
         <div class="col-span-12 sm:col-span-6 xl:col-span-3 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
-            <button @click="displaySettingsOpen = !displaySettingsOpen" class="w-full flex items-center justify-between p-3 hover:glass-light transition-smooth-fast">
+            <div class="w-full flex items-center p-3">
                 <div class="flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     <span class="font-semibold text-sm" data-translate="display_settings">Display Settings</span>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" :class="{'rotate-180': displaySettingsOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            <div x-show="displaySettingsOpen" x-transition class="p-3 pt-0 space-y-3">
+            </div>
+            <div class="p-3 pt-0 space-y-3">
                 <div>
                     <label data-translate="screen" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Screen</label>
                     <div class="relative">
@@ -314,18 +303,15 @@
 
         <!-- Visualizer Controls -->
         <div class="col-span-12 sm:col-span-6 xl:col-span-3 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
-            <button @click="visualizerControlsOpen = !visualizerControlsOpen" class="w-full flex items-center justify-between p-3 hover:glass-light transition-smooth-fast">
+            <div class="w-full flex items-center p-3">
                 <div class="flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                     </svg>
                     <span class="font-semibold text-sm" data-translate="visualizer_controls">Visualizer Controls</span>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" :class="{'rotate-180': visualizerControlsOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            <div x-show="visualizerControlsOpen" x-transition class="p-3 pt-0 space-y-3">
+            </div>
+            <div class="p-3 pt-0 space-y-3">
                 <div class="advanced-content">
                     <label data-translate="restart_visualizer" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Restart Visualizer</label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
@@ -371,7 +357,7 @@
 
         <!-- Settings -->
         <div class="col-span-12 sm:col-span-6 xl:col-span-3 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
-            <button @click="settingsOpen = !settingsOpen" class="w-full flex items-center justify-between p-3 hover:glass-light transition-smooth-fast">
+            <div class="w-full flex items-center p-3">
                 <div class="flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -379,11 +365,8 @@
                     </svg>
                     <span class="font-semibold text-sm" data-translate="settings">Settings</span>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" :class="{'rotate-180': settingsOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            <div x-show="settingsOpen" x-transition class="p-3 pt-0">
+            </div>
+            <div class="p-3 pt-0">
                 <div>
                     <label data-translate="reset_settings_to_default" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Reset settings to default</label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
