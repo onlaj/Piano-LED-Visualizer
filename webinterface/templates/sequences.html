@@ -1,353 +1,288 @@
-<div class="transition duration-300 slide-in-content w-full lg:w-4/5 xl:w-4/5 2xl:w-3/5 m-auto
-grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2 gap-8">
-    <div id="sequence_block" class="flex-1 p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
-        <div class="flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400" data-translate="sequence">
-            Sequence
-        </div>
-        <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="active_sequence">
-            Active sequence
-        </label>
-        <div class="relative">
-            <select id="sequences_list_1" class="block appearance-none w-full glass-light
-        py-2 px-2 pr-8 mb-2 rounded-glass leading-tight transition-smooth-fast"
-                    onchange="change_setting('set_sequence', this.value);">
-                <option value="0" data-translate="none">None</option>
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                </svg>
-            </div>
-        </div>
-
-
-        <div id="sequence_settings">
-            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="color_mode">
-                Color mode
-            </label>
-            <div id="current_color_mode"></div>
-            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="light_mode">
-                Light mode
-            </label>
-            <div id="current_light_mode"></div>
-            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400 mb-2" data-translate="color">
-                Color
-            </label>
-            <div class="w-full" id="current_led_color"></div>
-
-        </div>
-
-        <button id="next_step_button" onclick="change_setting('next_step', '0')" class="z-10 transform
-        shadow-glass-lg w-full h-20 glass-light hover:glass font-bold rounded-glass mt-4 transition-smooth-fast">
-            <div class="absolute top-0 right-0 pt-2 flex items-center px-2 text-gray-700 dark:text-gray-200"
-                 onclick="event.stopPropagation();this.parentElement.classList.toggle('big-button');
-                 document.getElementById('sequence_block').classList.toggle('height-80vw');">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                     stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                </svg>
-            </div>
-            <div data-translate="next_step">Next Step</div>
-            <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="press_spacebar">
-                press spacebar
-            </label>
-        </button>
-    </div>
-
-    <div class="flex-1 p-3 m-1 glass shadow-glass-lg rounded-glass transition-smooth">
-        <div id="sequence_edit"
-             class="w-10 flex-1 font-bold text-xl pb-2 text-gray-600 dark:text-gray-400 cursor-pointer
-             pointer-events-auto opacity-100 animate-pulse"
-             onclick="toggle_edit_sequence();">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-        </div>
-        <div id="sequence_edit_block" class="opacity-50 pointer-events-none">
-            <div class="flex flex-wrap mb-2">
-                <div class="w-full md:w-1/2 md:mb-0">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="sequence">
-                        Sequence
-                    </label>
-                    <div class="relative pr-2">
-                        <select id="sequences_list_2" class="h-10 block appearance-none w-full glass-light
-                py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
-                                onchange="get_steps_list();">
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap mb-2">
-                        <div class="w-full md:w-1/2 md:mb-0">
-                            <div class="pr-2">
-                                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
-                                dark:text-gray-400">
-                                    <div data-translate="add">Add</div>
-                                </label>
-                                <button onclick="this.classList.add('hidden');
-                                this.nextElementSibling.classList.remove('hidden')"
-                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold
-                                        py-2 px-2
-                                        rounded-glass transition-smooth-fast inline-flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         class="h-4 w-full justify-items-center text-green-400"
-                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                </button>
-                                <button onclick="change_setting('add_sequence', '0');temporary_disable_button(this, 1000);"
-                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2
-                                        rounded-glass transition-smooth-fast inline-flex items-center hidden">
-                                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
-                            </div>
-                        </div>
-                        <div class="w-full md:w-1/2 md:mb-0">
-                            <div class="pr-2">
-                                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
-                                dark:text-gray-400">
-                                    <div data-translate="remove">Remove</div>
-                                </label>
-                                <button onclick="if(document.getElementById('sequences_list_2').value != 0){
-                                    this.classList.add('hidden');
-                                this.nextElementSibling.classList.remove('hidden')
-                                }"
-                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold
-                                        py-2 px-2
-                                        rounded-glass transition-smooth-fast inline-flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         class="h-4 w-full justify-items-center text-red-400"
-                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5
-                                            4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                </button>
-                                <button onclick="change_setting('remove_sequence',
-                                document.getElementById('sequences_list_2').value);
-                                temporary_disable_button(this, 1000);"
-                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2
-                                        rounded-glass transition-smooth-fast inline-flex items-center hidden">
-                                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="w-full md:w-1/2 md:mb-0">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
-                        <div data-translate="step">Step</div>
-                    </label>
-                    <div class="relative pl-2">
-                        <select id="sequence_step" class="h-10 block appearance-none w-full glass-light
-                py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
-                                onchange="set_step_properties(document.getElementById('sequences_list_2').value, this.value);">
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap mb-2">
-                        <div class="w-full md:w-1/2 md:mb-0">
-                            <div class="pl-2">
-                                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
-                                dark:text-gray-400">
-                                    <div data-translate="add">Add</div>
-                                </label>
-                                <button onclick="this.classList.add('hidden');
-                                this.nextElementSibling.classList.remove('hidden')"
-                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold
-                                        py-2 px-2
-                                        rounded-glass transition-smooth-fast inline-flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         class="h-4 w-full justify-items-center text-green-400"
-                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                </button>
-                                <button onclick="if(document.getElementById('sequences_list_2').value != 0){
-                                    change_setting('add_step',
-                                document.getElementById('sequences_list_2').value);temporary_disable_button(this, 1000);}"
-                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold h-6 py-2 px-2
-                                        rounded-glass transition-smooth-fast inline-flex items-center hidden">
-                                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
-                            </div>
-                        </div>
-                        <div class="w-full md:w-1/2 md:mb-0">
-                            <div class="pl-2">
-                                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
-                                dark:text-gray-400">
-                                    <div data-translate="remove">Remove</div>
-                                </label>
-                                <button onclick="if(document.getElementById('sequences_list_2').value != 0){
-                                    this.classList.add('hidden');
-                                this.nextElementSibling.classList.remove('hidden')
-                                }"
-                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold
-                                        py-2 px-2
-                                        rounded-glass transition-smooth-fast inline-flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         class="h-4 w-full justify-items-center text-red-400"
-                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5
-                                            4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                </button>
-                                <button onclick="change_setting('remove_step',
-                                document.getElementById('sequences_list_2').value, document.getElementById('sequence_step').value);
-                                temporary_disable_button(this, 1000);"
-                                        class="w-full h-6 outline-none mb-2 glass-light hover:glass font-bold h-6 py-2 px-2
-                                        rounded-glass transition-smooth-fast inline-flex items-center hidden">
-                                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
-                            </div>
-                        </div>
-                    </div>
+<div class="slide-in-content col-span-12 mt-1 w-full lg:w-4/5 xl:w-4/5 2xl:w-4/5 m-auto">
+    <!-- Active Sequence Section -->
+    <div class="grid grid-cols-12 gap-6 mb-6">
+        <div id="sequence_block" class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+            <div class="w-full flex items-center p-3">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                    <span class="font-semibold text-sm" data-translate="active_sequence">Active Sequence</span>
                 </div>
             </div>
-
-            <div class="flex flex-wrap mb-4">
-                <div class="w-full md:w-1/2 md:mb-0">
-                    <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="activation_method">
-                        Activation method
+            <div class="p-3 pt-0 space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="active_sequence">
+                        Active sequence
                     </label>
-                    <div class="relative pr-2">
-                        <select onchange="if(document.getElementById('sequences_list_2').value != 0){
-                            change_setting('change_step_activation_method',
-                            document.getElementById('sequences_list_2').value,
-                            this.value);
-                        }"
-                                id="control_number" class="h-10 block appearance-none w-full glass-light
-                py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
-                            <option value="0" data-translate="button_press">Button press</option>
-                            <option value="64" data-translate="sustain_pedal">Sustain Pedal</option>
-                            <option value="65" data-translate="portamento_pedal">Portamento Pedal</option>
-                            <option value="66" data-translate="sostuneto_pedal">Sostenuto Pedal</option>
-                            <option value="67" data-translate="soft_pedal">Soft Pedal</option>
+                    <div class="relative">
+                        <select id="sequences_list_1" class="h-10 block appearance-none w-full glass-light py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
+                                onchange="change_setting('set_sequence', this.value);">
+                            <option value="0" data-translate="none">None</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
                             </svg>
                         </div>
                     </div>
                 </div>
 
-                <div class="w-full md:w-1/2 md:mb-0">
-                    <label class="block tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400">
+                <div id="sequence_settings" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="color_mode">
+                            Color mode
+                        </label>
+                        <div id="current_color_mode"></div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="light_mode">
+                            Light mode
+                        </label>
+                        <div id="current_light_mode"></div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="color">
+                            Color
+                        </label>
+                        <div class="w-full" id="current_led_color"></div>
+                    </div>
+                </div>
 
-                        <div class="flex">
-                        <div class="uppercase" data-translate="next_step_value">
-                            Next step value
-                        </div>
-                        <div class='has-tooltip'>
-                        <span class='inline-block w-40 tooltip rounded shadow-lg p-1 glass shadow-glass text-gray-600 dark:text-gray-400 -mt-8'>
-                            <div data-translate="next_step_tip_line_1">This value decides if next step is activated when you press or release the pedal.</div>
-                            <br><div data-translate="next_step_tip_line_2">For example if you want to change settings after fully pressing Sostenuto pedal you should set it to 126</div>
-                            <br><div data-translate="next_step_tip_line_3">(127 is the maximum value when pedal is fully pressed).</div>
-                            <br><div data-translate="next_step_tip_line_4">When you want to change settings by fully releasing pedal set it to -1.</div>
-                        </span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none"
-                                 viewBox="0 0 24 24"
+                <div class="relative">
+                    <button id="next_step_button" onclick="change_setting('next_step', '0')" class="relative z-10 w-full h-20 glass-light hover:glass font-bold rounded-glass transition-smooth-fast inline-flex flex-col items-center justify-center">
+                        <div class="absolute top-2 right-2 flex items-center px-2 text-gray-700 dark:text-gray-200 cursor-pointer"
+                             onclick="event.stopPropagation();this.parentElement.classList.toggle('big-button');
+                             document.getElementById('sequence_block').classList.toggle('height-80vw');">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                                  stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                      d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
                             </svg>
                         </div>
-                    </div>
-                    </label>
-                    <div class="relative pl-2">
-                        <input onchange="if(document.getElementById('sequences_list_2').value != 0){
-                            change_setting('change_step_value',
-                            document.getElementById('sequences_list_2').value,
-                            this.value);
-                        }"
-                               id="next_step" type="number" value="0" min="-176" max="176"
-                               class="h-10 block appearance-none w-full glass-light py-2 px-2
-                               rounded-glass leading-tight transition-smooth-fast">
-                    </div>
+                        <div class="text-lg" data-translate="next_step">Next Step</div>
+                        <div class="text-xs mt-1 text-gray-600 dark:text-gray-400" data-translate="press_spacebar">
+                            press spacebar
+                        </div>
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <div class="text-center flex flex-wrap mb-4">
-                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600 dark:text-gray-400" data-translate="sequence_name">
-                    Sequence name
-                </label>
-                <svg onclick="this.nextElementSibling.classList.remove('pointer-events-none');
-                        this.nextElementSibling.focus();
-                        this.nextElementSibling.classList.add('text-gray-400');
-                        this.nextElementSibling.nextElementSibling.classList.remove('hidden');
-                        this.nextElementSibling.nextElementSibling.nextElementSibling.classList.remove('hidden');"
-                     xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 cursor-pointer" fill="none"
-                     viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                </svg>
-                <input id="sequence_name"
-                       class="w-4/5 glass-light pointer-events-none text-left song_name truncate transition-smooth-fast"
-                       type="text"
-                       value="{{key}}">
-
-                <svg onclick="if(document.getElementById('sequences_list_2').value != 0){
-                    change_setting('change_sequence_name', document.getElementById('sequences_list_2').value,
-                                this.previousElementSibling.value);
-                                this.classList.add('hidden');
-                                this.previousElementSibling.classList.add('pointer-events-none');
-                                this.previousElementSibling.classList.remove('text-gray-400');
-                                this.nextElementSibling.classList.add('hidden');
-                }"
-                     xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden cursor-pointer" fill="none"
-                     viewBox="0 0 24 24"
-                     stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                <svg onclick="this.classList.add('hidden');
-                      this.previousElementSibling.previousElementSibling.classList.add('pointer-events-none');
-                      this.previousElementSibling.previousElementSibling.classList.remove('text-gray-400');
-                      this.previousElementSibling.classList.add('hidden');"
-                     xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-6 hidden cursor-pointer" fill="none"
-                     viewBox="0 0 24 24"
-                     stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </div>
-
-            <div class="m-4">
-                <label class="block uppercase tracking-wide text-xs font-bold mt-2 text-gray-600
-                                dark:text-gray-400" data-translate="save_current_settings_to_step">
-                    Save current settings to step
-                </label>
-                <button onclick="this.classList.add('hidden');
-                                this.nextElementSibling.classList.remove('hidden')"
-                        class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold
-                                        py-2 px-2
-                                        rounded-glass transition-smooth-fast inline-flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-full justify-items-center text-green-400"
-                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        <!-- Edit Sequence Section -->
+        <div class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+            <div class="w-full flex items-center p-3">
+                <div id="sequence_edit"
+                     class="flex items-center space-x-2 cursor-pointer pointer-events-auto opacity-100 animate-pulse transition-smooth-fast hover:glass-light rounded-glass p-2 -ml-2"
+                     onclick="toggle_edit_sequence();"
+                     active="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
-                </button>
-                <button onclick="change_setting('save_led_settings_to_step',
-            document.getElementById('sequences_list_2').value, document.getElementById('sequence_step').value);
-                temporary_disable_button(this, 1000);"
-                        class="w-full h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2
-                                        rounded-glass transition-smooth-fast inline-flex items-center hidden">
-                    <span class="w-full uppercase text-xs" data-translate="confirm">Confirm</span></button>
+                    <span class="font-semibold text-sm" data-translate="edit_sequence">Edit Sequence</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                </div>
             </div>
+            <div id="sequence_edit_block" class="p-3 pt-0 space-y-3 opacity-50 pointer-events-none">
+                <!-- Sequence Selection and Management -->
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="sequence">
+                            Sequence
+                        </label>
+                        <div class="relative">
+                            <select id="sequences_list_2" class="h-10 block appearance-none w-full glass-light py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
+                                    onchange="get_steps_list();">
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="add">
+                                Add
+                            </label>
+                            <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                                    class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </button>
+                            <button onclick="change_setting('add_sequence', '0');temporary_disable_button(this, 1000);"
+                                    class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center hidden">
+                                <span class="uppercase text-xs" data-translate="confirm">Confirm</span>
+                            </button>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="remove">
+                                Remove
+                            </label>
+                            <button onclick="if(document.getElementById('sequences_list_2').value != 0){this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')}"
+                                    class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                            <button onclick="change_setting('remove_sequence', document.getElementById('sequences_list_2').value);temporary_disable_button(this, 1000);"
+                                    class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center hidden">
+                                <span class="uppercase text-xs" data-translate="confirm">Confirm</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-            {% include 'ledcolor.html' %}
-            {% include 'lightmode.html' %}
+                <!-- Step Selection and Management -->
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="step">
+                            Step
+                        </label>
+                        <div class="relative">
+                            <select id="sequence_step" class="h-10 block appearance-none w-full glass-light py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
+                                    onchange="set_step_properties(document.getElementById('sequences_list_2').value, this.value);">
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="add">
+                                Add
+                            </label>
+                            <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                                    class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </button>
+                            <button onclick="if(document.getElementById('sequences_list_2').value != 0){change_setting('add_step', document.getElementById('sequences_list_2').value);temporary_disable_button(this, 1000);}"
+                                    class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center hidden">
+                                <span class="uppercase text-xs" data-translate="confirm">Confirm</span>
+                            </button>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="remove">
+                                Remove
+                            </label>
+                            <button onclick="if(document.getElementById('sequences_list_2').value != 0){this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')}"
+                                    class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                            <button onclick="change_setting('remove_step', document.getElementById('sequences_list_2').value, document.getElementById('sequence_step').value);temporary_disable_button(this, 1000);"
+                                    class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center hidden">
+                                <span class="uppercase text-xs" data-translate="confirm">Confirm</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Step Configuration -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="activation_method">
+                            Activation method
+                        </label>
+                        <div class="relative">
+                            <select onchange="if(document.getElementById('sequences_list_2').value != 0){change_setting('change_step_activation_method', document.getElementById('sequences_list_2').value, this.value);}"
+                                    id="control_number" class="h-10 block appearance-none w-full glass-light py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
+                                <option value="0" data-translate="button_press">Button press</option>
+                                <option value="64" data-translate="sustain_pedal">Sustain Pedal</option>
+                                <option value="65" data-translate="portamento_pedal">Portamento Pedal</option>
+                                <option value="66" data-translate="sostuneto_pedal">Sostenuto Pedal</option>
+                                <option value="67" data-translate="soft_pedal">Soft Pedal</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">
+                            <div class="flex items-center">
+                                <span class="uppercase" data-translate="next_step_value">Next step value</span>
+                                <div class='has-tooltip ml-1'>
+                                    <span class='inline-block w-40 tooltip rounded shadow-lg p-1 glass shadow-glass text-gray-600 dark:text-gray-400 -mt-8'>
+                                        <div data-translate="next_step_tip_line_1">This value decides if next step is activated when you press or release the pedal.</div>
+                                        <br><div data-translate="next_step_tip_line_2">For example if you want to change settings after fully pressing Sostenuto pedal you should set it to 126</div>
+                                        <br><div data-translate="next_step_tip_line_3">(127 is the maximum value when pedal is fully pressed).</div>
+                                        <br><div data-translate="next_step_tip_line_4">When you want to change settings by fully releasing pedal set it to -1.</div>
+                                    </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </label>
+                        <input onchange="if(document.getElementById('sequences_list_2').value != 0){change_setting('change_step_value', document.getElementById('sequences_list_2').value, this.value);}"
+                               id="next_step" type="number" value="0" min="-176" max="176"
+                               class="h-10 block appearance-none w-full glass-light py-2 px-2 rounded-glass leading-tight transition-smooth-fast">
+                    </div>
+                </div>
+
+                <!-- Sequence Name -->
+                <div>
+                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="sequence_name">
+                        Sequence name
+                    </label>
+                    <div class="flex items-center space-x-2">
+                        <svg onclick="this.nextElementSibling.classList.remove('pointer-events-none');this.nextElementSibling.focus();this.nextElementSibling.classList.add('text-gray-400');this.nextElementSibling.nextElementSibling.classList.remove('hidden');this.nextElementSibling.nextElementSibling.nextElementSibling.classList.remove('hidden');"
+                             xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 cursor-pointer text-gray-600 dark:text-gray-400" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                        </svg>
+                        <input id="sequence_name"
+                               class="flex-1 glass-light pointer-events-none text-left transition-smooth-fast py-2 px-2 rounded-glass"
+                               type="text"
+                               value="{{key}}">
+                        <svg onclick="if(document.getElementById('sequences_list_2').value != 0){change_setting('change_sequence_name', document.getElementById('sequences_list_2').value, this.previousElementSibling.value);this.classList.add('hidden');this.previousElementSibling.classList.add('pointer-events-none');this.previousElementSibling.classList.remove('text-gray-400');this.nextElementSibling.classList.add('hidden');}"
+                             xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden cursor-pointer text-green-400" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <svg onclick="this.classList.add('hidden');this.previousElementSibling.previousElementSibling.classList.add('pointer-events-none');this.previousElementSibling.previousElementSibling.classList.remove('text-gray-400');this.previousElementSibling.classList.add('hidden');"
+                             xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden cursor-pointer text-red-400" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Save Settings to Step -->
+                <div>
+                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="save_current_settings_to_step">
+                        Save current settings to step
+                    </label>
+                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </button>
+                    <button onclick="change_setting('save_led_settings_to_step', document.getElementById('sequences_list_2').value, document.getElementById('sequence_step').value);temporary_disable_button(this, 1000);"
+                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center hidden">
+                        <span class="uppercase text-xs" data-translate="confirm">Confirm</span>
+                    </button>
+                </div>
+
+                <!-- LED Color and Light Mode Settings -->
+                {% include 'ledcolor.html' %}
+                {% include 'lightmode.html' %}
+            </div>
         </div>
     </div>
-</div>
 </div>
