@@ -1656,3 +1656,179 @@ def kaleidoscope(ledstrip, ledsettings, menu, speed_ms=None):
 
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
+
+
+def color_ripple(ledstrip, ledsettings, menu, speed_ms=None):
+    """Color Ripple animation - expanding ripples of color from random points, like dropping stones in water."""
+    from lib.animation_speed import get_global_speed_ms
+    stop_animations(menu)
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
+
+    # Smooth animation logic - ensure at least 15 FPS (66.67ms max wait)
+    # For smooth animation, cap frame time but adjust expansion speed based on user speed preference
+    target_wait_ms = 66.67  # Maximum wait for 15 FPS minimum
+    base_expansion_speed = 1.5  # pixels per frame (increased for smoother motion)
+    
+    # If user wants slower animation, scale expansion speed but keep frame rate smooth
+    if wait_ms > target_wait_ms:
+        # Scale expansion speed proportionally, but cap wait time for smoothness
+        speed_scale = target_wait_ms / wait_ms
+        base_expansion_speed = base_expansion_speed * speed_scale
+        wait_ms = target_wait_ms
+    elif wait_ms < 20.0:
+        # If very fast, don't go below 20ms (50 FPS max) to avoid excessive CPU usage
+        wait_ms = 20.0
+
+    strip = ledstrip.strip
+    fastColorWipe(strip, True, ledsettings)
+    menu.t = threading.currentThread()
+
+    num_pixels = strip.numPixels()
+    brightness = calculate_brightness(ledsettings)
+
+    # Ripple class to track each active ripple
+    class Ripple:
+        def __init__(self, center_position, expansion_speed, max_radius):
+            self.center = center_position  # Center position of the ripple
+            self.radius = 0.0  # Current radius (how far it has expanded)
+            self.expansion_speed = expansion_speed  # How fast it expands (pixels per frame)
+            self.max_radius = max_radius  # Maximum radius before it fades out
+            self.intensity = 1.0  # Current intensity (fades as radius increases)
+
+    # Active ripples list
+    ripples = []
+    
+    # Calculate spawn rate based on speed
+    # Adjust spawn rate to work with smooth frame timing
+    # Use original wait_ms (before capping) to determine spawn frequency
+    original_wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
+    base_spawn_rate = 0.08  # Probability of spawning a new ripple per frame (adjusted for smooth animation)
+    # Scale spawn rate based on user's speed preference (slower speed = fewer ripples)
+    speed_factor = max(0.3, min(2.0, 100.0 / max(original_wait_ms, 1)))
+    spawn_rate = base_spawn_rate * speed_factor
+    
+    # Maximum concurrent ripples (3-5 ripples work well)
+    max_ripples = 4
+    
+    # Maximum radius for ripples (about 40% of strip length)
+    max_ripple_radius = num_pixels * 0.4
+    
+    # Get base colors from backlight settings
+    red_base = ledsettings.get_backlight_color("Red")
+    green_base = ledsettings.get_backlight_color("Green")
+    blue_base = ledsettings.get_backlight_color("Blue")
+    
+    # Pre-calculate which LEDs can be overwritten (cache for performance)
+    overwritable_leds = [i for i in range(num_pixels) if check_if_led_can_be_overwrite(i, ledstrip, ledsettings)]
+    
+    # Pre-calculate brightness multiplier
+    brightness_mult = brightness
+
+    while menu.is_idle_animation_running or menu.is_animation_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
+        # Spawn new ripples randomly
+        if len(ripples) < max_ripples:
+            if random.random() < spawn_rate:
+                # Find a random position that can be overwritten
+                if overwritable_leds:
+                    center_pos = random.choice(overwritable_leds)
+                    # Add slight variation to expansion speed for natural effect
+                    expansion_speed = base_expansion_speed * random.uniform(0.8, 1.2)
+                    ripples.append(Ripple(center_pos, expansion_speed, max_ripple_radius))
+
+        # Use pixel buffer for efficient rendering (avoid reading from strip)
+        pixel_buffer = [[0, 0, 0] for _ in range(num_pixels)]
+
+        # Update and render ripples
+        ripples_to_remove = []
+        for ripple in ripples:
+            # Update ripple radius
+            ripple.radius += ripple.expansion_speed
+            
+            # Calculate intensity based on radius (fade out as it expands)
+            normalized_radius = ripple.radius / ripple.max_radius
+            if normalized_radius >= 1.0:
+                # Ripple has fully expanded, mark for removal
+                ripples_to_remove.append(ripple)
+                continue
+            
+            # Smooth fade using sine curve (starts at 1.0, fades to 0.0)
+            ripple.intensity = math.sin((1.0 - normalized_radius) * math.pi / 2.0)
+            
+            # Calculate affected LED range (only iterate through affected LEDs)
+            start_led = max(0, int(ripple.center - ripple.radius))
+            end_led = min(num_pixels - 1, int(ripple.center + ripple.radius))
+            ripple_radius_sq = ripple.radius * ripple.radius  # Pre-calculate for distance check
+            
+            # Render ripple effect on LEDs
+            for led_index in range(start_led, end_led + 1):
+                if led_index not in overwritable_leds:
+                    continue
+                
+                # Calculate distance from ripple center (using squared distance for efficiency)
+                distance = abs(led_index - ripple.center)
+                
+                # Only affect LEDs within current radius
+                if distance > ripple.radius:
+                    continue
+                
+                # Calculate brightness based on distance from center
+                # Use simplified calculation for better performance
+                if ripple.radius > 0:
+                    normalized_distance = distance / ripple.radius
+                else:
+                    normalized_distance = 0
+                
+                # Simplified ring pattern using triangle wave (much faster than sine)
+                # Creates similar visual effect with better performance
+                ring_phase = (normalized_distance * 4.0) % 2.0
+                if ring_phase > 1.0:
+                    ring_phase = 2.0 - ring_phase
+                ring_pattern = 0.7 + ring_phase * 0.3
+                
+                # Combine distance falloff with ring pattern and overall intensity
+                distance_falloff = 1.0 - normalized_distance * 0.5
+                pixel_brightness = distance_falloff * ring_pattern * ripple.intensity
+                if pixel_brightness > 1.0:
+                    pixel_brightness = 1.0
+                elif pixel_brightness < 0.0:
+                    continue  # Skip if too dim to save calculations
+                
+                # Calculate new color for this ripple (pre-multiply for efficiency)
+                new_red = int(red_base * pixel_brightness * brightness_mult)
+                new_green = int(green_base * pixel_brightness * brightness_mult)
+                new_blue = int(blue_base * pixel_brightness * brightness_mult)
+                
+                # Additive blending in buffer (much faster than reading from strip)
+                pixel_buffer[led_index][0] = min(255, pixel_buffer[led_index][0] + new_red)
+                pixel_buffer[led_index][1] = min(255, pixel_buffer[led_index][1] + new_green)
+                pixel_buffer[led_index][2] = min(255, pixel_buffer[led_index][2] + new_blue)
+        
+        # Remove fully expanded ripples
+        for ripple in ripples_to_remove:
+            ripples.remove(ripple)
+
+        # Write pixel buffer to strip (single pass, much faster)
+        for led_index in overwritable_leds:
+            strip.setPixelColor(led_index, Color(
+                pixel_buffer[led_index][0],
+                pixel_buffer[led_index][1],
+                pixel_buffer[led_index][2]
+            ))
+
+        strip.show()
+        time.sleep(wait_ms / 1000.0)
+
+    menu.is_idle_animation_running = False
+    fastColorWipe(strip, True, ledsettings)
