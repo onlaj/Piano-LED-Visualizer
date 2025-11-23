@@ -366,7 +366,21 @@
                     <span class="font-semibold text-sm" data-translate="settings">Settings</span>
                 </div>
             </div>
-            <div class="p-3 pt-0">
+            <div class="p-3 pt-0 space-y-3">
+                <div>
+                    <label data-translate="timezone" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Timezone</label>
+                    <div class="relative">
+                        <select id="timezone" class="h-10 block appearance-none w-full glass-light py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast"
+                                onchange="change_setting('timezone', this.value)">
+                            <option value="UTC">UTC</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <label data-translate="reset_settings_to_default" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Reset settings to default</label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"

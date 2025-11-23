@@ -157,8 +157,37 @@ def get_homepage_data():
         'screen_on': app_state.menu.screen_on,
         'display_type': app_state.menu.args.display if app_state.menu and app_state.menu.args and app_state.menu.args.display else app_state.usersettings.get_setting_value("display_type") or '1in44',
         'led_pin': app_state.usersettings.get_setting_value("led_pin") or '18',
+        'timezone': app_state.platform.get_current_timezone() if hasattr(app_state.platform, 'get_current_timezone') else 'UTC',
     }
     return jsonify(homepage_data)
+
+
+@webinterface.route('/api/get_timezones', methods=['GET'])
+def get_timezones():
+    """Get list of available timezones."""
+    try:
+        if hasattr(app_state.platform, 'get_available_timezones'):
+            timezones = app_state.platform.get_available_timezones()
+            return jsonify(success=True, timezones=timezones)
+        else:
+            # Return common timezones as fallback
+            common_timezones = [
+                "UTC",
+                "America/New_York",
+                "America/Chicago",
+                "America/Denver",
+                "America/Los_Angeles",
+                "Europe/London",
+                "Europe/Paris",
+                "Europe/Berlin",
+                "Asia/Tokyo",
+                "Asia/Shanghai",
+                "Australia/Sydney"
+            ]
+            return jsonify(success=True, timezones=common_timezones)
+    except Exception as e:
+        logger.warning(f"Error getting timezones: {e}")
+        return jsonify(success=False, error=str(e))
 
 
 @webinterface.route('/api/change_setting', methods=['GET'])
@@ -1061,6 +1090,16 @@ def change_setting():
 
     if setting_name == "reset_to_default":
         app_state.usersettings.reset_to_default()
+
+    if setting_name == "timezone":
+        if hasattr(app_state.platform, 'set_timezone'):
+            success = app_state.platform.set_timezone(value)
+            if success:
+                return jsonify(success=True, message="Timezone changed successfully.")
+            else:
+                return jsonify(success=False, error="Failed to change timezone.")
+        else:
+            return jsonify(success=False, error="Timezone change not supported on this platform.")
 
     if setting_name == "restart_rpi":
         app_state.platform.reboot()

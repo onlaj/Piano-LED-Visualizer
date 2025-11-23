@@ -41,6 +41,50 @@ function initialize_homepage() {
     if(typeof get_presets === 'function') {
         get_presets();
     }
+    
+    // Populate timezone dropdown
+    populate_timezones();
+}
+
+/**
+ * Populate timezone dropdown with available timezones
+ */
+function populate_timezones() {
+    const timezoneSelect = document.getElementById("timezone");
+    if (!timezoneSelect) {
+        return;
+    }
+    
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            try {
+                const response = JSON.parse(this.responseText);
+                if (response.success && response.timezones) {
+                    // Clear existing options except the first one (UTC placeholder)
+                    const currentValue = timezoneSelect.value;
+                    timezoneSelect.innerHTML = '';
+                    
+                    // Add all timezones
+                    response.timezones.forEach(function(timezone) {
+                        const option = document.createElement('option');
+                        option.value = timezone;
+                        option.textContent = timezone;
+                        timezoneSelect.appendChild(option);
+                    });
+                    
+                    // Restore current value if it exists
+                    if (currentValue && Array.from(timezoneSelect.options).some(opt => opt.value === currentValue)) {
+                        timezoneSelect.value = currentValue;
+                    }
+                }
+            } catch (e) {
+                console.warn("Error parsing timezones response:", e);
+            }
+        }
+    };
+    xhttp.open("GET", "/api/get_timezones", true);
+    xhttp.send();
 }
 
 /**

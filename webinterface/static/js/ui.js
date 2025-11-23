@@ -190,6 +190,14 @@ function get_homepage_data_loop() {
                 }
             }
 
+            // change value of select based on response_pc_stats.timezone
+            if (response_pc_stats.timezone) {
+                const timezoneSelect = document.getElementById("timezone");
+                if (timezoneSelect) {
+                    timezoneSelect.value = response_pc_stats.timezone;
+                }
+            }
+
             // cover_state is already handled above with null check
 
 
