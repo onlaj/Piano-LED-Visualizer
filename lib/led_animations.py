@@ -225,7 +225,7 @@ def _register_all_animations(registry: AnimationRegistry):
     from lib.functions import (
         theaterChase, rainbow, rainbowCycle, theaterChaseRainbow,
         breathing, fireplace, sound_of_da_police, scanner,
-        chords, colormap_animation, wave, lava_lamp
+        chords, colormap_animation, wave, lava_lamp, aurora
     )
     
     # Animations with speed support
@@ -306,6 +306,14 @@ def _register_all_animations(registry: AnimationRegistry):
         name="Lava Lamp",
         function=lava_lamp,
         display_name="Lava Lamp",
+        supports_speed=True,
+        default_speed="Medium"
+    ))
+    
+    registry.register(AnimationInfo(
+        name="Aurora",
+        function=aurora,
+        display_name="Aurora",
         supports_speed=True,
         default_speed="Medium"
     ))

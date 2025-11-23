@@ -1273,3 +1273,140 @@ def lava_lamp(ledstrip, ledsettings, menu, speed_ms=None):
 
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
+
+
+def aurora(ledstrip, ledsettings, menu, speed_ms=None):
+    """Aurora (Northern Lights) animation with flowing, undulating colors."""
+    from lib.animation_speed import get_global_speed_ms
+    stop_animations(menu)
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
+
+    # Smooth animation logic
+    base_speed = 0.05  # Base movement speed per frame
+    target_wait_ms = 20.0
+    if wait_ms > target_wait_ms:
+        base_speed = base_speed * (target_wait_ms / wait_ms)
+        wait_ms = target_wait_ms
+
+    strip = ledstrip.strip
+    fastColorWipe(strip, True, ledsettings)
+    menu.t = threading.currentThread()
+
+    num_pixels = strip.numPixels()
+    brightness = calculate_brightness(ledsettings)
+
+    # Aurora wave parameters - multiple overlapping waves for depth
+    # Each wave has: phase (current position), speed, frequency, color_hue
+    class AuroraWave:
+        def __init__(self, phase, speed, frequency, color_hue, amplitude):
+            self.phase = phase  # Current phase (0 to 2*pi)
+            self.speed = speed  # Phase increment per frame
+            self.frequency = frequency  # Spatial frequency (how many waves across strip)
+            self.color_hue = color_hue  # Base hue (0-360 for HSV)
+            self.amplitude = amplitude  # Wave amplitude (0-1)
+
+    # Create multiple waves with different properties for rich aurora effect
+    waves = [
+        AuroraWave(phase=0.0, speed=base_speed * 0.8, frequency=2.0, color_hue=140, amplitude=0.7),  # Green wave
+        AuroraWave(phase=math.pi, speed=base_speed * 1.2, frequency=1.5, color_hue=180, amplitude=0.6),  # Blue wave
+        AuroraWave(phase=math.pi / 2, speed=base_speed * 0.6, frequency=2.5, color_hue=280, amplitude=0.5),  # Purple wave
+        AuroraWave(phase=math.pi * 1.5, speed=base_speed * 1.0, frequency=1.8, color_hue=160, amplitude=0.4),  # Cyan-green wave
+    ]
+
+    # Time counter for color variation
+    time_counter = 0.0
+
+    def hsv_to_rgb(h, s, v):
+        """Convert HSV to RGB (0-255 range)."""
+        h = h % 360
+        c = v * s
+        x = c * (1 - abs((h / 60.0) % 2 - 1))
+        m = v - c
+
+        if 0 <= h < 60:
+            r, g, b = c, x, 0
+        elif 60 <= h < 120:
+            r, g, b = x, c, 0
+        elif 120 <= h < 180:
+            r, g, b = 0, c, x
+        elif 180 <= h < 240:
+            r, g, b = 0, x, c
+        elif 240 <= h < 300:
+            r, g, b = x, 0, c
+        else:  # 300 <= h < 360
+            r, g, b = c, 0, x
+
+        return (int((r + m) * 255), int((g + m) * 255), int((b + m) * 255))
+
+    while menu.is_idle_animation_running or menu.is_animation_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
+        # Update wave phases
+        for wave in waves:
+            wave.phase += wave.speed
+            if wave.phase >= 2 * math.pi:
+                wave.phase -= 2 * math.pi
+
+        # Update time counter for color variation
+        time_counter += base_speed * 0.3
+
+        # Calculate color for each pixel by blending all waves
+        for i in range(num_pixels):
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+                # Normalize pixel position to 0-1 range
+                pixel_pos = float(i) / float(num_pixels)
+
+                # Initialize accumulated color (RGB)
+                total_r, total_g, total_b = 0.0, 0.0, 0.0
+
+                # Blend contributions from all waves
+                for wave in waves:
+                    # Calculate wave value at this pixel position
+                    # Use sine wave for smooth undulation
+                    wave_value = math.sin(pixel_pos * wave.frequency * 2 * math.pi + wave.phase)
+                    
+                    # Normalize to 0-1 range
+                    wave_value = (wave_value + 1.0) / 2.0
+                    
+                    # Apply wave amplitude
+                    wave_intensity = wave_value * wave.amplitude
+                    
+                    # Add slight time-based variation to hue for dynamic color shifts
+                    hue_variation = math.sin(time_counter * 0.1) * 20  # ±20 degrees
+                    current_hue = (wave.color_hue + hue_variation) % 360
+                    
+                    # Convert to RGB using HSV
+                    # Saturation varies with wave intensity (more intense = more saturated)
+                    saturation = 0.6 + wave_intensity * 0.4  # 0.6 to 1.0
+                    # Value (brightness) varies with wave intensity
+                    value = 0.3 + wave_intensity * 0.7  # 0.3 to 1.0
+                    
+                    r, g, b = hsv_to_rgb(current_hue, saturation, value)
+                    
+                    # Add to total (blend waves)
+                    total_r += r * wave_intensity
+                    total_g += g * wave_intensity
+                    total_b += b * wave_intensity
+
+                # Clamp and apply global brightness
+                red = int(clamp(total_r * brightness, 0, 255))
+                green = int(clamp(total_g * brightness, 0, 255))
+                blue = int(clamp(total_b * brightness, 0, 255))
+
+                strip.setPixelColor(i, Color(red, green, blue))
+
+        strip.show()
+        time.sleep(wait_ms / 1000.0)
+
+    menu.is_idle_animation_running = False
+    fastColorWipe(strip, True, ledsettings)
