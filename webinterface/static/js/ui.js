@@ -584,7 +584,10 @@ function get_settings(home = true) {
                     document.getElementById("backlight_color").dispatchEvent(new Event('input'));
                 }
 
-                document.getElementById("light_mode").value = response["light_mode"];
+                const lightModeEl = document.getElementById("light_mode");
+                if (lightModeEl) {
+                    lightModeEl.value = response["light_mode"];
+                }
                 if (response["light_mode"] === "Fading") {
                     document.getElementById('fading').hidden = false;
                     document.getElementById('fading_speed').value = response["fading_speed"];
@@ -833,7 +836,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             }
 
             if (response["color_mode"] === "Single") {
-                document.getElementById("current_led_color").innerHTML = '<svg width="100%" height="45px">' +
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (!currentLedColorEl) return;
+                
+                currentLedColorEl.innerHTML = '<svg width="100%" height="45px">' +
                     '<defs>\n' +
                     '   <linearGradient id="gradient_single" x1=".5" y1="1" x2=".5">\n' +
                     '       <stop stop-color="' + response["led_color"] + '" stop-opacity="0"/>\n' +
@@ -842,7 +848,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     '   </linearGradient>\n' +
                     '</defs>' +
                     '<rect width="100%" height="45px" fill="url(#gradient_single)" /></svg>'
-                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                currentLedColorEl.innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
 
                 if (is_editing_sequence === "true") {
@@ -856,8 +862,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
 
             }
             if (response["color_mode"] === "Multicolor") {
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (!currentLedColorEl) return;
 
-                document.getElementById("current_led_color").innerHTML = '';
+                currentLedColorEl.innerHTML = '';
                 const new_multicolor = {};
                 response["multicolor"].forEach(function (item, index) {
                     const multicolor_hex = rgbToHex(item[0], item[1], item[2]);
@@ -868,7 +876,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
 
                     left_spacing = Math.min(Math.max(parseInt(left_spacing), 0), 88);
 
-                    document.getElementById("current_led_color").innerHTML += '<svg class="mb-2" ' +
+                    currentLedColorEl.innerHTML += '<svg class="mb-2" ' +
                         'style="filter: drop-shadow(0px 5px 15px ' + multicolor_hex + ');margin-left:' + left_spacing + '%" width="100%" height="10px">' +
                         '<rect width="' + length + '%" height="20" fill="' + multicolor_hex + '" /></svg>';
 
@@ -879,7 +887,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     }
 
                 });
-                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-100" ' +
+                currentLedColorEl.innerHTML += '<img class="w-full opacity-100" ' +
                     'style="height: 40px;width:100%;" src="../static/piano.svg">';
 
                 if (is_editing_sequence === "true" && is_loading_step === true) {
@@ -897,7 +905,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 const start_color = is_reversed ? response["gradient_end_color"] : response["gradient_start_color"];
                 const end_color = is_reversed ? response["gradient_start_color"] : response["gradient_end_color"];
 
-                document.getElementById("current_led_color").innerHTML = '<svg ' +
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (!currentLedColorEl) return;
+                
+                currentLedColorEl.innerHTML = '<svg ' +
                     'width="100%" height="45px">\n' +
                     '      <defs>\n' +
                     '        <linearGradient id="g1">\n' +
@@ -913,7 +924,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     '      <rect width="100%" height="45px" fill=\'url(#g1)\'/>' +
                     '      <rect width="100%" height="45px" fill=\'url(#g2)\'/>\n' +
                     '    </svg>'
-                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                currentLedColorEl.innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
 
                 if (is_editing_sequence === "true") {
@@ -931,7 +942,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             }
 
             if (response["color_mode"] === "Speed") {
-                document.getElementById("current_led_color").innerHTML = '<svg ' +
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (!currentLedColorEl) return;
+                
+                currentLedColorEl.innerHTML = '<svg ' +
                     'width="100%" height="45px">\n' +
                     '      <defs>\n' +
                     '        <linearGradient id="g1">\n' +
@@ -947,7 +961,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     '      <rect width="100%" height="45px" fill=\'url(#g1)\'/>' +
                     '      <rect width="100%" height="45px" fill=\'url(#g2)\'/>\n' +
                     '    </svg>'
-                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                currentLedColorEl.innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">slowest</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">fastest</p></div>';
@@ -986,7 +1000,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 rainbow_example += '</svg>';
                 rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
                 rainbow_example += '<p class="text-xs italic text-right text-gray-600 dark:text-gray-400">*approximate look</p>';
-                document.getElementById("current_led_color").innerHTML = rainbow_example;
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (currentLedColorEl) {
+                    currentLedColorEl.innerHTML = rainbow_example;
+                }
 
                 window.cancelAnimationFrame(rainbow_animation);
                 let count = -1;
@@ -1059,10 +1076,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             }
 
             if (response.color_mode === "VelocityRainbow") {
-                const offset = ((~~document.getElementById("velocityrainbow_offset").value % 256) + 256) % 256;
-                const scale = ~~document.getElementById("velocityrainbow_scale").value;
-                const curve = ~~document.getElementById("velocityrainbow_curve").value;
-                const colormap = document.getElementById("velocityrainbow_colormap").value;
+                const offset = ((~~(document.getElementById("velocityrainbow_offset")?.value ?? response["velocityrainbow_offset"]) % 256) + 256) % 256;
+                const scale = ~~(document.getElementById("velocityrainbow_scale")?.value ?? response["velocityrainbow_scale"]);
+                const curve = ~~(document.getElementById("velocityrainbow_curve")?.value ?? response["velocityrainbow_curve"]);
+                const colormap = document.getElementById("velocityrainbow_colormap")?.value ?? response["velocityrainbow_colormap"];
 
                 if (!gradients || !gradients[colormap]) {
                     return;
@@ -1098,7 +1115,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                 velocity_rainbow_example += '</svg>';
                 velocity_rainbow_example += '<img class="w-full opacity-50" style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">';
                 
-                document.getElementById("current_led_color").innerHTML = velocity_rainbow_example;
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (currentLedColorEl) {
+                    currentLedColorEl.innerHTML = velocity_rainbow_example;
+                }
 
 
                 if (is_editing_sequence === "true") {
@@ -1120,7 +1140,10 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
             if (response["color_mode"] === "Scale") {
                 //document.getElementById("led_color").innerHTML = response.scale_key
                 let scale_key_array = [response["key_in_scale_color"], response["key_not_in_scale_color"]];
-                document.getElementById("current_led_color").innerHTML = '<div id="led_color_scale" class="flex"></div>';
+                const currentLedColorEl = document.getElementById("current_led_color");
+                if (!currentLedColorEl) return;
+                
+                currentLedColorEl.innerHTML = '<div id="led_color_scale" class="flex"></div>';
 
                 scale_key_array.forEach(function (item, index) {
                     document.getElementById("led_color_scale").innerHTML += '<svg width="100%" height="45px">' +
@@ -1133,7 +1156,7 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                         '</defs>' +
                         '<rect width="100%" height="45px" fill="url(#gradient_single_' + item + ')" /></svg>';
                 });
-                document.getElementById("current_led_color").innerHTML += '<img class="w-full opacity-50" ' +
+                currentLedColorEl.innerHTML += '<img class="w-full opacity-50" ' +
                     'style="height: 40px;width:100%;margin-top:-40px" src="../static/piano.svg">' +
                     '<div class="flex"><p class="w-full text-xs italic text-gray-600 dark:text-gray-400">in a scale</p>' +
                     '<p class="w-full text-xs italic text-right text-gray-600 dark:text-gray-400">not in a scale</p></div>';

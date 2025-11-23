@@ -749,6 +749,7 @@
             success: function (response) {
                 if (response.success) {
                     var select = document.getElementById("preset_list");
+                    if (!select) return;
                     var current = select.value;
                     select.innerHTML = '<option value="" disabled selected>' + translate('select_preset') + '</option>';
                     response.presets.forEach(function (preset) {

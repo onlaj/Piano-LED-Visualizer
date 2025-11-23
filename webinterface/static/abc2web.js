@@ -377,6 +377,9 @@ var opt, onYouTubeIframeAPIReady, msc_credits, media_height, times_arr, offset_j
             w_svg = svg.width.baseVal.value;
             h_svg = svg.height.baseVal.value;
             new_w = $('#notation').prop('clientWidth');
+            if (!new_w || !isFinite(new_w) || new_w <= 0) {
+                return; // Skip resize if notation element doesn't exist or has invalid width
+            }
             svg.width.baseVal.value = new_w;
             svg.height.baseVal.value = new_w * h_svg / w_svg;
         }
