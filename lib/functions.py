@@ -1832,3 +1832,214 @@ def color_ripple(ledstrip, ledsettings, menu, speed_ms=None):
 
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
+
+
+def fireworks(ledstrip, ledsettings, menu, speed_ms=None):
+    """Fireworks animation - colorful particle bursts that explode and fade away."""
+    from lib.animation_speed import get_global_speed_ms
+    stop_animations(menu)
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
+
+    # Smooth animation logic - ensure at least 15 FPS (66.67ms max wait)
+    target_wait_ms = 66.67  # Maximum wait for 15 FPS minimum
+    base_particle_speed = 0.8  # pixels per frame
+    
+    # If user wants slower animation, scale particle speed but keep frame rate smooth
+    if wait_ms > target_wait_ms:
+        speed_scale = target_wait_ms / wait_ms
+        base_particle_speed = base_particle_speed * speed_scale
+        wait_ms = target_wait_ms
+    elif wait_ms < 20.0:
+        # If very fast, don't go below 20ms (50 FPS max) to avoid excessive CPU usage
+        wait_ms = 20.0
+
+    strip = ledstrip.strip
+    fastColorWipe(strip, True, ledsettings)
+    menu.t = threading.currentThread()
+
+    num_pixels = strip.numPixels()
+    brightness = calculate_brightness(ledsettings)
+
+    # Particle class to track individual particles in a burst
+    class Particle:
+        def __init__(self, start_pos, velocity, color, lifetime):
+            self.position = float(start_pos)  # Current position (float for smooth movement)
+            self.velocity = velocity  # Velocity in pixels per frame
+            self.color = color  # RGB tuple (0-255 each)
+            self.age = 0.0  # Current age in frames
+            self.lifetime = lifetime  # Total lifetime in frames
+            self.brightness = 1.0  # Current brightness (fades over time)
+
+    # Burst class to track firework bursts
+    class Burst:
+        def __init__(self, center_position, particles):
+            self.center = center_position
+            self.particles = particles  # List of Particle objects
+            self.age = 0.0
+
+    # Active bursts list
+    bursts = []
+    
+    # Calculate spawn rate based on speed
+    original_wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
+    base_spawn_rate = 0.06  # Probability of spawning a new burst per frame
+    speed_factor = max(0.3, min(2.0, 100.0 / max(original_wait_ms, 1)))
+    spawn_rate = base_spawn_rate * speed_factor
+    
+    # Maximum concurrent bursts (2-4 bursts work well)
+    max_bursts = 3
+    
+    # Particle lifetime based on speed (faster speed = shorter lifetime)
+    base_lifetime = 60.0  # frames
+    lifetime_factor = max(0.5, min(2.0, 50.0 / max(original_wait_ms, 1)))
+    particle_lifetime = base_lifetime / lifetime_factor
+    
+    # Number of particles per burst
+    particles_per_burst = 8
+    
+    # Pre-calculate which LEDs can be overwritten (cache for performance)
+    overwritable_leds = [i for i in range(num_pixels) if check_if_led_can_be_overwrite(i, ledstrip, ledsettings)]
+    
+    # Pre-calculate brightness multiplier
+    brightness_mult = brightness
+
+    def hsv_to_rgb(h, s, v):
+        """Convert HSV to RGB (0-1 range for h, s, v)."""
+        if s == 0.0:
+            return (v, v, v)
+        i = int(h * 6.0)
+        f = (h * 6.0) - i
+        p = v * (1.0 - s)
+        q = v * (1.0 - s * f)
+        t = v * (1.0 - s * (1.0 - f))
+        i = i % 6
+        if i == 0:
+            return (v, t, p)
+        elif i == 1:
+            return (q, v, p)
+        elif i == 2:
+            return (p, v, t)
+        elif i == 3:
+            return (p, q, v)
+        elif i == 4:
+            return (t, p, v)
+        else:
+            return (v, p, q)
+
+    def get_random_color():
+        """Generate a random vibrant color."""
+        # Use rainbow colors with high saturation
+        hue = random.random()  # 0.0 to 1.0
+        saturation = random.uniform(0.7, 1.0)  # High saturation for vibrant colors
+        value = random.uniform(0.8, 1.0)  # High value for bright colors
+        r, g, b = hsv_to_rgb(hue, saturation, value)
+        return (int(r * 255), int(g * 255), int(b * 255))
+
+    while menu.is_idle_animation_running or menu.is_animation_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
+        # Spawn new bursts randomly
+        if len(bursts) < max_bursts:
+            if random.random() < spawn_rate:
+                # Find a random position that can be overwritten
+                if overwritable_leds:
+                    center_pos = random.choice(overwritable_leds)
+                    
+                    # Create particles for this burst
+                    particles = []
+                    base_color = get_random_color()
+                    
+                    for _ in range(particles_per_burst):
+                        # Random velocity direction (spread outward)
+                        angle = random.uniform(0, 2 * math.pi)
+                        speed = base_particle_speed * random.uniform(0.5, 1.5)
+                        velocity = speed * math.cos(angle)  # Horizontal component
+                        
+                        # Slight color variation for each particle
+                        color_variation = random.uniform(0.7, 1.0)
+                        particle_color = (
+                            int(base_color[0] * color_variation),
+                            int(base_color[1] * color_variation),
+                            int(base_color[2] * color_variation)
+                        )
+                        
+                        # Random lifetime variation
+                        lifetime = particle_lifetime * random.uniform(0.8, 1.2)
+                        
+                        particles.append(Particle(center_pos, velocity, particle_color, lifetime))
+                    
+                    bursts.append(Burst(center_pos, particles))
+
+        # Use pixel buffer for efficient rendering
+        pixel_buffer = [[0, 0, 0] for _ in range(num_pixels)]
+
+        # Update and render bursts
+        bursts_to_remove = []
+        for burst in bursts:
+            burst.age += 1.0
+            
+            # Update particles in this burst
+            particles_to_remove = []
+            for particle in burst.particles:
+                particle.age += 1.0
+                
+                # Update position
+                particle.position += particle.velocity
+                
+                # Calculate brightness based on age (fade out)
+                if particle.age >= particle.lifetime:
+                    particle.brightness = 0.0
+                    particles_to_remove.append(particle)
+                else:
+                    # Linear fade from 1.0 to 0.0
+                    particle.brightness = 1.0 - (particle.age / particle.lifetime)
+                
+                # Only render if particle is still visible and within bounds
+                if particle.brightness > 0.01 and 0 <= particle.position < num_pixels:
+                    led_index = int(particle.position)
+                    if led_index in overwritable_leds:
+                        # Calculate final color with brightness
+                        final_red = int(particle.color[0] * particle.brightness * brightness_mult)
+                        final_green = int(particle.color[1] * particle.brightness * brightness_mult)
+                        final_blue = int(particle.color[2] * particle.brightness * brightness_mult)
+                        
+                        # Additive blending in buffer
+                        pixel_buffer[led_index][0] = min(255, pixel_buffer[led_index][0] + final_red)
+                        pixel_buffer[led_index][1] = min(255, pixel_buffer[led_index][1] + final_green)
+                        pixel_buffer[led_index][2] = min(255, pixel_buffer[led_index][2] + final_blue)
+            
+            # Remove dead particles
+            for particle in particles_to_remove:
+                burst.particles.remove(particle)
+            
+            # Remove burst if all particles are dead
+            if len(burst.particles) == 0:
+                bursts_to_remove.append(burst)
+        
+        # Remove empty bursts
+        for burst in bursts_to_remove:
+            bursts.remove(burst)
+
+        # Write pixel buffer to strip
+        for led_index in overwritable_leds:
+            strip.setPixelColor(led_index, Color(
+                pixel_buffer[led_index][0],
+                pixel_buffer[led_index][1],
+                pixel_buffer[led_index][2]
+            ))
+
+        strip.show()
+        time.sleep(wait_ms / 1000.0)
+
+    menu.is_idle_animation_running = False
+    fastColorWipe(strip, True, ledsettings)
