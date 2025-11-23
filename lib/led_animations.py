@@ -225,7 +225,7 @@ def _register_all_animations(registry: AnimationRegistry):
     from lib.functions import (
         theaterChase, rainbow, rainbowCycle, theaterChaseRainbow,
         breathing, fireplace, sound_of_da_police, scanner,
-        chords, colormap_animation, wave, lava_lamp, aurora, stardust
+        chords, colormap_animation, wave, lava_lamp, aurora, stardust, kaleidoscope
     )
     
     # Animations with speed support
@@ -322,6 +322,14 @@ def _register_all_animations(registry: AnimationRegistry):
         name="Stardust",
         function=stardust,
         display_name="Stardust",
+        supports_speed=True,
+        default_speed="Medium"
+    ))
+    
+    registry.register(AnimationInfo(
+        name="Kaleidoscope",
+        function=kaleidoscope,
+        display_name="Kaleidoscope",
         supports_speed=True,
         default_speed="Medium"
     ))

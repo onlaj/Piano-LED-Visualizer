@@ -1532,3 +1532,127 @@ def stardust(ledstrip, ledsettings, menu, speed_ms=None):
 
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
+
+
+def kaleidoscope(ledstrip, ledsettings, menu, speed_ms=None):
+    """Kaleidoscope animation - symmetric rotating patterns with colorful reflections."""
+    from lib.animation_speed import get_global_speed_ms
+    stop_animations(menu)
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
+
+    # Smooth animation logic
+    rotation_speed = 0.05  # radians per frame
+    target_wait_ms = 10.0
+    if wait_ms > target_wait_ms:
+        rotation_speed = rotation_speed * (target_wait_ms / wait_ms)
+        wait_ms = target_wait_ms
+
+    strip = ledstrip.strip
+    fastColorWipe(strip, True, ledsettings)
+    menu.t = threading.currentThread()
+
+    num_pixels = strip.numPixels()
+    brightness = calculate_brightness(ledsettings)
+
+    # Number of symmetric segments (4-way symmetry creates nice kaleidoscope effect)
+    num_segments = 4
+    segment_size = num_pixels / num_segments
+
+    # Rotation angle (0 to 2*pi)
+    rotation_angle = 0.0
+
+    # Base pattern parameters
+    pattern_wavelength = segment_size * 0.5  # Wavelength of the base pattern
+    color_shift_speed = 0.02  # Speed of color shifting
+
+    while menu.is_idle_animation_running or menu.is_animation_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
+        # Clear all pixels first
+        for i in range(num_pixels):
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+                strip.setPixelColor(i, Color(0, 0, 0))
+
+        # Generate base pattern for first segment, then mirror to others
+        for i in range(num_pixels):
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+                # Determine which segment this pixel belongs to
+                segment_index = int(i / segment_size)
+                
+                # Position within the segment (0 to segment_size)
+                pos_in_segment = (i % segment_size) / segment_size
+                
+                # For symmetric reflection, we need to map positions
+                # Segment 0: normal (0 to 1)
+                # Segment 1: reversed (1 to 0)
+                # Segment 2: normal (0 to 1)
+                # Segment 3: reversed (1 to 0)
+                
+                # Calculate mirrored position based on segment
+                if segment_index % 2 == 0:
+                    # Even segments: normal direction
+                    normalized_pos = pos_in_segment
+                else:
+                    # Odd segments: reversed direction
+                    normalized_pos = 1.0 - pos_in_segment
+                
+                # Apply rotation to the pattern
+                rotated_pos = (normalized_pos + rotation_angle / (2 * math.pi)) % 1.0
+                
+                # Create wave pattern using sine
+                wave_value = (math.sin(rotated_pos * 2 * math.pi * 2) + 1.0) / 2.0  # 0 to 1
+                
+                # Add secondary pattern for more complexity
+                secondary_wave = (math.sin(rotated_pos * 2 * math.pi * 3 + rotation_angle) + 1.0) / 2.0
+                pattern_intensity = (wave_value * 0.7 + secondary_wave * 0.3)
+                
+                # Calculate color based on position and rotation
+                # Use rainbow colors that shift over time
+                color_hue = (rotated_pos + rotation_angle / (2 * math.pi) + color_shift_speed * time.time()) % 1.0
+                
+                # Convert HSV to RGB (hue-based rainbow)
+                # Hue: 0=red, 1/3=green, 2/3=blue, 1=red
+                if color_hue < 1.0/3:
+                    # Red to Green
+                    r = 1.0 - color_hue * 3
+                    g = color_hue * 3
+                    b = 0.0
+                elif color_hue < 2.0/3:
+                    # Green to Blue
+                    r = 0.0
+                    g = 1.0 - (color_hue - 1.0/3) * 3
+                    b = (color_hue - 1.0/3) * 3
+                else:
+                    # Blue to Red
+                    r = (color_hue - 2.0/3) * 3
+                    g = 0.0
+                    b = 1.0 - (color_hue - 2.0/3) * 3
+                
+                # Apply pattern intensity to colors
+                red = int(clamp(r * 255 * pattern_intensity * brightness, 0, 255))
+                green = int(clamp(g * 255 * pattern_intensity * brightness, 0, 255))
+                blue = int(clamp(b * 255 * pattern_intensity * brightness, 0, 255))
+                
+                strip.setPixelColor(i, Color(red, green, blue))
+
+        strip.show()
+        
+        # Update rotation angle for next frame
+        rotation_angle += rotation_speed
+        if rotation_angle >= 2 * math.pi:
+            rotation_angle -= 2 * math.pi
+        
+        time.sleep(wait_ms / 1000.0)
+
+    menu.is_idle_animation_running = False
+    fastColorWipe(strip, True, ledsettings)
