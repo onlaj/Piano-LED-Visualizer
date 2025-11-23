@@ -556,14 +556,25 @@ def wheel(pos, ledsettings):
 
     brightness = calculate_brightness(ledsettings)
 
+    # Ensure pos is within 0-255 range
+    pos = pos % 255
+
     if pos < 85:
-        return Color(int((pos * 3) * brightness), int((255 - pos * 3) * brightness), 0)
+        r = (pos * 3) * brightness
+        g = (255 - pos * 3) * brightness
+        b = 0
     elif pos < 170:
         pos -= 85
-        return Color(int((255 - pos * 3) * brightness), 0, int((pos * 3) * brightness))
+        r = (255 - pos * 3) * brightness
+        g = 0
+        b = (pos * 3) * brightness
     else:
         pos -= 170
-        return Color(0, int((pos * 3) * brightness), int((255 - pos * 3) * brightness))
+        r = 0
+        g = (pos * 3) * brightness
+        b = (255 - pos * 3) * brightness
+
+    return Color(int(clamp(r, 0, 255)), int(clamp(g, 0, 255)), int(clamp(b, 0, 255)))
 
 
 def rainbow(ledstrip, ledsettings, menu, speed_ms=None):
@@ -574,11 +585,18 @@ def rainbow(ledstrip, ledsettings, menu, speed_ms=None):
     # Use global speed from settings
     wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
+    # Smooth animation logic
+    step = 1.0
+    target_wait_ms = 10.0
+    if wait_ms > target_wait_ms:
+        step = step * (target_wait_ms / wait_ms)
+        wait_ms = target_wait_ms
+
     strip = ledstrip.strip
 
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
-    j = 0
+    j = 0.0
 
     while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
@@ -593,8 +611,8 @@ def rainbow(ledstrip, ledsettings, menu, speed_ms=None):
 
         for i in range(strip.numPixels()):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                strip.setPixelColor(i, wheel(j & 255, ledsettings))
-        j += 1
+                strip.setPixelColor(i, wheel(j, ledsettings))
+        j += step
         if j >= 256:
             j = 0
         strip.show()
@@ -650,10 +668,17 @@ def rainbowCycle(ledstrip, ledsettings, menu, speed_ms=None):
     # Use global speed from settings
     wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
+    # Smooth animation logic
+    step = 1.0
+    target_wait_ms = 10.0
+    if wait_ms > target_wait_ms:
+        step = step * (target_wait_ms / wait_ms)
+        wait_ms = target_wait_ms
+
     strip = ledstrip.strip
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
-    j = 0
+    j = 0.0
 
     while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
@@ -668,8 +693,8 @@ def rainbowCycle(ledstrip, ledsettings, menu, speed_ms=None):
 
         for i in range(strip.numPixels()):
             if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
-                strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255, ledsettings))
-        j += 1
+                strip.setPixelColor(i, wheel((i * 256 / strip.numPixels() + j), ledsettings))
+        j += step
         if j >= 256:
             j = 0
         strip.show()
@@ -779,13 +804,20 @@ def breathing(ledstrip, ledsettings, menu, speed_ms=None):
     # Use global speed from settings
     wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
+    # Smooth animation logic
+    step_size = 2.0
+    target_wait_ms = 10.0
+    if wait_ms > target_wait_ms:
+        step_size = step_size * (target_wait_ms / wait_ms)
+        wait_ms = target_wait_ms
+
     strip = ledstrip.strip
 
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
 
-    multiplier = 24
-    direction = 2
+    multiplier = 24.0
+    direction = step_size
     while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
@@ -826,13 +858,20 @@ def sound_of_da_police(ledstrip, ledsettings, menu, speed_ms=None):
     # Use global speed from settings
     wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
+    # Smooth animation logic
+    step = 14.0
+    target_wait_ms = 10.0
+    if wait_ms > target_wait_ms:
+        step = step * (target_wait_ms / wait_ms)
+        wait_ms = target_wait_ms
+
     strip = ledstrip.strip
 
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
     middle = strip.numPixels() / 2
-    r_start = 0
-    l_start = 196
+    r_start = 0.0
+    l_start = 196.0
     while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
         cover_opened = GPIO.input(SENSECOVER)
@@ -844,8 +883,8 @@ def sound_of_da_police(ledstrip, ledsettings, menu, speed_ms=None):
             last_state = cover_opened
             cover_opened = GPIO.input(SENSECOVER)
 
-        r_start += 14
-        l_start -= 14
+        r_start += step
+        l_start -= step
 
         brightness = calculate_brightness(ledsettings)
 
@@ -874,13 +913,20 @@ def scanner(ledstrip, ledsettings, menu, speed_ms=None):
     # Use global speed from settings
     wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
+    # Smooth animation logic
+    step_size = 3.0
+    target_wait_ms = 10.0
+    if wait_ms > target_wait_ms:
+        step_size = step_size * (target_wait_ms / wait_ms)
+        wait_ms = target_wait_ms
+
     strip = ledstrip.strip
 
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
 
-    position = 0
-    direction = 3
+    position = 0.0
+    direction = step_size
     scanner_length = 20
 
     red_fixed = ledsettings.get_backlight_color("Red")
@@ -970,7 +1016,7 @@ def chords(scale, ledstrip, ledsettings, menu):
                 strip.setPixelColor(i, Color(0, 0, 0))
 
         strip.show()
-        time.sleep(0.05)
+        time.sleep(0.01)
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
 
@@ -1010,7 +1056,7 @@ def colormap_animation(colormap, ledstrip, ledsettings, menu):
             strip.setPixelColor(led, Color(round(red * brightness), round(green * brightness), round(blue * brightness)))
 
         strip.show()
-        time.sleep(0.1)
+        time.sleep(0.01)
 
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
@@ -1024,6 +1070,13 @@ def wave(ledstrip, ledsettings, menu, speed_ms=None):
     # Use global speed from settings
     wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
 
+    # Smooth animation logic
+    wave_speed = 0.1  # radians per frame
+    target_wait_ms = 10.0
+    if wait_ms > target_wait_ms:
+        wave_speed = wave_speed * (target_wait_ms / wait_ms)
+        wait_ms = target_wait_ms
+
     strip = ledstrip.strip
     fastColorWipe(strip, True, ledsettings)
     menu.t = threading.currentThread()
@@ -1034,8 +1087,6 @@ def wave(ledstrip, ledsettings, menu, speed_ms=None):
     
     # Wave position (0 to 2*pi for one complete cycle)
     wave_position = 0.0
-    # Speed of wave travel (adjust based on wait_ms)
-    wave_speed = 0.1  # radians per frame
 
     while menu.is_idle_animation_running or menu.is_animation_running:
         last_state = 1
