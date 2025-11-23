@@ -78,6 +78,7 @@ function loadAjax(subpage) {
                         get_led_idle_animation_settings();
                         clearInterval(homepage_interval);
                         populate_colormaps(["colormap_anim_id"]);
+                        // Start time update for schedule card (will be started by get_led_idle_animation_settings callback)
                         break;
                     case "songs":
                         initialize_songs();

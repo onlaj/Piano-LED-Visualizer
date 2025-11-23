@@ -1,7 +1,7 @@
 from webinterface import webinterface, app_state
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import (get_last_logs, find_between, fastColorWipe, play_midi, clamp)
+from lib.functions import (get_last_logs, find_between, fastColorWipe, play_midi, clamp, validate_schedule_overlaps)
 from lib.led_animations import get_registry
 import lib.colormaps as cmap
 import psutil
@@ -1746,14 +1746,74 @@ def get_sequence_setting():
 
 @webinterface.route('/api/get_idle_animation_settings', methods=['GET'])
 def get_idle_animation_settings():
+    # Get schedule and parse JSON if it exists
+    schedule_json = app_state.usersettings.get_setting_value("idle_animation_schedule")
+    schedule_list = []
+    if schedule_json:
+        try:
+            schedule_list = json.loads(schedule_json)
+        except (json.JSONDecodeError, TypeError):
+            schedule_list = []
+    
     response = {"led_animation_delay": app_state.usersettings.get_setting_value("led_animation_delay"),
                 "led_animation": app_state.usersettings.get_setting_value("led_animation"),
                 "led_animation_brightness_percent": app_state.ledsettings.led_animation_brightness_percent,
                 "led_animation_speed": app_state.usersettings.get_setting_value("led_animation_speed") or "",
                 "idle_timeout_minutes": app_state.usersettings.get_setting_value("idle_timeout_minutes"),
                 "screensaver_delay": app_state.usersettings.get_setting_value("screensaver_delay"),
-                "screen_off_delay": app_state.usersettings.get_setting_value("screen_off_delay")}
+                "screen_off_delay": app_state.usersettings.get_setting_value("screen_off_delay"),
+                "idle_animation_schedule": schedule_list}
     return jsonify(response)
+
+@webinterface.route('/api/save_idle_animation_schedule', methods=['POST'])
+def save_idle_animation_schedule():
+    try:
+        data = request.get_json()
+        if data is None:
+            return jsonify(success=False, error="Invalid JSON data")
+        
+        schedule_list = data.get('schedule', [])
+        
+        # Validate schedule list structure
+        if not isinstance(schedule_list, list):
+            return jsonify(success=False, error="Schedule must be a list")
+        
+        # Validate each schedule entry
+        for schedule in schedule_list:
+            if not isinstance(schedule, dict):
+                return jsonify(success=False, error="Each schedule entry must be a dictionary")
+            if 'startTime' not in schedule or 'endTime' not in schedule:
+                return jsonify(success=False, error="Each schedule must have startTime and endTime")
+            if 'days' not in schedule or not isinstance(schedule['days'], list):
+                return jsonify(success=False, error="Each schedule must have a days list")
+            if not schedule['days']:
+                return jsonify(success=False, error="Each schedule must have at least one weekday selected")
+        
+        # Validate for overlaps
+        is_valid, error_msg = validate_schedule_overlaps(schedule_list)
+        if not is_valid:
+            return jsonify(success=False, error=error_msg)
+        
+        # Save schedule as JSON string
+        schedule_json = json.dumps(schedule_list)
+        app_state.usersettings.change_setting_value("idle_animation_schedule", schedule_json)
+        app_state.usersettings.save_changes()
+        
+        return jsonify(success=True)
+    except Exception as e:
+        logger.error(f"Error saving idle animation schedule: {e}")
+        return jsonify(success=False, error=f"Error saving schedule: {str(e)}")
+
+@webinterface.route('/api/get_system_time', methods=['GET'])
+def get_system_time():
+    """Get current system time from Linux date command."""
+    try:
+        result = subprocess.run(['date'], capture_output=True, text=True, check=True)
+        return jsonify(success=True, time=result.stdout.strip())
+    except Exception as e:
+        # Fallback to Python datetime if date command fails
+        now = datetime.datetime.now()
+        return jsonify(success=True, time=now.strftime("%a %b %d %H:%M:%S %Z %Y"))
 
 @webinterface.route('/api/get_settings', methods=['GET'])
 def get_settings():

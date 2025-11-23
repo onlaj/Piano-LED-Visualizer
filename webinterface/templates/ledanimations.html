@@ -35,26 +35,19 @@
         </div>
     </div>
 
-    <!-- Control Panels: Collapsible Sections -->
-    <div class="grid grid-cols-12 gap-6 mb-6" x-data="{ 
-        animationControlsOpen: true,
-        specialAnimationsOpen: true,
-        idleSettingsOpen: true
-    }">
+    <!-- Control Panels -->
+    <div class="grid grid-cols-12 gap-6 mb-6">
         <!-- Animation Controls -->
         <div class="col-span-12 sm:col-span-6 xl:col-span-4 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
-            <button @click="animationControlsOpen = !animationControlsOpen" class="w-full flex items-center justify-between p-3 hover:glass-light transition-smooth-fast">
+            <div class="w-full flex items-center p-3">
                 <div class="flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                     </svg>
                     <span class="font-semibold text-sm" data-translate="animation_controls">Animation Controls</span>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" :class="{'rotate-180': animationControlsOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            <div x-show="animationControlsOpen" x-transition class="p-3 pt-0 space-y-3">
+            </div>
+            <div class="p-3 pt-0 space-y-3">
                 <!-- Start Animation -->
                 <div>
                     <label data-translate="start_animation" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Start Animation</label>
@@ -134,18 +127,15 @@
 
         <!-- Special Animations -->
         <div class="col-span-12 sm:col-span-6 xl:col-span-4 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
-            <button @click="specialAnimationsOpen = !specialAnimationsOpen" class="w-full flex items-center justify-between p-3 hover:glass-light transition-smooth-fast">
+            <div class="w-full flex items-center p-3">
                 <div class="flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                     </svg>
                     <span class="font-semibold text-sm" data-translate="special_animations">Special Animations</span>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" :class="{'rotate-180': specialAnimationsOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            <div x-show="specialAnimationsOpen" x-transition class="p-3 pt-0 space-y-3">
+            </div>
+            <div class="p-3 pt-0 space-y-3">
                 <!-- Chords -->
                 <div>
                     <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">
@@ -237,18 +227,15 @@
 
         <!-- IDLE Settings -->
         <div class="col-span-12 sm:col-span-6 xl:col-span-4 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
-            <button @click="idleSettingsOpen = !idleSettingsOpen" class="w-full flex items-center justify-between p-3 hover:glass-light transition-smooth-fast">
+            <div class="w-full flex items-center p-3">
                 <div class="flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span class="font-semibold text-sm" data-translate="led_animation_on_idle">LED animation on IDLE</span>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" :class="{'rotate-180': idleSettingsOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            <div x-show="idleSettingsOpen" x-transition class="p-3 pt-0">
+            </div>
+            <div class="p-3 pt-0">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Left Column -->
                     <div class="space-y-3">
@@ -371,6 +358,42 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Idle Animation Schedule -->
+        <div class="col-span-12 sm:col-span-6 xl:col-span-4 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+            <div class="w-full flex items-center justify-between p-3">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="font-semibold text-sm" data-translate="idle_schedule">Idle Schedule</span>
+                </div>
+                <div id="current_time_display" class="text-sm font-mono text-gray-600 dark:text-gray-400"></div>
+            </div>
+            <div class="p-3 pt-0 space-y-3">
+                <div id="schedule_list" class="space-y-2">
+                    <!-- Schedule items will be added here -->
+                </div>
+                
+                <div class="border-t border-gray-300 dark:border-gray-600 pt-3">
+                    <div class="text-xs font-semibold mb-2" data-translate="add_schedule">Add Schedule</div>
+                    <div class="flex space-x-2 mb-2">
+                        <input type="time" id="schedule_start" class="glass-light rounded-glass px-2 py-1 text-sm w-1/2">
+                        <input type="time" id="schedule_end" class="glass-light rounded-glass px-2 py-1 text-sm w-1/2">
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-2">
+                        <label class="inline-flex items-center cursor-pointer"><input type="checkbox" class="schedule-day w-3 h-3 rounded text-blue-600 focus:ring-blue-500" value="0"> <span class="ml-1 text-xs" data-translate="schedule_day_mon">Mon</span></label>
+                        <label class="inline-flex items-center cursor-pointer"><input type="checkbox" class="schedule-day w-3 h-3 rounded text-blue-600 focus:ring-blue-500" value="1"> <span class="ml-1 text-xs" data-translate="schedule_day_tue">Tue</span></label>
+                        <label class="inline-flex items-center cursor-pointer"><input type="checkbox" class="schedule-day w-3 h-3 rounded text-blue-600 focus:ring-blue-500" value="2"> <span class="ml-1 text-xs" data-translate="schedule_day_wed">Wed</span></label>
+                        <label class="inline-flex items-center cursor-pointer"><input type="checkbox" class="schedule-day w-3 h-3 rounded text-blue-600 focus:ring-blue-500" value="3"> <span class="ml-1 text-xs" data-translate="schedule_day_thu">Thu</span></label>
+                        <label class="inline-flex items-center cursor-pointer"><input type="checkbox" class="schedule-day w-3 h-3 rounded text-blue-600 focus:ring-blue-500" value="4"> <span class="ml-1 text-xs" data-translate="schedule_day_fri">Fri</span></label>
+                        <label class="inline-flex items-center cursor-pointer"><input type="checkbox" class="schedule-day w-3 h-3 rounded text-blue-600 focus:ring-blue-500" value="5"> <span class="ml-1 text-xs" data-translate="schedule_day_sat">Sat</span></label>
+                        <label class="inline-flex items-center cursor-pointer"><input type="checkbox" class="schedule-day w-3 h-3 rounded text-blue-600 focus:ring-blue-500" value="6"> <span class="ml-1 text-xs" data-translate="schedule_day_sun">Sun</span></label>
+                    </div>
+                    <button onclick="add_schedule()" class="w-full h-8 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast" data-translate="add_schedule">Add Schedule</button>
                 </div>
             </div>
         </div>

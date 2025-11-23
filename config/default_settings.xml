@@ -99,6 +99,7 @@
     <led_animation_brightness_percent>50</led_animation_brightness_percent>
     <disable_backlight_on_idle>1</disable_backlight_on_idle>
 	<idle_timeout_minutes>10</idle_timeout_minutes>
+	<idle_animation_schedule>[]</idle_animation_schedule>
 	
 	<!-- Animation speed presets (in milliseconds) -->
 	<animation_speed_slow>50</animation_speed_slow>

@@ -130,6 +130,7 @@ class MenuLCD:
         self.screen_off_delay = usersettings.get_setting_value("screen_off_delay")
         self.led_animation_delay = usersettings.get_setting_value("led_animation_delay")
         self.idle_timeout_minutes = usersettings.get_setting_value("idle_timeout_minutes")
+        self.led_animation_schedule = usersettings.get_setting_value("idle_animation_schedule")
         self.led_animation = usersettings.get_setting_value("led_animation")
         self.screen_on = int(usersettings.get_setting_value("screen_on"))
         self.screen_status = 1

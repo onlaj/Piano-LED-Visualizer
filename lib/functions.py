@@ -12,6 +12,7 @@ import subprocess
 import random
 from lib.log_setup import logger
 import os
+import json
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
@@ -135,12 +136,154 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     saving.is_playing_midi.clear()
 
 
+def is_within_schedule(schedule_list):
+    """
+    Check if current time is within any of the scheduled intervals.
+    Schedule list is a list of dicts with:
+    - enabled: bool
+    - startTime: "HH:MM"
+    - endTime: "HH:MM"
+    - days: list of ints (0=Monday, 6=Sunday)
+    """
+    if not schedule_list:
+        return True
+
+    now = datetime.datetime.now()
+    current_weekday = now.weekday()
+    current_time = now.time()
+
+    # If no enabled schedules, it's always allowed (default behavior)
+    enabled_schedules = [s for s in schedule_list if s.get('enabled', True)]
+    if not enabled_schedules:
+        return True
+
+    for schedule in enabled_schedules:
+        # Check day of week
+        if current_weekday not in schedule.get('days', []):
+            continue
+
+        # Parse start and end times
+        try:
+            start_hour, start_minute = map(int, schedule.get('startTime', '00:00').split(':'))
+            end_hour, end_minute = map(int, schedule.get('endTime', '23:59').split(':'))
+            
+            start_time = datetime.time(start_hour, start_minute)
+            end_time = datetime.time(end_hour, end_minute)
+
+            # Check time range
+            if start_time <= end_time:
+                if start_time <= current_time <= end_time:
+                    return True
+            else:
+                # Crosses midnight
+                if current_time >= start_time or current_time <= end_time:
+                    return True
+        except ValueError:
+            continue
+
+    return False
+
+
+def validate_schedule_overlaps(schedule_list):
+    """
+    Validate that schedules don't overlap when they share common weekdays.
+    
+    Args:
+        schedule_list: List of dicts with enabled, startTime, endTime, days
+        
+    Returns:
+        tuple: (is_valid: bool, error_message: str or None)
+    """
+    if not schedule_list:
+        return True, None
+    
+    # Only check enabled schedules
+    enabled_schedules = [s for s in schedule_list if s.get('enabled', True)]
+    if len(enabled_schedules) <= 1:
+        return True, None
+    
+    # Compare each pair of schedules
+    for i in range(len(enabled_schedules)):
+        for j in range(i + 1, len(enabled_schedules)):
+            schedule1 = enabled_schedules[i]
+            schedule2 = enabled_schedules[j]
+            
+            # Get weekdays for each schedule
+            days1 = set(schedule1.get('days', []))
+            days2 = set(schedule2.get('days', []))
+            
+            # Only check for overlaps if they share at least one common weekday
+            common_days = days1 & days2
+            if not common_days:
+                continue
+            
+            # Parse times
+            try:
+                start1_h, start1_m = map(int, schedule1.get('startTime', '00:00').split(':'))
+                end1_h, end1_m = map(int, schedule1.get('endTime', '23:59').split(':'))
+                start2_h, start2_m = map(int, schedule2.get('startTime', '00:00').split(':'))
+                end2_h, end2_m = map(int, schedule2.get('endTime', '23:59').split(':'))
+                
+                start1 = datetime.time(start1_h, start1_m)
+                end1 = datetime.time(end1_h, end1_m)
+                start2 = datetime.time(start2_h, start2_m)
+                end2 = datetime.time(end2_h, end2_m)
+            except (ValueError, AttributeError):
+                continue
+            
+            # Check for overlap
+            overlap = False
+            
+            # Helper function to check if two time ranges overlap
+            def time_ranges_overlap(s1, e1, s2, e2):
+                """Check if two time ranges overlap, handling midnight crossing."""
+                # Case 1: Neither range crosses midnight
+                if s1 <= e1 and s2 <= e2:
+                    return not (e1 < s2 or e2 < s1)
+                # Case 2: First range crosses midnight
+                elif s1 > e1 and s2 <= e2:
+                    return s2 <= e1 or s1 <= e2
+                # Case 3: Second range crosses midnight
+                elif s1 <= e1 and s2 > e2:
+                    return s1 <= e2 or s2 <= e1
+                # Case 4: Both cross midnight
+                else:  # s1 > e1 and s2 > e2
+                    return True  # Always overlap if both cross midnight
+            
+            if time_ranges_overlap(start1, end1, start2, end2):
+                overlap = True
+            
+            if overlap:
+                # Format days for error message
+                day_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                common_days_str = ', '.join([day_names[d] for d in sorted(common_days)])
+                time1_str = f"{schedule1.get('startTime', '00:00')}-{schedule1.get('endTime', '23:59')}"
+                time2_str = f"{schedule2.get('startTime', '00:00')}-{schedule2.get('endTime', '23:59')}"
+                error_msg = f"Schedule overlap detected on {common_days_str}: {time1_str} overlaps with {time2_str}"
+                return False, error_msg
+    
+    return True, None
+
+
 def manage_idle_animation(ledstrip, ledsettings, menu, midiports, state_manager=None):
     from lib.led_animations import get_registry
     
     animation_delay_minutes = int(menu.led_animation_delay)
     if animation_delay_minutes == 0:
         return
+
+    # Check schedule
+    try:
+        schedule_json = menu.usersettings.get_setting_value("idle_animation_schedule")
+        if schedule_json:
+            schedule_list = json.loads(schedule_json)
+            if not is_within_schedule(schedule_list):
+                # Stop animation if running
+                if menu.is_idle_animation_running:
+                    menu.is_idle_animation_running = False
+                return
+    except Exception as e:
+        logger.warning(f"Error checking idle animation schedule: {e}")
 
     # Use state manager if available
     if state_manager:
