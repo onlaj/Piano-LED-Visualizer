@@ -90,18 +90,20 @@ class StateManager:
         """Called when user interacts (web, buttons)"""
         self.last_user_activity = time.time()
     
-    def update_state(self, midiports=None, menu=None):
+    def update_state(self, midiports=None, menu=None, current_time=None):
         """
         Update current system state based on activity timers.
         
         Args:
             midiports: MidiPorts instance (optional, for backward compatibility)
             menu: MenuLCD instance (optional, for backward compatibility)
+            current_time: Current time as float (optional, defaults to time.time())
         
         Returns:
             SystemState: Current state after update
         """
-        current_time = time.time()
+        if current_time is None:
+            current_time = time.time()
         
         # Sync with existing activity trackers if provided
         if midiports is not None:

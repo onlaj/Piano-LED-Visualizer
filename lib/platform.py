@@ -244,7 +244,7 @@ class PlatformRasp(PlatformBase):
             logger.warning(f"Error checking hotspot status: {str(e)}")
             return False
 
-    def manage_hotspot(self, hotspot, usersettings, midiports, first_run=False):
+    def manage_hotspot(self, hotspot, usersettings, midiports, first_run=False, current_time=None):
         if first_run:
             self.create_hotspot_profile()
             if int(usersettings.get("is_hotspot_active")):
@@ -260,7 +260,8 @@ class PlatformRasp(PlatformBase):
                 else:
                     logger.info("Hotspot is already running")
 
-        current_time = time.time()
+        if current_time is None:
+            current_time = time.time()
         if not hotspot.last_wifi_check_time:
             hotspot.last_wifi_check_time = current_time
 

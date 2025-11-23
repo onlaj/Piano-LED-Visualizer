@@ -134,7 +134,7 @@ class VisualizerApp:
             now_wall = time.time()
 
             # Update system state (syncs with midiports and menu activity)
-            self.state_manager.update_state(midiports, menu)
+            self.state_manager.update_state(midiports, menu, now_wall)
             
             # Get dynamic sleep interval based on current state
             sleep_interval = self.state_manager.get_loop_delay()
@@ -145,7 +145,7 @@ class VisualizerApp:
             self.update_display(elapsed_time, menu)
             self.check_color_mode(ledsettings)
             self.check_settings_changes(usersettings, now_wall)
-            platform.manage_hotspot(hotspot, usersettings, midiports)
+            platform.manage_hotspot(hotspot, usersettings, midiports, False, now_wall)
             self.gpio_handler.process_gpio_keys()
 
             event_loop_time = loop_start - self.event_loop_stamp
@@ -176,10 +176,8 @@ class VisualizerApp:
             self.frame_avg_stamp = time.perf_counter()
             self.frame_count = 0
 
-    def check_screensaver(self, midiports=None, menu=None, current_time=None):
+    def check_screensaver(self, midiports, menu, current_time=None):
         ci = self.ci
-        menu = menu or ci.menu
-        midiports = midiports or ci.midiports
         
         # Stop screensaver during active use
         if self.state_manager.is_active_use() and menu.screensaver_is_running:
@@ -191,12 +189,8 @@ class VisualizerApp:
         if self.state_manager.should_run_screensaver(menu):
             screensaver(menu, midiports, ci.saving, ci.ledstrip, ci.ledsettings, self.state_manager)
 
-    def check_activity_backlight(self, ledstrip=None, ledsettings=None, midiports=None, current_time=None):
-        ci = self.ci
-        ledstrip = ledstrip or ci.ledstrip
-        ledsettings = ledsettings or ci.ledsettings
-        midiports = midiports or ci.midiports
-        now = current_time or time.time()
+    def check_activity_backlight(self, ledstrip, ledsettings, midiports, current_time):
+        now = current_time
         if (now - midiports.last_activity) > 120:
             if not self.backlight_cleared:
                 ledsettings.backlight_stopped = True
@@ -208,16 +202,18 @@ class VisualizerApp:
                 fastColorWipe(ledstrip.strip, True, ledsettings)
                 self.backlight_cleared = False
 
-    def update_display(self, elapsed_time, menu=None):
+    def update_display(self, elapsed_time, menu):
         now = time.monotonic()
         tick_interval = 0.2  # ~5 fps animation 
         #(still really drop led fps but go back to normal 
         # when selecting a non-animated line)
 
-        menu = menu or self.ci.menu
-
+        # Cache getattr results to avoid repeated lookups
+        scroll_needed = getattr(menu, "scroll_needed", False)
+        screen_on = getattr(menu, "screen_on", 1)
+        
         # Tick only if menu.scroll_needed is True
-        if getattr(menu, "scroll_needed", False) and getattr(menu, "screen_on", 1) == 1:
+        if scroll_needed and screen_on == 1:
             if now - self._last_menu_tick >= tick_interval:
                 try:
                     menu.update()  # advance cut_count/scroll_hold
@@ -231,8 +227,7 @@ class VisualizerApp:
                 menu.show()
 
 
-    def check_color_mode(self, ledsettings=None):
-        ledsettings = ledsettings or self.ci.ledsettings
+    def check_color_mode(self, ledsettings):
         if ledsettings.color_mode != self.color_mode_name or ledsettings.incoming_setting_change:
             ledsettings.incoming_setting_change = False
             self.color_mode = ColorMode(ledsettings.color_mode, ledsettings)
@@ -242,10 +237,9 @@ class VisualizerApp:
             self.led_effects_processor.color_mode = self.color_mode
             logger.info(f"Color mode changed to {self.color_mode_name}")
 
-    def check_settings_changes(self, usersettings=None, current_time=None):
+    def check_settings_changes(self, usersettings, current_time):
         ci = self.ci
-        usersettings = usersettings or ci.usersettings
-        now = current_time or time.time()
+        now = current_time
         if (now - usersettings.last_save) <= 1:
             return
 
