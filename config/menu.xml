@@ -252,6 +252,7 @@
         <LED_animations text="Wave"></LED_animations>
         <LED_animations text="Lava Lamp"></LED_animations>
         <LED_animations text="Aurora"></LED_animations>
+        <LED_animations text="Stardust"></LED_animations>
         <LED_animations text="Animation Speed">
             <Animation_Speed text="Slow"></Animation_Speed>
             <Animation_Speed text="Medium"></Animation_Speed>

@@ -1410,3 +1410,125 @@ def aurora(ledstrip, ledsettings, menu, speed_ms=None):
 
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
+
+
+def stardust(ledstrip, ledsettings, menu, speed_ms=None):
+    """Stardust/Sparkle animation - random LEDs twinkle and fade like stars."""
+    from lib.animation_speed import get_global_speed_ms
+    stop_animations(menu)
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
+
+    strip = ledstrip.strip
+    fastColorWipe(strip, True, ledsettings)
+    menu.t = threading.currentThread()
+
+    num_pixels = strip.numPixels()
+    brightness = calculate_brightness(ledsettings)
+
+    # Star class to track individual twinkling LEDs
+    class Star:
+        def __init__(self, led_index, fade_duration):
+            self.led_index = led_index
+            self.brightness = 1.0  # Start at full brightness
+            self.fade_duration = fade_duration  # Total fade time in seconds
+            self.age = 0.0  # Current age in seconds
+            self.spawn_time = time.time()
+
+    # Active stars list
+    stars = []
+    
+    # Calculate spawn rate and fade duration based on speed
+    # Faster speed = more stars, shorter fade time
+    base_spawn_rate = 0.3  # Probability of spawning a new star per frame (0-1)
+    base_fade_duration = 1.5  # Base fade duration in seconds
+    
+    # Adjust based on wait_ms (inverse relationship - faster wait = faster animation)
+    speed_factor = max(0.3, min(3.0, 50.0 / max(wait_ms, 1)))  # Normalize to reasonable range
+    spawn_rate = base_spawn_rate * speed_factor
+    fade_duration = base_fade_duration / speed_factor
+    
+    # Maximum concurrent stars (10-20% of total LEDs)
+    max_stars = max(1, int(num_pixels * 0.15))
+    
+    # Use warm white/yellow color for stars, or backlight color
+    # Warm white: (255, 255, 200) with slight variation
+    use_backlight_color = True
+    base_red = int(ledsettings.get_backlight_color("Red")) if use_backlight_color else 255
+    base_green = int(ledsettings.get_backlight_color("Green")) if use_backlight_color else 255
+    base_blue = int(ledsettings.get_backlight_color("Blue")) if use_backlight_color else 200
+
+    while menu.is_idle_animation_running or menu.is_animation_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
+        current_time = time.time()
+        frame_duration = wait_ms / 1000.0
+
+        # Spawn new stars randomly
+        if len(stars) < max_stars:
+            # Chance to spawn 1-3 new stars per frame
+            num_to_spawn = 0
+            if random.random() < spawn_rate:
+                num_to_spawn = random.randint(1, min(3, max_stars - len(stars)))
+            
+            for _ in range(num_to_spawn):
+                # Find a random LED that can be overwritten
+                attempts = 0
+                led_index = None
+                while attempts < 20:  # Try up to 20 times to find a valid LED
+                    candidate = random.randint(0, num_pixels - 1)
+                    if check_if_led_can_be_overwrite(candidate, ledstrip, ledsettings):
+                        # Check if this LED is already a star
+                        if not any(star.led_index == candidate for star in stars):
+                            led_index = candidate
+                            break
+                    attempts += 1
+                
+                if led_index is not None:
+                    # Add slight variation to fade duration for natural effect
+                    star_fade_duration = fade_duration * random.uniform(0.7, 1.3)
+                    stars.append(Star(led_index, star_fade_duration))
+
+        # Update and fade existing stars
+        stars_to_remove = []
+        for star in stars:
+            star.age += frame_duration
+            
+            # Calculate brightness (linear fade from 1.0 to 0.0)
+            if star.age >= star.fade_duration:
+                star.brightness = 0.0
+                stars_to_remove.append(star)
+            else:
+                star.brightness = 1.0 - (star.age / star.fade_duration)
+            
+            # Apply star color with brightness scaling
+            if star.brightness > 0 and check_if_led_can_be_overwrite(star.led_index, ledstrip, ledsettings):
+                # Add slight color variation for each star (warm white with slight tint variation)
+                color_variation = random.uniform(0.9, 1.1)
+                red = int(clamp(base_red * star.brightness * brightness * color_variation, 0, 255))
+                green = int(clamp(base_green * star.brightness * brightness * color_variation, 0, 255))
+                blue = int(clamp(base_blue * star.brightness * brightness * color_variation, 0, 255))
+                
+                strip.setPixelColor(star.led_index, Color(red, green, blue))
+        
+        # Remove fully faded stars
+        for star in stars_to_remove:
+            stars.remove(star)
+            # Clear the LED
+            if check_if_led_can_be_overwrite(star.led_index, ledstrip, ledsettings):
+                strip.setPixelColor(star.led_index, 0)
+
+        strip.show()
+        time.sleep(frame_duration)
+
+    menu.is_idle_animation_running = False
+    fastColorWipe(strip, True, ledsettings)
