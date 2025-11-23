@@ -70,6 +70,9 @@ function loadAjax(subpage) {
                         get_current_sequence_setting();
                         clearInterval(homepage_interval);
                         setAdvancedMode(advancedMode);
+                        if(typeof get_presets === 'function') {
+                            get_presets();
+                        }
                         break;
                     case "ledanimations":
                         get_led_idle_animation_settings();

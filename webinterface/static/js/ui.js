@@ -643,12 +643,18 @@ function get_settings(home = true) {
 
                 document.getElementById('color_mode').onchange();
             } else {
-                document.getElementById("color_mode").innerHTML = response["color_mode"];
-                document.getElementById("light_mode").innerHTML = response["light_mode"];
-                document.getElementById("brightness_percent").innerHTML = response["brightness"] + "%";
-                document.getElementById("backlight_brightness_percent").innerHTML = response["backlight_brightness"] + "%";
-                document.getElementById("input_port").innerHTML = response["input_port"];
-                document.getElementById("playback_port").innerHTML = response["play_port"];
+                const colorModeEl = document.getElementById("color_mode");
+                if (colorModeEl) colorModeEl.innerHTML = response["color_mode"];
+                const lightModeEl = document.getElementById("light_mode");
+                if (lightModeEl) lightModeEl.innerHTML = response["light_mode"];
+                const brightnessPercentEl = document.getElementById("brightness_percent");
+                if (brightnessPercentEl) brightnessPercentEl.innerHTML = response["brightness"] + "%";
+                const backlightBrightnessPercentEl = document.getElementById("backlight_brightness_percent");
+                if (backlightBrightnessPercentEl) backlightBrightnessPercentEl.innerHTML = response["backlight_brightness"] + "%";
+                const inputPortEl = document.getElementById("input_port");
+                if (inputPortEl) inputPortEl.innerHTML = response["input_port"];
+                const playbackPortEl = document.getElementById("playback_port");
+                if (playbackPortEl) playbackPortEl.innerHTML = response["play_port"];
             }
 
         }

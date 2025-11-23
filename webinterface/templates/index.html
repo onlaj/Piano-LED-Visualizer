@@ -819,7 +819,7 @@
             return;
         }
         
-        if (confirm("Load preset '" + name.replace('.xml', '') + "'? This will reload LED settings (color modes, light modes, brightness).\n\nNote: This may take 30+ seconds to complete.")) {
+        if (confirm("Load preset '" + name.replace('.xml', '') + "'? This will reload LED settings (color modes, light modes, brightness).\n\nNote: This may take 10+ seconds to complete.")) {
             var loading = document.getElementById("loading_screen");
             if(loading) loading.classList.remove("hidden");
             
@@ -834,15 +834,21 @@
                         // Refresh settings without full page reload
                         if (typeof get_settings === 'function') {
                             get_settings(false); // Update homepage display
-                            if (document.getElementById('ledsettings') && document.getElementById('ledsettings').classList.contains('active')) {
-                                get_settings(true); // Update LED settings page if open
+                        }
+                        // Check if ledsettings page is currently loaded by checking for key elements
+                        var ledSettingsPageLoaded = document.getElementById('brightness') !== null && 
+                                                   document.getElementById('color_mode') !== null &&
+                                                   document.getElementById('light_mode') !== null;
+                        if (ledSettingsPageLoaded) {
+                            // Reload the ledsettings page to refresh all settings
+                            if (typeof loadAjax === 'function') {
+                                loadAjax('ledsettings');
                             }
                         }
                         if (typeof get_ports === 'function') {
                             get_ports(); // Refresh port information
                         }
                         if(loading) loading.classList.add("hidden");
-                        alert("Preset loaded successfully");
                     } else {
                         if(loading) loading.classList.add("hidden");
                         alert("Error: " + response.error);
