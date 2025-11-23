@@ -1160,3 +1160,116 @@ def wave(ledstrip, ledsettings, menu, speed_ms=None):
 
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
+
+
+def lava_lamp(ledstrip, ledsettings, menu, speed_ms=None):
+    """Lava lamp animation with slow-moving organic blobs."""
+    from lib.animation_speed import get_global_speed_ms
+    stop_animations(menu)
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
+
+    # Smooth animation logic
+    base_speed = 0.3  # Base movement speed per frame
+    target_wait_ms = 10.0
+    if wait_ms > target_wait_ms:
+        base_speed = base_speed * (target_wait_ms / wait_ms)
+        wait_ms = target_wait_ms
+
+    strip = ledstrip.strip
+    fastColorWipe(strip, True, ledsettings)
+    menu.t = threading.currentThread()
+
+    num_pixels = strip.numPixels()
+    
+    # Create 4 blobs with different properties
+    class Blob:
+        def __init__(self, position, velocity, size, intensity):
+            self.position = position  # Current position (0 to num_pixels)
+            self.velocity = velocity  # Movement speed (pixels per frame)
+            self.size = size  # Blob radius/size
+            self.intensity = intensity  # Intensity multiplier (0.5 to 1.0)
+    
+    # Initialize blobs with varied properties
+    blobs = [
+        Blob(position=num_pixels * 0.2, velocity=base_speed * 0.8, size=num_pixels * 0.15, intensity=0.9),
+        Blob(position=num_pixels * 0.5, velocity=-base_speed * 1.2, size=num_pixels * 0.12, intensity=0.7),
+        Blob(position=num_pixels * 0.7, velocity=base_speed * 1.0, size=num_pixels * 0.18, intensity=0.85),
+        Blob(position=num_pixels * 0.9, velocity=-base_speed * 0.6, size=num_pixels * 0.14, intensity=0.75),
+    ]
+
+    # Get base colors from backlight settings
+    red_base = ledsettings.get_backlight_color("Red")
+    green_base = ledsettings.get_backlight_color("Green")
+    blue_base = ledsettings.get_backlight_color("Blue")
+    
+    brightness = calculate_brightness(ledsettings)
+
+    while menu.is_idle_animation_running or menu.is_animation_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
+        # Clear all pixels first
+        pixel_colors = [[0, 0, 0] for _ in range(num_pixels)]
+
+        # Update blob positions and calculate their contributions
+        for blob in blobs:
+            # Move blob
+            blob.position += blob.velocity
+            
+            # Bounce at edges
+            if blob.position <= 0:
+                blob.position = 0
+                blob.velocity = abs(blob.velocity)  # Reverse direction
+            elif blob.position >= num_pixels - 1:
+                blob.position = num_pixels - 1
+                blob.velocity = -abs(blob.velocity)  # Reverse direction
+            
+            # Add slight random variation to velocity for organic feel
+            if random.random() < 0.02:  # 2% chance per frame
+                blob.velocity += random.uniform(-0.05, 0.05) * base_speed
+                blob.velocity = clamp(blob.velocity, -base_speed * 2, base_speed * 2)
+            
+            # Calculate blob contribution to each pixel
+            for i in range(num_pixels):
+                distance = abs(i - blob.position)
+                
+                # Use Gaussian-like falloff for smooth blob edges
+                # Normalize distance by blob size
+                normalized_dist = distance / blob.size
+                
+                # Gaussian falloff: exp(-0.5 * (x/sigma)^2)
+                # Using sigma = 0.5 for nice falloff
+                falloff = math.exp(-2.0 * (normalized_dist ** 2))
+                
+                # Apply blob intensity
+                contribution = falloff * blob.intensity
+                
+                # Add to pixel color (blend multiple blobs)
+                pixel_colors[i][0] += red_base * contribution
+                pixel_colors[i][1] += green_base * contribution
+                pixel_colors[i][2] += blue_base * contribution
+
+        # Render pixels with color blending
+        for i in range(num_pixels):
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+                # Clamp and apply brightness
+                red = int(clamp(pixel_colors[i][0] * brightness, 0, 255))
+                green = int(clamp(pixel_colors[i][1] * brightness, 0, 255))
+                blue = int(clamp(pixel_colors[i][2] * brightness, 0, 255))
+                
+                strip.setPixelColor(i, Color(red, green, blue))
+
+        strip.show()
+        time.sleep(wait_ms / 1000.0)
+
+    menu.is_idle_animation_running = False
+    fastColorWipe(strip, True, ledsettings)
