@@ -6,11 +6,11 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                 </svg>
-                <span class="font-semibold text-sm text-gray-600 dark:text-gray-400">Presets</span>
+                <span class="font-semibold text-sm text-gray-600 dark:text-gray-400" data-translate="presets">Presets</span>
                 
                 <div class="relative">
                     <select id="preset_list" class="block appearance-none h-10 w-48 glass-light px-4 pr-8 rounded-glass leading-tight transition-smooth-fast text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50">
-                        <option value="" disabled selected>Select Preset</option>
+                        <option value="" disabled selected data-translate="select_preset">Select Preset</option>
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -23,7 +23,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                    <span>Load</span>
+                    <span data-translate="load_preset">Load</span>
                 </button>
             </div>
             
@@ -33,36 +33,36 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                     </svg>
-                    <span>Save</span>
+                    <span data-translate="save_preset_button">Save</span>
                 </button>
 
                 <button onclick="save_preset()" class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast flex items-center space-x-1">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                     </svg>
-                    <span>Save As...</span>
+                    <span data-translate="save_as_preset">Save As...</span>
                 </button>
                 
-                <button onclick="rename_preset()" class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast">
+                <button onclick="rename_preset()" class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast" data-translate="rename_preset_button">
                     Rename
                 </button>
                 
-                <button onclick="delete_preset()" class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold text-red-500 hover:text-red-600 transition-smooth-fast">
+                <button onclick="delete_preset()" class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold text-red-500 hover:text-red-600 transition-smooth-fast" data-translate="delete_preset_button">
                     Delete
                 </button>
                 
                 <div class="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-2"></div>
                 
-                <label class="h-10 px-3 glass-light hover:glass rounded-glass cursor-pointer flex items-center justify-center transition-smooth-fast" title="Import Preset">
-                    <span class="mr-2 text-sm font-semibold">Import</span>
+                <label class="h-10 px-3 glass-light hover:glass rounded-glass cursor-pointer flex items-center justify-center transition-smooth-fast" data-translate="import_preset" title="Import Preset">
+                    <span class="mr-2 text-sm font-semibold" data-translate="import_preset">Import</span>
                     <input type="file" id="preset_upload" accept=".xml" class="hidden" onchange="upload_preset(this)">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                 </label>
                 
-                <button onclick="download_preset()" class="h-10 px-3 glass-light hover:glass rounded-glass transition-smooth-fast flex items-center justify-center" title="Export Preset">
-                    <span class="mr-2 text-sm font-semibold">Export</span>
+                <button onclick="download_preset()" class="h-10 px-3 glass-light hover:glass rounded-glass transition-smooth-fast flex items-center justify-center" data-translate="export_preset" title="Export Preset">
+                    <span class="mr-2 text-sm font-semibold" data-translate="export_preset">Export</span>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>

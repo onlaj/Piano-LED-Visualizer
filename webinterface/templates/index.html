@@ -749,7 +749,7 @@
                 if (response.success) {
                     var select = document.getElementById("preset_list");
                     var current = select.value;
-                    select.innerHTML = '<option value="" disabled selected>Select Preset</option>';
+                    select.innerHTML = '<option value="" disabled selected>' + translate('select_preset') + '</option>';
                     response.presets.forEach(function (preset) {
                         var option = document.createElement("option");
                         option.value = preset;
@@ -767,7 +767,7 @@
     }
 
     function save_preset() {
-        var name = prompt("Enter preset name:");
+        var name = prompt(translate('enter_preset_name'));
         if (name) {
             $.ajax({
                 url: '/api/presets',
@@ -777,9 +777,9 @@
                 success: function (response) {
                     if (response.success) {
                         get_presets();
-                        alert("Preset saved successfully");
+                        alert(translate('preset_saved_successfully'));
                     } else {
-                        alert("Error: " + response.error);
+                        alert(translate('preset_error') + response.error);
                     }
                 }
             });
@@ -790,11 +790,11 @@
         var select = document.getElementById("preset_list");
         var name = select.value;
         if (!name) {
-            alert("Please select a preset to save to");
+            alert(translate('please_select_preset_to_save'));
             return;
         }
         
-        if (confirm("Overwrite preset '" + name.replace('.xml', '') + "' with current settings?")) {
+        if (confirm(translate('overwrite_preset_confirm').replace('{0}', name.replace('.xml', '')))) {
             $.ajax({
                 url: '/api/presets',
                 type: 'POST',
@@ -802,9 +802,9 @@
                 data: JSON.stringify({name: name}),
                 success: function (response) {
                     if (response.success) {
-                        alert("Preset saved successfully");
+                        alert(translate('preset_saved_successfully'));
                     } else {
-                        alert("Error: " + response.error);
+                        alert(translate('preset_error') + response.error);
                     }
                 }
             });
@@ -815,11 +815,11 @@
         var select = document.getElementById("preset_list");
         var name = select.value;
         if (!name) {
-            alert("Please select a preset first");
+            alert(translate('please_select_preset_first'));
             return;
         }
         
-        if (confirm("Load preset '" + name.replace('.xml', '') + "'? This will reload LED settings (color modes, light modes, brightness).\n\nNote: This may take 10+ seconds to complete.")) {
+        if (confirm(translate('load_preset_confirm').replace('{0}', name.replace('.xml', '')))) {
             var loading = document.getElementById("loading_screen");
             if(loading) loading.classList.remove("hidden");
             
@@ -851,15 +851,15 @@
                         if(loading) loading.classList.add("hidden");
                     } else {
                         if(loading) loading.classList.add("hidden");
-                        alert("Error: " + response.error);
+                        alert(translate('preset_error') + response.error);
                     }
                 },
                 error: function(xhr, status, error) {
                     if(loading) loading.classList.add("hidden");
                     if (status === 'timeout') {
-                        alert("Error: Request timed out. The preset may still be loading. Please refresh the page.");
+                        alert(translate('preset_load_timeout'));
                     } else {
-                        alert("Error loading preset: " + error);
+                        alert(translate('preset_load_error') + error);
                     }
                 }
             });
@@ -870,11 +870,11 @@
         var select = document.getElementById("preset_list");
         var name = select.value;
         if (!name) {
-            alert("Please select a preset first");
+            alert(translate('please_select_preset_first'));
             return;
         }
         
-        if (confirm("Delete preset '" + name + "'?")) {
+        if (confirm(translate('delete_preset_confirm').replace('{0}', name))) {
             $.ajax({
                 url: '/api/presets/delete',
                 type: 'POST',
@@ -885,7 +885,7 @@
                         get_presets();
                         select.value = "";
                     } else {
-                        alert("Error: " + response.error);
+                        alert(translate('preset_error') + response.error);
                     }
                 }
             });
@@ -896,11 +896,11 @@
         var select = document.getElementById("preset_list");
         var old_name = select.value;
         if (!old_name) {
-            alert("Please select a preset first");
+            alert(translate('please_select_preset_first'));
             return;
         }
         
-        var new_name = prompt("Enter new name:", old_name.replace('.xml', ''));
+        var new_name = prompt(translate('enter_new_preset_name'), old_name.replace('.xml', ''));
         if (new_name && new_name + ".xml" != old_name) {
             $.ajax({
                 url: '/api/presets/rename',
@@ -911,7 +911,7 @@
                     if (response.success) {
                         get_presets();
                     } else {
-                        alert("Error: " + response.error);
+                        alert(translate('preset_error') + response.error);
                     }
                 }
             });
@@ -932,9 +932,9 @@
                 success: function (response) {
                     if (response.success) {
                         get_presets();
-                        alert("Preset uploaded successfully");
+                        alert(translate('preset_uploaded_successfully'));
                     } else {
-                        alert("Error: " + response.error);
+                        alert(translate('preset_error') + response.error);
                     }
                     input.value = ''; 
                 }
@@ -946,7 +946,7 @@
         var select = document.getElementById("preset_list");
         var name = select.value;
         if (!name) {
-            alert("Please select a preset first");
+            alert(translate('please_select_preset_first'));
             return;
         }
         window.location.href = '/api/presets/download?name=' + encodeURIComponent(name);
