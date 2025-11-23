@@ -594,6 +594,7 @@
 <script src="../static/xml2abc.js" defer></script>
 
 <!-- Application Scripts -->
+<script src="../static/js/notifications.js"></script>
 <script src="../static/translations.js" defer></script>
 <script src="../static/js/files.js" defer></script>
 <script src="../static/js/number-input.js" defer></script>
@@ -777,9 +778,9 @@
                 success: function (response) {
                     if (response.success) {
                         get_presets();
-                        alert(translate('preset_saved_successfully'));
+                        showAlert(translate('preset_saved_successfully'), 'info');
                     } else {
-                        alert(translate('preset_error') + response.error);
+                        showAlert(translate('preset_error') + response.error, 'error');
                     }
                 }
             });
@@ -790,11 +791,11 @@
         var select = document.getElementById("preset_list");
         var name = select.value;
         if (!name) {
-            alert(translate('please_select_preset_to_save'));
+            showAlert(translate('please_select_preset_to_save'), 'warning');
             return;
         }
         
-        if (confirm(translate('overwrite_preset_confirm').replace('{0}', name.replace('.xml', '')))) {
+        showConfirm(translate('overwrite_preset_confirm').replace('{0}', name.replace('.xml', '')), function() {
             $.ajax({
                 url: '/api/presets',
                 type: 'POST',
@@ -802,24 +803,24 @@
                 data: JSON.stringify({name: name}),
                 success: function (response) {
                     if (response.success) {
-                        alert(translate('preset_saved_successfully'));
+                        showAlert(translate('preset_saved_successfully'), 'info');
                     } else {
-                        alert(translate('preset_error') + response.error);
+                        showAlert(translate('preset_error') + response.error, 'error');
                     }
                 }
             });
-        }
+        });
     }
 
     function load_preset() {
         var select = document.getElementById("preset_list");
         var name = select.value;
         if (!name) {
-            alert(translate('please_select_preset_first'));
+            showAlert(translate('please_select_preset_first'), 'warning');
             return;
         }
         
-        if (confirm(translate('load_preset_confirm').replace('{0}', name.replace('.xml', '')))) {
+        showConfirm(translate('load_preset_confirm').replace('{0}', name.replace('.xml', '')), function() {
             var loading = document.getElementById("loading_screen");
             if(loading) loading.classList.remove("hidden");
             
@@ -851,30 +852,30 @@
                         if(loading) loading.classList.add("hidden");
                     } else {
                         if(loading) loading.classList.add("hidden");
-                        alert(translate('preset_error') + response.error);
+                        showAlert(translate('preset_error') + response.error, 'error');
                     }
                 },
                 error: function(xhr, status, error) {
                     if(loading) loading.classList.add("hidden");
                     if (status === 'timeout') {
-                        alert(translate('preset_load_timeout'));
+                        showAlert(translate('preset_load_timeout'), 'error');
                     } else {
-                        alert(translate('preset_load_error') + error);
+                        showAlert(translate('preset_load_error') + error, 'error');
                     }
                 }
             });
-        }
+        });
     }
 
     function delete_preset() {
         var select = document.getElementById("preset_list");
         var name = select.value;
         if (!name) {
-            alert(translate('please_select_preset_first'));
+            showAlert(translate('please_select_preset_first'), 'warning');
             return;
         }
         
-        if (confirm(translate('delete_preset_confirm').replace('{0}', name))) {
+        showConfirm(translate('delete_preset_confirm').replace('{0}', name), function() {
             $.ajax({
                 url: '/api/presets/delete',
                 type: 'POST',
@@ -885,18 +886,18 @@
                         get_presets();
                         select.value = "";
                     } else {
-                        alert(translate('preset_error') + response.error);
+                        showAlert(translate('preset_error') + response.error, 'error');
                     }
                 }
             });
-        }
+        });
     }
 
     function rename_preset() {
         var select = document.getElementById("preset_list");
         var old_name = select.value;
         if (!old_name) {
-            alert(translate('please_select_preset_first'));
+            showAlert(translate('please_select_preset_first'), 'warning');
             return;
         }
         
@@ -911,7 +912,7 @@
                     if (response.success) {
                         get_presets();
                     } else {
-                        alert(translate('preset_error') + response.error);
+                        showAlert(translate('preset_error') + response.error, 'error');
                     }
                 }
             });
@@ -932,9 +933,9 @@
                 success: function (response) {
                     if (response.success) {
                         get_presets();
-                        alert(translate('preset_uploaded_successfully'));
+                        showAlert(translate('preset_uploaded_successfully'), 'info');
                     } else {
-                        alert(translate('preset_error') + response.error);
+                        showAlert(translate('preset_error') + response.error, 'error');
                     }
                     input.value = ''; 
                 }
@@ -946,12 +947,16 @@
         var select = document.getElementById("preset_list");
         var name = select.value;
         if (!name) {
-            alert(translate('please_select_preset_first'));
+            showAlert(translate('please_select_preset_first'), 'warning');
             return;
         }
         window.location.href = '/api/presets/download?name=' + encodeURIComponent(name);
     }
 
 </script>
+
+<!-- Notification System Container -->
+<div id="notification-container"></div>
+
 </body>
 </html>

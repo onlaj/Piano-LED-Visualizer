@@ -892,7 +892,8 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
 
             }
             if (response["color_mode"] === "Gradient") {
-                const is_reversed = config_settings["led_reverse"] === "1";
+                const settings = config_settings || response || {};
+                const is_reversed = settings["led_reverse"] === "1";
                 const start_color = is_reversed ? response["gradient_end_color"] : response["gradient_start_color"];
                 const end_color = is_reversed ? response["gradient_start_color"] : response["gradient_end_color"];
 

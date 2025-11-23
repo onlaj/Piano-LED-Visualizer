@@ -353,7 +353,11 @@ var opt, onYouTubeIframeAPIReady, msc_credits, media_height, times_arr, offset_j
         tbeg = tix == 2 ? 0 : this.times [tix - 2];
         tend = this.times [tix - 1];
         if (tleft < tbeg + 0.5) {   // 0.5 sec, beats per measure > 2 -> tempo > 240
-            alert('tempo faster than 240 bpm: first sync previous measures');
+            if (typeof showAlert === 'function') {
+                showAlert('tempo faster than 240 bpm: first sync previous measures', 'warning');
+            } else {
+                alert('tempo faster than 240 bpm: first sync previous measures');
+            }
             return
         }
         if (this.lastSync > mnum) { // only change duration of mnum and keep the rest unchanged
@@ -466,7 +470,11 @@ var opt, onYouTubeIframeAPIReady, msc_credits, media_height, times_arr, offset_j
 
     function copyTiming(xs, abctxt) {
         if (xs.indexOf('//# This page') < 0) {
-            alert('not a preload file');
+            if (typeof showAlert === 'function') {
+                showAlert('not a preload file', 'error');
+            } else {
+                alert('not a preload file');
+            }
             return
         }
         xs = abctxt.replace(/\n/g, '');
@@ -503,7 +511,11 @@ var opt, onYouTubeIframeAPIReady, msc_credits, media_height, times_arr, offset_j
             return
         }
         if (xs.indexOf('<?xml ') == -1) {
-            alert('not an xml file nor an abc file');
+            if (typeof showAlert === 'function') {
+                showAlert('not an xml file nor an abc file', 'error');
+            } else {
+                alert('not an xml file nor an abc file');
+            }
             return
         }
         var xmldata = $.parseXML(abctxt);
@@ -571,7 +583,11 @@ var opt, onYouTubeIframeAPIReady, msc_credits, media_height, times_arr, offset_j
 
     function readMediaYub() {
         if (!$('#yubid')[0].checkValidity()) {
-            alert("The youtube video id should be 11 characters long,\neach from 'A' to 'Z', 'a' to 'z', '0' to '9', '-' or '_'");
+            if (typeof showAlert === 'function') {
+                showAlert("The youtube video id should be 11 characters long,\neach from 'A' to 'Z', 'a' to 'z', '0' to '9', '-' or '_'", 'warning');
+            } else {
+                alert("The youtube video id should be 11 characters long,\neach from 'A' to 'Z', 'a' to 'z', '0' to '9', '-' or '_'");
+            }
             return;
         }
         opt.yubvid = $('#yubid').val();
@@ -1446,10 +1462,18 @@ var opt, onYouTubeIframeAPIReady, msc_credits, media_height, times_arr, offset_j
                 $('#saveDiv').append(a); // append to a dummy invisible div
                 a.click(); // only seems to work if a is appended somewhere in the body
             } catch (err) {
-                if (!confirm('Do you want to save your synchronization data?')) return;
-                document.open("text/html");    // clears the whole document and opens a new one
-                document.write('<pre>' + res + '</pre>');
-                document.close();
+                if (typeof showConfirm === 'function') {
+                    showConfirm('Do you want to save your synchronization data?', function() {
+                        document.open("text/html");    // clears the whole document and opens a new one
+                        document.write('<pre>' + res + '</pre>');
+                        document.close();
+                    });
+                } else {
+                    if (!confirm('Do you want to save your synchronization data?')) return;
+                    document.open("text/html");    // clears the whole document and opens a new one
+                    document.write('<pre>' + res + '</pre>');
+                    document.close();
+                }
             }
         }
     }

@@ -126,20 +126,38 @@
                 delBtn.addEventListener('click', (e)=>{
                     e.stopPropagation();
                     const confirmMsg = `Delete profile \"${p.name}\"? This will remove highscores for this profile.`;
-                    if(!window.confirm(confirmMsg)) return;
-                    fetch('/api/delete_profile', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({profile_id: p.id})})
-                        .then(r=>r.json())
-                        .then(resp=>{
-                            if(resp.success){
-                                showMsg('Profile deleted');
-                                if(window.currentProfileId == p.id){ window.currentProfileId = null; }
-                                loadProfiles();
-                                if(typeof get_songs === 'function') get_songs();
-                            } else {
-                                showMsg(resp.error || 'Failed to delete profile', true);
-                            }
-                        })
-                        .catch(()=>showMsg('Network error deleting profile', true));
+                    if(typeof showConfirm === 'function') {
+                        showConfirm(confirmMsg, function() {
+                            fetch('/api/delete_profile', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({profile_id: p.id})})
+                                .then(r=>r.json())
+                                .then(resp=>{
+                                    if(resp.success){
+                                        showMsg('Profile deleted');
+                                        if(window.currentProfileId == p.id){ window.currentProfileId = null; }
+                                        loadProfiles();
+                                        if(typeof get_songs === 'function') get_songs();
+                                    } else {
+                                        showMsg(resp.error || 'Failed to delete profile', true);
+                                    }
+                                })
+                                .catch(()=>showMsg('Network error deleting profile', true));
+                        });
+                    } else {
+                        if(!window.confirm(confirmMsg)) return;
+                        fetch('/api/delete_profile', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({profile_id: p.id})})
+                            .then(r=>r.json())
+                            .then(resp=>{
+                                if(resp.success){
+                                    showMsg('Profile deleted');
+                                    if(window.currentProfileId == p.id){ window.currentProfileId = null; }
+                                    loadProfiles();
+                                    if(typeof get_songs === 'function') get_songs();
+                                } else {
+                                    showMsg(resp.error || 'Failed to delete profile', true);
+                                }
+                            })
+                            .catch(()=>showMsg('Network error deleting profile', true));
+                    }
                 });
 
                 row.appendChild(nameSpan);
