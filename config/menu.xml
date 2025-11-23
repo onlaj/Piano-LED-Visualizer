@@ -249,6 +249,7 @@
         <LED_animations text="Fireplace"></LED_animations>
         <LED_animations text="Sound of da police"></LED_animations>
         <LED_animations text="Scanner"></LED_animations>
+        <LED_animations text="Wave"></LED_animations>
         <LED_animations text="Animation Speed">
             <Animation_Speed text="Slow"></Animation_Speed>
             <Animation_Speed text="Medium"></Animation_Speed>

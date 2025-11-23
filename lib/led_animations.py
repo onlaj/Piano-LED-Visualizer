@@ -225,7 +225,7 @@ def _register_all_animations(registry: AnimationRegistry):
     from lib.functions import (
         theaterChase, rainbow, rainbowCycle, theaterChaseRainbow,
         breathing, fireplace, sound_of_da_police, scanner,
-        chords, colormap_animation
+        chords, colormap_animation, wave
     )
     
     # Animations with speed support
@@ -292,6 +292,14 @@ def _register_all_animations(registry: AnimationRegistry):
         display_name="Scanner",
         supports_speed=True,
         default_speed=1  # wait_ms in milliseconds
+    ))
+    
+    registry.register(AnimationInfo(
+        name="Wave",
+        function=wave,
+        display_name="Wave",
+        supports_speed=True,
+        default_speed="Medium"
     ))
     
     # Animations with parameters

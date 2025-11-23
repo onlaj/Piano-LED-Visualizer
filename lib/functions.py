@@ -1014,3 +1014,98 @@ def colormap_animation(colormap, ledstrip, ledsettings, menu):
 
     menu.is_idle_animation_running = False
     fastColorWipe(strip, True, ledsettings)
+
+
+def wave(ledstrip, ledsettings, menu, speed_ms=None):
+    """Smooth traveling wave with gradient trail effect."""
+    from lib.animation_speed import get_global_speed_ms
+    stop_animations(menu)
+
+    # Use global speed from settings
+    wait_ms = speed_ms if speed_ms is not None else get_global_speed_ms(ledsettings.usersettings)
+
+    strip = ledstrip.strip
+    fastColorWipe(strip, True, ledsettings)
+    menu.t = threading.currentThread()
+
+    num_pixels = strip.numPixels()
+    # Trail length is approximately 30% of strip length, but at least 10 pixels
+    trail_length = max(10, int(num_pixels * 0.3))
+    
+    # Wave position (0 to 2*pi for one complete cycle)
+    wave_position = 0.0
+    # Speed of wave travel (adjust based on wait_ms)
+    wave_speed = 0.1  # radians per frame
+
+    while menu.is_idle_animation_running or menu.is_animation_running:
+        last_state = 1
+        cover_opened = GPIO.input(SENSECOVER)
+        while not cover_opened:
+            if last_state != cover_opened:
+                # clear if changed
+                fastColorWipe(strip, True, ledsettings)
+            time.sleep(.1)
+            last_state = cover_opened
+            cover_opened = GPIO.input(SENSECOVER)
+
+        brightness = calculate_brightness(ledsettings)
+        
+        # Get base colors from backlight settings
+        red_base = ledsettings.get_backlight_color("Red")
+        green_base = ledsettings.get_backlight_color("Green")
+        blue_base = ledsettings.get_backlight_color("Blue")
+
+        # Clear all pixels first
+        for i in range(num_pixels):
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+                strip.setPixelColor(i, Color(0, 0, 0))
+
+        # Calculate wave effect for each pixel
+        for i in range(num_pixels):
+            if check_if_led_can_be_overwrite(i, ledstrip, ledsettings):
+                # Normalize pixel position to 0-1 range
+                pixel_pos = float(i) / float(num_pixels)
+                
+                # Map pixel position to wave phase (0 to 2*pi)
+                pixel_phase = pixel_pos * 2 * math.pi
+                
+                # Calculate phase difference from current wave position
+                phase_diff = pixel_phase - wave_position
+                # Normalize to -pi to pi range
+                phase_diff = ((phase_diff + math.pi) % (2 * math.pi)) - math.pi
+                
+                # Create smooth wave using sine function (creates wave peaks)
+                # Shift by pi/2 so peak is at phase_diff = 0
+                wave_value = (math.sin(phase_diff + math.pi / 2) + 1.0) / 2.0  # 0 to 1
+                
+                # Create gradient trail effect
+                # Convert phase distance to approximate pixel distance
+                phase_distance = abs(phase_diff)
+                pixel_distance = (phase_distance / (2 * math.pi)) * num_pixels
+                
+                # Calculate fade factor based on distance from wave peak
+                # Trail extends in both directions from the peak
+                normalized_distance = min(pixel_distance / trail_length, 1.0)
+                fade_factor = max(0.0, 1.0 - normalized_distance)
+                
+                # Combine wave pattern with trail fade for final brightness
+                pixel_brightness = wave_value * fade_factor
+                
+                # Apply brightness to colors
+                red = int(red_base * pixel_brightness * brightness)
+                green = int(green_base * pixel_brightness * brightness)
+                blue = int(blue_base * pixel_brightness * brightness)
+                
+                strip.setPixelColor(i, Color(red, green, blue))
+
+        strip.show()
+        
+        # Update wave position for next frame
+        wave_position += wave_speed
+        if wave_position >= 2 * math.pi:
+            wave_position -= 2 * math.pi
+        
+        time.sleep(wait_ms / 1000.0)
+
+    menu.is_idle_animation_running = False
+    fastColorWipe(strip, True, ledsettings)
