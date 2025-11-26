@@ -1977,6 +1977,7 @@ def get_settings():
     response["speed_max_notes"] = app_state.usersettings.get_setting_value("speed_max_notes")
     response["speed_period_in_seconds"] = app_state.usersettings.get_setting_value("speed_period_in_seconds")
     response["hotspot_password"] = app_state.usersettings.get_setting_value("hotspot_password")
+    response["practice_tool_url"] = app_state.usersettings.get_setting_value("practice_tool_url") or "http://127.0.0.1:5500/index.html"
 
     return jsonify(response)
 
@@ -2764,4 +2765,35 @@ def reload_app_state():
     if hasattr(app_state, 'learning') and app_state.learning:
         app_state.learning.usersettings = app_state.usersettings
         app_state.learning.ledsettings = app_state.ledsettings
+
+
+@webinterface.route('/api/set_practice_active', methods=['POST'])
+def set_practice_active():
+    """Set the practice_active flag to enable/disable websocket MIDI priority."""
+    try:
+        data = request.get_json()
+        if data and 'active' in data:
+            app_state.practice_active = bool(data['active'])
+            logger.info(f"Practice mode {'activated' if app_state.practice_active else 'deactivated'}")
+            return jsonify(success=True, practice_active=app_state.practice_active)
+        else:
+            return jsonify(success=False, error="Missing 'active' parameter"), 400
+    except Exception as e:
+        logger.error(f"Error setting practice active: {e}")
+        return jsonify(success=False, error=str(e)), 500
+
+
+@webinterface.route('/api/clear_websocket_midi_queue', methods=['POST'])
+def clear_websocket_midi_queue():
+    """Clear the websocket MIDI queue."""
+    try:
+        if app_state.midiports:
+            app_state.midiports.clear_websocket_midi_queue()
+            logger.info("Websocket MIDI queue cleared")
+            return jsonify(success=True)
+        else:
+            return jsonify(success=False, error="midiports not available"), 500
+    except Exception as e:
+        logger.error(f"Error clearing websocket MIDI queue: {e}")
+        return jsonify(success=False, error=str(e)), 500
 

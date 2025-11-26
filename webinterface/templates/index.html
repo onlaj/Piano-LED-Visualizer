@@ -28,9 +28,27 @@
 
 
 <script>
+    // Store WebSocket globally so practice page can reuse it
+    window.mainWebSocket = null;
+    window.mainWebSocketMessageHandlers = [];
+    
     function establish_socket_connection(try_count) {
+        // If practice page has a connection, reuse it
+        if (window.practiceWebSocket && window.practiceWebSocket.readyState === WebSocket.OPEN) {
+            console.log("Reusing practice WebSocket connection");
+            window.mainWebSocket = window.practiceWebSocket;
+            return;
+        }
+        
+        // If there's already a connection, don't create a new one
+        if (window.mainWebSocket && window.mainWebSocket.readyState === WebSocket.OPEN) {
+            console.log("WebSocket already connected, reusing");
+            return;
+        }
+        
         console.log("Connecting to websocket")
         const socket = new WebSocket('ws://' + window.location.hostname + ':8765/learning');
+        window.mainWebSocket = socket;
         socket.addEventListener('open', function (event) {
             console.log('Connected to server');
             socket.send('Connection Established');
@@ -134,6 +152,7 @@
         });
         socket.addEventListener('close', function (event) {
             console.log('Connection closed, reconnecting...');
+            window.mainWebSocket = null;
             if (try_count < 10) {
                 setTimeout(establish_socket_connection, 5000, try_count + 1);
             }
@@ -147,6 +166,7 @@
             socket.onclose = function () {
             }; // disable onclose handler first
             socket.close();
+            window.mainWebSocket = null;
         };
     }
 
@@ -300,6 +320,27 @@
                 </span>
                             <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="sequences">
                                 Sequences
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul @click="closeSidebarMenu()" onclick="loadAjax('practice')" class="p-2 overflow-hidden">
+                    <li>
+                        <a
+                                onclick="history.pushState({}, '', '#practice')"
+                                id="practice"
+                                class="flex items-center p-2 space-x-2 rounded-glass-sm transition-smooth-fast hover:glass-light hover:shadow-glass"
+                                :class="{'justify-center': !isSidebarOpen}"
+                        >
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                </span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="practice">
+                                Practice
                             </span>
                         </a>
                     </li>

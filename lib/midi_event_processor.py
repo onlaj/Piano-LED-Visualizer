@@ -5,6 +5,15 @@ from rpi_ws281x import Color
 from lib.functions import get_note_position, find_between
 from lib.log_setup import logger
 
+# Import app_state to check practice_active flag
+try:
+    from webinterface import app_state
+except ImportError:
+    # If webinterface is not available, create a dummy app_state
+    class DummyAppState:
+        practice_active = False
+    app_state = DummyAppState()
+
 OFF_COLOR = Color(0, 0, 0)
 
 
@@ -33,10 +42,15 @@ class MIDIEventProcessor:
         Handles different event types and routes them to appropriate handlers.
         Selects input source based on playback/learning state.
         """
-        # Determine which MIDI queue to process based on playback state
+        # Determine which MIDI queue to process based on playback state and practice mode
         if not self.saving.is_playing_midi and not self.learning.is_started_midi:
-            # Process live MIDI input
-            self.midiports.midipending = self.midiports.midi_queue
+            # Check if practice mode is active (websocket MIDI takes priority)
+            if hasattr(app_state, 'practice_active') and app_state.practice_active:
+                # Process websocket MIDI input (from practice tool)
+                self.midiports.midipending = self.midiports.websocket_midi_queue
+            else:
+                # Process regular live MIDI input
+                self.midiports.midipending = self.midiports.midi_queue
         else:
             # Process MIDI file playback
             self.midiports.midipending = self.midiports.midifile_queue

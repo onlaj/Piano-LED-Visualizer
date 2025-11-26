@@ -16,6 +16,7 @@ webinterface.config['MAX_CONTENT_LENGTH'] = 32 * 1000 * 1000
 webinterface.json.sort_keys = False
 
 webinterface.socket_input = []
+webinterface.websocket_midi_send = []  # Queue for MIDI messages to send to websocket clients
 
 
 # State container to hold app components
@@ -35,6 +36,8 @@ class AppState:
         self.ledemu_pause = False
         self.current_profile_id = None
         # Currently selected profile id (set by web UI); None if not selected
+        self.practice_active = False  # Track when practice tab is active
+        self.websocket_midi_clients = set()  # Track active websocket MIDI clients
 
 
 # Create a single instance of AppState
@@ -44,14 +47,63 @@ app_state = AppState()
 def start_server(loop):
     async def learning(websocket):
         try:
-            while True:
-                await asyncio.sleep(0.01)
-                for msg in app_state.learning.socket_send[:]:
-                    await websocket.send(str(msg))
-                    app_state.learning.socket_send.remove(msg)
-        except:
-            # Handle the connection closed error
-            pass
+            app_state.websocket_midi_clients.add(websocket)
+            logger.info(f"WebSocket MIDI client connected. Active clients: {len(app_state.websocket_midi_clients)}")
+            
+            async def send_messages():
+                """Send outgoing messages to client."""
+                try:
+                    while True:
+                        await asyncio.sleep(0.01)
+                        # Send learning messages
+                        for msg in app_state.learning.socket_send[:]:
+                            await websocket.send(str(msg))
+                            app_state.learning.socket_send.remove(msg)
+                        # Send MIDI messages when practice is active
+                        if app_state.practice_active:
+                            for msg in webinterface.websocket_midi_send[:]:
+                                await websocket.send(str(msg))
+                                webinterface.websocket_midi_send.remove(msg)
+                except websockets.exceptions.ConnectionClosed:
+                    pass
+                except Exception as e:
+                    logger.warning(f"Error sending websocket message: {e}")
+            
+            async def receive_messages():
+                """Receive incoming MIDI messages from client."""
+                try:
+                    async for message in websocket:
+                        try:
+                            # Check if it's a MIDI message string
+                            if isinstance(message, str) and message.startswith("midi_event"):
+                                # Forward to midiports for processing
+                                if app_state.midiports:
+                                    app_state.midiports.add_websocket_midi_message(message)
+                            # Could also handle JSON format: {"type": "midi_message", "data": "..."}
+                            elif isinstance(message, str):
+                                try:
+                                    data = json.loads(message)
+                                    if data.get("type") == "midi_message" and "data" in data:
+                                        if app_state.midiports:
+                                            app_state.midiports.add_websocket_midi_message(data["data"])
+                                except (json.JSONDecodeError, KeyError):
+                                    # Not a JSON MIDI message, ignore
+                                    pass
+                        except Exception as e:
+                            logger.warning(f"Error processing websocket MIDI message: {e}")
+                except websockets.exceptions.ConnectionClosed:
+                    pass
+                except Exception as e:
+                    logger.warning(f"Error receiving websocket message: {e}")
+            
+            # Run both send and receive concurrently
+            await asyncio.gather(send_messages(), receive_messages())
+        except Exception as e:
+            logger.warning(f"WebSocket learning handler error: {e}")
+        finally:
+            if websocket in app_state.websocket_midi_clients:
+                app_state.websocket_midi_clients.remove(websocket)
+                logger.info(f"WebSocket MIDI client disconnected. Active clients: {len(app_state.websocket_midi_clients)}")
 
     async def ledemu_recv(websocket):
         async for message in websocket:

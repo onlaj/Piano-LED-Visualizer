@@ -11,6 +11,7 @@ class MidiPorts:
         # midi queues will contain a tuple (midi_msg, timestamp)
         self.midifile_queue = deque(maxlen=500)
         self.midi_queue = deque(maxlen=1000)
+        self.websocket_midi_queue = deque(maxlen=1000)  # MIDI messages from websocket
         # Count dropped messages when queue is full (diagnostics)
         self.drop_counter = 0
         self.last_activity = 0
@@ -280,6 +281,97 @@ class MidiPorts:
             except Exception:
                 pass
         q.append((msg, ts))
+        
+        # If practice mode is active, also forward MIDI to websocket clients
+        try:
+            from webinterface import app_state, webinterface
+            if hasattr(app_state, 'practice_active') and app_state.practice_active:
+                # Convert mido message to string format for websocket
+                # Format: "midi_eventnote_on channel=0 note=60 velocity=127 time=0"
+                msg_type = getattr(msg, 'type', '')
+                if msg_type in ('note_on', 'note_off'):
+                    channel = getattr(msg, 'channel', 0)
+                    note = getattr(msg, 'note', 0)
+                    velocity = getattr(msg, 'velocity', 0)
+                    time_val = getattr(msg, 'time', 0)
+                    
+                    midi_string = f"midi_event{msg_type} channel={channel} note={note} velocity={velocity} time={time_val}"
+                    
+                    # Add to websocket send queue (limit size to prevent memory issues)
+                    if len(webinterface.websocket_midi_send) < 100:
+                        webinterface.websocket_midi_send.append(midi_string)
+        except Exception as e:
+            # Silently fail if webinterface not available (e.g., during testing)
+            pass
+    
+    def add_websocket_midi_message(self, msg_string):
+        """
+        Parse a MIDI message string from websocket and add to websocket_midi_queue.
+        
+        Format: "midi_eventnote_on channel=0 note=60 velocity=127 time=0"
+        or: "midi_eventnote_off channel=0 note=60 velocity=0 time=0"
+        """
+        try:
+            # Remove "midi_event" prefix if present
+            if msg_string.startswith("midi_event"):
+                msg_string = msg_string[10:]  # Remove "midi_event" (10 chars)
+            
+            # Parse the message string
+            # Format: "note_on channel=0 note=60 velocity=127 time=0"
+            parts = msg_string.strip().split()
+            if not parts:
+                return
+            
+            msg_type = parts[0]  # "note_on" or "note_off"
+            if msg_type not in ('note_on', 'note_off'):
+                logger.debug(f"Unsupported MIDI message type from websocket: {msg_type}")
+                return
+            
+            # Parse parameters
+            channel = 0
+            note = 0
+            velocity = 0
+            time_val = 0
+            
+            for part in parts[1:]:
+                if '=' in part:
+                    key, value = part.split('=', 1)
+                    try:
+                        if key == 'channel':
+                            channel = int(value)
+                        elif key == 'note':
+                            note = int(value)
+                        elif key == 'velocity':
+                            velocity = int(value)
+                        elif key == 'time':
+                            time_val = float(value)
+                    except ValueError:
+                        logger.warning(f"Invalid value in websocket MIDI message: {part}")
+                        continue
+            
+            # Create mido message
+            if msg_type == 'note_on':
+                msg = mido.Message('note_on', channel=channel, note=note, velocity=velocity, time=time_val)
+            else:  # note_off
+                msg = mido.Message('note_off', channel=channel, note=note, velocity=velocity, time=time_val)
+            
+            # Add to queue with timestamp
+            ts = time.perf_counter()
+            q = self.websocket_midi_queue
+            if q.maxlen and len(q) >= q.maxlen:
+                # Make room by evicting oldest item
+                try:
+                    q.popleft()
+                except Exception:
+                    pass
+            q.append((msg, ts))
+            
+        except Exception as e:
+            logger.warning(f"Error parsing websocket MIDI message: {msg_string}, error: {e}")
+    
+    def clear_websocket_midi_queue(self):
+        """Clear the websocket MIDI queue."""
+        self.websocket_midi_queue.clear()
     
     def start_midi_monitor(self):
         """Start monitoring for MIDI device changes and auto-connect"""

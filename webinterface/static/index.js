@@ -103,6 +103,19 @@ function loadAjax(subpage) {
                         get_wifi_list();
                         getCurrentLocalAddress();
                         break;
+                    case "practice":
+                        clearInterval(homepage_interval);
+                        // Extract and execute scripts from practice.html since innerHTML doesn't execute scripts
+                        const practiceScripts = mainElement.querySelectorAll('script');
+                        practiceScripts.forEach(function(oldScript) {
+                            const newScript = document.createElement('script');
+                            Array.from(oldScript.attributes).forEach(attr => {
+                                newScript.setAttribute(attr.name, attr.value);
+                            });
+                            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                            oldScript.parentNode.replaceChild(newScript, oldScript);
+                        });
+                        break;
                 }
             }
             translateStaticContent();
