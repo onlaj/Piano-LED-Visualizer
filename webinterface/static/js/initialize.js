@@ -3,7 +3,7 @@
  */
 function initialize_homepage() {
     clearInterval(homepage_interval);
-    refresh_rate = getCookie("refresh_rate") || 3;
+    refresh_rate = Number(getCookie("refresh_rate") ?? "3");
     setCookie("refresh_rate", refresh_rate, 365);
     const refreshRateSelect = document.getElementById("refresh_rate");
     if (refreshRateSelect) {
@@ -18,7 +18,7 @@ function initialize_homepage() {
         refreshRateSelect.onchange = function () {
             setCookie('refresh_rate', this.value, 365);
             clearInterval(homepage_interval)
-            if (this.value !== 0) {
+            if (Number(this.value) !== 0) {
                 homepage_interval = setInterval(get_homepage_data_loop, this.value * 1000)
             }
         }
