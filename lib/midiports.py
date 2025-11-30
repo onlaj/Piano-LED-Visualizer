@@ -366,6 +366,13 @@ class MidiPorts:
                     pass
             q.append((msg, ts))
             
+            # Forward MIDI message to active output port (digital piano) if available
+            if self.playport is not None:
+                try:
+                    self.playport.send(msg)
+                except Exception as e:
+                    logger.debug(f"Skipping playport send: {e}")
+            
         except Exception as e:
             logger.warning(f"Error parsing websocket MIDI message: {msg_string}, error: {e}")
     
