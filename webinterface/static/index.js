@@ -36,6 +36,12 @@ function loadAjax(subpage) {
     }
 
     const mainElement = document.getElementById("main");
+    
+    // Restore padding if leaving practice tab
+    if (current_page === "practice" && subpage !== "practice") {
+        mainElement.classList.add("p-5");
+    }
+    
     mainElement.classList.remove("show");
     setTimeout(() => {
         mainElement.innerHTML = "";
@@ -105,6 +111,8 @@ function loadAjax(subpage) {
                         break;
                     case "practice":
                         clearInterval(homepage_interval);
+                        // Remove padding from main element for full-width practice tab
+                        mainElement.classList.remove("p-5");
                         // Extract and execute scripts from practice.html since innerHTML doesn't execute scripts
                         const practiceScripts = mainElement.querySelectorAll('script');
                         practiceScripts.forEach(function(oldScript) {

@@ -53,6 +53,7 @@ function remove_page_indicators() {
     document.getElementById("ledsettings").classList.remove("glass-light");
     document.getElementById("songs").classList.remove("glass-light");
     document.getElementById("sequences").classList.remove("glass-light");
+    document.getElementById("practice").classList.remove("glass-light");
     document.getElementById("ports").classList.remove("glass-light");
     document.getElementById("ledanimations").classList.remove("glass-light");
     document.getElementById("network").classList.remove("glass-light");
