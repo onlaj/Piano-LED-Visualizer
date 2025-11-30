@@ -726,7 +726,7 @@ function get_led_idle_animation_settings(){
             
             // Start time update for schedule card
             update_system_time();
-            setInterval(update_system_time, 1000); // Update every second
+            setInterval(update_system_time, 60000); // Update every minute
         }
     }
     xhttp.open("GET", "/api/get_idle_animation_settings", true);
@@ -743,9 +743,9 @@ function update_system_time() {
         if (this.readyState === 4 && this.status === 200) {
             const response = JSON.parse(this.responseText);
             if (response.success && response.time) {
-                // Extract just the time portion (HH:MM:SS) from the date output
+                // Extract just the time portion (HH:MM) from the date output
                 // Linux date output format: "Day Mon DD HH:MM:SS TZ YYYY"
-                const timeMatch = response.time.match(/(\d{2}:\d{2}:\d{2})/);
+                const timeMatch = response.time.match(/(\d{2}:\d{2})/);
                 if (timeMatch) {
                     timeDisplay.textContent = timeMatch[1];
                 } else {
@@ -760,9 +760,8 @@ function update_system_time() {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
         if (timeDisplay) {
-            timeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+            timeDisplay.textContent = `${hours}:${minutes}`;
         }
     };
     xhttp.open("GET", "/api/get_system_time", true);
