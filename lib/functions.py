@@ -635,6 +635,7 @@ def clear_ledstrip_state(ledstrip, *, show=True):
     ledstrip.keylist = [0] * ledstrip.led_number
     ledstrip.keylist_status = [0] * ledstrip.led_number
     ledstrip.keylist_sustained = [0] * ledstrip.led_number
+    ledstrip.keylist_external_software = [0] * ledstrip.led_number
     ledstrip.keylist_color = [0] * ledstrip.led_number
 
 

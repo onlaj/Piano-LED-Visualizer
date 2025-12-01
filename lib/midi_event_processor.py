@@ -146,6 +146,18 @@ class MIDIEventProcessor:
             msg_timestamp: Timestamp when the message was received
             note_position: Position on the LED strip corresponding to the note
         """
+        # Extract channel from message to check if it's from external software
+        channel = find_between(str(msg), "channel=", " ")
+        
+        # If LED was lit by external software (channels 11/12), only allow external software to turn it off
+        if self.ledstrip.keylist_external_software[note_position] == 1:
+            if channel == "12" or channel == "11":
+                # External software is turning off the LED - clear tracking and proceed
+                self.ledstrip.keylist_external_software[note_position] = 0
+            else:
+                # Local key press trying to turn off externally-controlled LED - skip it
+                return
+        
         velocity = 0
         self.ledstrip.keylist_status[note_position] = 0
 
@@ -248,6 +260,8 @@ class MIDIEventProcessor:
         # Handle special channels for hand coloring (channels 11 and 12)
         channel = find_between(str(msg), "channel=", " ")
         if channel == "12" or channel == "11":
+            # Mark this LED as externally controlled by external software
+            self.ledstrip.keylist_external_software[note_position] = 1
             if self.ledsettings.skipped_notes != "Finger-based":
                 # Apply right hand or left hand color
                 if channel == "12":
