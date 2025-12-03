@@ -148,6 +148,8 @@ class MIDIEventProcessor:
         """
         # Extract channel from message to check if it's from external software
         channel = find_between(str(msg), "channel=", " ")
+        # Strip trailing commas (mido message format: "channel=12, note=60...")
+        channel = channel.rstrip(',') if channel else False
         
         # If LED was lit by external software (channels 11/12), only allow external software to turn it off
         if self.ledstrip.keylist_external_software[note_position] == 1:
@@ -259,6 +261,8 @@ class MIDIEventProcessor:
 
         # Handle special channels for hand coloring (channels 11 and 12)
         channel = find_between(str(msg), "channel=", " ")
+        # Strip trailing commas (mido message format: "channel=12, note=60...")
+        channel = channel.rstrip(',') if channel else False
         if channel == "12" or channel == "11":
             # Mark this LED as externally controlled by external software
             self.ledstrip.keylist_external_software[note_position] = 1
@@ -274,6 +278,10 @@ class MIDIEventProcessor:
                 self.ledstrip.strip.setPixelColor(note_position, s_color)
                 self.ledstrip.set_adjacent_colors(note_position, s_color, False)
         else:
+            # Normal channel is taking control - clear external software flag
+            if self.ledstrip.keylist_external_software[note_position] == 1:
+                self.ledstrip.keylist_external_software[note_position] = 0
+            
             if self.ledsettings.skipped_notes != "Normal":
                 # Apply standard note color with velocity-based brightness
                 s_color = Color(int(int(red) / float(brightness)), int(int(green) / float(brightness)),
