@@ -162,6 +162,13 @@
         
         console.log('All elements found, proceeding...');
         
+        // Clean LED strip on website load to remove any stuck LEDs from previous sessions
+        fetch('/api/change_setting?setting_name=clean_ledstrip&value=0', {
+            method: 'GET'
+        }).catch(error => {
+            console.error('Error cleaning LED strip on initialization:', error);
+        });
+        
         // Get practice tool URL
         getPracticeToolUrl();
         
@@ -310,6 +317,25 @@
     function cleanupPractice() {
         console.log('Cleaning up Practice tab');
         
+        // First, stop MIDI processing by setting practice_active to false
+        // This prevents any new MIDI messages from being processed
+        fetch('/api/set_practice_active', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ active: false })
+        }).catch(error => {
+            console.error('Error setting practice inactive:', error);
+        });
+        
+        // Clear websocket MIDI queue
+        fetch('/api/clear_websocket_midi_queue', {
+            method: 'POST'
+        }).catch(error => {
+            console.error('Error clearing websocket MIDI queue:', error);
+        });
+        
         // Don't close websocket if main page is using it
         // Only close if we're the only user
         if (practiceWebSocket && (!window.mainWebSocket || window.mainWebSocket === practiceWebSocket)) {
@@ -326,23 +352,14 @@
             practiceWebSocket = null;
         }
         
-        // Clear websocket MIDI queue
-        fetch('/api/clear_websocket_midi_queue', {
-            method: 'POST'
-        }).catch(error => {
-            console.error('Error clearing websocket MIDI queue:', error);
-        });
-        
-        // Set practice_active flag to false
-        fetch('/api/set_practice_active', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ active: false })
-        }).catch(error => {
-            console.error('Error setting practice inactive:', error);
-        });
+        // Wait 500ms before cleaning LED strip to remove any stuck LEDs
+        setTimeout(function() {
+            fetch('/api/change_setting?setting_name=clean_ledstrip&value=0', {
+                method: 'GET'
+            }).catch(error => {
+                console.error('Error cleaning LED strip:', error);
+            });
+        }, 500);
     }
     
     // Initialize when page loads
