@@ -3,6 +3,7 @@ import asyncio
 import websockets
 from lib.functions import get_ip_address
 import json
+from collections import deque
 from lib.log_setup import logger
 
 UPLOAD_FOLDER = 'Songs/'
@@ -16,7 +17,8 @@ webinterface.config['MAX_CONTENT_LENGTH'] = 32 * 1000 * 1000
 webinterface.json.sort_keys = False
 
 webinterface.socket_input = []
-webinterface.websocket_midi_send = []  # Queue for MIDI messages to send to websocket clients
+webinterface.websocket_midi_send = deque(maxlen=100)  # Thread-safe queue for MIDI messages to send to websocket clients
+webinterface.websocket_midi_send_lock = None  # Lock for synchronizing async consumers (initialized in start_server)
 
 
 # State container to hold app components
@@ -60,10 +62,15 @@ def start_server(loop):
                             await websocket.send(str(msg))
                             app_state.learning.socket_send.remove(msg)
                         # Send MIDI messages when practice is active
-                        if app_state.practice_active:
-                            for msg in webinterface.websocket_midi_send[:]:
+                        if app_state.practice_active and webinterface.websocket_midi_send_lock is not None:
+                            # Atomically get all messages from queue and clear it
+                            async with webinterface.websocket_midi_send_lock:
+                                # Copy all messages from deque to a list
+                                messages = list(webinterface.websocket_midi_send)
+                                webinterface.websocket_midi_send.clear()
+                            # Send messages outside the lock to avoid blocking other operations
+                            for msg in messages:
                                 await websocket.send(str(msg))
-                                webinterface.websocket_midi_send.remove(msg)
                 except websockets.exceptions.ConnectionClosed:
                     pass
                 except Exception as e:
@@ -191,6 +198,10 @@ def start_server(loop):
                     f"LED emulator client disconnected (handler cleanup). Active clients: {len(app_state.ledemu_clients)}")
 
     async def main():
+        # Initialize the lock in the event loop context
+        if webinterface.websocket_midi_send_lock is None:
+            webinterface.websocket_midi_send_lock = asyncio.Lock()
+        
         listen_ip = app_state.usersettings.get_setting_value("web_listen_ip")
         if listen_ip and listen_ip != "0.0.0.0":
             show_ip = listen_ip
