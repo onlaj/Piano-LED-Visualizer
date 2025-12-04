@@ -5,6 +5,50 @@ import threading
 from collections import deque
 from lib.log_setup import logger
 
+# Cache for MIDI port names to avoid repeated slow scans
+_cached_input_names = None
+_cached_output_names = None
+_cache_lock = threading.Lock()
+
+def _get_cached_input_names():
+    """Get input port names, using cache if available."""
+    global _cached_input_names
+    with _cache_lock:
+        if _cached_input_names is None:
+            try:
+                _cached_input_names = mido.get_input_names()
+            except Exception as e:
+                logger.warning(f"Failed to get input names: {e}")
+                _cached_input_names = []
+        return _cached_input_names.copy()
+
+def _get_cached_output_names():
+    """Get output port names, using cache if available."""
+    global _cached_output_names
+    with _cache_lock:
+        if _cached_output_names is None:
+            try:
+                _cached_output_names = mido.get_output_names()
+            except Exception as e:
+                logger.warning(f"Failed to get output names: {e}")
+                _cached_output_names = []
+        return _cached_output_names.copy()
+
+def _refresh_port_cache():
+    """Refresh the cached port names."""
+    global _cached_input_names, _cached_output_names
+    with _cache_lock:
+        try:
+            _cached_input_names = mido.get_input_names()
+        except Exception as e:
+            logger.warning(f"Failed to refresh input names: {e}")
+            _cached_input_names = []
+        try:
+            _cached_output_names = mido.get_output_names()
+        except Exception as e:
+            logger.warning(f"Failed to refresh output names: {e}")
+            _cached_output_names = []
+
 class MidiPorts:
     def __init__(self, usersettings):
         self.usersettings = usersettings
@@ -27,8 +71,9 @@ class MidiPorts:
         # The bug will cause the first attempt at accessing a port to fail (due to the failed plugin lookup?)
         # but succeed on the second
         # Access once to trigger bug if exists, so open port later will succeed on attempt:
+        # Use cached function to avoid blocking if cache exists
         try:
-            mido.get_input_names()
+            _get_cached_input_names()
         except Exception as e:
             logger.warning("First access to mido failed.  Possibly from known issue: https://github.com/SpotlightKid/python-rtmidi/issues/138")
 
@@ -66,7 +111,7 @@ class MidiPorts:
     def find_and_set_input(self):
         """Find and set an available input port, preferring configured device names."""
         try:
-            names = mido.get_input_names()
+            names = _get_cached_input_names()
             logger.info("Available inputs: {}".format(names))
             
             # Get configured port to prefer its device name
@@ -100,7 +145,7 @@ class MidiPorts:
     def find_and_set_output(self):
         """Find and set an available output port, preferring configured device names."""
         try:
-            names = mido.get_output_names()
+            names = _get_cached_output_names()
             logger.info("Available outputs: {}".format(names))
             
             # Get configured port to prefer its device name
@@ -405,7 +450,9 @@ class MidiPorts:
         
         while self.monitor_running:
             try:
-                input_names = mido.get_input_names()
+                # Refresh cache periodically in background
+                _refresh_port_cache()
+                input_names = _get_cached_input_names()
 
                 # Get configured ports
                 input_port = self.usersettings.get_setting_value("input_port")

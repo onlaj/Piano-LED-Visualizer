@@ -98,9 +98,13 @@ class UserSettings:
             self.pending_changes = False
 
             self.tree.write(self.CONFIG_FILE)
-            self.tree = ET.parse(self.CONFIG_FILE)
-            self.root = self.tree.getroot()
-            self.xml_to_dict(self.cache, self.root)
+            # Avoid re-parsing: we already have the tree structure in memory
+            # Just refresh the root reference (it's already updated from _xml_set calls)
+            # Only re-parse if we need to ensure file consistency, but for performance,
+            # we can skip this since we're writing our in-memory tree
+            # self.tree = ET.parse(self.CONFIG_FILE)  # Removed redundant parse
+            # self.root = self.tree.getroot()  # Root is already current
+            # Cache is already updated via _xml_set, so no need to rebuild
             self.last_save = time.time()
 
     def reset_to_default(self):

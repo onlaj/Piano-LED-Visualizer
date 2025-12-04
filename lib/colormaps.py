@@ -1,9 +1,39 @@
 import numpy as np
 import os
 import glob
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock
 from lib.log_setup import logger
 
-colormaps = {}
+# Global state for lazy loading
+_current_gamma = 1.0
+_colormaps_lock = Lock()
+
+# Lazy-loading wrapper for colormaps dict
+class _LazyColormapDict(dict):
+    """Dict-like wrapper that generates colormaps on-demand."""
+    def __getitem__(self, key):
+        ensure_colormap_generated(key)
+        # Use dict.__getitem__ to bypass our __getitem__ and avoid recursion
+        return dict.__getitem__(self, key)
+    
+    def __contains__(self, key):
+        # Check if gradient exists, not if colormap is generated
+        return key in gradients
+    
+    def get(self, key, default=None):
+        if key in self:
+            return self[key]
+        return default
+    
+    def keys(self):
+        # Return all available gradient names
+        return gradients.keys()
+    
+    def __iter__(self):
+        return iter(gradients.keys())
+
+colormaps = _LazyColormapDict()
 colormaps_preview = {}
 
 # Colormap gradients designed with ws281x gamma = 1
@@ -103,45 +133,116 @@ def gradient_to_cmaplut(gradient, gamma=1, entries=256, int_table=True):
 
 
 def update_colormap(name, gamma):
-    global colormaps, colormaps_preview, gradients
+    """Generate a colormap from its gradient. Thread-safe."""
+    global colormaps, colormaps_preview, gradients, _current_gamma
 
     try:
-        colormaps[name] = gradient_to_cmaplut(gradients[name], gamma)
-        colormaps_preview[name] = gradient_to_cmaplut(gradients[name], 2.2, 64)
+        if name not in gradients:
+            logger.warning(f"Gradient {name} not found")
+            return
+        
+        with _colormaps_lock:
+            # Store directly in the underlying dict
+            dict.__setitem__(colormaps, name, gradient_to_cmaplut(gradients[name], gamma))
+            colormaps_preview[name] = gradient_to_cmaplut(gradients[name], 2.2, 64)
+            _current_gamma = gamma
     except Exception as e:
         logger.warning(f"Loading colormap {name} failed: {e}")
 
 
-def generate_colormaps(gradients, gamma):
-    global colorsmaps, colorsmaps_preview
+def ensure_colormap_generated(name, gamma=None):
+    """Ensure a colormap is generated, generating it lazily if needed. Thread-safe."""
+    global colormaps, _current_gamma
+    
+    if gamma is None:
+        gamma = _current_gamma
+    
+    with _colormaps_lock:
+        # Check underlying dict, not the lazy wrapper's __contains__
+        if name not in dict.keys(colormaps):
+            update_colormap(name, gamma)
+        elif gamma != _current_gamma:
+            # Regenerate if gamma changed
+            update_colormap(name, gamma)
 
-    for k, v in gradients.items():
-        update_colormap(k, gamma)
+
+def generate_colormaps(gradients, gamma, colormap_names=None):
+    """
+    Generate colormaps from gradients.
+    
+    Args:
+        gradients: Dictionary of gradient data
+        gamma: Gamma correction value
+        colormap_names: Optional list of specific colormap names to generate.
+                       If None, generates all colormaps (legacy behavior).
+    """
+    global _current_gamma
+    
+    _current_gamma = gamma
+    
+    if colormap_names is None:
+        # Legacy behavior: generate all
+        for k, v in gradients.items():
+            update_colormap(k, gamma)
+    else:
+        # Generate only specified colormaps
+        for name in colormap_names:
+            if name in gradients:
+                update_colormap(name, gamma)
+
+
+def _load_led_colormap_file(filepath):
+    """Load a single .led.data colormap file. Returns (name, gradient_data) or None on error."""
+    try:
+        name_ext = os.path.splitext(os.path.basename(filepath))[0]
+        name = os.path.splitext(name_ext)[0]
+        gradient_data = np.loadtxt(filepath).tolist()
+        return (name, gradient_data)
+    except Exception as e:
+        logger.warning(f"Loading colormap datafile {filepath} failed: {e}")
+        return None
+
+
+def _load_srgb_colormap_file(filepath, existing_names):
+    """Load a single .sRGB.data colormap file. Returns (name, gradient_data) or None on error."""
+    try:
+        name_ext = os.path.splitext(os.path.basename(filepath))[0]
+        name = os.path.splitext(name_ext)[0]
+        if name in existing_names:
+            name = name + "~"
+        # sRGB files are gamma converted by **2.2 before loading into gradients
+        gradient_data = np.loadtxt(filepath, converters=lambda x: float(x) ** 2.2).tolist()
+        return (name, gradient_data)
+    except Exception as e:
+        logger.warning(f"Loading colormap datafile {filepath} failed: {e}")
+        return None
 
 
 def load_colormaps():
+    """Load colormap files in parallel for faster startup."""
     gradients = {}
-
-    files = glob.glob("Colormaps/*.led.data")
-    for f in files:
-        try:
-            name_ext = os.path.splitext(os.path.basename(f))[0]
-            name = os.path.splitext(name_ext)[0]
-            gradients[name] = np.loadtxt(f).tolist()
-        except Exception as e:
-            logger.warning(f"Loading colormap datafile {f} failed: {e}")
-
-    # sRGB files are gamma converted by **2.2 before loading into gradients to keep with ws2812's intensity-based color space
-    files = glob.glob("Colormaps/*.sRGB.data")
-    for f in files:
-        try:
-            name_ext = os.path.splitext(os.path.basename(f))[0]
-            name = os.path.splitext(name_ext)[0]
-            if name in gradients:
-                name = name + "~"
-            gradients[name] = np.loadtxt(f, converters=lambda x: float(x) ** 2.2).tolist()
-        except Exception as e:
-            logger.warning(f"Loading colormap datafile {f} failed: {e}")
+    
+    # Load .led.data files in parallel
+    led_files = glob.glob("Colormaps/*.led.data")
+    if led_files:
+        with ThreadPoolExecutor(max_workers=min(len(led_files), 8)) as executor:
+            futures = {executor.submit(_load_led_colormap_file, f): f for f in led_files}
+            for future in as_completed(futures):
+                result = future.result()
+                if result is not None:
+                    name, gradient_data = result
+                    gradients[name] = gradient_data
+    
+    # Load .sRGB.data files in parallel
+    srgb_files = glob.glob("Colormaps/*.sRGB.data")
+    if srgb_files:
+        with ThreadPoolExecutor(max_workers=min(len(srgb_files), 8)) as executor:
+            futures = {executor.submit(_load_srgb_colormap_file, f, set(gradients.keys())): f for f in srgb_files}
+            for future in as_completed(futures):
+                result = future.result()
+                if result is not None:
+                    name, gradient_data = result
+                    gradients[name] = gradient_data
 
     return dict(sorted(gradients.items()))
 
