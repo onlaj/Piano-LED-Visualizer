@@ -1512,3 +1512,46 @@ canvas {
         width: 100%;
     }
 }
+
+/* Practice mode mobile landscape fixes */
+@media (max-width: 1024px) and (orientation: landscape) {
+    #practice-container {
+        height: 100dvh !important;
+        height: 100vh !important; /* Fallback for browsers without dvh support */
+        min-height: 100dvh;
+        min-height: 100vh; /* Fallback */
+    }
+    
+    #practice-container > div {
+        min-height: 100% !important;
+    }
+    
+    #pianoVisualizerIframe {
+        min-height: 100% !important;
+    }
+}
+
+/* Mobile portrait and landscape adjustments for practice mode */
+@media (max-width: 768px) {
+    #practice-container {
+        height: calc(100dvh - 80px) !important;
+        height: calc(100vh - 80px) !important; /* Fallback for browsers without dvh support */
+    }
+    
+    @media (orientation: landscape) {
+        #practice-container {
+            height: 100dvh !important;
+            height: 100vh !important; /* Fallback for browsers without dvh support */
+            min-height: 100dvh;
+            min-height: 100vh; /* Fallback */
+        }
+        
+        #practice-container > div {
+            min-height: 100% !important;
+        }
+        
+        #pianoVisualizerIframe {
+            min-height: 100% !important;
+        }
+    }
+}
