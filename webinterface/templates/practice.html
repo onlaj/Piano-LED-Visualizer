@@ -10,6 +10,7 @@
             id="pianoVisualizerIframe"
             src=""
             allow="midi"
+            allowfullscreen
             style="width: 100%; height: 100%; border: none; min-height: 600px; display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
         </iframe>
     </div>
@@ -241,6 +242,9 @@
         
         // Set up postMessage listeners
         setupPostMessageHandlers();
+        
+        // Set up fullscreen change listeners
+        setupFullscreenListeners();
     }
     
     // Connect to websocket for MIDI communication
@@ -333,7 +337,106 @@
         practiceWebSocket._practiceHandlersSetup = true;
     }
     
-    // Set up postMessage handlers for bidirectional MIDI communication
+    // Send fullscreen state update to iframe
+    function sendFullscreenState(isFullscreen) {
+        const iframe = document.getElementById('pianoVisualizerIframe');
+        if (iframe && iframe.contentWindow && iframeOrigin) {
+            iframe.contentWindow.postMessage({
+                type: 'fullscreen_state',
+                isFullscreen: isFullscreen
+            }, iframeOrigin);
+            console.log('Sent fullscreen state to iframe:', isFullscreen);
+        }
+    }
+    
+    // Enter fullscreen mode
+    async function enterFullscreen() {
+        const iframe = document.getElementById('pianoVisualizerIframe');
+        if (!iframe) {
+            console.error('Iframe element not found for fullscreen');
+            sendFullscreenState(false);
+            return;
+        }
+        
+        try {
+            // Request fullscreen on the iframe element with vendor prefixes
+            if (iframe.requestFullscreen) {
+                await iframe.requestFullscreen();
+            } else if (iframe.webkitRequestFullscreen) {
+                await iframe.webkitRequestFullscreen();
+            } else if (iframe.mozRequestFullScreen) {
+                await iframe.mozRequestFullScreen();
+            } else if (iframe.msRequestFullscreen) {
+                await iframe.msRequestFullscreen();
+            } else {
+                throw new Error('Fullscreen API not supported');
+            }
+            
+            // Send state update to iframe
+            sendFullscreenState(true);
+        } catch (error) {
+            console.error('Error entering fullscreen:', error);
+            // Send error state to iframe
+            sendFullscreenState(false);
+        }
+    }
+    
+    // Exit fullscreen mode
+    async function exitFullscreen() {
+        try {
+            // Exit fullscreen with vendor prefixes
+            if (document.exitFullscreen) {
+                await document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                await document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                await document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                await document.msExitFullscreen();
+            } else {
+                throw new Error('Fullscreen API not supported');
+            }
+            
+            // Send state update to iframe
+            sendFullscreenState(false);
+        } catch (error) {
+            console.error('Error exiting fullscreen:', error);
+            // Send error state to iframe
+            sendFullscreenState(false);
+        }
+    }
+    
+    // Set up fullscreen change event listeners
+    function setupFullscreenListeners() {
+        // Listen for fullscreen changes (e.g., user presses ESC)
+        const fullscreenEvents = [
+            'fullscreenchange',
+            'webkitfullscreenchange',
+            'mozfullscreenchange',
+            'MSFullscreenChange'
+        ];
+        
+        fullscreenEvents.forEach(event => {
+            document.addEventListener(event, function() {
+                const iframe = document.getElementById('pianoVisualizerIframe');
+                if (iframe) {
+                    // Check current fullscreen state
+                    const isFullscreen = !!(
+                        document.fullscreenElement ||
+                        document.webkitFullscreenElement ||
+                        document.mozFullScreenElement ||
+                        document.msFullscreenElement
+                    );
+                    
+                    console.log('Fullscreen state changed:', isFullscreen);
+                    // Send state update to iframe
+                    sendFullscreenState(isFullscreen);
+                }
+            });
+        });
+    }
+    
+    // Set up postMessage handlers for bidirectional MIDI communication and fullscreen
     function setupPostMessageHandlers() {
         // Listen for messages from iframe (Piano Visualizer → Piano LED Visualizer)
         window.addEventListener('message', function(event) {
@@ -349,6 +452,22 @@
                 }
             }
             
+            // Validate message source
+            if (event.data && event.data.source === 'piano-visualizer') {
+                // Handle fullscreen messages
+                switch (event.data.type) {
+                    case 'request_fullscreen':
+                        console.log('Received fullscreen request from iframe');
+                        enterFullscreen();
+                        break;
+                        
+                    case 'exit_fullscreen':
+                        console.log('Received exit fullscreen request from iframe');
+                        exitFullscreen();
+                        break;
+                }
+            }
+            
             // Handle MIDI messages from iframe
             if (event.data && event.data.type === 'midi_message' && event.data.data) {
                 console.log('Received MIDI message from iframe:', event.data);
@@ -360,8 +479,9 @@
                 } else {
                     console.warn('Practice WebSocket not ready, message dropped. State:', practiceWebSocket ? practiceWebSocket.readyState : 'null');
                 }
-            } else {
-                console.log('Received non-MIDI message from iframe:', event.data);
+            } else if (event.data && event.data.source !== 'piano-visualizer') {
+                // Only log non-MIDI messages that aren't from piano-visualizer
+                console.log('Received message from iframe:', event.data);
             }
         });
     }
