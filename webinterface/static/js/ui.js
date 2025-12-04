@@ -76,7 +76,11 @@ function get_homepage_data_loop() {
                 upload = 0;
             }
             const cpuUsage = response_pc_stats["cpu_usage"];
-            const ledFps = parseFloat(response_pc_stats.led_fps) || 0;
+            const systemState = response_pc_stats.system_state || 'UNKNOWN';
+            const ledFpsRaw = response_pc_stats.led_fps;
+            const ledFps = (systemState === 'ACTIVE_USE' && ledFpsRaw !== null && ledFpsRaw !== undefined) 
+                ? parseFloat(ledFpsRaw) || 0 
+                : null;
             
             // Update CPU usage
             const cpuNumberEl = document.getElementById("cpu_number");
@@ -125,10 +129,17 @@ function get_homepage_data_loop() {
             // Update LED FPS
             const ledFpsEl = document.getElementById("led_fps");
             if (ledFpsEl) {
-                ledFpsEl.innerHTML = response_pc_stats.led_fps;
+                if (ledFps !== null && systemState === 'ACTIVE_USE') {
+                    ledFpsEl.innerHTML = response_pc_stats.led_fps;
+                } else {
+                    ledFpsEl.innerHTML = "---.--";
+                }
             }
-            addToHistory('ledFps', ledFps);
-            updateChart('ledFps', ledFps);
+            // Only add to history and update chart if we have valid FPS data
+            if (ledFps !== null && systemState === 'ACTIVE_USE') {
+                addToHistory('ledFps', ledFps);
+                updateChart('ledFps', ledFps);
+            }
             
             if (document.getElementById("system_state")) {
                 document.getElementById("system_state").innerHTML = response_pc_stats.system_state || 'UNKNOWN';

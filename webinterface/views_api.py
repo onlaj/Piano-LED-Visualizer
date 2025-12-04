@@ -136,6 +136,12 @@ def get_homepage_data():
 
     cover_opened = GPIO.input(SENSECOVER)
 
+    # Get system state
+    system_state = app_state.state_manager.current_state.value.upper() if app_state.state_manager else 'UNKNOWN'
+    
+    # Only provide FPS data when in ACTIVE_USE state
+    led_fps = round(app_state.ledstrip.current_fps, 2) if system_state == 'ACTIVE_USE' else None
+
     homepage_data = {
         'cpu_usage': psutil.cpu_percent(interval=0.1),
         'cpu_count': psutil.cpu_count(),
@@ -152,8 +158,8 @@ def get_homepage_data():
         'card_space_total': card_space.total,
         'card_space_percent': card_space.percent,
         'cover_state': 'Opened' if cover_opened else 'Closed',
-        'led_fps': round(app_state.ledstrip.current_fps, 2),
-        'system_state': app_state.state_manager.current_state.value.upper() if app_state.state_manager else 'UNKNOWN',
+        'led_fps': led_fps,
+        'system_state': system_state,
         'screen_on': app_state.menu.screen_on,
         'display_type': app_state.menu.args.display if app_state.menu and app_state.menu.args and app_state.menu.args.display else app_state.usersettings.get_setting_value("display_type") or '1in44',
         'led_pin': app_state.usersettings.get_setting_value("led_pin") or '18',
