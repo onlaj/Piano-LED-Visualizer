@@ -999,5 +999,61 @@
 <!-- Notification System Container -->
 <div id="notification-container"></div>
 
+<!-- Input Port Setup Popup Modal -->
+<div id="port_setup_popup_overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden" style="backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)" onclick="handle_port_setup_overlay_click(event)">
+    <div id="port_setup_popup" class="glass-strong shadow-glass-lg rounded-glass p-6 max-w-md min-w-80 w-auto mx-4 transform transition-all" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-200" data-translate="input_port_setup">Input Port Setup</h3>
+            <button onclick="hide_port_setup_popup()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mb-4">
+            <p class="text-sm text-gray-700 dark:text-gray-300 mb-2" data-translate="no_input_port_message">
+                No input port is currently set. Please select your piano from the list below.
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4" data-translate="port_will_be_set_both">
+                The selected port will be set as both input port and playback port.
+            </p>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300" data-translate="select_piano_port">Select Piano Port:</label>
+            <div class="relative">
+                <select id="port_setup_dropdown" class="h-10 block appearance-none w-full glass-light py-2 px-3 pr-8 rounded-glass leading-tight transition-smooth-fast text-gray-900 dark:text-gray-200">
+                    <option value="" disabled selected data-translate="loading_ports">Loading ports...</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="port_setup_no_ports_message" class="hidden mt-2 text-sm text-yellow-600 dark:text-yellow-400" data-translate="no_ports_available">
+                No MIDI ports are currently available. Please connect your piano and refresh the page.
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <label class="flex items-center cursor-pointer">
+                <input type="checkbox" id="port_setup_dont_show_again" class="mr-2 rounded">
+                <span class="text-sm text-gray-700 dark:text-gray-300" data-translate="dont_show_again">Don't show this message again</span>
+            </label>
+        </div>
+        
+        <div class="flex space-x-3">
+            <button onclick="handle_port_setup_submit()" id="port_setup_submit_btn" class="flex-1 h-10 outline-none glass-light hover:glass font-bold py-2 px-4 rounded-glass transition-smooth-fast inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-gray-200" disabled>
+                <span data-translate="set_port">Set Port</span>
+            </button>
+            <button onclick="handle_port_setup_cancel()" class="flex-1 h-10 outline-none glass-light hover:glass font-bold py-2 px-4 rounded-glass transition-smooth-fast inline-flex items-center justify-center text-gray-900 dark:text-gray-200">
+                <span data-translate="cancel">Cancel</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
