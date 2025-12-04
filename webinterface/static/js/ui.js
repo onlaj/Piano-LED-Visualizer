@@ -728,8 +728,17 @@ function show_port_setup_popup() {
     // Show overlay
     overlay.classList.remove('hidden');
     
+    // Translate static content in popup
+    translateStaticContent();
+    
     // Reset dropdown
-    dropdown.innerHTML = '<option value="" disabled selected data-translate="loading_ports">Loading ports...</option>';
+    const loadingOption = document.createElement('option');
+    loadingOption.value = '';
+    loadingOption.disabled = true;
+    loadingOption.selected = true;
+    loadingOption.textContent = translate('loading_ports');
+    dropdown.innerHTML = '';
+    dropdown.appendChild(loadingOption);
     dropdown.disabled = true;
     submitBtn.disabled = true;
     noPortsMessage.classList.add('hidden');
@@ -746,13 +755,24 @@ function show_port_setup_popup() {
             
             if (ports.length === 0) {
                 // No ports available
-                dropdown.innerHTML = '<option value="" disabled selected data-translate="no_ports">No ports available</option>';
+                const noPortsOption = document.createElement('option');
+                noPortsOption.value = '';
+                noPortsOption.disabled = true;
+                noPortsOption.selected = true;
+                noPortsOption.textContent = translate('no_ports');
+                dropdown.appendChild(noPortsOption);
                 dropdown.disabled = true;
                 submitBtn.disabled = true;
                 noPortsMessage.classList.remove('hidden');
             } else {
                 // Add ports to dropdown
-                dropdown.innerHTML = '<option value="" disabled selected data-translate="select_port">Select a port...</option>';
+                const selectPortOption = document.createElement('option');
+                selectPortOption.value = '';
+                selectPortOption.disabled = true;
+                selectPortOption.selected = true;
+                selectPortOption.textContent = translate('select_port');
+                dropdown.appendChild(selectPortOption);
+                
                 ports.forEach(function(port) {
                     const option = document.createElement('option');
                     option.value = port;
@@ -766,13 +786,19 @@ function show_port_setup_popup() {
                     const hasValue = this.value && this.value !== '';
                     submitBtn.disabled = !hasValue;
                     if (hasValue) {
-                        submitBtn.innerHTML = '<span data-translate="set_port">Set Port</span>';
+                        submitBtn.innerHTML = '<span>' + translate('set_port') + '</span>';
                     }
                 };
             }
         } else if (this.readyState === 4) {
             // Error loading ports
-            dropdown.innerHTML = '<option value="" disabled selected data-translate="error_loading_ports">Error loading ports</option>';
+            const errorOption = document.createElement('option');
+            errorOption.value = '';
+            errorOption.disabled = true;
+            errorOption.selected = true;
+            errorOption.textContent = translate('error_loading_ports');
+            dropdown.innerHTML = '';
+            dropdown.appendChild(errorOption);
             dropdown.disabled = true;
             submitBtn.disabled = true;
         }
@@ -831,7 +857,7 @@ function handle_port_setup_submit() {
     
     // Disable button during operation
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span data-translate="setting_port">Setting port...</span>';
+    submitBtn.innerHTML = '<span>' + translate('setting_port') + '</span>';
     
     // Set input_port first
     change_setting('input_port', selectedPort);
