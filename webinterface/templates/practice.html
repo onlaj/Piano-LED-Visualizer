@@ -1,4 +1,4 @@
-<div id="practice-container" class="transition duration-300 slide-in-content w-full h-full flex flex-col" style="height: calc(100dvh - 120px); height: calc(100vh - 120px);">
+<div id="practice-container" class="transition duration-300 slide-in-content w-full h-full flex flex-col snap-center" style="min-height: calc(100dvh - 120px); min-height: calc(100vh - 120px);">
     <div class="flex-1 glass shadow-glass-lg rounded-glass transition-smooth relative overflow-hidden" style="min-height: 600px; height: 100%;">
         <div id="practice-loading" class="absolute inset-0 flex items-center justify-center text-gray-500 dark:text-gray-400">
             <div class="text-center">
@@ -146,14 +146,14 @@
         if (isMobile && isLandscape) {
             // In mobile landscape, account for browser UI more carefully
             // Use window.innerHeight directly as it accounts for browser chrome
-            container.style.height = windowHeight + 'px';
+            container.style.minHeight = windowHeight + 'px';
         } else {
             // For desktop or portrait, use the original calculation with dynamic viewport
             const offset = isMobile ? 80 : 120; // Smaller offset for mobile
-            container.style.height = `calc(100dvh - ${offset}px)`;
+            container.style.minHeight = `calc(100dvh - ${offset}px)`;
             // Fallback for browsers that don't support dvh
             if (!CSS.supports('height', '100dvh')) {
-                container.style.height = `calc(100vh - ${offset}px)`;
+                container.style.minHeight = `calc(100vh - ${offset}px)`;
             }
         }
         
@@ -162,7 +162,7 @@
             availableHeight,
             isMobile,
             isLandscape,
-            containerHeight: container.style.height
+            containerHeight: container.style.minHeight
         });
     }
     
@@ -175,6 +175,14 @@
         
         // Update container height on initialization
         updatePracticeContainerHeight();
+
+        // Scroll to center
+        const container = document.getElementById('practice-container');
+        if (container) {
+            setTimeout(() => {
+                container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
         
         // Ensure DOM is ready
         if (document.readyState === 'loading') {
