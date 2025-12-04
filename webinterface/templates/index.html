@@ -693,7 +693,7 @@
         return null;
     }
 
-    if (getCookie('darkmode') != "1") {
+    if (getCookie('darkmode') == "0") {
         document.documentElement.classList.remove('dark')
     }
 
@@ -718,9 +718,8 @@
         }
     }
 
-    if (document.documentElement.classList.contains("dark")) {
-        document.getElementById("toggleDark").click();
-    }
+    // Initialize toggle checkbox state to match dark mode
+    document.getElementById("toggleDark").checked = document.documentElement.classList.contains("dark");
 
     document.getElementById('switch_ports_sidebar').onclick = function () {
         document.getElementById('switch_ports_sidebar').disabled = true;
