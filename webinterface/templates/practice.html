@@ -436,6 +436,59 @@
         });
     }
     
+    // Handle saving backup
+    function handleSaveBackup(message) {
+        fetch('/api/save_practice_backup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                data: message.data,
+                config: message.config
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            console.log('Backup save result:', result);
+        })
+        .catch(error => console.error('Error saving backup:', error));
+    }
+
+    // Handle listing backups
+    function handleGetBackupList() {
+        fetch('/api/get_practice_backup_list')
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                const iframe = document.getElementById('pianoVisualizerIframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({
+                        type: 'backup_list',
+                        data: result.data
+                    }, iframeOrigin);
+                }
+            }
+        })
+        .catch(error => console.error('Error getting backup list:', error));
+    }
+
+    // Handle restoring backup
+    function handleGetBackup(id) {
+        fetch('/api/get_practice_backup?id=' + encodeURIComponent(id))
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                const iframe = document.getElementById('pianoVisualizerIframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({
+                        type: 'restore_backup',
+                        data: result.data
+                    }, iframeOrigin);
+                }
+            }
+        })
+        .catch(error => console.error('Error getting backup:', error));
+    }
+
     // Set up postMessage handlers for bidirectional MIDI communication and fullscreen
     function setupPostMessageHandlers() {
         // Listen for messages from iframe (Piano Visualizer → Piano LED Visualizer)
@@ -467,6 +520,24 @@
                         break;
                 }
             }
+
+            // Handle backup messages (might not have source: 'piano-visualizer')
+            if (event.data) {
+                switch (event.data.type) {
+                    case 'save_backup':
+                        console.log('Received save_backup request from iframe');
+                        handleSaveBackup(event.data);
+                        break;
+                    case 'get_backup_list':
+                        console.log('Received get_backup_list request from iframe');
+                        handleGetBackupList();
+                        break;
+                    case 'get_backup':
+                        console.log('Received get_backup request from iframe');
+                        handleGetBackup(event.data.id);
+                        break;
+                }
+            }
             
             // Handle MIDI messages from iframe
             if (event.data && event.data.type === 'midi_message' && event.data.data) {
@@ -479,8 +550,11 @@
                 } else {
                     console.warn('Practice WebSocket not ready, message dropped. State:', practiceWebSocket ? practiceWebSocket.readyState : 'null');
                 }
-            } else if (event.data && event.data.source !== 'piano-visualizer') {
-                // Only log non-MIDI messages that aren't from piano-visualizer
+            } else if (event.data && event.data.source !== 'piano-visualizer' && 
+                       event.data.type !== 'save_backup' && 
+                       event.data.type !== 'get_backup_list' && 
+                       event.data.type !== 'get_backup') {
+                // Only log non-MIDI messages that aren't from piano-visualizer and aren't backup messages
                 console.log('Received message from iframe:', event.data);
             }
         });

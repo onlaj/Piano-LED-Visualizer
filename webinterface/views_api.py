@@ -2803,3 +2803,119 @@ def clear_websocket_midi_queue():
         logger.error(f"Error clearing websocket MIDI queue: {e}")
         return jsonify(success=False, error=str(e)), 500
 
+
+PRACTICE_BACKUP_FOLDER = "config/practice-backup"
+
+@webinterface.route('/api/save_practice_backup', methods=['POST'])
+def save_practice_backup():
+    import time
+    try:
+        if not os.path.exists(PRACTICE_BACKUP_FOLDER):
+            os.makedirs(PRACTICE_BACKUP_FOLDER)
+
+        data = request.json
+        if not data:
+            return jsonify(success=False, error="No data received")
+
+        backup_data = data.get('data')
+        config = data.get('config', {})
+        
+        if not backup_data:
+             return jsonify(success=False, error="No backup data received")
+
+        timestamp = config.get('timestamp', int(time.time() * 1000))
+        is_auto = config.get('isAuto', False)
+        backup_type = "auto" if is_auto else "manual"
+        
+        filename = f"practice_backup_{timestamp}_{backup_type}.json"
+        filepath = os.path.join(PRACTICE_BACKUP_FOLDER, filename)
+        
+        with open(filepath, 'w') as f:
+            json.dump(data, f)
+
+        # Retention policy
+        retention_count = config.get('retentionCount', 5)
+        if is_auto:
+            files = glob.glob(os.path.join(PRACTICE_BACKUP_FOLDER, "practice_backup_*_*.json"))
+            
+            def get_timestamp(f):
+                try:
+                    parts = os.path.basename(f).split('_')
+                    return int(parts[2])
+                except:
+                    return 0
+            
+            files.sort(key=get_timestamp)
+            
+            auto_files = [f for f in files if "_auto.json" in f]
+            while len(auto_files) > retention_count:
+                oldest = auto_files.pop(0)
+                try:
+                    os.remove(oldest)
+                except OSError as e:
+                    logger.error(f"Error deleting old backup {oldest}: {e}")
+
+        return jsonify(success=True, id=filename)
+    except Exception as e:
+        logger.error(f"Error saving practice backup: {e}")
+        return jsonify(success=False, error=str(e))
+
+@webinterface.route('/api/get_practice_backup_list', methods=['GET'])
+def get_practice_backup_list():
+    try:
+        if not os.path.exists(PRACTICE_BACKUP_FOLDER):
+             return jsonify(success=True, data=[])
+
+        backups = []
+        files = glob.glob(os.path.join(PRACTICE_BACKUP_FOLDER, "practice_backup_*_*.json"))
+        
+        for f in files:
+            try:
+                basename = os.path.basename(f)
+                parts = basename.split('_')
+                timestamp = int(parts[2])
+                type_part = parts[3].replace('.json', '')
+                is_auto = (type_part == 'auto')
+                size = os.path.getsize(f)
+                
+                backups.append({
+                    "id": basename,
+                    "timestamp": timestamp,
+                    "isAuto": is_auto,
+                    "size": size
+                })
+            except Exception as e:
+                logger.error(f"Error parsing backup file {f}: {e}")
+                continue
+                
+        # Sort by timestamp descending
+        backups.sort(key=lambda x: x['timestamp'], reverse=True)
+        
+        return jsonify(success=True, data=backups)
+    except Exception as e:
+        logger.error(f"Error listing practice backups: {e}")
+        return jsonify(success=False, error=str(e))
+
+@webinterface.route('/api/get_practice_backup', methods=['GET'])
+def get_practice_backup():
+    backup_id = request.args.get('id')
+    if not backup_id:
+        return jsonify(success=False, error="No backup ID provided")
+        
+    try:
+        # Sanitize backup_id to prevent directory traversal
+        if os.path.sep in backup_id or '..' in backup_id:
+             return jsonify(success=False, error="Invalid backup ID")
+             
+        filepath = os.path.join(PRACTICE_BACKUP_FOLDER, backup_id)
+        if not os.path.exists(filepath):
+             return jsonify(success=False, error="Backup not found")
+             
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+            
+        return jsonify(success=True, data=data.get('data'))
+    except Exception as e:
+        logger.error(f"Error retrieving practice backup: {e}")
+        return jsonify(success=False, error=str(e))
+
