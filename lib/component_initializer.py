@@ -96,7 +96,8 @@ class ComponentInitializer:
             cmap.generate_colormaps(cmap.gradients, self.ledstrip.led_gamma, colormaps_to_generate)
         else:
             # If no specific colormap needed, still initialize with current gamma
-            cmap.generate_colormaps(cmap.gradients, self.ledstrip.led_gamma, [])
+            # Pass None to trigger legacy behavior that generates all colormaps
+            cmap.generate_colormaps(cmap.gradients, self.ledstrip.led_gamma, None)
         
         cmap.update_multicolor(self.ledsettings.multicolor_range, self.ledsettings.multicolor)
 
