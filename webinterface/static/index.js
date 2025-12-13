@@ -321,8 +321,15 @@ function change_setting(setting_name, value, second_value = false, disable_seque
             }
         }
     }
-    xhttp.open("GET", "/api/change_setting?setting_name=" + setting_name + "&value=" + value
-        + "&second_value=" + second_value + "&disable_sequence=" + disable_sequence, true);
+    // Always URL-encode values; some settings (e.g. URLs) contain characters that would break the query string.
+    xhttp.open(
+        "GET",
+        "/api/change_setting?setting_name=" + encodeURIComponent(setting_name)
+        + "&value=" + encodeURIComponent(value)
+        + "&second_value=" + encodeURIComponent(second_value)
+        + "&disable_sequence=" + encodeURIComponent(disable_sequence),
+        true
+    );
     xhttp.send();
 }
 

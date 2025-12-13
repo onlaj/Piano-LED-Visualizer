@@ -1107,6 +1107,9 @@ def change_setting():
         else:
             return jsonify(success=False, error="Timezone change not supported on this platform.")
 
+    if setting_name == "practice_tool_url":
+        app_state.usersettings.change_setting_value("practice_tool_url", value)
+
     if setting_name == "restart_rpi":
         app_state.platform.reboot()
 
@@ -1983,7 +1986,7 @@ def get_settings():
     response["speed_max_notes"] = app_state.usersettings.get_setting_value("speed_max_notes")
     response["speed_period_in_seconds"] = app_state.usersettings.get_setting_value("speed_period_in_seconds")
     response["hotspot_password"] = app_state.usersettings.get_setting_value("hotspot_password")
-    response["practice_tool_url"] = app_state.usersettings.get_setting_value("practice_tool_url") or "http://127.0.0.1:5500/index.html"
+    response["practice_tool_url"] = app_state.usersettings.get_setting_value("practice_tool_url") or "https://piano-visualizer.pages.dev"
 
     return jsonify(response)
 
