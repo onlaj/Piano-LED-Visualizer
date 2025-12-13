@@ -577,6 +577,10 @@ function get_settings(home = true) {
             config_settings = response;
 
             if (home) {
+                const practiceToolUrlEl = document.getElementById("practice_tool_url");
+                if (practiceToolUrlEl) {
+                    practiceToolUrlEl.value = response["practice_tool_url"] || "";
+                }
 
                 if (document.getElementById("backlight_color")) {
                     document.getElementById("backlight_color").value = response["backlight_color"];
