@@ -658,16 +658,22 @@
         window.addEventListener('beforeunload', cleanupPractice);
 
         // Also cleanup when loadAjax is called for a different page
-        // Store original loadAjax if it exists
+        // Store original loadAjax if it exists (global scope)
+        if (!window.originalLoadAjax) {
+            window.originalLoadAjax = window.loadAjax;
+        } else {
+            // Restore original before wrapping to prevent recursion chains
+            window.loadAjax = window.originalLoadAjax;
+        }
+
         if (typeof window.loadAjax === 'function') {
-            const originalLoadAjax = window.loadAjax;
             window.loadAjax = function (subpage) {
                 // If loading a different page, cleanup practice
                 if (subpage !== 'practice') {
                     cleanupPractice();
                 }
                 // Call original loadAjax
-                return originalLoadAjax.apply(this, arguments);
+                return window.originalLoadAjax.apply(this, arguments);
             };
         }
     })();
