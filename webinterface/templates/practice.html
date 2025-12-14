@@ -1,0 +1,680 @@
+<div id="practice-container" class="transition duration-300 slide-in-content w-full h-full flex flex-col snap-center"
+    style="min-height: calc(100dvh - 120px); min-height: calc(100vh - 120px);">
+    <div class="flex-1 glass shadow-glass-lg rounded-glass transition-smooth relative overflow-hidden"
+        style="min-height: 600px; height: 100%;">
+        <div id="practice-loading"
+            class="absolute inset-0 flex items-center justify-center text-gray-500 dark:text-gray-400">
+            <div class="text-center">
+                <div
+                    class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-gray-100 mx-auto mb-4">
+                </div>
+                <p>Loading Practice Tool...</p>
+            </div>
+        </div>
+        <iframe id="pianoVisualizerIframe" src="" allow="midi" allowfullscreen
+            style="width: 100%; height: 100%; border: none; min-height: 600px; display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
+        </iframe>
+    </div>
+</div>
+
+<script>
+    (function () {
+        'use strict';
+
+        let practiceWebSocket = null;
+        let practiceToolUrl = '';
+        let iframeOrigin = '';
+
+        // Helper to check for debug mode
+        // Enable by adding ?debug to URL or running localStorage.setItem('piano_led_debug', 'true')
+        function isDebugMode() {
+            try {
+                return new URLSearchParams(window.location.search).has('debug') ||
+                    localStorage.getItem('piano_led_debug') === 'true';
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Get practice tool URL from settings
+        function getPracticeToolUrl() {
+            console.log('Fetching practice tool URL from settings...');
+            // Fetch from API
+            fetch('/api/get_settings')
+                .then(response => {
+                    console.log('Settings API response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Settings API response:', data);
+                    // The API returns settings directly, not nested under 'settings'
+                    if (data.practice_tool_url) {
+                        practiceToolUrl = data.practice_tool_url;
+                        console.log('Found practice tool URL:', practiceToolUrl);
+                    } else {
+                        console.warn('Practice tool URL not found in settings. Available keys:', Object.keys(data));
+                        // Fallback to default
+                        practiceToolUrl = 'https://piano-visualizer.pages.dev';
+                        console.log('Using fallback URL:', practiceToolUrl);
+                    }
+
+                    try {
+                        iframeOrigin = new URL(practiceToolUrl).origin;
+                        console.log('Iframe origin set to:', iframeOrigin);
+                    } catch (e) {
+                        console.error('Invalid practice tool URL:', practiceToolUrl, e);
+                        iframeOrigin = '';
+                    }
+
+                    // Set iframe source
+                    loadIframe();
+                })
+                .catch(error => {
+                    console.error('Error fetching practice tool URL:', error);
+                    // Fallback to default on error
+                    practiceToolUrl = 'https://piano-visualizer.pages.dev';
+                    iframeOrigin = 'https://piano-visualizer.pages.dev';
+                    console.log('Using fallback URL due to error:', practiceToolUrl);
+                    loadIframe();
+                });
+        }
+
+        // Load the iframe
+        function loadIframe() {
+            const iframe = document.getElementById('pianoVisualizerIframe');
+            const loadingDiv = document.getElementById('practice-loading');
+
+            if (!iframe) {
+                console.error('Iframe element not found!');
+                return;
+            }
+
+            console.log('Loading iframe with URL:', practiceToolUrl);
+
+            // Set up load event handler BEFORE setting src
+            iframe.addEventListener('load', function () {
+                console.log('Iframe loaded successfully');
+                console.log('Iframe dimensions:', {
+                    width: iframe.offsetWidth,
+                    height: iframe.offsetHeight,
+                    display: iframe.style.display,
+                    computedDisplay: window.getComputedStyle(iframe).display
+                });
+                iframe.style.display = 'block';
+                if (loadingDiv) {
+                    loadingDiv.style.display = 'none';
+                }
+                console.log('Iframe should now be visible');
+            });
+
+            // Set up error handler
+            iframe.addEventListener('error', function () {
+                console.error('Iframe failed to load');
+                if (loadingDiv) {
+                    loadingDiv.innerHTML = '<div class="text-center"><p class="text-red-500 dark:text-red-400 mb-2">Failed to load Practice Tool</p><p class="text-sm text-gray-500 dark:text-gray-400">URL: ' + practiceToolUrl + '</p><p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Please check if the URL is accessible.</p></div>';
+                }
+            });
+
+            // Set timeout to show error if iframe doesn't load within 10 seconds
+            const loadTimeout = setTimeout(function () {
+                if (iframe.style.display === 'none' || !iframe.contentDocument) {
+                    console.warn('Iframe load timeout');
+                    if (loadingDiv) {
+                        loadingDiv.innerHTML = '<div class="text-center"><p class="text-yellow-500 dark:text-yellow-400 mb-2">Loading timeout</p><p class="text-sm text-gray-500 dark:text-gray-400">URL: ' + practiceToolUrl + '</p><p class="text-sm text-gray-500 dark:text-gray-400 mt-2">The iframe may still be loading, or the URL may be unreachable.</p></div>';
+                    }
+                    // Show iframe anyway after timeout
+                    iframe.style.display = 'block';
+                }
+            }, 10000);
+
+            // Clear timeout if iframe loads successfully
+            iframe.addEventListener('load', function () {
+                clearTimeout(loadTimeout);
+            }, { once: true });
+
+            // Now set the src to trigger loading
+            iframe.src = practiceToolUrl;
+            console.log('Iframe src set, waiting for load event...');
+        }
+
+        // Calculate and update container height for mobile devices
+        function updatePracticeContainerHeight() {
+            const container = document.getElementById('practice-container');
+            if (!container) return;
+
+            // Get the main element (parent of practice container)
+            const mainElement = document.getElementById('main');
+            if (!mainElement) return;
+
+            // Calculate available height
+            // Account for header, footer, and any padding
+            const windowHeight = window.innerHeight;
+            const mainRect = mainElement.getBoundingClientRect();
+            const availableHeight = windowHeight - mainRect.top;
+
+            // For mobile landscape, use a more aggressive calculation
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isLandscape = window.innerWidth > window.innerHeight;
+
+            if (isMobile && isLandscape) {
+                // In mobile landscape, account for browser UI more carefully
+                // Use window.innerHeight directly as it accounts for browser chrome
+                container.style.minHeight = windowHeight + 'px';
+            } else {
+                // For desktop or portrait, use the original calculation with dynamic viewport
+                const offset = isMobile ? 80 : 120; // Smaller offset for mobile
+                container.style.minHeight = `calc(100dvh - ${offset}px)`;
+                // Fallback for browsers that don't support dvh
+                if (!CSS.supports('height', '100dvh')) {
+                    container.style.minHeight = `calc(100vh - ${offset}px)`;
+                }
+            }
+
+            console.log('Updated practice container height:', {
+                windowHeight,
+                availableHeight,
+                isMobile,
+                isLandscape,
+                containerHeight: container.style.minHeight
+            });
+        }
+
+        // Initialize practice page
+        function initializePractice() {
+            console.log('Initializing Practice tab');
+            console.log('Document ready state:', document.readyState);
+            console.log('Iframe element exists:', !!document.getElementById('pianoVisualizerIframe'));
+            console.log('Loading div exists:', !!document.getElementById('practice-loading'));
+
+            // Update container height on initialization
+            updatePracticeContainerHeight();
+
+            // Scroll to center
+            const container = document.getElementById('practice-container');
+            if (container) {
+                setTimeout(() => {
+                    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+
+            // Ensure DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function () {
+                    console.log('DOMContentLoaded fired');
+                    startInitialization();
+                });
+            } else {
+                // DOM is already ready, but wait a tick for AJAX content to be fully inserted
+                setTimeout(startInitialization, 100);
+            }
+        }
+
+        function startInitialization() {
+            console.log('Starting initialization...');
+
+            // Verify elements exist
+            const iframe = document.getElementById('pianoVisualizerIframe');
+            const loadingDiv = document.getElementById('practice-loading');
+
+            if (!iframe) {
+                console.error('Iframe element not found after DOM ready!');
+                return;
+            }
+
+            if (!loadingDiv) {
+                console.error('Loading div element not found after DOM ready!');
+                return;
+            }
+
+            console.log('All elements found, proceeding...');
+
+            // Clean LED strip on website load to remove any stuck LEDs from previous sessions
+            fetch('/api/change_setting?setting_name=clean_ledstrip&value=0', {
+                method: 'GET'
+            }).catch(error => {
+                console.error('Error cleaning LED strip on initialization:', error);
+            });
+
+            // Get practice tool URL
+            getPracticeToolUrl();
+
+            // Establish websocket connection
+            connectPracticeWebSocket();
+
+            // Set practice_active flag via API
+            fetch('/api/set_practice_active', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ active: true })
+            }).catch(error => {
+                console.error('Error setting practice active:', error);
+            });
+
+            // Set up postMessage listeners
+            setupPostMessageHandlers();
+
+            // Set up fullscreen change listeners
+            setupFullscreenListeners();
+        }
+
+        // Connect to websocket for MIDI communication
+        function connectPracticeWebSocket() {
+            // Reuse existing WebSocket connection if available
+            if (window.mainWebSocket && window.mainWebSocket.readyState === WebSocket.OPEN) {
+                console.log('Reusing existing main WebSocket connection for practice');
+                practiceWebSocket = window.mainWebSocket;
+                // Add our message handler to the existing connection
+                setupPracticeWebSocketHandlers();
+                return;
+            }
+
+            // If practice WebSocket already exists and is open, reuse it
+            if (practiceWebSocket && practiceWebSocket.readyState === WebSocket.OPEN) {
+                console.log('Practice WebSocket already connected');
+                return;
+            }
+
+            const hostname = window.location.hostname;
+            const wsUrl = 'ws://' + hostname + ':8765/learning';
+
+            try {
+                practiceWebSocket = new WebSocket(wsUrl);
+                // Store globally so main page can reuse it
+                window.practiceWebSocket = practiceWebSocket;
+                window.mainWebSocket = practiceWebSocket;
+
+                setupPracticeWebSocketHandlers();
+            } catch (error) {
+                console.error('Error connecting Practice WebSocket:', error);
+            }
+        }
+
+        // Set up message handlers for practice WebSocket
+        function setupPracticeWebSocketHandlers() {
+            if (!practiceWebSocket) return;
+
+            // Use a flag to track if we've already set up handlers
+            if (practiceWebSocket._practiceHandlersSetup) {
+                console.log('Practice WebSocket handlers already setup');
+                return;
+            }
+
+            practiceWebSocket.addEventListener('open', function (event) {
+                console.log('Practice WebSocket connected');
+            });
+
+            practiceWebSocket.addEventListener('message', function (event) {
+                console.log('Practice WebSocket received message:', event.data);
+                // Forward MIDI messages from websocket to iframe
+                // Format: "midi_eventnote_on channel=0 note=60 velocity=127 time=0"
+                if (typeof event.data === 'string' && event.data.startsWith('midi_event')) {
+                    const iframe = document.getElementById('pianoVisualizerIframe');
+                    if (iframe && iframe.contentWindow && iframeOrigin) {
+                        if (isDebugMode()) {
+                            console.log('Forwarding MIDI message to iframe:', event.data, 'to origin:', iframeOrigin);
+                        }
+                        // Send to iframe in the format expected by Piano Visualizer
+                        iframe.contentWindow.postMessage({
+                            type: 'midi_message',
+                            data: event.data
+                        }, iframeOrigin);
+                    } else {
+                        console.warn('Cannot forward message - iframe check:', {
+                            iframe: !!iframe,
+                            contentWindow: iframe ? !!iframe.contentWindow : false,
+                            iframeOrigin: iframeOrigin
+                        });
+                    }
+                } else {
+                    console.log('Message not a MIDI event (does not start with "midi_event"):', typeof event.data, event.data ? event.data.substring(0, 50) : 'null');
+                    // Let other handlers process non-MIDI messages
+                }
+            });
+
+            practiceWebSocket.addEventListener('error', function (event) {
+                console.error('Practice WebSocket error:', event);
+            });
+
+            practiceWebSocket.addEventListener('close', function (event) {
+                console.log('Practice WebSocket closed, attempting reconnect...');
+                practiceWebSocket._practiceHandlersSetup = false;
+                window.practiceWebSocket = null;
+                if (window.mainWebSocket === practiceWebSocket) {
+                    window.mainWebSocket = null;
+                }
+                // Attempt to reconnect after a delay
+                setTimeout(connectPracticeWebSocket, 3000);
+            });
+
+            practiceWebSocket._practiceHandlersSetup = true;
+        }
+
+        // Send fullscreen state update to iframe
+        function sendFullscreenState(isFullscreen) {
+            const iframe = document.getElementById('pianoVisualizerIframe');
+            if (iframe && iframe.contentWindow && iframeOrigin) {
+                iframe.contentWindow.postMessage({
+                    type: 'fullscreen_state',
+                    isFullscreen: isFullscreen
+                }, iframeOrigin);
+                console.log('Sent fullscreen state to iframe:', isFullscreen);
+            }
+        }
+
+        // Enter fullscreen mode
+        async function enterFullscreen() {
+            const iframe = document.getElementById('pianoVisualizerIframe');
+            if (!iframe) {
+                console.error('Iframe element not found for fullscreen');
+                sendFullscreenState(false);
+                return;
+            }
+
+            try {
+                // Request fullscreen on the iframe element with vendor prefixes
+                if (iframe.requestFullscreen) {
+                    await iframe.requestFullscreen();
+                } else if (iframe.webkitRequestFullscreen) {
+                    await iframe.webkitRequestFullscreen();
+                } else if (iframe.mozRequestFullScreen) {
+                    await iframe.mozRequestFullScreen();
+                } else if (iframe.msRequestFullscreen) {
+                    await iframe.msRequestFullscreen();
+                } else {
+                    throw new Error('Fullscreen API not supported');
+                }
+
+                // Send state update to iframe
+                sendFullscreenState(true);
+            } catch (error) {
+                console.error('Error entering fullscreen:', error);
+                // Send error state to iframe
+                sendFullscreenState(false);
+            }
+        }
+
+        // Exit fullscreen mode
+        async function exitFullscreen() {
+            try {
+                // Exit fullscreen with vendor prefixes
+                if (document.exitFullscreen) {
+                    await document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    await document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    await document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    await document.msExitFullscreen();
+                } else {
+                    throw new Error('Fullscreen API not supported');
+                }
+
+                // Send state update to iframe
+                sendFullscreenState(false);
+            } catch (error) {
+                console.error('Error exiting fullscreen:', error);
+                // Send error state to iframe
+                sendFullscreenState(false);
+            }
+        }
+
+        // Set up fullscreen change event listeners
+        function setupFullscreenListeners() {
+            // Listen for fullscreen changes (e.g., user presses ESC)
+            const fullscreenEvents = [
+                'fullscreenchange',
+                'webkitfullscreenchange',
+                'mozfullscreenchange',
+                'MSFullscreenChange'
+            ];
+
+            fullscreenEvents.forEach(event => {
+                document.addEventListener(event, function () {
+                    const iframe = document.getElementById('pianoVisualizerIframe');
+                    if (iframe) {
+                        // Check current fullscreen state
+                        const isFullscreen = !!(
+                            document.fullscreenElement ||
+                            document.webkitFullscreenElement ||
+                            document.mozFullScreenElement ||
+                            document.msFullscreenElement
+                        );
+
+                        console.log('Fullscreen state changed:', isFullscreen);
+                        // Send state update to iframe
+                        sendFullscreenState(isFullscreen);
+                    }
+                });
+            });
+        }
+
+        // Handle saving backup
+        function handleSaveBackup(message) {
+            fetch('/api/save_practice_backup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    data: message.data,
+                    config: message.config
+                })
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('Backup save result:', result);
+                })
+                .catch(error => console.error('Error saving backup:', error));
+        }
+
+        // Handle listing backups
+        function handleGetBackupList() {
+            fetch('/api/get_practice_backup_list')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const iframe = document.getElementById('pianoVisualizerIframe');
+                        if (iframe && iframe.contentWindow) {
+                            iframe.contentWindow.postMessage({
+                                type: 'backup_list',
+                                data: result.data
+                            }, iframeOrigin);
+                        }
+                    }
+                })
+                .catch(error => console.error('Error getting backup list:', error));
+        }
+
+        // Handle restoring backup
+        function handleGetBackup(id) {
+            fetch('/api/get_practice_backup?id=' + encodeURIComponent(id))
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const iframe = document.getElementById('pianoVisualizerIframe');
+                        if (iframe && iframe.contentWindow) {
+                            iframe.contentWindow.postMessage({
+                                type: 'restore_backup',
+                                data: result.data
+                            }, iframeOrigin);
+                        }
+                    }
+                })
+                .catch(error => console.error('Error getting backup:', error));
+        }
+
+        // Set up postMessage handlers for bidirectional MIDI communication and fullscreen
+        function setupPostMessageHandlers() {
+            // Listen for messages from iframe (Piano Visualizer → Piano LED Visualizer)
+            window.addEventListener('message', function (event) {
+                // Validate origin
+                if (!iframeOrigin || event.origin !== iframeOrigin) {
+                    // For development, allow localhost origins
+                    if (event.origin !== 'http://127.0.0.1:5500' &&
+                        event.origin !== 'http://localhost:5500' &&
+                        !event.origin.startsWith('http://127.0.0.1:') &&
+                        !event.origin.startsWith('http://localhost:')) {
+                        console.warn('Rejected message from unauthorized origin:', event.origin);
+                        return;
+                    }
+                }
+
+                // Validate message source
+                if (event.data && event.data.source === 'piano-visualizer') {
+                    // Handle fullscreen messages
+                    switch (event.data.type) {
+                        case 'request_fullscreen':
+                            console.log('Received fullscreen request from iframe');
+                            enterFullscreen();
+                            break;
+
+                        case 'exit_fullscreen':
+                            console.log('Received exit fullscreen request from iframe');
+                            exitFullscreen();
+                            break;
+                    }
+                }
+
+                // Handle backup messages (might not have source: 'piano-visualizer')
+                if (event.data) {
+                    switch (event.data.type) {
+                        case 'save_backup':
+                            console.log('Received save_backup request from iframe');
+                            handleSaveBackup(event.data);
+                            break;
+                        case 'get_backup_list':
+                            console.log('Received get_backup_list request from iframe');
+                            handleGetBackupList();
+                            break;
+                        case 'get_backup':
+                            console.log('Received get_backup request from iframe');
+                            handleGetBackup(event.data.id);
+                            break;
+                    }
+                }
+
+                // Handle MIDI messages from iframe
+                if (event.data && event.data.type === 'midi_message' && event.data.data) {
+                    if (isDebugMode()) {
+                        console.log('Received MIDI message from iframe:', event.data);
+                    }
+                    // Forward to websocket
+                    // Format should be: "midi_eventnote_on channel=0 note=60 velocity=127 time=0"
+                    if (practiceWebSocket && practiceWebSocket.readyState === WebSocket.OPEN) {
+                        if (isDebugMode()) {
+                            console.log('Forwarding MIDI message to WebSocket:', event.data.data);
+                        }
+                        practiceWebSocket.send(event.data.data);
+                    } else {
+                        console.warn('Practice WebSocket not ready, message dropped. State:', practiceWebSocket ? practiceWebSocket.readyState : 'null');
+                    }
+                } else if (event.data && event.data.source !== 'piano-visualizer' &&
+                    event.data.type !== 'save_backup' &&
+                    event.data.type !== 'get_backup_list' &&
+                    event.data.type !== 'get_backup') {
+                    // Only log non-MIDI messages that aren't from piano-visualizer and aren't backup messages
+                    console.log('Received message from iframe:', event.data);
+                }
+            });
+        }
+
+        // Cleanup when leaving practice tab
+        function cleanupPractice() {
+            console.log('Cleaning up Practice tab');
+
+            // First, stop MIDI processing by setting practice_active to false
+            // This prevents any new MIDI messages from being processed
+            fetch('/api/set_practice_active', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ active: false })
+            }).catch(error => {
+                console.error('Error setting practice inactive:', error);
+            });
+
+            // Clear websocket MIDI queue
+            fetch('/api/clear_websocket_midi_queue', {
+                method: 'POST'
+            }).catch(error => {
+                console.error('Error clearing websocket MIDI queue:', error);
+            });
+
+            // Don't close websocket if main page is using it
+            // Only close if we're the only user
+            if (practiceWebSocket && (!window.mainWebSocket || window.mainWebSocket === practiceWebSocket)) {
+                // Check if we should keep it open for main page
+                if (window.mainWebSocket === practiceWebSocket) {
+                    // Main page might need it, so don't close, just remove our reference
+                    practiceWebSocket = null;
+                    // Don't set window.mainWebSocket to null as main page might need it
+                } else {
+                    practiceWebSocket.close();
+                    practiceWebSocket = null;
+                }
+            } else {
+                practiceWebSocket = null;
+            }
+
+            // Wait 500ms before cleaning LED strip to remove any stuck LEDs
+            setTimeout(function () {
+                fetch('/api/change_setting?setting_name=clean_ledstrip&value=0', {
+                    method: 'GET'
+                }).catch(error => {
+                    console.error('Error cleaning LED strip:', error);
+                });
+            }, 500);
+        }
+
+        // Initialize when page loads
+        // Since this page loads via AJAX, the script runs immediately when the HTML is inserted
+        // So we need to wait a moment for the DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializePractice);
+        } else {
+            // DOM is ready, but since this is loaded via AJAX, wait a bit for elements to be inserted
+            setTimeout(initializePractice, 50);
+        }
+
+        // Update container height on window resize and orientation change
+        let resizeTimeout;
+        function handleResize() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function () {
+                updatePracticeContainerHeight();
+            }, 100);
+        }
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', function () {
+            // Wait a bit for orientation change to complete
+            setTimeout(function () {
+                updatePracticeContainerHeight();
+            }, 200);
+        });
+
+        // Cleanup when page unloads (user navigates away)
+        window.addEventListener('beforeunload', cleanupPractice);
+
+        // Also cleanup when loadAjax is called for a different page
+        // Store original loadAjax if it exists (global scope)
+        if (!window.originalLoadAjax) {
+            window.originalLoadAjax = window.loadAjax;
+        } else {
+            // Restore original before wrapping to prevent recursion chains
+            window.loadAjax = window.originalLoadAjax;
+        }
+
+        if (typeof window.loadAjax === 'function') {
+            window.loadAjax = function (subpage) {
+                // If loading a different page, cleanup practice
+                if (subpage !== 'practice') {
+                    cleanupPractice();
+                }
+                // Call original loadAjax
+                return window.originalLoadAjax.apply(this, arguments);
+            };
+        }
+    })();
+</script>

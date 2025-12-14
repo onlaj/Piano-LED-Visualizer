@@ -136,6 +136,12 @@ def get_homepage_data():
 
     cover_opened = GPIO.input(SENSECOVER)
 
+    # Get system state
+    system_state = app_state.state_manager.current_state.value.upper() if app_state.state_manager else 'UNKNOWN'
+    
+    # Only provide FPS data when in ACTIVE_USE state
+    led_fps = round(app_state.ledstrip.current_fps, 2) if system_state == 'ACTIVE_USE' else None
+
     homepage_data = {
         'cpu_usage': psutil.cpu_percent(interval=0.1),
         'cpu_count': psutil.cpu_count(),
@@ -152,8 +158,8 @@ def get_homepage_data():
         'card_space_total': card_space.total,
         'card_space_percent': card_space.percent,
         'cover_state': 'Opened' if cover_opened else 'Closed',
-        'led_fps': round(app_state.ledstrip.current_fps, 2),
-        'system_state': app_state.state_manager.current_state.value.upper() if app_state.state_manager else 'UNKNOWN',
+        'led_fps': led_fps,
+        'system_state': system_state,
         'screen_on': app_state.menu.screen_on,
         'display_type': app_state.menu.args.display if app_state.menu and app_state.menu.args and app_state.menu.args.display else app_state.usersettings.get_setting_value("display_type") or '1in44',
         'led_pin': app_state.usersettings.get_setting_value("led_pin") or '18',
@@ -1101,6 +1107,9 @@ def change_setting():
         else:
             return jsonify(success=False, error="Timezone change not supported on this platform.")
 
+    if setting_name == "practice_tool_url":
+        app_state.usersettings.change_setting_value("practice_tool_url", value)
+
     if setting_name == "restart_rpi":
         app_state.platform.reboot()
 
@@ -1977,6 +1986,7 @@ def get_settings():
     response["speed_max_notes"] = app_state.usersettings.get_setting_value("speed_max_notes")
     response["speed_period_in_seconds"] = app_state.usersettings.get_setting_value("speed_period_in_seconds")
     response["hotspot_password"] = app_state.usersettings.get_setting_value("hotspot_password")
+    response["practice_tool_url"] = app_state.usersettings.get_setting_value("practice_tool_url") or "https://piano-visualizer.pages.dev"
 
     return jsonify(response)
 
@@ -2764,4 +2774,151 @@ def reload_app_state():
     if hasattr(app_state, 'learning') and app_state.learning:
         app_state.learning.usersettings = app_state.usersettings
         app_state.learning.ledsettings = app_state.ledsettings
+
+
+@webinterface.route('/api/set_practice_active', methods=['POST'])
+def set_practice_active():
+    """Set the practice_active flag to enable/disable websocket MIDI priority."""
+    try:
+        data = request.get_json()
+        if data and 'active' in data:
+            app_state.practice_active = bool(data['active'])
+            logger.info(f"Practice mode {'activated' if app_state.practice_active else 'deactivated'}")
+            return jsonify(success=True, practice_active=app_state.practice_active)
+        else:
+            return jsonify(success=False, error="Missing 'active' parameter"), 400
+    except Exception as e:
+        logger.error(f"Error setting practice active: {e}")
+        return jsonify(success=False, error=str(e)), 500
+
+
+@webinterface.route('/api/clear_websocket_midi_queue', methods=['POST'])
+def clear_websocket_midi_queue():
+    """Clear the websocket MIDI queue."""
+    try:
+        if app_state.midiports:
+            app_state.midiports.clear_websocket_midi_queue()
+            logger.info("Websocket MIDI queue cleared")
+            return jsonify(success=True)
+        else:
+            return jsonify(success=False, error="midiports not available"), 500
+    except Exception as e:
+        logger.error(f"Error clearing websocket MIDI queue: {e}")
+        return jsonify(success=False, error=str(e)), 500
+
+
+PRACTICE_BACKUP_FOLDER = "config/practice-backup"
+
+@webinterface.route('/api/save_practice_backup', methods=['POST'])
+def save_practice_backup():
+    import time
+    try:
+        if not os.path.exists(PRACTICE_BACKUP_FOLDER):
+            os.makedirs(PRACTICE_BACKUP_FOLDER)
+
+        data = request.json
+        if not data:
+            return jsonify(success=False, error="No data received")
+
+        backup_data = data.get('data')
+        config = data.get('config', {})
+        
+        if not backup_data:
+             return jsonify(success=False, error="No backup data received")
+
+        timestamp = config.get('timestamp', int(time.time() * 1000))
+        is_auto = config.get('isAuto', False)
+        backup_type = "auto" if is_auto else "manual"
+        
+        filename = f"practice_backup_{timestamp}_{backup_type}.json"
+        filepath = os.path.join(PRACTICE_BACKUP_FOLDER, filename)
+        
+        with open(filepath, 'w') as f:
+            json.dump(data, f)
+
+        # Retention policy
+        retention_count = config.get('retentionCount', 5)
+        if is_auto:
+            files = glob.glob(os.path.join(PRACTICE_BACKUP_FOLDER, "practice_backup_*_*.json"))
+            
+            def get_timestamp(f):
+                try:
+                    parts = os.path.basename(f).split('_')
+                    return int(parts[2])
+                except:
+                    return 0
+            
+            files.sort(key=get_timestamp)
+            
+            auto_files = [f for f in files if "_auto.json" in f]
+            while len(auto_files) > retention_count:
+                oldest = auto_files.pop(0)
+                try:
+                    os.remove(oldest)
+                except OSError as e:
+                    logger.error(f"Error deleting old backup {oldest}: {e}")
+
+        return jsonify(success=True, id=filename)
+    except Exception as e:
+        logger.error(f"Error saving practice backup: {e}")
+        return jsonify(success=False, error=str(e))
+
+@webinterface.route('/api/get_practice_backup_list', methods=['GET'])
+def get_practice_backup_list():
+    try:
+        if not os.path.exists(PRACTICE_BACKUP_FOLDER):
+             return jsonify(success=True, data=[])
+
+        backups = []
+        files = glob.glob(os.path.join(PRACTICE_BACKUP_FOLDER, "practice_backup_*_*.json"))
+        
+        for f in files:
+            try:
+                basename = os.path.basename(f)
+                parts = basename.split('_')
+                timestamp = int(parts[2])
+                type_part = parts[3].replace('.json', '')
+                is_auto = (type_part == 'auto')
+                size = os.path.getsize(f)
+                
+                backups.append({
+                    "id": basename,
+                    "timestamp": timestamp,
+                    "isAuto": is_auto,
+                    "size": size
+                })
+            except Exception as e:
+                logger.error(f"Error parsing backup file {f}: {e}")
+                continue
+                
+        # Sort by timestamp descending
+        backups.sort(key=lambda x: x['timestamp'], reverse=True)
+        
+        return jsonify(success=True, data=backups)
+    except Exception as e:
+        logger.error(f"Error listing practice backups: {e}")
+        return jsonify(success=False, error=str(e))
+
+@webinterface.route('/api/get_practice_backup', methods=['GET'])
+def get_practice_backup():
+    backup_id = request.args.get('id')
+    if not backup_id:
+        return jsonify(success=False, error="No backup ID provided")
+        
+    try:
+        # Sanitize backup_id to prevent directory traversal
+        if os.path.sep in backup_id or '..' in backup_id:
+             return jsonify(success=False, error="Invalid backup ID")
+             
+        filepath = os.path.join(PRACTICE_BACKUP_FOLDER, backup_id)
+        if not os.path.exists(filepath):
+             return jsonify(success=False, error="Backup not found")
+             
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+            
+        return jsonify(success=True, data=data.get('data'))
+    except Exception as e:
+        logger.error(f"Error retrieving practice backup: {e}")
+        return jsonify(success=False, error=str(e))
 

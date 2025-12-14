@@ -36,6 +36,12 @@ function loadAjax(subpage) {
     }
 
     const mainElement = document.getElementById("main");
+    
+    // Restore padding if leaving practice tab
+    if (current_page === "practice" && subpage !== "practice") {
+        mainElement.classList.add("p-5");
+    }
+    
     mainElement.classList.remove("show");
     setTimeout(() => {
         mainElement.innerHTML = "";
@@ -102,6 +108,21 @@ function loadAjax(subpage) {
                         clearInterval(homepage_interval);
                         get_wifi_list();
                         getCurrentLocalAddress();
+                        break;
+                    case "practice":
+                        clearInterval(homepage_interval);
+                        // Remove padding from main element for full-width practice tab
+                        mainElement.classList.remove("p-5");
+                        // Extract and execute scripts from practice.html since innerHTML doesn't execute scripts
+                        const practiceScripts = mainElement.querySelectorAll('script');
+                        practiceScripts.forEach(function(oldScript) {
+                            const newScript = document.createElement('script');
+                            Array.from(oldScript.attributes).forEach(attr => {
+                                newScript.setAttribute(attr.name, attr.value);
+                            });
+                            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                            oldScript.parentNode.replaceChild(newScript, oldScript);
+                        });
                         break;
                 }
             }
@@ -300,8 +321,15 @@ function change_setting(setting_name, value, second_value = false, disable_seque
             }
         }
     }
-    xhttp.open("GET", "/api/change_setting?setting_name=" + setting_name + "&value=" + value
-        + "&second_value=" + second_value + "&disable_sequence=" + disable_sequence, true);
+    // Always URL-encode values; some settings (e.g. URLs) contain characters that would break the query string.
+    xhttp.open(
+        "GET",
+        "/api/change_setting?setting_name=" + encodeURIComponent(setting_name)
+        + "&value=" + encodeURIComponent(value)
+        + "&second_value=" + encodeURIComponent(second_value)
+        + "&disable_sequence=" + encodeURIComponent(disable_sequence),
+        true
+    );
     xhttp.send();
 }
 

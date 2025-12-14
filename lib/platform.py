@@ -16,7 +16,15 @@ class Hotspot:
         self.time_without_wifi = 0
         self.last_wifi_check_time = 0
 
-        subprocess.run("sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/", shell=True, check=True)
+        # Move chmod to background thread to avoid blocking startup
+        def chmod_background():
+            try:
+                subprocess.run("sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/", shell=True, check=True)
+            except Exception as e:
+                logger.warning(f"Error setting permissions in background: {e}")
+        
+        import threading
+        threading.Thread(target=chmod_background, daemon=True).start()
 
 class PlatformBase:
     def __getattr__(self, name):

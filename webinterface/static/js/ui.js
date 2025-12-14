@@ -53,6 +53,7 @@ function remove_page_indicators() {
     document.getElementById("ledsettings").classList.remove("glass-light");
     document.getElementById("songs").classList.remove("glass-light");
     document.getElementById("sequences").classList.remove("glass-light");
+    document.getElementById("practice").classList.remove("glass-light");
     document.getElementById("ports").classList.remove("glass-light");
     document.getElementById("ledanimations").classList.remove("glass-light");
     document.getElementById("network").classList.remove("glass-light");
@@ -75,7 +76,11 @@ function get_homepage_data_loop() {
                 upload = 0;
             }
             const cpuUsage = response_pc_stats["cpu_usage"];
-            const ledFps = parseFloat(response_pc_stats.led_fps) || 0;
+            const systemState = response_pc_stats.system_state || 'UNKNOWN';
+            const ledFpsRaw = response_pc_stats.led_fps;
+            const ledFps = (systemState === 'ACTIVE_USE' && ledFpsRaw !== null && ledFpsRaw !== undefined) 
+                ? parseFloat(ledFpsRaw) || 0 
+                : null;
             
             // Update CPU usage
             const cpuNumberEl = document.getElementById("cpu_number");
@@ -124,10 +129,17 @@ function get_homepage_data_loop() {
             // Update LED FPS
             const ledFpsEl = document.getElementById("led_fps");
             if (ledFpsEl) {
-                ledFpsEl.innerHTML = response_pc_stats.led_fps;
+                if (ledFps !== null && systemState === 'ACTIVE_USE') {
+                    ledFpsEl.innerHTML = response_pc_stats.led_fps;
+                } else {
+                    ledFpsEl.innerHTML = "---.--";
+                }
             }
-            addToHistory('ledFps', ledFps);
-            updateChart('ledFps', ledFps);
+            // Only add to history and update chart if we have valid FPS data
+            if (ledFps !== null && systemState === 'ACTIVE_USE') {
+                addToHistory('ledFps', ledFps);
+                updateChart('ledFps', ledFps);
+            }
             
             if (document.getElementById("system_state")) {
                 document.getElementById("system_state").innerHTML = response_pc_stats.system_state || 'UNKNOWN';
@@ -565,6 +577,10 @@ function get_settings(home = true) {
             config_settings = response;
 
             if (home) {
+                const practiceToolUrlEl = document.getElementById("practice_tool_url");
+                if (practiceToolUrlEl) {
+                    practiceToolUrlEl.value = response["practice_tool_url"] || "";
+                }
 
                 if (document.getElementById("backlight_color")) {
                     document.getElementById("backlight_color").value = response["backlight_color"];
@@ -666,12 +682,217 @@ function get_settings(home = true) {
                 if (inputPortEl) inputPortEl.innerHTML = response["input_port"];
                 const playbackPortEl = document.getElementById("playback_port");
                 if (playbackPortEl) playbackPortEl.innerHTML = response["play_port"];
+                
+                // Check if input port setup popup should be shown
+                check_and_show_port_setup_popup(response["input_port"]);
             }
 
         }
     };
     xhttp.open("GET", "/api/get_settings", true);
     xhttp.send();
+}
+
+/**
+ * Check if input port setup popup should be shown
+ */
+function check_and_show_port_setup_popup(inputPort) {
+    // Check if popup should be hidden via cookie
+    if (getCookie('hide_port_setup_popup') === 'true') {
+        return;
+    }
+    
+    // Check if popup is already visible
+    const overlay = document.getElementById('port_setup_popup_overlay');
+    if (overlay && !overlay.classList.contains('hidden')) {
+        return;
+    }
+    
+    // Check if input port is invalid (empty, null, undefined, or "Network Session 1")
+    const isInvalidPort = !inputPort || 
+                         (typeof inputPort === 'string' && inputPort.trim() === '') || 
+                         inputPort === 'Network Session 1' ||
+                         inputPort === 'default';
+    
+    if (isInvalidPort) {
+        // Small delay to ensure page is fully loaded
+        setTimeout(function() {
+            show_port_setup_popup();
+        }, 500);
+    }
+}
+
+/**
+ * Show the port setup popup and populate the dropdown
+ */
+function show_port_setup_popup() {
+    const overlay = document.getElementById('port_setup_popup_overlay');
+    const dropdown = document.getElementById('port_setup_dropdown');
+    const noPortsMessage = document.getElementById('port_setup_no_ports_message');
+    const submitBtn = document.getElementById('port_setup_submit_btn');
+    
+    if (!overlay || !dropdown) {
+        return;
+    }
+    
+    // Don't show if already visible
+    if (!overlay.classList.contains('hidden')) {
+        return;
+    }
+    
+    // Show overlay
+    overlay.classList.remove('hidden');
+    
+    // Translate static content in popup
+    translateStaticContent();
+    
+    // Reset dropdown
+    const loadingOption = document.createElement('option');
+    loadingOption.value = '';
+    loadingOption.disabled = true;
+    loadingOption.selected = true;
+    loadingOption.textContent = translate('loading_ports');
+    dropdown.innerHTML = '';
+    dropdown.appendChild(loadingOption);
+    dropdown.disabled = true;
+    submitBtn.disabled = true;
+    noPortsMessage.classList.add('hidden');
+    
+    // Fetch available ports
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            const response = JSON.parse(this.responseText);
+            const ports = response.ports_list || [];
+            
+            // Clear dropdown
+            dropdown.innerHTML = '';
+            
+            if (ports.length === 0) {
+                // No ports available
+                const noPortsOption = document.createElement('option');
+                noPortsOption.value = '';
+                noPortsOption.disabled = true;
+                noPortsOption.selected = true;
+                noPortsOption.textContent = translate('no_ports');
+                dropdown.appendChild(noPortsOption);
+                dropdown.disabled = true;
+                submitBtn.disabled = true;
+                noPortsMessage.classList.remove('hidden');
+            } else {
+                // Add ports to dropdown
+                const selectPortOption = document.createElement('option');
+                selectPortOption.value = '';
+                selectPortOption.disabled = true;
+                selectPortOption.selected = true;
+                selectPortOption.textContent = translate('select_port');
+                dropdown.appendChild(selectPortOption);
+                
+                ports.forEach(function(port) {
+                    const option = document.createElement('option');
+                    option.value = port;
+                    option.textContent = port;
+                    dropdown.appendChild(option);
+                });
+                dropdown.disabled = false;
+                
+                // Enable submit button when a port is selected
+                dropdown.onchange = function() {
+                    const hasValue = this.value && this.value !== '';
+                    submitBtn.disabled = !hasValue;
+                    if (hasValue) {
+                        submitBtn.innerHTML = '<span>' + translate('set_port') + '</span>';
+                    }
+                };
+            }
+        } else if (this.readyState === 4) {
+            // Error loading ports
+            const errorOption = document.createElement('option');
+            errorOption.value = '';
+            errorOption.disabled = true;
+            errorOption.selected = true;
+            errorOption.textContent = translate('error_loading_ports');
+            dropdown.innerHTML = '';
+            dropdown.appendChild(errorOption);
+            dropdown.disabled = true;
+            submitBtn.disabled = true;
+        }
+    };
+    xhttp.open("GET", "/api/get_ports", true);
+    xhttp.send();
+}
+
+/**
+ * Hide the port setup popup
+ */
+function hide_port_setup_popup() {
+    const overlay = document.getElementById('port_setup_popup_overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+    }
+}
+
+/**
+ * Handle overlay click (dismiss popup when clicking outside)
+ */
+function handle_port_setup_overlay_click(event) {
+    // Only hide if clicking directly on overlay, not on popup content
+    if (event.target.id === 'port_setup_popup_overlay') {
+        handle_port_setup_cancel();
+    }
+}
+
+/**
+ * Handle cancel button click
+ */
+function handle_port_setup_cancel() {
+    const dontShowAgain = document.getElementById('port_setup_dont_show_again');
+    
+    // Save preference if checkbox is checked
+    if (dontShowAgain && dontShowAgain.checked) {
+        setCookie('hide_port_setup_popup', 'true', 365);
+    }
+    
+    hide_port_setup_popup();
+}
+
+/**
+ * Handle submit button click - set both input_port and play_port
+ */
+function handle_port_setup_submit() {
+    const dropdown = document.getElementById('port_setup_dropdown');
+    const submitBtn = document.getElementById('port_setup_submit_btn');
+    const dontShowAgain = document.getElementById('port_setup_dont_show_again');
+    
+    if (!dropdown || !dropdown.value || dropdown.value === '') {
+        return;
+    }
+    
+    const selectedPort = dropdown.value;
+    
+    // Disable button during operation
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span>' + translate('setting_port') + '</span>';
+    
+    // Set input_port first
+    change_setting('input_port', selectedPort);
+    
+    // Set play_port after a short delay to ensure input_port is set first
+    setTimeout(function() {
+        change_setting('play_port', selectedPort);
+        
+        // Save preference if checkbox is checked
+        if (dontShowAgain && dontShowAgain.checked) {
+            setCookie('hide_port_setup_popup', 'true', 365);
+        }
+        
+        // Hide popup and refresh settings after a short delay
+        setTimeout(function() {
+            hide_port_setup_popup();
+            // Refresh settings to show updated port values
+            get_settings(false);
+        }, 500);
+    }, 300);
 }
 
 

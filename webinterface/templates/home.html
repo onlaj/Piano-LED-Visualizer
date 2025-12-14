@@ -381,6 +381,14 @@
                         </div>
                     </div>
                 </div>
+                <div class="advanced-content">
+                    <label data-translate="practice_app_url" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Practice app URL</label>
+                    <input id="practice_tool_url"
+                           type="url"
+                           class="w-full h-10 outline-none glass-light py-2 px-2 rounded-glass transition-smooth-fast"
+                           placeholder="https://piano-visualizer.pages.dev"
+                           onchange="change_setting('practice_tool_url', this.value)">
+                </div>
                 <div>
                     <label data-translate="reset_settings_to_default" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Reset settings to default</label>
                     <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"

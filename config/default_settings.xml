@@ -152,4 +152,6 @@
     <web_listen_ip></web_listen_ip>
     <web_listen_port></web_listen_port>
 
+    <practice_tool_url>https://piano-visualizer.pages.dev</practice_tool_url>
+
 </settings>

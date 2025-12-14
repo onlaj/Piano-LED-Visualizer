@@ -64,6 +64,11 @@ def network():
     return render_template('network.html')
 
 
+@webinterface.route('/practice')
+def practice():
+    return render_template('practice.html')
+
+
 @webinterface.route('/upload', methods=['POST'])
 def upload_file():
     if request.method == 'POST':

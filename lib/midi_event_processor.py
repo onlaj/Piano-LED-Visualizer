@@ -5,6 +5,15 @@ from rpi_ws281x import Color
 from lib.functions import get_note_position, find_between
 from lib.log_setup import logger
 
+# Import app_state to check practice_active flag
+try:
+    from webinterface import app_state
+except ImportError:
+    # If webinterface is not available, create a dummy app_state
+    class DummyAppState:
+        practice_active = False
+    app_state = DummyAppState()
+
 OFF_COLOR = Color(0, 0, 0)
 
 
@@ -33,10 +42,15 @@ class MIDIEventProcessor:
         Handles different event types and routes them to appropriate handlers.
         Selects input source based on playback/learning state.
         """
-        # Determine which MIDI queue to process based on playback state
+        # Determine which MIDI queue to process based on playback state and practice mode
         if not self.saving.is_playing_midi and not self.learning.is_started_midi:
-            # Process live MIDI input
-            self.midiports.midipending = self.midiports.midi_queue
+            # Check if practice mode is active (websocket MIDI takes priority)
+            if hasattr(app_state, 'practice_active') and app_state.practice_active:
+                # Process websocket MIDI input (from practice tool)
+                self.midiports.midipending = self.midiports.websocket_midi_queue
+            else:
+                # Process regular live MIDI input
+                self.midiports.midipending = self.midiports.midi_queue
         else:
             # Process MIDI file playback
             self.midiports.midipending = self.midiports.midifile_queue
@@ -132,6 +146,20 @@ class MIDIEventProcessor:
             msg_timestamp: Timestamp when the message was received
             note_position: Position on the LED strip corresponding to the note
         """
+        # Extract channel from message to check if it's from external software
+        channel = find_between(str(msg), "channel=", " ")
+        # Strip trailing commas (mido message format: "channel=12, note=60...")
+        channel = channel.rstrip(',') if channel else False
+        
+        # If LED was lit by external software (channels 11/12), only allow external software to turn it off
+        if self.ledstrip.keylist_external_software[note_position] == 1:
+            if channel == "12" or channel == "11":
+                # External software is turning off the LED - clear tracking and proceed
+                self.ledstrip.keylist_external_software[note_position] = 0
+            else:
+                # Local key press trying to turn off externally-controlled LED - skip it
+                return
+        
         velocity = 0
         self.ledstrip.keylist_status[note_position] = 0
 
@@ -233,7 +261,11 @@ class MIDIEventProcessor:
 
         # Handle special channels for hand coloring (channels 11 and 12)
         channel = find_between(str(msg), "channel=", " ")
+        # Strip trailing commas (mido message format: "channel=12, note=60...")
+        channel = channel.rstrip(',') if channel else False
         if channel == "12" or channel == "11":
+            # Mark this LED as externally controlled by external software
+            self.ledstrip.keylist_external_software[note_position] = 1
             if self.ledsettings.skipped_notes != "Finger-based":
                 # Apply right hand or left hand color
                 if channel == "12":
@@ -246,6 +278,10 @@ class MIDIEventProcessor:
                 self.ledstrip.strip.setPixelColor(note_position, s_color)
                 self.ledstrip.set_adjacent_colors(note_position, s_color, False)
         else:
+            # Normal channel is taking control - clear external software flag
+            if self.ledstrip.keylist_external_software[note_position] == 1:
+                self.ledstrip.keylist_external_software[note_position] = 0
+            
             if self.ledsettings.skipped_notes != "Normal":
                 # Apply standard note color with velocity-based brightness
                 s_color = Color(int(int(red) / float(brightness)), int(int(green) / float(brightness)),

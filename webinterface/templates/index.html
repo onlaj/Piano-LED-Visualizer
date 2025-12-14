@@ -28,9 +28,27 @@
 
 
 <script>
+    // Store WebSocket globally so practice page can reuse it
+    window.mainWebSocket = null;
+    window.mainWebSocketMessageHandlers = [];
+    
     function establish_socket_connection(try_count) {
+        // If practice page has a connection, reuse it
+        if (window.practiceWebSocket && window.practiceWebSocket.readyState === WebSocket.OPEN) {
+            console.log("Reusing practice WebSocket connection");
+            window.mainWebSocket = window.practiceWebSocket;
+            return;
+        }
+        
+        // If there's already a connection, don't create a new one
+        if (window.mainWebSocket && window.mainWebSocket.readyState === WebSocket.OPEN) {
+            console.log("WebSocket already connected, reusing");
+            return;
+        }
+        
         console.log("Connecting to websocket")
         const socket = new WebSocket('ws://' + window.location.hostname + ':8765/learning');
+        window.mainWebSocket = socket;
         socket.addEventListener('open', function (event) {
             console.log('Connected to server');
             socket.send('Connection Established');
@@ -134,6 +152,7 @@
         });
         socket.addEventListener('close', function (event) {
             console.log('Connection closed, reconnecting...');
+            window.mainWebSocket = null;
             if (try_count < 10) {
                 setTimeout(establish_socket_connection, 5000, try_count + 1);
             }
@@ -147,6 +166,7 @@
             socket.onclose = function () {
             }; // disable onclose handler first
             socket.close();
+            window.mainWebSocket = null;
         };
     }
 
@@ -300,6 +320,26 @@
                 </span>
                             <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="sequences">
                                 Sequences
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul @click="closeSidebarMenu()" onclick="loadAjax('practice')" class="p-2 overflow-hidden">
+                    <li>
+                        <a
+                                onclick="history.pushState({}, '', '#practice')"
+                                id="practice"
+                                class="flex items-center p-2 space-x-2 rounded-glass-sm transition-smooth-fast hover:glass-light hover:shadow-glass"
+                                :class="{'justify-center': !isSidebarOpen}"
+                        >
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 -960 960 960" fill="currentColor">
+                      <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h130v-180h-10q-17 0-28.5-11.5T280-420v-340h-80v560Zm430 0h130v-560h-80v340q0 17-11.5 28.5T640-380h-10v180Zm-240 0h180v-180h-10q-17 0-28.5-11.5T520-420v-340h-80v340q0 17-11.5 28.5T400-380h-10v180Z"/>
+                    </svg>
+                </span>
+                            <span :class="{ 'lg:hidden': !isSidebarOpen }" data-translate="practice">
+                                Practice
                             </span>
                         </a>
                     </li>
@@ -511,7 +551,7 @@
                     </div>
                 </div>
                 <!-- Main content -->
-                <main id="main" class="slide-in from-left flex-1 max-h-full p-5 overflow-hidden overflow-y-scrollx
+                <main id="main" class="slide-in from-left flex-1 max-h-full p-5 overflow-hidden overflow-y-auto snap-y snap-proximity
                 scrollbar-w-2
                 scrollbar-track-gray-lighter scrollbar-thumb-rounded scrollbar-thumb-gray scrolling-touch">
 
@@ -653,7 +693,7 @@
         return null;
     }
 
-    if (getCookie('darkmode') != "1") {
+    if (getCookie('darkmode') == "0") {
         document.documentElement.classList.remove('dark')
     }
 
@@ -678,9 +718,8 @@
         }
     }
 
-    if (document.documentElement.classList.contains("dark")) {
-        document.getElementById("toggleDark").click();
-    }
+    // Initialize toggle checkbox state to match dark mode
+    document.getElementById("toggleDark").checked = document.documentElement.classList.contains("dark");
 
     document.getElementById('switch_ports_sidebar').onclick = function () {
         document.getElementById('switch_ports_sidebar').disabled = true;
@@ -958,6 +997,62 @@
 
 <!-- Notification System Container -->
 <div id="notification-container"></div>
+
+<!-- Input Port Setup Popup Modal -->
+<div id="port_setup_popup_overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden" style="backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)" onclick="handle_port_setup_overlay_click(event)">
+    <div id="port_setup_popup" class="glass-strong shadow-glass-lg rounded-glass p-6 max-w-md min-w-80 w-auto mx-4 transform transition-all" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-200" data-translate="input_port_setup">Input Port Setup</h3>
+            <button onclick="hide_port_setup_popup()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mb-4">
+            <p class="text-sm text-gray-700 dark:text-gray-300 mb-2" data-translate="no_input_port_message">
+                No input port is currently set. Please select your piano from the list below.
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4" data-translate="port_will_be_set_both">
+                The selected port will be set as both input port and playback port.
+            </p>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300" data-translate="select_piano_port">Select Piano Port:</label>
+            <div class="relative">
+                <select id="port_setup_dropdown" class="h-10 block appearance-none w-full glass-light py-2 px-3 pr-8 rounded-glass leading-tight transition-smooth-fast text-gray-900 dark:text-gray-200">
+                    <option value="" disabled selected data-translate="loading_ports">Loading ports...</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="port_setup_no_ports_message" class="hidden mt-2 text-sm text-yellow-600 dark:text-yellow-400" data-translate="no_ports_available">
+                No MIDI ports are currently available. Please connect your piano and refresh the page.
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <label class="flex items-center cursor-pointer">
+                <input type="checkbox" id="port_setup_dont_show_again" class="mr-2 rounded">
+                <span class="text-sm text-gray-700 dark:text-gray-300" data-translate="dont_show_again">Don't show this message again</span>
+            </label>
+        </div>
+        
+        <div class="flex space-x-3">
+            <button onclick="handle_port_setup_submit()" id="port_setup_submit_btn" class="flex-1 h-10 outline-none glass-light hover:glass font-bold py-2 px-4 rounded-glass transition-smooth-fast inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-gray-200" disabled>
+                <span data-translate="set_port">Set Port</span>
+            </button>
+            <button onclick="handle_port_setup_cancel()" class="flex-1 h-10 outline-none glass-light hover:glass font-bold py-2 px-4 rounded-glass transition-smooth-fast inline-flex items-center justify-center text-gray-900 dark:text-gray-200">
+                <span data-translate="cancel">Cancel</span>
+            </button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
