@@ -3,68 +3,94 @@
     <div class="glass shadow-glass-lg rounded-glass p-4 mb-6 intro-y">
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center space-x-2 flex-grow">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                 </svg>
-                <span class="font-semibold text-sm text-gray-600 dark:text-gray-400" data-translate="presets">Presets</span>
-                
+                <span class="font-semibold text-sm text-gray-600 dark:text-gray-400"
+                    data-translate="presets">Presets</span>
+
                 <div class="relative">
-                    <select id="preset_list" class="block appearance-none h-10 w-48 glass-light px-4 pr-8 rounded-glass leading-tight transition-smooth-fast text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50">
+                    <select id="preset_list"
+                        class="block appearance-none h-10 w-48 glass-light px-4 pr-8 rounded-glass leading-tight transition-smooth-fast text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50">
                         <option value="" disabled selected data-translate="select_preset">Select Preset</option>
                     </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                    <div
+                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                             <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
                         </svg>
                     </div>
                 </div>
 
-                <button onclick="load_preset()" class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast flex items-center space-x-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                <button onclick="load_preset()"
+                    class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast flex items-center space-x-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                     <span data-translate="load_preset">Load</span>
                 </button>
             </div>
-            
+
             <div class="flex items-center space-x-2 flex-wrap gap-2">
-                
-                <button onclick="overwrite_preset()" class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast flex items-center space-x-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+
+                <button onclick="overwrite_preset()"
+                    class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast flex items-center space-x-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                     </svg>
                     <span data-translate="save_preset_button">Save</span>
                 </button>
 
-                <button onclick="save_preset()" class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast flex items-center space-x-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                <button onclick="save_preset()"
+                    class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast flex items-center space-x-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                     </svg>
                     <span data-translate="save_as_preset">Save As...</span>
                 </button>
-                
-                <button onclick="rename_preset()" class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast" data-translate="rename_preset_button">
+
+                <button onclick="rename_preset()"
+                    class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold transition-smooth-fast"
+                    data-translate="rename_preset_button">
                     Rename
                 </button>
-                
-                <button onclick="delete_preset()" class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold text-red-500 hover:text-red-600 transition-smooth-fast" data-translate="delete_preset_button">
+
+                <button onclick="delete_preset()"
+                    class="h-10 px-4 glass-light hover:glass rounded-glass text-sm font-semibold text-red-500 hover:text-red-600 transition-smooth-fast"
+                    data-translate="delete_preset_button">
                     Delete
                 </button>
-                
+
                 <div class="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-2"></div>
-                
-                <label class="h-10 px-3 glass-light hover:glass rounded-glass cursor-pointer flex items-center justify-center transition-smooth-fast" data-translate="import_preset" title="Import Preset">
+
+                <label
+                    class="h-10 px-3 glass-light hover:glass rounded-glass cursor-pointer flex items-center justify-center transition-smooth-fast"
+                    data-translate="import_preset" title="Import Preset">
                     <span class="mr-2 text-sm font-semibold" data-translate="import_preset">Import</span>
                     <input type="file" id="preset_upload" accept=".xml" class="hidden" onchange="upload_preset(this)">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                 </label>
-                
-                <button onclick="download_preset()" class="h-10 px-3 glass-light hover:glass rounded-glass transition-smooth-fast flex items-center justify-center" data-translate="export_preset" title="Export Preset">
+
+                <button onclick="download_preset()"
+                    class="h-10 px-3 glass-light hover:glass rounded-glass transition-smooth-fast flex items-center justify-center"
+                    data-translate="export_preset" title="Export Preset">
                     <span class="mr-2 text-sm font-semibold" data-translate="export_preset">Export</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
                 </button>
             </div>
@@ -82,11 +108,14 @@
     <!-- Control Panels: Sections -->
     <div class="grid grid-cols-12 gap-6 mb-6">
         <!-- Color Settings -->
-        <div class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+        <div
+            class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
             <div class="w-full flex items-center p-3">
                 <div class="flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                     </svg>
                     <span class="font-semibold text-sm" data-translate="color_settings">Color Settings</span>
                 </div>
@@ -102,60 +131,68 @@
         </div>
 
         <!-- Brightness & Display -->
-        <div class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+        <div
+            class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
             <div class="w-full flex items-center p-3">
                 <div class="flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                     <span class="font-semibold text-sm" data-translate="brightness_display">Brightness & Display</span>
                 </div>
             </div>
             <div class="p-3 pt-0 space-y-3">
                 <div>
-                    <label data-translate="brightness" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Brightness</label>
+                    <label data-translate="brightness"
+                        class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Brightness</label>
                     <div class="space-y-2">
                         <input id="brightness" class="w-full" type="range" value="50" min="1" max="100"
-                               oninput="this.nextElementSibling.value = this.value+'%' ">
+                            oninput="this.nextElementSibling.value = this.value+'%' ">
                         <output id="brightness_percent" class="flex justify-center text-sm">50%</output>
                     </div>
                 </div>
                 <div>
-                    <label data-translate="backlight" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Backlight</label>
+                    <label data-translate="backlight"
+                        class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Backlight</label>
                     <div class="space-y-3">
                         <input id="backlight_color" type="color" value="#ffffff"
-                               class="cursor-pointer h-8 w-full glass-light rounded-glass"
-                               oninput="editLedColor(event, 'backlight_');"
-                               onclick="editLedColor(event, 'backlight_');"
-                               onchange="change_setting('backlight_color', this.value);">
+                            class="cursor-pointer h-8 w-full glass-light rounded-glass"
+                            oninput="editLedColor(event, 'backlight_');" onclick="editLedColor(event, 'backlight_');"
+                            onchange="change_setting('backlight_color', this.value);">
                         <div id="backlightcolors" class="justify-center flex">
                             <span class="w-1/12 h-8 px-2 py-1 glass-light text-red-400 rounded-glass">R:</span>
                             <input id="backlight_red" name="field_name" type="number" value="255" min="0" max="255"
-                                   class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
+                                class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
                             <span class="w-1/12 h-8 px-2 py-1 glass-light text-green-400 rounded-glass">G:</span>
                             <input id="backlight_green" name="field_name" type="number" value="255" min="0" max="255"
-                                   class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
+                                class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
                             <span class="w-1/12 h-8 px-2 py-1 glass-light text-blue-400 rounded-glass">B:</span>
                             <input id="backlight_blue" name="field_name" type="number" value="255" min="0" max="255"
-                                   class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
+                                class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
                         </div>
                         <div class="space-y-2">
                             <input id="backlight_brightness" class="w-full" type="range" value="50" min="0" max="100"
-                                   oninput="this.nextElementSibling.value = this.value+'%' ">
+                                oninput="this.nextElementSibling.value = this.value+'%' ">
                             <output id="backlight_brightness_percent" class="flex justify-center text-sm">50%</output>
                         </div>
                         <div class="flex items-center">
-                            <input onclick="change_setting('disable_backlight_on_idle', this.checked)" id="disable_backlight" type="checkbox"
-                                   value="" class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500
+                            <input onclick="change_setting('disable_backlight_on_idle', this.checked)"
+                                id="disable_backlight" type="checkbox" value=""
+                                class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500
                                    dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                            <label for="disable_backlight" class="pl-2 block text-xs font-semibold text-gray-600 dark:text-gray-400" data-translate="disable_backlight_on_idle">
+                            <label for="disable_backlight"
+                                class="pl-2 block text-xs font-semibold text-gray-600 dark:text-gray-400"
+                                data-translate="disable_backlight_on_idle">
                                 Disable on idle
                             </label>
                         </div>
                     </div>
                 </div>
                 <div>
-                    <label data-translate="sides_colors" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Sides Colors</label>
+                    <label data-translate="sides_colors"
+                        class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Sides Colors</label>
                     <div class="space-y-3">
                         <div class="relative">
                             <select id="sides_color_mode" class="h-10 block appearance-none w-full glass-light
@@ -164,28 +201,30 @@
                                 <option value="Main" data-translate="same_as_led_color">Same as led color</option>
                                 <option value="RGB" data-translate="rgb">RGB</option>
                             </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                                 </svg>
                             </div>
                         </div>
                         <div id="sides_color_choose" class="space-y-2">
                             <input id="sides_color" type="color" value="#ffffff"
-                                   class="cursor-pointer h-8 w-full glass-light rounded-glass"
-                                   onclick="editLedColor(event, 'sides_');"
-                                   oninput="editLedColor(event, 'sides_');"
-                                   onchange="change_setting('sides_color', this.value)">
+                                class="cursor-pointer h-8 w-full glass-light rounded-glass"
+                                onclick="editLedColor(event, 'sides_');" oninput="editLedColor(event, 'sides_');"
+                                onchange="change_setting('sides_color', this.value)">
                             <div id="sidescolors" class="justify-center flex">
                                 <span class="w-1/12 h-8 px-2 py-1 glass-light text-red-400 rounded-glass">R:</span>
                                 <input id="sides_red" name="field_name" type="number" value="255" min="0" max="255"
-                                       class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
+                                    class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
                                 <span class="w-1/12 h-8 px-2 py-1 glass-light text-green-400 rounded-glass">G:</span>
                                 <input id="sides_green" name="field_name" type="number" value="255" min="0" max="255"
-                                       class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
+                                    class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
                                 <span class="w-1/12 h-8 px-2 py-1 glass-light text-blue-400 rounded-glass">B:</span>
                                 <input id="sides_blue" name="field_name" type="number" value="255" min="0" max="255"
-                                       class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
+                                    class="h-8 w-2/12 glass-light rounded-glass" onkeyup=enforceMinMax(this)>
                             </div>
                         </div>
                     </div>
@@ -194,11 +233,14 @@
         </div>
 
         <!-- Adjustments -->
-        <div class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+        <div
+            class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
             <div class="w-full flex items-center p-3">
                 <div class="flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                     </svg>
                     <span class="font-semibold text-sm" data-translate="adjustments">Adjustments</span>
                 </div>
@@ -212,14 +254,15 @@
                                 <div class='has-tooltip ml-1'>
                                     <span class='inline-block tooltip rounded shadow-lg p-1 bg-gray-100
                                     dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
-                                        <div data-translate="finger_based_ignore">Finger Based: ignore notes with information about which hand to play</div>
-                                        <div data-translate="normal_ignore_all_other">Normal: ignore all other notes</div>
+                                        <div data-translate="finger_based_ignore">Finger Based: ignore notes with
+                                            information about which hand to play</div>
+                                        <div data-translate="normal_ignore_all_other">Normal: ignore all other notes
+                                        </div>
                                     </span>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
+                                        viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
                             </div>
@@ -231,16 +274,19 @@
                                 <option value="Normal" data-translate="normal">Normal</option>
                                 <option value="Finger-based" data-translate="finger_based">Finger Based</option>
                             </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                                 </svg>
                             </div>
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400"
-                               data-translate="reverse">
+                            data-translate="reverse">
                             Reverse
                         </label>
                         <div class="relative">
@@ -249,9 +295,12 @@
                                 <option value="0" data-translate="normal">Normal</option>
                                 <option value="1" data-translate="inverted">Inverted</option>
                             </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                                 </svg>
                             </div>
                         </div>
@@ -260,34 +309,32 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                         <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400"
-                               data-translate="shift">
+                            data-translate="shift">
                             Shift
                         </label>
                         <div class="flex">
-                            <input id="shift" name="field_name" type="number" value="176" min="-255" max="255"
-                                   class="h-10 block appearance-none w-full glass-light
+                            <input id="shift" name="field_name" type="number" value="176" min="-255" max="255" class="h-10 block appearance-none w-full glass-light
                             text-center rounded-glass leading-tight transition-smooth-fast">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400"
-                               data-translate="led_count">
+                            data-translate="led_count">
                             Led Count
                         </label>
                         <div class="flex">
-                            <input id="led_count" name="field_name" type="number" value="176" min="0" max="255"
-                                   class="h-10 block appearance-none w-full glass-light
+                            <input id="led_count" name="field_name" type="number" value="176" min="0" max="255" class="h-10 block appearance-none w-full glass-light
                             text-center rounded-glass leading-tight transition-smooth-fast">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400"
-                               data-translate="leds_per_meter">
+                            data-translate="leds_per_meter">
                             Leds per meter
                         </label>
                         <div class="flex">
                             <input id="leds_per_meter" name="field_name" type="number" value="144" min="1" max="255"
-                                   class="h-10 block appearance-none w-full glass-light
+                                class="h-10 block appearance-none w-full glass-light
                             text-center rounded-glass leading-tight transition-smooth-fast">
                         </div>
                     </div>
@@ -296,40 +343,46 @@
         </div>
 
         <!-- Advanced Settings -->
-        <div class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
+        <div
+            class="col-span-12 sm:col-span-6 xl:col-span-6 glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1">
             <div class="w-full flex items-center p-3">
                 <div class="flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     <span class="font-semibold text-sm" data-translate="advanced_settings">Advanced Settings</span>
                 </div>
             </div>
             <div class="p-3 pt-0 space-y-3">
                 <div>
-                    <label for="gamma_correction" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="gamma_correction">Gamma Correction</label>
-                    <input id="gamma_correction" name="led_gamma" type="number" value="1" min="0.01" max="10.0"
-                           class="h-10 block appearance-none w-full glass-light
-                    py-2 px-2 rounded-glass leading-tight transition-smooth-fast"
-                           title="Use 2.8 for linear perception"
-                           onchange="change_setting('led_gamma', this.value);">
+                    <label for="gamma_correction"
+                        class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400"
+                        data-translate="gamma_correction">Gamma Correction</label>
+                    <input id="gamma_correction" name="led_gamma" type="number" value="1" min="0.01" max="10.0" class="h-10 block appearance-none w-full glass-light
+                    py-2 px-2 rounded-glass leading-tight transition-smooth-fast" title="Use 2.8 for linear perception"
+                        onchange="change_setting('led_gamma', this.value);">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="led_note_offsets">
+                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400"
+                        data-translate="led_note_offsets">
                         LED Note Offsets
                     </label>
                     <div class='has-tooltip mb-2'>
                         <span class='inline-block tooltip rounded shadow-lg p-1 bg-gray-100
                         dark:bg-gray-600 text-gray-600 dark:text-gray-400 -mt-8'>
-                            <div data-translate="shift_notes_for_better_alignment">Adjust LED positions for better alignment</div>
-                            <div data-translate="light_number_means">Note Number: 92, Offset: 2: For notes above 92, LEDs shifts 2 positions backwards (towards lower notes)</div>
+                            <div data-translate="shift_notes_for_better_alignment">Adjust LED positions for better
+                                alignment</div>
+                            <div data-translate="light_number_means">Note Number: 92, Offset: 2: For notes above 92,
+                                LEDs shifts 2 positions backwards (towards lower notes)</div>
                         </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline" fill="none"
-                             viewBox="0 0 24 24"
-                             stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                     <div class="overflow-y-auto overflow-x-hidden max-h-80 glass-light rounded-glass p-3">
