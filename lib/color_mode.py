@@ -186,15 +186,21 @@ class Rainbow(ColorMode):
         self.scale = int(ledsettings.rainbow_scale)
         self.timeshift = int(ledsettings.rainbow_timeshift)
         self.timeshift_start = time.time()
-        self.colormap = ledsettings.rainbow_colormap
+        self.colormap_raw = ledsettings.rainbow_colormap
+        self.colormap = getattr(ledsettings, "rainbow_colormap_safe", self.colormap_raw)
         if self.colormap not in cmap.colormaps:
-            self.colormaps = "Rainbow"
+            self.colormap = "Rainbow"
 
     def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
         shift = (time.time() - self.timeshift_start) * self.timeshift
         rainbow_value = int((int(note_position) + self.offset + shift) * (
                 float(self.scale) / 100)) & 255
-        return cmap.colormaps[self.colormap][rainbow_value]
+        cmap_name = self.colormap if self.colormap in cmap.colormaps else "Rainbow"
+        try:
+            cmap.ensure_colormap_generated(cmap_name)
+            return cmap.colormaps[cmap_name][rainbow_value]
+        except Exception:
+            return cmap.colormaps.get("Rainbow", [(0, 0, 0)])[rainbow_value]
 
     def ColorUpdate(self, time_delta, led_pos, old_color):
         return self.NoteOn(None, None, None, led_pos)
@@ -277,12 +283,17 @@ class VelocityRainbow(ColorMode):
         self.offset = int(ledsettings.velocityrainbow_offset)
         self.scale = int(ledsettings.velocityrainbow_scale)
         self.curve = int(ledsettings.velocityrainbow_curve)
-        self.colormap = ledsettings.velocityrainbow_colormap
+        self.colormap_raw = ledsettings.velocityrainbow_colormap
+        self.colormap = getattr(ledsettings, "velocityrainbow_colormap_safe", self.colormap_raw)
+        if self.colormap not in cmap.colormaps:
+            self.colormap = "Rainbow-FastLED"
 
     def NoteOn(self, midi_event: mido.Message, midi_time, midi_state, note_position):
-        if self.colormap not in cmap.colormaps:
-            return None
-
+        cmap_name = self.colormap if self.colormap in cmap.colormaps else "Rainbow-FastLED"
         x = int(((255 * powercurve(midi_event.velocity / 127, self.curve / 100)
                     * (self.scale / 100) % 256) + self.offset) % 256)
-        return cmap.colormaps[self.colormap][x]
+        try:
+            cmap.ensure_colormap_generated(cmap_name)
+            return cmap.colormaps[cmap_name][x]
+        except Exception:
+            return cmap.colormaps.get("Rainbow-FastLED", [(0, 0, 0)])[x]

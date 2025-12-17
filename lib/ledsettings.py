@@ -19,6 +19,13 @@ class LedSettings:
         self.usersettings = usersettings
         self._load_settings()
 
+    def _clean_colormap_value(self, value, default):
+        """Trim whitespace and return a safe colormap name with fallback."""
+        if value is None:
+            return default
+        cleaned = str(value).strip()
+        return cleaned or default
+
     def _load_settings(self):
         """Load all settings from usersettings. Can be called to reload settings without recreating the object."""
         us = self.usersettings
@@ -42,11 +49,15 @@ class LedSettings:
         self.rainbow_offset = int(us.get_setting_value("rainbow_offset"))
         self.rainbow_scale = int(us.get_setting_value("rainbow_scale"))
         self.rainbow_timeshift = int(us.get_setting_value("rainbow_timeshift"))
-        self.rainbow_colormap = us.get_setting_value("rainbow_colormap")
+        raw_rainbow_cmap = us.get_setting_value("rainbow_colormap")
+        self.rainbow_colormap = raw_rainbow_cmap  # keep raw (LCD menu expects exact value)
+        self.rainbow_colormap_safe = self._clean_colormap_value(raw_rainbow_cmap, "Rainbow")
         self.velocityrainbow_offset = int(us.get_setting_value("velocityrainbow_offset"))
         self.velocityrainbow_scale = int(us.get_setting_value("velocityrainbow_scale"))
         self.velocityrainbow_curve = int(us.get_setting_value("velocityrainbow_curve"))
-        self.velocityrainbow_colormap = us.get_setting_value("velocityrainbow_colormap")
+        raw_velocity_cmap = us.get_setting_value("velocityrainbow_colormap")
+        self.velocityrainbow_colormap = raw_velocity_cmap
+        self.velocityrainbow_colormap_safe = self._clean_colormap_value(raw_velocity_cmap, "Rainbow-FastLED")
 
         self.multicolor = ast.literal_eval(us.get_setting_value("multicolor"))
         self.multicolor_range = ast.literal_eval(us.get_setting_value("multicolor_range"))
@@ -447,9 +458,11 @@ class LedSettings:
                     self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName("Timeshift")[
                         0].firstChild.nodeValue)
-                self.rainbow_colormap = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
+                raw_rainbow_cmap = self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName("Colormap")[
                         0].firstChild.nodeValue
+                self.rainbow_colormap = raw_rainbow_cmap
+                self.rainbow_colormap_safe = self._clean_colormap_value(raw_rainbow_cmap, "Rainbow")
 
             if self.color_mode == "VelocityRainbow":
                 self.velocityrainbow_scale = int(
@@ -464,9 +477,11 @@ class LedSettings:
                     self.sequences_tree.getElementsByTagName("sequence_" + str(self.sequence_number))[
                         0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
                         "Curve")[0].firstChild.nodeValue)
-                self.velocityrainbow_colormap = self.sequences_tree.getElementsByTagName("sequence_" + str(
+                raw_velocity_cmap = self.sequences_tree.getElementsByTagName("sequence_" + str(
                     self.sequence_number))[0].getElementsByTagName("step_" + str(self.step_number))[0].getElementsByTagName(
                     "Colormap")[0].firstChild.nodeValue
+                self.velocityrainbow_colormap = raw_velocity_cmap
+                self.velocityrainbow_colormap_safe = self._clean_colormap_value(raw_velocity_cmap, "Rainbow-FastLED")
 
 
             if self.color_mode == "Speed":

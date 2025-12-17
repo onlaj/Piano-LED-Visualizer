@@ -1700,6 +1700,13 @@ class MenuLCD:
 
         if location == "Velocity_Colormap":
             self.ledsettings.velocityrainbow_colormap = choice
+            self.ledsettings.velocityrainbow_colormap_safe = self.ledsettings._clean_colormap_value(
+                choice, "Rainbow-FastLED")
+            try:
+                cmap.ensure_colormap_generated(self.ledsettings.velocityrainbow_colormap_safe,
+                                               self.ledstrip.led_gamma)
+            except Exception as e:
+                logger.warning(f"Failed to generate velocity colormap {choice}: {e}")
             self.usersettings.change_setting_value("velocityrainbow_colormap", self.ledsettings.velocityrainbow_colormap)
             self.ledsettings.color_mode = "VelocityRainbow"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)
@@ -1710,6 +1717,12 @@ class MenuLCD:
 
         if location == "Rainbow_Colormap":
             self.ledsettings.rainbow_colormap = choice
+            self.ledsettings.rainbow_colormap_safe = self.ledsettings._clean_colormap_value(choice, "Rainbow")
+            try:
+                cmap.ensure_colormap_generated(self.ledsettings.rainbow_colormap_safe,
+                                               self.ledstrip.led_gamma)
+            except Exception as e:
+                logger.warning(f"Failed to generate colormap {choice}: {e}")
             self.usersettings.change_setting_value("rainbow_colormap", self.ledsettings.rainbow_colormap)
             self.ledsettings.color_mode = "Rainbow"
             self.usersettings.change_setting_value("color_mode", self.ledsettings.color_mode)

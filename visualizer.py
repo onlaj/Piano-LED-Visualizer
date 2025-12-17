@@ -90,6 +90,7 @@ class VisualizerApp:
         self.event_loop_stamp = time.perf_counter()
         self.frame_count = 0
         self.frame_avg_stamp = time.perf_counter()
+        self.last_frame_time = time.perf_counter()
         self.backlight_cleared = False
 
         # State tracking
@@ -161,20 +162,31 @@ class VisualizerApp:
                 ledstrip.strip.show()
                 self.update_fps_stats()
             else:
-                # In IDLE with no activity, set FPS to reflect actual state
-                ledstrip.current_fps = 1.0 / max(sleep_interval, 0.001) if sleep_interval > 0 else 0
+                # Clear FPS after short inactivity so UI doesn't show stale values
+                now_perf = time.perf_counter()
+                if (now_perf - self.last_frame_time) > 1.0:
+                    ledstrip.current_fps = 0.0
             time.sleep(sleep_interval)  # Dynamic delay based on system state
 
     def update_fps_stats(self):
-        self.frame_count += 1
-        frame_seconds = time.perf_counter() - self.frame_avg_stamp
+        now = time.perf_counter()
 
-        if frame_seconds >= 2:
-            fps = self.frame_count / frame_seconds
+        # If we had a long pause between frames, reset the averaging window
+        if (now - self.last_frame_time) > 2.0:
+            self.frame_count = 0
+            self.frame_avg_stamp = now
+
+        self.frame_count += 1
+        frame_seconds = now - self.frame_avg_stamp
+
+        if frame_seconds >= 1.0:
+            fps = self.frame_count / frame_seconds if frame_seconds > 0 else 0
             self.ci.ledstrip.current_fps = fps
 
-            self.frame_avg_stamp = time.perf_counter()
+            self.frame_avg_stamp = now
             self.frame_count = 0
+
+        self.last_frame_time = now
 
     def check_screensaver(self, midiports, menu, current_time=None):
         ci = self.ci

@@ -480,6 +480,13 @@ def change_setting():
 
     if setting_name == "rainbow_colormap":
         app_state.ledsettings.rainbow_colormap = value
+        app_state.ledsettings.rainbow_colormap_safe = app_state.ledsettings._clean_colormap_value(
+            value, "Rainbow")
+        try:
+            cmap.ensure_colormap_generated(app_state.ledsettings.rainbow_colormap_safe,
+                                           app_state.ledstrip.led_gamma)
+        except Exception as e:
+            logger.warning(f"Failed to generate colormap {value}: {e}")
         app_state.usersettings.change_setting_value("rainbow_colormap",
                                                        app_state.ledsettings.rainbow_colormap)
         return jsonify(success=True, reload_sequence=reload_sequence)
@@ -504,6 +511,13 @@ def change_setting():
 
     if setting_name == "velocityrainbow_colormap":
         app_state.ledsettings.velocityrainbow_colormap = value
+        app_state.ledsettings.velocityrainbow_colormap_safe = app_state.ledsettings._clean_colormap_value(
+            value, "Rainbow-FastLED")
+        try:
+            cmap.ensure_colormap_generated(app_state.ledsettings.velocityrainbow_colormap_safe,
+                                           app_state.ledstrip.led_gamma)
+        except Exception as e:
+            logger.warning(f"Failed to generate velocity colormap {value}: {e}")
         app_state.usersettings.change_setting_value("velocityrainbow_colormap",
                                                        app_state.ledsettings.velocityrainbow_colormap)
         return jsonify(success=True, reload_sequence=reload_sequence)
@@ -1723,12 +1737,13 @@ def get_sequence_setting():
     rainbow_scale = app_state.ledsettings.rainbow_scale
     rainbow_offset = app_state.ledsettings.rainbow_offset
     rainbow_timeshift = app_state.ledsettings.rainbow_timeshift
-    rainbow_colormap = app_state.ledsettings.rainbow_colormap
+    rainbow_colormap = getattr(app_state.ledsettings, "rainbow_colormap_safe", app_state.ledsettings.rainbow_colormap)
 
     velocityrainbow_scale = app_state.ledsettings.velocityrainbow_scale
     velocityrainbow_offset = app_state.ledsettings.velocityrainbow_offset
     velocityrainbow_curve = app_state.ledsettings.velocityrainbow_curve
-    velocityrainbow_colormap = app_state.ledsettings.velocityrainbow_colormap
+    velocityrainbow_colormap = getattr(app_state.ledsettings, "velocityrainbow_colormap_safe",
+                                       app_state.ledsettings.velocityrainbow_colormap)
 
     speed_slowest_red = app_state.ledsettings.speed_slowest["red"]
     speed_slowest_green = app_state.ledsettings.speed_slowest["green"]
@@ -1937,12 +1952,14 @@ def get_settings():
     response["rainbow_offset"] = app_state.usersettings.get_setting_value("rainbow_offset")
     response["rainbow_scale"] = app_state.usersettings.get_setting_value("rainbow_scale")
     response["rainbow_timeshift"] = app_state.usersettings.get_setting_value("rainbow_timeshift")
-    response["rainbow_colormap"] = app_state.usersettings.get_setting_value("rainbow_colormap")
+    response["rainbow_colormap"] = getattr(app_state.ledsettings, "rainbow_colormap_safe",
+                                           app_state.usersettings.get_setting_value("rainbow_colormap"))
 
     response["velocityrainbow_offset"] = app_state.usersettings.get_setting_value("velocityrainbow_offset")
     response["velocityrainbow_scale"] = app_state.usersettings.get_setting_value("velocityrainbow_scale")
     response["velocityrainbow_curve"] = app_state.usersettings.get_setting_value("velocityrainbow_curve")
-    response["velocityrainbow_colormap"] = app_state.usersettings.get_setting_value("velocityrainbow_colormap")
+    response["velocityrainbow_colormap"] = getattr(app_state.ledsettings, "velocityrainbow_colormap_safe",
+                                                   app_state.usersettings.get_setting_value("velocityrainbow_colormap"))
 
     speed_slowest_red = app_state.usersettings.get_setting_value("speed_slowest_red")
     speed_slowest_green = app_state.usersettings.get_setting_value("speed_slowest_green")
@@ -2241,6 +2258,11 @@ def get_logs():
 
 @webinterface.route('/api/get_colormap_gradients', methods=['GET'])
 def get_colormap_gradients():
+    # Ensure previews exist for all loaded gradients (lightweight operation)
+    try:
+        cmap.ensure_colormap_previews()
+    except Exception as e:
+        logger.warning(f"Failed to refresh colormap previews: {e}")
     return jsonify(cmap.colormaps_preview)
 
 # ---------------------- Profiles & Highscores API ----------------------
