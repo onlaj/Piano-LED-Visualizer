@@ -151,14 +151,14 @@ class MIDIEventProcessor:
         # Strip trailing commas (mido message format: "channel=12, note=60...")
         channel = channel.rstrip(',') if channel else False
         
-        # If LED was lit by external software (channels 11/12), only allow external software to turn it off
+        # Clear external software tracking flag if external software turns off the LED
+        # Allow local piano input to also turn off LEDs even if they were lit by external software
+        # This is essential for learning mode where Synthesia lights the LED (channels 11/12)
+        # but the user's piano (channel 0) should be able to turn it off
         if self.ledstrip.keylist_external_software[note_position] == 1:
             if channel == "12" or channel == "11":
-                # External software is turning off the LED - clear tracking and proceed
+                # External software is turning off the LED - clear tracking
                 self.ledstrip.keylist_external_software[note_position] = 0
-            else:
-                # Local key press trying to turn off externally-controlled LED - skip it
-                return
         
         velocity = 0
         self.ledstrip.keylist_status[note_position] = 0
