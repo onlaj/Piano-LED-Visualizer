@@ -184,7 +184,7 @@
                 id="loading_screen"
                 x-ref="loading"
                 class="fixed inset-0 z-50 flex items-center justify-center text-white bg-black bg-opacity-50"
-                style="backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)"
+                style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px)"
                 data-translate="loading..."
         >
             Loading.....
@@ -197,7 +197,6 @@
         <div
                 x-show.in.out.opacity="isSidebarOpen"
                 class="fixed inset-0 z-10 bg-black bg-opacity-20 lg:hidden"
-                style="backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)"
         ></div>
 
         <!-- Sidebar -->
@@ -999,7 +998,7 @@
 <div id="notification-container"></div>
 
 <!-- Input Port Setup Popup Modal -->
-<div id="port_setup_popup_overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden" style="backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px)" onclick="handle_port_setup_overlay_click(event)">
+<div id="port_setup_popup_overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px)" onclick="handle_port_setup_overlay_click(event)">
     <div id="port_setup_popup" class="glass-strong shadow-glass-lg rounded-glass p-6 max-w-md min-w-80 w-auto mx-4 transform transition-all" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-200" data-translate="input_port_setup">Input Port Setup</h3>
