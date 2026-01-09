@@ -559,7 +559,7 @@ class LearnMIDI:
                                                     score_logger.debug("left hand timing note timimg: %s", self.left_hand_timing)
                                                     self.left_hand_timing.append(note_timing)
                                                     if delay >= self.score_manager.max_delay:
-                                                        self.delay_countR += 1
+                                                        self.delay_countL += 1
 
                                                 # send score update to frontend
                                                 self.socket_send.append(json.dumps({
