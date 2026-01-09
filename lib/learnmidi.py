@@ -18,13 +18,14 @@ from lib.score_manager import ScoreManager
 from webinterface import app_state
 
 import logging
+from logging.handlers import RotatingFileHandler
 
 # Create a score logger
 score_logger = logging.getLogger("score_logger")
-score_logger.setLevel(logging.DEBUG)
+score_logger.setLevel(logging.INFO)
 score_logger.propagate = False
-file_handler = logging.FileHandler("score_log.txt")
-file_handler.setLevel(logging.DEBUG)
+file_handler = RotatingFileHandler("score_log.txt", maxBytes=5000000, backupCount=3)
+file_handler.setLevel(logging.INFO)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 file_handler.setFormatter(formatter)
 score_logger.addHandler(file_handler)
