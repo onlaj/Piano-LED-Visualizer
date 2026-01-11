@@ -78,15 +78,17 @@ class ComponentInitializer:
         threading.Thread(target=install_midi2abc, daemon=True).start()
 
         cmap.gradients.update(cmap.load_colormaps())
+        # Build lightweight previews for all available gradients (used by web UI)
+        cmap.ensure_colormap_previews()
         
         # Determine which colormap(s) are needed based on current color mode
         colormaps_to_generate = []
         if self.ledsettings.color_mode == "Rainbow":
-            colormap_name = self.ledsettings.rainbow_colormap
+            colormap_name = getattr(self.ledsettings, "rainbow_colormap_safe", self.ledsettings.rainbow_colormap)
             if colormap_name and colormap_name in cmap.gradients:
                 colormaps_to_generate.append(colormap_name)
         elif self.ledsettings.color_mode == "VelocityRainbow":
-            colormap_name = self.ledsettings.velocityrainbow_colormap
+            colormap_name = getattr(self.ledsettings, "velocityrainbow_colormap_safe", self.ledsettings.velocityrainbow_colormap)
             if colormap_name and colormap_name in cmap.gradients:
                 colormaps_to_generate.append(colormap_name)
         

@@ -157,13 +157,15 @@ def ensure_colormap_generated(name, gamma=None):
     if gamma is None:
         gamma = _current_gamma
     
+    needs_update = False
     with _colormaps_lock:
         # Check underlying dict, not the lazy wrapper's __contains__
         if name not in dict.keys(colormaps):
-            update_colormap(name, gamma)
+            needs_update = True
         elif gamma != _current_gamma:
-            # Regenerate if gamma changed
-            update_colormap(name, gamma)
+            needs_update = True
+    if needs_update:
+        update_colormap(name, gamma)
 
 
 def generate_colormaps(gradients, gamma, colormap_names=None):
@@ -189,6 +191,25 @@ def generate_colormaps(gradients, gamma, colormap_names=None):
         for name in colormap_names:
             if name in gradients:
                 update_colormap(name, gamma)
+
+
+def ensure_colormap_previews(preview_gamma=2.2, entries=64):
+    """Populate colormaps_preview for all loaded gradients."""
+    missing = [name for name in gradients if name not in colormaps_preview]
+    if not missing:
+        return
+
+    with _colormaps_lock:
+        for name in missing:
+            try:
+                # Skip if another thread added while waiting on the lock
+                if name in colormaps_preview or name not in gradients:
+                    continue
+                colormaps_preview[name] = gradient_to_cmaplut(
+                    gradients[name], preview_gamma, entries
+                )
+            except Exception as e:
+                logger.warning(f"Loading preview for colormap {name} failed: {e}")
 
 
 def _load_led_colormap_file(filepath):
