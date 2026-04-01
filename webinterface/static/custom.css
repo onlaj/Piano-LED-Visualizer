@@ -616,8 +616,8 @@ input[type=number]::-webkit-outer-spin-button {
 /* Glassmorphism Base Classes - Pure Gray Tones */
 .glass {
     background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
@@ -640,8 +640,8 @@ input[type=number]::-webkit-outer-spin-button {
 
 .glass-light {
     background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
@@ -1139,8 +1139,6 @@ canvas {
     min-width: 2rem;
     height: 100%;
     background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(0, 0, 0, 0.06);
     cursor: pointer;
     user-select: none;
@@ -1244,8 +1242,8 @@ canvas {
     align-items: flex-start;
     padding: 1rem 1.25rem;
     border-radius: 16px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12),
                 0 2px 8px rgba(0, 0, 0, 0.08),
@@ -1416,8 +1414,8 @@ canvas {
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
