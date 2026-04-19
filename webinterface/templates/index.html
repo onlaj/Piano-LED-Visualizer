@@ -183,7 +183,7 @@
         <div
                 id="loading_screen"
                 x-ref="loading"
-                class="fixed inset-0 z-50 flex items-center justify-center text-white bg-black bg-opacity-50"
+                class="fixed inset-0 z-50 flex items-center justify-center text-white bg-black/50"
                 style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px)"
                 data-translate="loading..."
         >
@@ -196,7 +196,7 @@
         <!-- Sidebar backdrop -->
         <div
                 x-show.in.out.opacity="isSidebarOpen"
-                class="fixed inset-0 z-10 bg-black bg-opacity-20 lg:hidden"
+                class="fixed inset-0 z-10 bg-black/20 lg:hidden"
         ></div>
 
         <!-- Sidebar -->
@@ -483,7 +483,7 @@
                                 </svg>
                             </button>
                             <div style="top: 25px" id="dropdown-content"
-                                 class="z-50 origin-top-right absolute right-0 w-28 h-80 overflow-auto rounded-md shadow-lg bg-gray-200 dark:bg-gray-600 ring-1 ring-gray-700 ring-opacity-5 text-gray-600 dark:text-gray-200">
+                                 class="z-50 origin-top-right absolute right-0 w-28 h-80 overflow-auto rounded-md shadow-lg bg-gray-200 dark:bg-gray-600 ring-1 ring-gray-700/5 text-gray-600 dark:text-gray-200">
                                 <div class="py-1" role="menu" aria-orientation="vertical"
                                      aria-labelledby="lang-dropdown">
                                     <a id="en" href="#"
@@ -998,7 +998,7 @@
 <div id="notification-container"></div>
 
 <!-- Input Port Setup Popup Modal -->
-<div id="port_setup_popup_overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px)" onclick="handle_port_setup_overlay_click(event)">
+<div id="port_setup_popup_overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px)" onclick="handle_port_setup_overlay_click(event)">
     <div id="port_setup_popup" class="glass-strong shadow-glass-lg rounded-glass p-6 max-w-md min-w-80 w-auto mx-4 transform transition-all" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-200" data-translate="input_port_setup">Input Port Setup</h3>

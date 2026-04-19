@@ -349,7 +349,7 @@ function update_wifi_list(response) {
             </div>
             <div id="wifi_${wifi["ESSID"]}" class="hidden ">
                 <div class="relative">
-                    <input id="wifi_password_${wifi["ESSID"]}" class="mt-4 h-10 block a w-full dark:text-black glass-light py-2 px-2 rounded-glass leading-tight transition-smooth-fast" type="password" placeholder="Type Wi-Fi password here">
+                    <input id="wifi_password_${wifi["ESSID"]}" class="mt-4 h-10 block w-full dark:text-black glass-light py-2 px-2 rounded-glass leading-tight transition-smooth-fast" type="password" placeholder="Type Wi-Fi password here">
                     <button class="absolute top-1/4 right-2" onclick="togglePasswordVisibility(this, 'wifi_password_${wifi["ESSID"]}');">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" id="toggle-eye-${wifi["ESSID"]}">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
@@ -2352,12 +2352,12 @@ function show_note_offsets(note_offsets) {
     }
     var i = 0
     offset_element.innerHTML = "";
-    const add_button = `<button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')" id="note_offsets_add" class="w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-1 px-1 rounded-glass inline-flex items-centers transition-smooth-fast">
+    const add_button = `<button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')" id="note_offsets_add" class="w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-1 px-1 rounded-glass inline-flex items-center transition-smooth-fast">
    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-full justify-items-center text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
    </svg>
 </button>
-<button onclick="change_setting('add_note_offset', '0');temporary_show_chords_animation();" id="note_offsets_add" class="hidden w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-1 px-1 rounded-glass inline-flex items-centers transition-smooth-fast">
+<button onclick="change_setting('add_note_offset', '0');temporary_show_chords_animation();" id="note_offsets_add" class="hidden w-full outline-none mb-2 glass-light hover:glass font-bold h-6 py-1 px-1 rounded-glass inline-flex items-center transition-smooth-fast">
 <span class="w-full text-green-400">Click to confirm</span></button>`;
     offset_element.classList.remove("pointer-events-none", "opacity-50");
     offset_element.innerHTML += add_button;

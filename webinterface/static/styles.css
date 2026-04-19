@@ -3,3 +3,12 @@
 @config "../tailwind.config.js";
 @source inline("animate-spin top-1/2 top-1/4 right-2 opacity-20 opacity-30 -translate-y-1/2");
 
+/* Tailwind v4 emits some display utilities after `.hidden`.
+   This app relies on `hidden` winning when combined with static display classes. */
+.hidden.inline,
+.hidden.flex,
+.hidden.contents,
+.hidden.inline-flex {
+  display: none;
+}
+

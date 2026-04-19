@@ -7,11 +7,15 @@ module.exports = {
         // Build your palette here
         transparent: 'transparent',
         current: 'currentColor',
+        white: colors.white,
+        black: colors.black,
         gray: colors.zinc,
         red: colors.red,
         green: colors.emerald,
         blue: colors.sky,
         yellow: colors.amber,
+        teal: colors.teal,
+        cyan: colors.cyan,
       }
     },
   plugins: [],
