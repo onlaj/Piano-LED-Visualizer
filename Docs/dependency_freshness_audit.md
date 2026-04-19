@@ -29,24 +29,24 @@ Les références runtime ont été confirmées dans le code:
 | Dépendance | Version locale / contrainte | Dernière version officielle | Écart | État | Risque | Notes de compatibilité | Source |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `RPi.GPIO` | non figé | `0.7.1` | indéterminé au runtime | `à figer / support amont incertain / obsolescence probable` | moyen | Pas de pin: installation non reproductible. Dépendance matérielle Raspberry Pi, à valider sur l'OS et l'archi cible. | [PyPI](https://pypi.org/project/RPi.GPIO/) |
-| `webcolors` | `~=1.13` | `25.10.0` | saut majeur | `en retard, upgrade majeure` | élevé | Très grand écart de versions; API et formats acceptés ont évolué. À tester là où les conversions de couleurs sont utilisées. | [PyPI](https://pypi.org/project/webcolors/) |
-| `psutil` | `~=5.9.5` | `7.2.2` | saut majeur | `en retard, upgrade majeure` | moyen | Souvent simple à mettre à jour, mais les comportements de collecte système peuvent varier selon plateforme. | [PyPI](https://pypi.org/project/psutil/) |
+| `webcolors` | `~=25.10.0` | `25.10.0` | aucun | `à jour` | élevé | Montée validée par smoke test sur `hex_to_rgb` et `name_to_rgb`, qui sont les API utilisées par le dépôt. | [PyPI](https://pypi.org/project/webcolors/) |
+| `psutil` | `~=7.2.2` | `7.2.2` | aucun | `à jour` | moyen | Montée validée sur les appels `Process()`, `memory_full_info()`, `cpu_percent()` et `virtual_memory()`. | [PyPI](https://pypi.org/project/psutil/) |
 | `mido` | `~=1.3.3` | `1.3.3` | aucun | `à jour` | faible | Contrainte alignée sur la dernière version PyPI. | [PyPI](https://pypi.org/project/mido/) |
-| `Pillow` | `~=10.4.0` | `12.2.0` | saut majeur | `en retard, upgrade majeure` | élevé | Plusieurs cycles de dépréciation entre 10 et 12; à tester sur les chemins d'image et de rendu. | [PyPI](https://pypi.org/project/Pillow/) |
+| `Pillow` | `~=12.2.0` | `12.2.0` | aucun | `à jour` | élevé | Montée validée sur les opérations utilisées par le dépôt: `Image.open/new`, `resize`, et `Image.Resampling.LANCZOS`. | [PyPI](https://pypi.org/project/Pillow/) |
 | `python-rtmidi` | non figé | `1.5.8` | indéterminé au runtime | `à figer / support amont incertain / obsolescence probable` | moyen | Pas de pin. Dépendance native, sensible aux wheels disponibles et aux toolchains de build. | [PyPI](https://pypi.org/project/python-rtmidi/) |
 | `rpi-ws281x` | `~=5.0.0` | `5.0.0` | aucun | `à jour` | faible | Version alignée. Garder une validation matérielle sur Raspberry Pi avant tout upgrade futur. | [PyPI](https://pypi.org/project/rpi-ws281x/) |
 | `spidev` | `~=3.8` | `3.8` | aucun | `à jour` | moyen | Contrainte alignée, mais validation matérielle Raspberry Pi toujours nécessaire. | [PyPI](https://pypi.org/project/spidev/) |
-| `numpy` | `~=1.22` | `2.4.4` | saut majeur | `en retard, upgrade majeure` | élevé | Passage 1.x -> 2.x: forte probabilité de ruptures, notamment autour des API dépréciées et de la compatibilité binaire de l'écosystème. | [PyPI](https://pypi.org/project/numpy/) |
-| `Flask` | `~=2.3.2` | `3.1.3` | saut majeur | `en retard, upgrade majeure` | élevé | À traiter avec `Werkzeug` comme un couple. L'application instancie directement `Flask` dans `webinterface/__init__.py`. | [PyPI](https://pypi.org/project/Flask/) |
+| `numpy` | `~=2.4.4` | `2.4.4` | aucun | `à jour` | élevé | Montée validée sur les primitives utilisées par le dépôt (`asarray`, `abs`, `argmin`, `interp`, `loadtxt`). | [PyPI](https://pypi.org/project/numpy/) |
+| `Flask` | `~=3.1.3` | `3.1.3` | aucun | `à jour` | élevé | Montée traitée avec `Werkzeug`; smoke test OK sur l'instanciation `Flask` et `app.json.sort_keys`. | [PyPI](https://pypi.org/project/Flask/) |
 | `waitress` | `~=3.0.2` | `3.0.2` | aucun | `à jour` | faible | Contrainte alignée sur la dernière version PyPI. | [PyPI](https://pypi.org/project/waitress/) |
-| `websockets` | `~=11.0.3` | `16.0` | saut majeur | `en retard, upgrade majeure` | moyen | Le code anticipe déjà l'écart d'API de chemin avec `websocket.request.path` puis fallback `websocket.path` dans `webinterface/__init__.py:213-217`, ce qui réduit le risque, sans l'annuler. | [PyPI](https://pypi.org/project/websockets/) |
-| `Werkzeug` | `~=2.3.6` | `3.1.8` | saut majeur | `en retard, upgrade majeure` | élevé | À évaluer en même temps que `Flask`; ne pas traiter isolément. | [PyPI](https://pypi.org/project/Werkzeug/) |
+| `websockets` | `~=16.0` | `16.0` | aucun | `à jour` | moyen | Montée validée par smoke test avec `websockets.serve(...)`, connexion réelle, et lecture du chemin via `websocket.request.path`. | [PyPI](https://pypi.org/project/websockets/) |
+| `Werkzeug` | `~=3.1.8` | `3.1.8` | aucun | `à jour` | élevé | Montée traitée avec `Flask`; smoke test OK sur `safe_join`. | [PyPI](https://pypi.org/project/Werkzeug/) |
 
 ## Dépendance Node directe
 
 | Dépendance | Déclarée | Verrouillée | Dernière version officielle | Écart | État | Risque | Notes de compatibilité | Source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `tailwindcss` | `^3.4.0` | `3.4.0` | `4.2.2` | saut majeur | `en retard, upgrade majeure` | élevé | Le lock confirme que le build utilise actuellement `3.4.0`. La v4 change le pipeline, la configuration et certains comportements de build; migration non triviale. | [npm](https://www.npmjs.com/package/tailwindcss) |
+| `tailwindcss` | `^4.2.2` | `4.2.2` | `4.2.2` | aucun | `à jour` | élevé | Migration appliquée: CLI v4, `@import \"tailwindcss\"`, `@config`, et safelist convertie en `@source inline(...)`. Build `static/tailwind.css` validé. | [npm](https://www.npmjs.com/package/tailwindcss) |
 
 ## Bibliothèques front vendoriées réellement chargées
 
@@ -88,13 +88,9 @@ Les références runtime ont été confirmées dans le code:
 
 ### Mises à jour importantes mais risquées
 
-- `Flask` + `Werkzeug` vers la branche `3.1.x`
-- `websockets` vers `16.0`
-- `psutil` vers `7.2.2`
-- `Pillow` vers `12.2.0`
-- `numpy` vers `2.4.4`
-- `webcolors` vers `25.10.0`
-- `tailwindcss` vers `4.2.2`
+- Appliquées dans ce dépôt: `Flask` `3.1.3`, `Werkzeug` `3.1.8`, `websockets` `16.0`, `psutil` `7.2.2`, `Pillow` `12.2.0`, `numpy` `2.4.4`, `webcolors` `25.10.0`, `tailwindcss` `4.2.2`
+- Validation effectuée: `python -m unittest tests.test_usersettings`, `python -m compileall lib webinterface`, smoke tests ciblés sur `Flask`/`Werkzeug`/`websockets`/`psutil`/`Pillow`/`numpy`/`webcolors`, et `npm run build`
+- Point d'attention conservé: la migration Tailwind v4 a nécessité une adaptation explicite du pipeline (`@tailwindcss/cli`, `@config`, `@source inline(...)`)
 
 ### Composants vendoriés anciens ou potentiellement abandonnés
 

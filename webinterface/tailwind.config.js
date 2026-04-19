@@ -1,16 +1,6 @@
 const colors = require('tailwindcss/colors');
 
 module.exports = {
-  content: ['./templates/*.html', './static/*.{html,js}'],
-  safelist: [
-    'animate-spin',
-    'top-1/2',
-    'top-1/4',
-    'right-2',
-    'opacity-20',
-    'opacity-30',
-    '-translate-y-1/2'
-  ],
   darkMode: 'class', // or 'media' or 'class'
   theme: {
       colors: {
@@ -24,9 +14,6 @@ module.exports = {
         yellow: colors.amber,
       }
     },
-  variants: {
-    extend: {},
-  },
   plugins: [],
 }
-// npx tailwindcss build static/styles.css -o static/tailwind.css --minify
+// Tailwind v4 loads this file explicitly via @config in static/styles.css.
