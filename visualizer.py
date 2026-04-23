@@ -19,6 +19,7 @@ from lib.midi_event_processor import MIDIEventProcessor
 from lib.color_mode import ColorMode
 from lib.webinterface_manager import WebInterfaceManager
 from lib.state_manager import StateManager
+from lib.display_refresh_policy import DisplayRefreshPolicy
 
 from lib.log_setup import logger
 
@@ -84,7 +85,10 @@ class VisualizerApp:
                                                          self.ci.menu,
                                                          self.color_mode,
                                                          self.last_sustain,
-                                                         self.pedal_deadzone)
+                                                         self.pedal_deadzone,
+                                                         runtime_diagnostics=self.ci.midiports.runtime_diagnostics)
+        self.runtime_diagnostics = self.ci.midiports.runtime_diagnostics
+        self._instrument_strip_show()
 
         # Frame rate counters
         self.event_loop_stamp = time.perf_counter()
@@ -98,6 +102,32 @@ class VisualizerApp:
         self.screen_hold_time = 16
         self.ledshow_timestamp = time.time()
         self._last_menu_tick = 0.0
+        self.display_refresh_policy = DisplayRefreshPolicy()
+
+    def _instrument_strip_show(self):
+        strip = self.ci.ledstrip.strip
+        if getattr(strip.show, "_plv_runtime_wrapped", False):
+            return
+
+        original_show = strip.show
+        diagnostics = self.runtime_diagnostics
+
+        def instrumented_show(*args, **kwargs):
+            show_started = time.perf_counter()
+            try:
+                return original_show(*args, **kwargs)
+            finally:
+                diagnostics.increment_counter("strip_show_calls")
+                diagnostics.record_duration("strip_show", time.perf_counter() - show_started)
+
+        instrumented_show._plv_runtime_wrapped = True
+        strip.show = instrumented_show
+
+    def _run_timed(self, metric_name, callback, *args):
+        started = time.perf_counter()
+        result = callback(*args)
+        self.runtime_diagnostics.record_duration(metric_name, time.perf_counter() - started)
+        return result
 
     def handle_shutdown(self, signum, frame):
         # Turn off all LEDs before shutting down
@@ -136,27 +166,43 @@ class VisualizerApp:
 
             # Update system state (syncs with midiports and menu activity)
             self.state_manager.update_state(midiports, menu, now_wall)
+            self.runtime_diagnostics.set_metadata("system_state", self.state_manager.current_state.value)
             
             # Get dynamic sleep interval based on current state
             sleep_interval = self.state_manager.get_loop_delay()
+            self.runtime_diagnostics.set_gauge("requested_loop_sleep_ms", round(sleep_interval * 1000.0, 4))
 
-            self.check_screensaver(midiports, menu, now_wall)
-            manage_idle_animation(ledstrip, ledsettings, menu, midiports, self.state_manager)
-            self.check_activity_backlight(ledstrip, ledsettings, midiports, now_wall)
-            self.update_display(elapsed_time, menu)
-            self.check_color_mode(ledsettings)
-            self.check_settings_changes(usersettings, now_wall)
-            platform.manage_hotspot(hotspot, usersettings, midiports, False, now_wall)
-            self.gpio_handler.process_gpio_keys()
+            self._run_timed("check_screensaver", self.check_screensaver, midiports, menu, now_wall)
+            self._run_timed(
+                "manage_idle_animation",
+                manage_idle_animation,
+                ledstrip,
+                ledsettings,
+                menu,
+                midiports,
+                self.state_manager,
+            )
+            self._run_timed("check_activity_backlight", self.check_activity_backlight, ledstrip, ledsettings, midiports, now_wall)
+            self._run_timed("update_display", self.update_display, elapsed_time, menu)
+            self._run_timed("check_color_mode", self.check_color_mode, ledsettings)
+            self._run_timed("check_settings_changes", self.check_settings_changes, usersettings, now_wall)
+            self._run_timed("manage_hotspot", platform.manage_hotspot, hotspot, usersettings, midiports, False, now_wall)
+            self._run_timed("process_gpio_keys", self.gpio_handler.process_gpio_keys)
 
             event_loop_time = loop_start - self.event_loop_stamp
             self.event_loop_stamp = loop_start
 
+            midiports.refresh_queue_diagnostics(now_perf=loop_start)
+            fade_started = time.perf_counter()
             fade_processed = self.led_effects_processor.process_fade_effects(event_loop_time)
+            self.runtime_diagnostics.record_duration("process_fade_effects", time.perf_counter() - fade_started)
+            midi_started = time.perf_counter()
             midi_processed = self.midi_event_processor.process_midi_events()
+            self.runtime_diagnostics.record_duration("process_midi_events", time.perf_counter() - midi_started)
 
             # Only update LEDs if effects changed them or MIDI events occurred
             should_update = fade_processed or midi_processed
+            self.runtime_diagnostics.set_gauge("led_update_requested", int(bool(should_update)))
             
             if should_update:
                 ledstrip.strip.show()
@@ -166,6 +212,8 @@ class VisualizerApp:
                 now_perf = time.perf_counter()
                 if (now_perf - self.last_frame_time) > 1.0:
                     ledstrip.current_fps = 0.0
+            midiports.refresh_queue_diagnostics()
+            self.runtime_diagnostics.record_duration("main_loop", time.perf_counter() - loop_start)
             time.sleep(sleep_interval)  # Dynamic delay based on system state
 
     def update_fps_stats(self):
@@ -234,9 +282,14 @@ class VisualizerApp:
                 self._last_menu_tick = now
 
         # State-based refresh logic
-        if self.state_manager.should_refresh_screen():
-            if elapsed_time > self.screen_hold_time:
-                menu.show()
+        should_refresh = self.state_manager.should_refresh_screen()
+        if self.display_refresh_policy.should_show_static_menu(
+            elapsed_time=elapsed_time,
+            hold_time=self.screen_hold_time,
+            scroll_needed=scroll_needed,
+            should_refresh=should_refresh,
+        ):
+            menu.show()
 
 
     def check_color_mode(self, ledsettings):

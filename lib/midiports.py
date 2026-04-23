@@ -16,11 +16,25 @@ from lib.midiport_resolver import (
     resolve_input_port,
     resolve_output_port,
 )
+from lib.runtime_diagnostics import RuntimeDiagnostics
 
 # Cache for MIDI port names to avoid repeated slow scans
 _cached_input_names = None
 _cached_output_names = None
 _cache_lock = threading.Lock()
+IGNORED_RTP_MESSAGE_TYPES = frozenset(
+    {
+        "clock",
+        "active_sensing",
+        "start",
+        "stop",
+        "continue",
+        "reset",
+        "songpos",
+        "song_select",
+        "tune_request",
+    }
+)
 
 
 def _get_cached_input_names():
@@ -68,6 +82,7 @@ def _refresh_port_cache():
 class MidiPorts:
     def __init__(self, usersettings):
         self.usersettings = usersettings
+        self.runtime_diagnostics = RuntimeDiagnostics()
 
         # midi queues contain tuples (midi_msg, timestamp)
         self.midifile_queue = deque(maxlen=500)
@@ -105,7 +120,7 @@ class MidiPorts:
         self.worker_running = False
         self.live_forward_thread = None
         self.websocket_publish_thread = None
-        self.ignored_message_types = {"clock", "active_sensing"}
+        self.ignored_message_types = set(IGNORED_RTP_MESSAGE_TYPES)
 
         # Known python-rtmidi first-access quirk on some systems.
         try:
@@ -119,6 +134,43 @@ class MidiPorts:
         self.setup_ports()
         self.start_background_workers()
         self.portname = "inport"
+
+    def _ensure_runtime_diagnostics(self):
+        if not hasattr(self, "runtime_diagnostics") or self.runtime_diagnostics is None:
+            self.runtime_diagnostics = RuntimeDiagnostics()
+        return self.runtime_diagnostics
+
+    def _queue_oldest_age_ms(self, queue, now_perf=None):
+        if not queue:
+            return 0.0
+        if now_perf is None:
+            now_perf = time.perf_counter()
+        oldest = queue[0]
+        if not isinstance(oldest, tuple) or len(oldest) < 2:
+            return 0.0
+        timestamp = oldest[1]
+        if not isinstance(timestamp, (int, float)):
+            return 0.0
+        return max(0.0, (now_perf - timestamp) * 1000.0)
+
+    def refresh_queue_diagnostics(self, now_perf=None):
+        diagnostics = self._ensure_runtime_diagnostics()
+        if now_perf is None:
+            now_perf = time.perf_counter()
+
+        queues = {
+            "live_input": self.midi_queue,
+            "midi_file": self.midifile_queue,
+            "websocket_input": self.websocket_midi_queue,
+            "live_forward": self.live_forward_queue,
+            "websocket_publish": self.websocket_publish_queue,
+        }
+        for name, queue in queues.items():
+            diagnostics.observe_queue(
+                name,
+                depth=len(queue),
+                oldest_age_ms=self._queue_oldest_age_ms(queue, now_perf=now_perf),
+            )
 
     def _increment_drop(self, key):
         self.drop_counter += 1
@@ -158,7 +210,31 @@ class MidiPorts:
         return True
 
     def _should_ignore_live_message(self, msg):
-        return getattr(msg, "type", None) in self.ignored_message_types
+        configured_types = getattr(self, "ignored_message_types", set())
+        return getattr(msg, "type", None) in (set(configured_types) | IGNORED_RTP_MESSAGE_TYPES)
+
+    def should_process_locally(self, msg):
+        return self._classify_message(msg) in {"note_on", "note_off", "control_change"}
+
+    def enqueue_rtp_message(self, msg, msg_timestamp=None, source="forward"):
+        if self._should_ignore_live_message(msg):
+            ignored_type = getattr(msg, "type", "unknown")
+            self._increment_ignored(ignored_type)
+            diagnostics = self._ensure_runtime_diagnostics()
+            diagnostics.increment_counter("ignored_rtp_messages")
+            return False
+
+        if msg_timestamp is None:
+            msg_timestamp = time.perf_counter()
+
+        queued = self._queue_with_policy(
+            self.live_forward_queue,
+            (msg, msg_timestamp),
+            source,
+            reserve_slots=self.queue_reserved_noteoff_slots,
+        )
+        self.refresh_queue_diagnostics(now_perf=msg_timestamp)
+        return queued
 
     def _format_websocket_midi_message(self, msg):
         msg_type = getattr(msg, "type", "")
@@ -182,15 +258,22 @@ class MidiPorts:
         send_started = time.perf_counter()
         try:
             port.send(msg)
-            elapsed_ms = (time.perf_counter() - send_started) * 1000.0
+            elapsed_seconds = time.perf_counter() - send_started
+            elapsed_ms = elapsed_seconds * 1000.0
             self.forward_stats["live_sent"] += 1
             self.forward_stats["send_time_total_ms"] += elapsed_ms
             if elapsed_ms > self.forward_stats["send_time_max_ms"]:
                 self.forward_stats["send_time_max_ms"] = elapsed_ms
+            diagnostics = self._ensure_runtime_diagnostics()
+            diagnostics.record_duration("rtp_send", elapsed_seconds)
+            diagnostics.increment_counter("rtp_send_calls")
+            self.refresh_queue_diagnostics()
             return True
         except Exception as e:
             self.forward_stats["live_send_errors"] += 1
             logger.debug(f"Skipping playport send: {e}")
+            self._ensure_runtime_diagnostics().increment_counter("rtp_send_errors")
+            self.refresh_queue_diagnostics()
             return False
 
     def _flush_websocket_publish_queue_once(self):
@@ -198,24 +281,36 @@ class MidiPorts:
             return False
 
         msg, _ = self.websocket_publish_queue.popleft()
+        publish_started = time.perf_counter()
         try:
             from webinterface import app_state, webinterface
 
             if not getattr(app_state, "practice_active", False):
+                self.refresh_queue_diagnostics()
                 return False
 
             midi_string = self._format_websocket_midi_message(msg)
             if midi_string is None:
+                self.refresh_queue_diagnostics()
                 return False
 
             if len(webinterface.websocket_midi_send) >= webinterface.websocket_midi_send.maxlen:
                 self.forward_stats["websocket_dropped"] += 1
+                self._ensure_runtime_diagnostics().increment_counter("websocket_publish_dropped")
+                self.refresh_queue_diagnostics()
                 return False
 
             webinterface.websocket_midi_send.append(midi_string)
             self.forward_stats["websocket_sent"] += 1
+            elapsed_seconds = time.perf_counter() - publish_started
+            diagnostics = self._ensure_runtime_diagnostics()
+            diagnostics.record_duration("websocket_publish", elapsed_seconds)
+            diagnostics.increment_counter("websocket_publish_calls")
+            self.refresh_queue_diagnostics()
             return True
         except Exception:
+            self._ensure_runtime_diagnostics().increment_counter("websocket_publish_errors")
+            self.refresh_queue_diagnostics()
             return False
 
     def _live_forward_loop(self):
@@ -225,8 +320,11 @@ class MidiPorts:
 
     def _websocket_publish_loop(self):
         while self.worker_running:
-            if not self._flush_websocket_publish_queue_once():
-                time.sleep(0.01)
+            if self._flush_websocket_publish_queue_once():
+                continue
+            if self.websocket_publish_queue:
+                continue
+            time.sleep(0.01)
 
     def start_background_workers(self):
         if self.worker_running:
@@ -467,6 +565,7 @@ class MidiPorts:
 
     def get_rtp_diagnostics(self):
         self._refresh_runtime_port_labels()
+        self.refresh_queue_diagnostics()
         send_count = self.forward_stats["live_sent"]
         avg_send_ms = (
             self.forward_stats["send_time_total_ms"] / send_count
@@ -498,9 +597,37 @@ class MidiPorts:
             "max_send_ms": round(self.forward_stats["send_time_max_ms"], 4),
         }
 
+    def get_runtime_diagnostics(self):
+        self.refresh_queue_diagnostics()
+        diagnostics = self._ensure_runtime_diagnostics().snapshot()
+        diagnostics["rtp"] = {
+            "drop_counter": self.drop_counter,
+            "drop_counts": dict(self.drop_counts),
+            "ignored_counts": dict(self.ignored_counts),
+            "reconnect_count": self.reconnect_count,
+            "live_send_errors": self.forward_stats["live_send_errors"],
+            "websocket_dropped": self.forward_stats["websocket_dropped"],
+        }
+        diagnostics["metadata"].update(
+            {
+                "actual_input_port": self.actual_input_port,
+                "actual_play_port": self.actual_play_port,
+                "last_resolved_input_port": self.last_resolved_input_port,
+                "last_resolved_play_port": self.last_resolved_play_port,
+            }
+        )
+        return diagnostics
+
+    def reset_runtime_diagnostics(self):
+        self._ensure_runtime_diagnostics().reset()
+
     def msg_callback(self, msg):
+        callback_started = time.perf_counter()
         if self._should_ignore_live_message(msg):
             self._increment_ignored(getattr(msg, "type", "unknown"))
+            diagnostics = self._ensure_runtime_diagnostics()
+            diagnostics.increment_counter("ignored_realtime_messages")
+            diagnostics.record_duration("midi_callback", time.perf_counter() - callback_started)
             return
 
         ts = time.perf_counter()
@@ -511,12 +638,7 @@ class MidiPorts:
             "live",
             reserve_slots=self.queue_reserved_noteoff_slots,
         )
-        self._queue_with_policy(
-            self.live_forward_queue,
-            (msg, ts),
-            "forward",
-            reserve_slots=self.queue_reserved_noteoff_slots,
-        )
+        self.enqueue_rtp_message(msg, msg_timestamp=ts)
 
         if self._classify_message(msg) in ("note_on", "note_off"):
             self._queue_with_policy(
@@ -525,6 +647,10 @@ class MidiPorts:
                 "websocket_publish",
                 reserve_slots=0,
             )
+        diagnostics = self._ensure_runtime_diagnostics()
+        diagnostics.increment_counter("midi_callback_calls")
+        diagnostics.record_duration("midi_callback", time.perf_counter() - callback_started)
+        self.refresh_queue_diagnostics(now_perf=ts)
 
     def add_websocket_midi_message(self, msg_string):
         """
@@ -579,6 +705,10 @@ class MidiPorts:
                 "forward",
                 reserve_slots=self.queue_reserved_noteoff_slots,
             )
+            diagnostics = self._ensure_runtime_diagnostics()
+            diagnostics.increment_counter("websocket_midi_messages")
+            diagnostics.record_duration("websocket_midi_parse", time.perf_counter() - ts)
+            self.refresh_queue_diagnostics(now_perf=ts)
         except Exception as e:
             logger.warning(f"Error parsing websocket MIDI message: {msg_string}, error: {e}")
 

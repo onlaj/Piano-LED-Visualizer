@@ -1,0 +1,157 @@
+<settings>
+	<screen_on>1</screen_on>
+	<display_type>1in44</display_type>
+	<brightness_percent>50</brightness_percent>
+	<background_color>#27272a</background_color>
+	<text_color>#FFFFFF</text_color>
+	<pointer_color>14,165,233</pointer_color>
+
+	<mode>Normal</mode>
+	<red>255</red>
+	<green>255</green>
+	<blue>255</blue>
+
+	<fadingspeed>1000</fadingspeed>
+	<velocity_speed>1000</velocity_speed>
+	<pedal_speed>1000</pedal_speed>
+	<pulse_animation_speed>1000</pulse_animation_speed>
+	<pulse_animation_distance>10</pulse_animation_distance>
+	<pulse_flicker_strength>5</pulse_flicker_strength>
+	<pulse_flicker_speed>30</pulse_flicker_speed>
+	<fadepedal_notedrop>0</fadepedal_notedrop>
+	<color_mode>Rainbow</color_mode>
+
+	<rainbow_offset>0</rainbow_offset>
+	<rainbow_scale>150</rainbow_scale>
+	<rainbow_timeshift>30</rainbow_timeshift>
+	<rainbow_colormap>Rainbow</rainbow_colormap>
+
+	<velocityrainbow_offset>210</velocityrainbow_offset>
+	<velocityrainbow_scale>120</velocityrainbow_scale>
+	<velocityrainbow_curve>0</velocityrainbow_curve>
+	<velocityrainbow_colormap>cmasher_bubblegum</velocityrainbow_colormap>
+
+	<multicolor>[[255, 255, 255], [0, 0, 255], [0, 255, 0]]</multicolor>
+	<multicolor_range>[[20, 54], [54, 108], [35, 75]]</multicolor_range>
+    <multicolor_iteration>0</multicolor_iteration>
+	
+	<sequence_active>False</sequence_active>
+
+	<backlight_brightness>0</backlight_brightness>
+	<backlight_brightness_percent>0</backlight_brightness_percent>
+
+	<backlight_red>255</backlight_red>
+	<backlight_green>255</backlight_green>
+	<backlight_blue>255</backlight_blue>
+
+	<speed_slowest_red>255</speed_slowest_red>
+	<speed_slowest_green>255</speed_slowest_green>
+	<speed_slowest_blue>255</speed_slowest_blue>
+
+	<speed_fastest_red>255</speed_fastest_red>
+	<speed_fastest_green>0</speed_fastest_green>
+	<speed_fastest_blue>0</speed_fastest_blue>
+	
+	<speed_max_notes>18</speed_max_notes>
+	<speed_period_in_seconds>0.8</speed_period_in_seconds>
+
+	<gradient_start_red>255</gradient_start_red>
+	<gradient_start_green>0</gradient_start_green>
+	<gradient_start_blue>0</gradient_start_blue>
+
+	<gradient_end_red>0</gradient_end_red>
+	<gradient_end_green>0</gradient_end_green>
+	<gradient_end_blue>255</gradient_end_blue>
+
+	<key_in_scale_red>0</key_in_scale_red>
+	<key_in_scale_green>255</key_in_scale_green>
+	<key_in_scale_blue>0</key_in_scale_blue>
+
+	<key_not_in_scale_red>255</key_not_in_scale_red>
+	<key_not_in_scale_green>0</key_not_in_scale_green>
+	<key_not_in_scale_blue>0</key_not_in_scale_blue>
+
+	<scale_key>0</scale_key>
+	
+	<adjacent_mode>Off</adjacent_mode>
+	<adjacent_red>255</adjacent_red>
+	<adjacent_green>255</adjacent_green>
+	<adjacent_blue>255</adjacent_blue>
+
+	<skipped_notes>None</skipped_notes>
+
+	<note_offsets>[[92, 1], [55, 1], [1, 1]]</note_offsets>
+
+	<time>1</time>
+	<date>1</date>
+	<cpu_chart>1</cpu_chart>
+	<cpu>1</cpu>
+	<ram>1</ram>
+	<temp>1</temp>
+	<network_usage>0</network_usage>
+	<sd_card_space>0</sd_card_space>
+	<local_ip>0</local_ip>
+
+	<screensaver_delay>2</screensaver_delay>
+	<screen_off_delay>5</screen_off_delay>
+	<led_animation_delay>0</led_animation_delay>
+	<led_animation>Scanner</led_animation>
+    <led_animation_brightness_percent>50</led_animation_brightness_percent>
+    <disable_backlight_on_idle>1</disable_backlight_on_idle>
+	<idle_timeout_minutes>10</idle_timeout_minutes>
+	<idle_animation_schedule>[]</idle_animation_schedule>
+	
+	
+	<animation_speed_slow>50</animation_speed_slow>
+	<animation_speed_medium>20</animation_speed_medium>
+	<animation_speed_fast>5</animation_speed_fast>
+	
+	<led_animation_speed>Medium</led_animation_speed>
+
+	<led_count>203</led_count>
+	<leds_per_meter>160</leds_per_meter>
+	<shift>0</shift>
+	<reverse>0</reverse>
+
+	<input_port>USB AudioDevice:USB AudioDevice MIDI 1 16:0</input_port>
+	<secondary_input_port>default</secondary_input_port>
+	<play_port>rtpmidid:PC_Robin 128:4</play_port>
+
+	
+	<sort_by>dateDesc</sort_by>
+	<songs_per_page>50</songs_per_page>
+	<practice>0</practice>
+	<hands>0</hands>
+	<mute_hand>0</mute_hand>
+	<start_point>0</start_point>
+	<end_point>100</end_point>
+	<set_tempo>100</set_tempo>
+	
+	<hand_colorList>[[0, 255, 0], [0, 0, 255], [255, 128, 0], [255, 255, 0], [0, 255, 255], [255, 0, 255], [255, 0, 0], [255, 255, 255], [0, 0, 0]]</hand_colorList>
+	<hand_colorR>0</hand_colorR>
+	<hand_colorL>1</hand_colorL>
+	<prev_hand_colorR>0</prev_hand_colorR>
+	<prev_hand_colorL>1</prev_hand_colorL>
+    <number_of_mistakes>0</number_of_mistakes>
+
+    <show_wrong_notes>1</show_wrong_notes>
+    <show_future_notes>1</show_future_notes>
+	<is_loop_active>1</is_loop_active>
+	<is_led_activeL>1</is_led_activeL>
+	<is_led_activeR>1</is_led_activeR>
+    <midi_logging>0</midi_logging>
+    <is_hotspot_active>0</is_hotspot_active>
+
+	<led_gamma>1</led_gamma>
+
+	<led_pin>18</led_pin>
+	<led_channel>0</led_channel>
+
+    <hotspot_password>visualizer</hotspot_password>
+
+    <web_listen_ip />
+    <web_listen_port />
+
+    <practice_tool_url>https://piano-visualizer.pages.dev</practice_tool_url>
+
+</settings>

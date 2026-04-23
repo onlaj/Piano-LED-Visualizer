@@ -2139,6 +2139,7 @@ def get_ports():
     input_ports = list(dict.fromkeys(mido.get_input_names()))
     output_ports = list(dict.fromkeys(mido.get_output_names()))
     diagnostics = app_state.midiports.get_rtp_diagnostics() if app_state.midiports else {}
+    runtime_diagnostics = app_state.midiports.get_runtime_diagnostics() if app_state.midiports else {}
     response = {
         "ports_list": input_ports,  # legacy alias for existing UI paths
         "input_ports": input_ports,
@@ -2151,9 +2152,31 @@ def get_ports():
         "connected_ports": str(subprocess.check_output(["aconnect", "-i", "-l"])),
         "midi_logging": app_state.usersettings.get_setting_value("midi_logging"),
         "rtp_diagnostics": diagnostics,
+        "runtime_diagnostics": runtime_diagnostics,
     }
 
     return jsonify(response)
+
+
+@webinterface.route('/api/get_runtime_diagnostics', methods=['GET'])
+def get_runtime_diagnostics():
+    rtp_diagnostics = app_state.midiports.get_rtp_diagnostics() if app_state.midiports else {}
+    runtime_diagnostics = app_state.midiports.get_runtime_diagnostics() if app_state.midiports else {}
+    state_info = app_state.state_manager.get_state_info() if app_state.state_manager else {}
+    return jsonify(
+        {
+            "rtp_diagnostics": rtp_diagnostics,
+            "runtime_diagnostics": runtime_diagnostics,
+            "state_info": state_info,
+        }
+    )
+
+
+@webinterface.route('/api/reset_runtime_diagnostics', methods=['POST', 'GET'])
+def reset_runtime_diagnostics():
+    if app_state.midiports:
+        app_state.midiports.reset_runtime_diagnostics()
+    return jsonify(success=True)
 
 
 @webinterface.route('/api/switch_ports', methods=['GET'])

@@ -650,6 +650,19 @@ input[type=number]::-webkit-outer-spin-button {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Fix blurry SVG icons: native <select> elements with backdrop-filter create a stacking
+   context that can blur adjacent absolutely-positioned SVG icons in the same parent.
+   Removing backdrop-filter from selects preserves the glass background without causing blur. */
+select.glass-light {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* Ensure SVG icon overlays inside .relative containers sit above select/input elements */
+.relative > .absolute {
+    z-index: 1;
+}
+
 /* Enhanced Shadow System */
 .shadow-glass {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12),

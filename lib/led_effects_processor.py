@@ -3,19 +3,22 @@ from rpi_ws281x import Color
 
 
 class LEDEffectsProcessor:
-    def __init__(self, ledstrip, ledsettings, menu, color_mode, last_sustain, pedal_deadzone):
+    def __init__(self, ledstrip, ledsettings, menu, color_mode, last_sustain, pedal_deadzone, runtime_diagnostics=None):
         self.ledstrip = ledstrip
         self.ledsettings = ledsettings
         self.menu = menu
         self.color_mode = color_mode
         self.last_sustain = last_sustain
         self.pedal_deadzone = pedal_deadzone
+        self.runtime_diagnostics = runtime_diagnostics
 
     def process_fade_effects(self, event_loop_time):
         any_led_changed = False
+        active_leds = 0
         for n, strength in enumerate(self.ledstrip.keylist):
             if strength <= 0:
                 continue
+            active_leds += 1
 
             if type(self.ledstrip.keylist_color[n]) is list:
                 red = self.ledstrip.keylist_color[n][0]
@@ -82,6 +85,10 @@ class LEDEffectsProcessor:
         if self.ledsettings.mode == "Pulse":
             if self.process_pulse_effects():
                 any_led_changed = True
+
+        if self.runtime_diagnostics is not None:
+            self.runtime_diagnostics.set_gauge("active_leds_last", active_leds)
+            self.runtime_diagnostics.set_gauge("active_pulses_last", len(self.ledstrip.active_pulses))
 
         return any_led_changed
 

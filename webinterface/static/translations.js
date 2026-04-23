@@ -197,7 +197,6 @@ const translations = {
         learning_status: "Start learning",
         stop_learning: "Stop learning",
         loop: "Loop",
-        practice: "Practice",
         melody: "Melody",
         rhythm: "Rhythm",
         listen:  "Listen",
@@ -425,8 +424,6 @@ const translations = {
         left_hand_delay: "Long Response Time - Left Hand",
         right_hand_notes: "Right Hand Notes",
         left_hand_notes: "Left Hand Notes",
-        right_hand_mistakes: "Right Hand Errors",
-        left_hand_mistakes: "Left Hand Errors",
         note_timing_vs_delay: "Note Timing vs Delay",
         chart_tooltip_label_delay: "Delay",
         chart_tooltip_label_at_time: "At",
@@ -435,10 +432,24 @@ const translations = {
         time: "MIDI Time (seconds)",
         delay: "Delay (seconds)",
         reset_zoom: "Reset",
-        learning_status: "Start Learning"
         
         
 
+
+
+        stop_recording: "Stop Recording",
+
+        // score and profiles
+        score: "Score",
+        combo: "Combo",
+        multiplier: "Multiplier",
+
+        profile_label: "Profile",
+        create_profile: "Create Profile",
+        show_score: "Show Score",
+        show_summary: "Show Summary",
+        highscore: "High Score",
+        new_profile: "New Profile",
 
     },
     pl: {
@@ -578,7 +589,6 @@ const translations = {
         learning_status: "Zacznij naukę",
         stop_learning: "Zatrzymaj naukę",
         loop: "Pętla",
-        practice: "Ćwiczenia",
         melody:  "Melodia",
         rhythm: "Rytm",
         listen: "Słuchaj",
@@ -700,7 +710,6 @@ const translations = {
         password_too_short_strength: "Za krótkie",
 
         //ledanimations
-        stop_animation: "Zatrzymaj animacje",
         led_animation_on_idle: "Animacja w trakcie bezczynności",
         after_minutes: "po ilu minutach (0 - nigdy)",
         animation_type: "Typ animacji",
@@ -806,8 +815,6 @@ const translations = {
         left_hand_delay: "Długi Czas Reakcji - Lewa Ręka",
         right_hand_notes: "Nuty Prawej Ręki",
         left_hand_notes: "Nuty Lewej Ręki",
-        right_hand_mistakes: "Błędy Prawej Ręki",
-        left_hand_mistakes: "Błędy Lewej Ręki",
         note_timing_vs_delay: "Synchronizacja Nut vs Opóźnienie",
         chart_tooltip_label_delay: "Opóźnienie",
         chart_tooltip_label_at_time: "O",
@@ -816,7 +823,6 @@ const translations = {
         time: "Czas MIDI (sekundy)",
         delay: "Opóźnienie (sekundy)",
         reset_zoom: "Resetuj",
-        learning_status: "Rozpocznij Nauczanie",
 
         // score and profiles
         score: "Wynik",
@@ -941,6 +947,7 @@ const translations = {
         //songs
         status: "Statut",
         start_recording: "Commencer l'enregistrement",
+        stop_recording: "Arr\u00eater l'enregistrement",
         starting: "Démarrage",
         stop_and_save: "Arrêtez et Sauvegardez",
         cancel_recording: "Annuler l'enregistrement",
@@ -953,7 +960,6 @@ const translations = {
         learning_status: "Commencer l'apprentissage",
         stop_learning: "Arrêter d'apprendre",
         loop: "Boucle",
-        practice: "Pratique",
         melody: "Mélodie",
         rhythm: "Rythme",
         listen:  "Écoutez",
@@ -1135,7 +1141,7 @@ const translations = {
         bandwidth_usage: "Utilisation de la bande passante",
         process_cpu_usage: "Utilisation du CPU par le processus",
         metronome: "Métronome",
-        beats_per_measure: "Bats par mesure",
+        beats_per_measure: "Battements par mesure",
         volume: "Volume",
         color_mode: "Mode couleur",
         single: "Unique",
@@ -1198,8 +1204,6 @@ const translations = {
         left_hand_delay: "Temps De Réaction Long - Main Gauche",
         right_hand_notes: "Notes de la Main Droite",
         left_hand_notes: "Notes de la Main Gauche",
-        right_hand_mistakes: "Erreurs de la Main Droite",
-        left_hand_mistakes: "Erreurs de la Main Gauche",
         note_timing_vs_delay: "Synchronisation des Notes vs Délai",
         chart_tooltip_label_delay: "Délai",
         chart_tooltip_label_at_time: "À",
@@ -1208,7 +1212,6 @@ const translations = {
         time: "Temps MIDI (secondes)",
         delay: "Délai (secondes)",
         reset_zoom: "Réinitialiser",
-        learning_status: "Commencer l'Apprentissage",
 
         // score and profiles
         score: "Résultat",
@@ -1333,6 +1336,7 @@ const translations = {
         //songs
         status: "Status",
         start_recording: "Aufnahme starten",
+        stop_recording: "Aufnahme stoppen",
         starting: "Startet",
         stop_and_save: "Stoppen und Speichern",
         cancel_recording: "Aufnahme abbrechen",
@@ -1345,7 +1349,6 @@ const translations = {
         learning_status: "Lernen starten",
         stop_learning: "Lernen stoppen",
         loop: "Schleife",
-        practice: "Übung",
         melody: "Melodie",
         rhythm: "Rhythmus",
         listen:  "Hören",
@@ -1589,8 +1592,6 @@ const translations = {
         left_hand_delay: "Lange Reaktionszeit - Linke Hand",
         right_hand_notes: "Noten der rechten Hand",
         left_hand_notes: "Noten der linken Hand",
-        right_hand_mistakes: "Fehler der rechten Hand",
-        left_hand_mistakes: "Fehler der linken Hand",
         note_timing_vs_delay: "Notensynchronisation vs Verzögerung",
         chart_tooltip_label_delay: "Verzögerung",
         chart_tooltip_label_at_time: "Bei",
@@ -1599,7 +1600,6 @@ const translations = {
         time: "MIDI-Zeit (Sekunden)",
         delay: "Verzögerung (Sekunden)",
         reset_zoom: "Zurücksetzen",
-        learning_status: "Lernen starten",
 
         // score and profiles
         score: "Ergebnis",
@@ -1724,6 +1724,7 @@ const translations = {
         //songs
         status: "Estado",
         start_recording: "Iniciar grabación",
+        stop_recording: "Detener grabaci\u00f3n",
         starting: "Iniciando",
         stop_and_save: "Detener y guardar",
         cancel_recording: "Cancelar grabación",
@@ -1736,7 +1737,6 @@ const translations = {
         learning_status: "Iniciar aprendizaje",
         stop_learning: "Detener aprendizaje",
         loop: "Bucle",
-        practice: "Practicar",
         melody: "Melodía",
         rhythm: "Ritmo",
         listen:  "Escuchar",
@@ -1979,8 +1979,6 @@ const translations = {
         left_hand_delay: "Tiempo De Reacción Largo - Mano Izquierda",
         right_hand_notes: "Notas de la Mano Derecha",
         left_hand_notes: "Notas de la Mano Izquierda",
-        right_hand_mistakes: "Errores de la Mano Derecha",
-        left_hand_mistakes: "Errores de la Mano Izquierda",
         note_timing_vs_delay: "Sincronización de Notas vs Retraso",
         chart_tooltip_label_delay: "Retraso",
         chart_tooltip_label_at_time: "En",
@@ -1989,7 +1987,6 @@ const translations = {
         time: "Tiempo MIDI (segundos)",
         delay: "Retraso (segundos)",
         reset_zoom: "Restablecer",
-        learning_status: "Iniciar Aprendizaje",
 
         // score and profiles
         score: "Resultado",
@@ -2330,19 +2327,6 @@ const translations = {
         select_port: "选择一个端口...",
         error_loading_ports: "加载端口时出错",
         no_ports: "没有可用端口",
-        input_port_setup: "输入端口设置",
-        no_input_port_message: "当前未设置输入端口。请从下面的列表中选择您的钢琴。",
-        port_will_be_set_both: "所选端口将同时设置为输入端口和播放端口。",
-        select_piano_port: "选择钢琴端口：",
-        loading_ports: "正在加载端口...",
-        no_ports_available: "当前没有可用的MIDI端口。请连接您的钢琴并刷新页面。",
-        dont_show_again: "不再显示此消息",
-        set_port: "设置端口",
-        cancel: "取消",
-        setting_port: "正在设置端口...",
-        select_port: "选择一个端口...",
-        error_loading_ports: "加载端口时出错",
-        no_ports: "没有可用端口",
         cover_state: "盖状态",
         screen: "屏幕",
         lcd_type: "LCD类型",
@@ -2381,8 +2365,6 @@ const translations = {
         left_hand_delay: "反应时间长 - 左手",
         right_hand_notes: "右手音符",
         left_hand_notes: "左手音符",
-        right_hand_mistakes: "右手错误",
-        left_hand_mistakes: "左手错误",
         note_timing_vs_delay: "音符时序与延迟",
         chart_tooltip_label_delay: "延迟",
         chart_tooltip_label_at_time: "在",
@@ -2391,7 +2373,6 @@ const translations = {
         time: "MIDI时间（秒）",
         delay: "延迟（秒）",
         reset_zoom: "重置",
-        learning_status: "开始学习",
 
         // score and profiles
         score: "得分",
@@ -2515,6 +2496,8 @@ const translations = {
         //songs
         status: "स्थिति",
         start_recording: "रिकॉर्डिंग शुरू करें",
+        stop_recording: "रिकॉर्डिंग रोकें",
+        starting: "शुरू हो रहा है",
         stop_and_save: "रोकें और सहेजें",
         cancel_recording: "रिकॉर्डिंग रद्द करें",
         canceling:  "रद्द कर रहा है",
@@ -2770,8 +2753,6 @@ const translations = {
         left_hand_delay: "लंबा प्रतिक्रिया समय - बायां हाथ",
         right_hand_notes: "दाहिनी हाथ की नोट्स",
         left_hand_notes: "बाईं हाथ की नोट्स",
-        right_hand_mistakes: "दाहिनी हाथ की गलतियाँ",
-        left_hand_mistakes: "बाईं हाथ की गलतियाँ",
         note_timing_vs_delay: "नोट समय और देरी",
         chart_tooltip_label_delay: "देरी",
         chart_tooltip_label_at_time: "पर",
@@ -2780,7 +2761,6 @@ const translations = {
         time: "MIDI समय (सेकंड)",
         delay: "देरी (सेकंड)",
         reset_zoom: "रीसेट करें",
-        learning_status: "शिक्षा शुरू करें",
 
         // score and profiles
         score: "स्कोर",
@@ -3160,8 +3140,6 @@ const translations = {
         left_hand_delay: "Tempo De Reação Longo - Mão Esquerda",
         right_hand_notes: "Notas da Mão Direita",
         left_hand_notes: "Notas da Mão Esquerda",
-        right_hand_mistakes: "Erros da Mão Direita",
-        left_hand_mistakes: "Erros da Mão Esquerda",
         note_timing_vs_delay: "Sincronização de Notas vs Atraso",
         chart_tooltip_label_delay: "Atraso",
         chart_tooltip_label_at_time: "Em",
@@ -3170,7 +3148,6 @@ const translations = {
         time: "Tempo MIDI (segundos)",
         delay: "Atraso (segundos)",
         reset_zoom: "Reiniciar",
-        learning_status: "Iniciar Aprendizado",
 
         // score and profiles
         score: "Pontuação",
@@ -3310,6 +3287,7 @@ const translations = {
         //songs
         status: "ステータス",
         start_recording: "録音開始",
+        stop_recording: "録音を停止",
         starting: "開始",
         stop_and_save: "停止して保存",
         cancel_recording: "録音をキャンセル",
@@ -3444,7 +3422,6 @@ const translations = {
         password_too_short_strength: "短すぎます",
 
         //ledanimations
-        stop_animation: "アニメーション停止",
         led_animation_on_idle: "IDLE状態でのLEDアニメーション",
         after_minutes: "経過後（0＝なし）",
         animation_type: "アニメーションの種類",
@@ -3551,8 +3528,6 @@ const translations = {
         left_hand_delay: "反応時間が長い - 左手",
         right_hand_notes: "右手のノート",
         left_hand_notes: "左手のノート",
-        right_hand_mistakes: "右手のエラー",
-        left_hand_mistakes: "左手のエラー",
         note_timing_vs_delay: "ノートのタイミングと遅延",
         chart_tooltip_label_delay: "遅延",
         chart_tooltip_label_at_time: "時点で",
@@ -3561,7 +3536,6 @@ const translations = {
         time: "MIDI時間（秒）",
         delay: "遅延（秒）",
         reset_zoom: "リセット",
-        learning_status: "学習を開始",
 
 
         // score and profiles
@@ -3685,6 +3659,7 @@ const translations = {
     //songs
     status: "상태",
     start_recording: "녹음 시작",
+        stop_recording: "녹음 중지",
     starting: "시작 중",
     stop_and_save: "중지 및 저장",
     cancel_recording: "녹음 취소",
@@ -3940,8 +3915,6 @@ const translations = {
     left_hand_delay: "긴 반응 시간 - 왼손",
     right_hand_notes: "오른손 음표",
     left_hand_notes: "왼손 음표",
-    right_hand_mistakes: "오른손 오류",
-    left_hand_mistakes: "왼손 오류",
     note_timing_vs_delay: "음표 타이밍 vs 지연",
     chart_tooltip_label_delay: "지연",
     chart_tooltip_label_at_time: "에서",
@@ -3950,7 +3923,6 @@ const translations = {
     time: "MIDI 시간 (초)",
     delay: "지연 (초)",
     reset_zoom: "리셋",
-    learning_status: "학습 시작",
 
     // Score and profiles
     score: "점수",
@@ -4072,6 +4044,7 @@ he: {
     //songs
     status: "מצב",
     start_recording: "התחל הקלטה",
+        stop_recording: "Stop Recording",
     starting: "מתחיל",
     stop_and_save: "עצור ושמור",
     cancel_recording: "בטל הקלטה",
@@ -4185,6 +4158,28 @@ he: {
     disconnecting_warning_line_2: "שורת אזהרה ניתוק 2",
     wifi_list: "רשימת רשתות",
     local_address: "כתובת מקומית",
+
+        // network/password keys (added from EN fallback)
+        change_hotspot_password_button: "Change Hotspot Password",
+        changing_hotspot_password_message: "Changing hotspot password... Please wait.",
+        enter_hotspot_password: "Enter new hotspot password (min 8 chars)",
+        hide_password: "Hide Password",
+        hotspot_password_change_note: "Note: Changing the password will enable the hotspot if it's not already active and will restart it, disconnecting current users.",
+        hotspot_password_changed_fail: "Failed to change hotspot password.",
+        hotspot_password_changed_fail_error: "Error changing hotspot password. Please try again.",
+        hotspot_password_changed_success: "Hotspot password changed successfully! The hotspot will restart.",
+        hotspot_password_section_title: "Hotspot Password",
+        led_pin: "LED Pin",
+        led_pin_change_confirm: "Changing LED pin to {0} will restart the visualizer. This may take a moment. Continue?",
+        led_pin_change_error: "Failed to change LED pin: {0}",
+        led_pin_change_success: "LED pin changed. Visualizer is restarting. Page will refresh shortly.",
+        password_strength_medium: "Medium",
+        password_strength_strong: "Strong",
+        password_strength_very_strong: "Very Strong",
+        password_strength_weak: "Weak",
+        password_too_short: "Password must be at least 8 characters long.",
+        password_too_short_strength: "Too short",
+        show_password: "Show Password",
     change_address: "שנה כתובת",
     enter_local_address: "הזן כתובת מקומית",
 
@@ -4307,8 +4302,6 @@ he: {
     left_hand_delay: "זמן תגובה ארוך - יד שמאל",
     right_hand_notes: "תווים ביד ימין",
     left_hand_notes: "תווים ביד שמאל",
-    right_hand_mistakes: "שגיאות ביד ימין",
-    left_hand_mistakes: "שגיאות ביד שמאל",
     note_timing_vs_delay: "תזמון תווים לעומת השהייה",
     chart_tooltip_label_delay: "שהייה",
     chart_tooltip_label_at_time: "ב-",
@@ -4455,6 +4448,7 @@ ar:{
     // songs
     status: "الحالة",
     start_recording: "ابدأ تسجيل",
+        stop_recording: "Stop Recording",
     starting: "جاري البدء",
     stop_and_save: "إيقاف وحفظ",
     cancel_recording: "إلغاء التسجيل",
@@ -4569,11 +4563,32 @@ ar:{
     disconnecting_warning_line_2: "هتحتاج تتصل بالنقطة الجديدة عشان توصل للواجهة من تاني.",
     wifi_list: "قائمة الشبكات",
     local_address: "العنوان المحلي",
+
+        // network/password keys (added from EN fallback)
+        change_hotspot_password_button: "Change Hotspot Password",
+        changing_hotspot_password_message: "Changing hotspot password... Please wait.",
+        enter_hotspot_password: "Enter new hotspot password (min 8 chars)",
+        hide_password: "Hide Password",
+        hotspot_password_change_note: "Note: Changing the password will enable the hotspot if it's not already active and will restart it, disconnecting current users.",
+        hotspot_password_changed_fail: "Failed to change hotspot password.",
+        hotspot_password_changed_fail_error: "Error changing hotspot password. Please try again.",
+        hotspot_password_changed_success: "Hotspot password changed successfully! The hotspot will restart.",
+        hotspot_password_section_title: "Hotspot Password",
+        led_pin: "LED Pin",
+        led_pin_change_confirm: "Changing LED pin to {0} will restart the visualizer. This may take a moment. Continue?",
+        led_pin_change_error: "Failed to change LED pin: {0}",
+        led_pin_change_success: "LED pin changed. Visualizer is restarting. Page will refresh shortly.",
+        password_strength_medium: "Medium",
+        password_strength_strong: "Strong",
+        password_strength_very_strong: "Very Strong",
+        password_strength_weak: "Weak",
+        password_too_short: "Password must be at least 8 characters long.",
+        password_too_short_strength: "Too short",
+        show_password: "Show Password",
     change_address: "تغيير العنوان",
     enter_local_address: "اكتب العنوان الجديد",
 
     // ledanimations
-    stop_animation: "إيقاف الحركة",
     led_animation_on_idle: "حركة الليد وقت الخمول",
     after_minutes: "بعد كام دقيقة (0 = أبداً)",
     animation_type: "نوع الحركة",
@@ -4683,7 +4698,6 @@ ar:{
     time: "زمن MIDI (بالثواني)",
     delay: "التأخير (بالثواني)",
     reset_zoom: "إعادة الضبط",
-    learning_status: "ابدأ التعلم",
 
     // score and profiles
     score: "النتيجة",

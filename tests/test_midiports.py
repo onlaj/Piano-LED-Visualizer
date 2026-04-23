@@ -135,6 +135,33 @@ class TestMidiPorts(unittest.TestCase):
         self.assertEqual(len(ports.websocket_publish_queue), 0)
         self.assertEqual(ports.ignored_counts["clock"], 1)
 
+    def test_enqueue_rtp_message_routes_software_notes_through_forward_queue(self):
+        ports = self.make_ports()
+        msg = FakeMidiMessage(note=72)
+
+        queued = ports.enqueue_rtp_message(msg)
+
+        self.assertTrue(queued)
+        self.assertEqual(len(ports.playport.sent), 0)
+        self.assertEqual(len(ports.live_forward_queue), 1)
+
+        ports._flush_live_forward_queue_once()
+
+        self.assertEqual(len(ports.playport.sent), 1)
+        self.assertIs(ports.playport.sent[0], msg)
+
+    def test_enqueue_rtp_message_ignores_transport_messages_before_rtp_queue(self):
+        ports = self.make_ports()
+
+        clock_queued = ports.enqueue_rtp_message(FakeMidiMessage(msg_type="clock"))
+        start_queued = ports.enqueue_rtp_message(FakeMidiMessage(msg_type="start"))
+
+        self.assertFalse(clock_queued)
+        self.assertFalse(start_queued)
+        self.assertEqual(len(ports.live_forward_queue), 0)
+        self.assertEqual(ports.ignored_counts["clock"], 1)
+        self.assertEqual(ports.ignored_counts["start"], 1)
+
     def test_diagnostics_refresh_runtime_play_port_label_from_current_alsa_slot(self):
         ports = self.make_ports()
         ports.actual_play_port = "rtpmidid:PC_Robin 128:3"
@@ -149,6 +176,41 @@ class TestMidiPorts(unittest.TestCase):
             diagnostics = ports.get_rtp_diagnostics()
 
         self.assertEqual(diagnostics["actual_play_port"], "rtpmidid:OSCMidi 128:3")
+
+    def test_runtime_diagnostics_include_queue_depth_and_age_peaks(self):
+        ports = self.make_ports()
+
+        with patch("lib.midiports.time.perf_counter", side_effect=[100.0, 100.0, 100.001, 103.0]), patch(
+            "lib.midiports._get_cached_input_names", return_value=[]
+        ), patch("lib.midiports._get_cached_output_names", return_value=[]):
+            ports.msg_callback(FakeMidiMessage())
+            diagnostics = ports.get_runtime_diagnostics()
+
+        live_input = diagnostics["queues"]["live_input"]
+        live_forward = diagnostics["queues"]["live_forward"]
+
+        self.assertEqual(live_input["current_depth"], 1)
+        self.assertEqual(live_input["max_depth"], 1)
+        self.assertEqual(live_input["current_oldest_age_ms"], 3000.0)
+        self.assertEqual(live_input["max_oldest_age_ms"], 3000.0)
+        self.assertEqual(live_forward["current_depth"], 1)
+
+    def test_websocket_publish_loop_does_not_back_off_while_queue_still_has_backlog(self):
+        ports = self.make_ports()
+        ports.worker_running = True
+        ports.websocket_publish_queue.extend([(FakeMidiMessage(), 0.0), (FakeMidiMessage(), 0.0)])
+
+        def fake_flush():
+            ports.websocket_publish_queue.popleft()
+            ports.worker_running = False
+            return False
+
+        ports._flush_websocket_publish_queue_once = fake_flush
+
+        with patch("lib.midiports.time.sleep") as sleep_mock:
+            ports._websocket_publish_loop()
+
+        sleep_mock.assert_not_called()
 
 
 if __name__ == "__main__":

@@ -590,7 +590,7 @@ class LearnMIDI:
                             # Play any pending software notes only after all required notes have been pressed
                             if set(notes_to_press).issubset(notes_pressed) and self.pending_software_notes:
                                 for software_note in self.pending_software_notes:
-                                    self.midiports.playport.send(software_note)
+                                    self.midiports.enqueue_rtp_message(software_note)
                                 self.pending_software_notes.clear()
 
                             # Turn off the pressed LEDs
@@ -652,7 +652,7 @@ class LearnMIDI:
                                 self.practice == 2):  # Listen mode
                             if self.practice == 2:
                                 # In Listen mode, play immediately
-                                self.midiports.playport.send(msg)
+                                self.midiports.enqueue_rtp_message(msg)
                             else:
                                 # Check if there are any user notes to press at this moment
                                 if notes_to_press:
@@ -660,7 +660,7 @@ class LearnMIDI:
                                     self.pending_software_notes.append(msg)
                                 else:
                                     # If no user notes to press, play the software note immediately
-                                    self.midiports.playport.send(msg)
+                                    self.midiports.enqueue_rtp_message(msg)
 
                     absolute_idx += 1
 
@@ -669,7 +669,7 @@ class LearnMIDI:
                     if (self.pending_software_notes and not notes_to_press and
                             self.next_note_time and time.time() >= self.next_note_time):
                         for software_note in self.pending_software_notes:
-                            self.midiports.playport.send(software_note)
+                            self.midiports.enqueue_rtp_message(software_note)
                         self.pending_software_notes.clear()
                         self.next_note_time = None
                         self.next_note_delay = None

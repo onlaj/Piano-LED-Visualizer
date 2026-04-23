@@ -48,12 +48,15 @@ class MIDIEventProcessor:
             if hasattr(app_state, 'practice_active') and app_state.practice_active:
                 # Process websocket MIDI input (from practice tool)
                 self.midiports.midipending = self.midiports.websocket_midi_queue
+                queue_name = "websocket_input"
             else:
                 # Process regular live MIDI input
                 self.midiports.midipending = self.midiports.midi_queue
+                queue_name = "live_input"
         else:
             # Process MIDI file playback
             self.midiports.midipending = self.midiports.midifile_queue
+            queue_name = "midi_file"
 
         midi_logging_enabled = int(self.usersettings.get_setting_value("midi_logging")) == 1
         log_sink = self.learning.socket_send if midi_logging_enabled else None
@@ -103,6 +106,9 @@ class MIDIEventProcessor:
 
         midipending = midiports.midipending
         queue_depth = len(midipending)
+        diagnostics = midiports._ensure_runtime_diagnostics()
+        diagnostics.set_metadata("selected_midi_queue", queue_name)
+        diagnostics.set_gauge("midi_queue_depth_before", queue_depth)
         is_active_use = bool(self.state_manager and self.state_manager.is_active_use())
         max_messages = 1536 if is_active_use else 512
         max_duration = 0.008 if is_active_use else 0.003
@@ -121,6 +127,10 @@ class MIDIEventProcessor:
             msg, msg_timestamp = midipending.popleft()
             _process_one(msg, msg_timestamp)
             processed += 1
+        diagnostics.increment_counter("midi_events_processed_total", processed)
+        diagnostics.set_gauge("midi_events_processed_last", processed)
+        diagnostics.set_gauge("midi_queue_depth_after", len(midipending))
+        self.midiports.refresh_queue_diagnostics()
         return processed > 0
     
     def handle_note_off(self, msg, msg_timestamp, note_position):
