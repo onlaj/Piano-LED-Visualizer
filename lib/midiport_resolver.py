@@ -71,6 +71,38 @@ def is_fake_rtp_port(port_name: str | None) -> bool:
     return _stable_port_key(port_name) in _FAKE_RTP_NAMES
 
 
+def is_internal_rtmidi_port(port_name: str | None) -> bool:
+    key = _stable_port_key(port_name)
+    return "rtmidiin client" in key or "rtmdiout client" in key or "rtmidiout client" in key
+
+
+def is_valid_output_port(port_name: str | None, available_inputs: list[str] | None = None) -> bool:
+    if not port_name:
+        return False
+
+    lowered = _stable_port_key(port_name)
+    if "through" in lowered or "rpi" in lowered:
+        return False
+    if is_fake_rtp_port(port_name):
+        return False
+    if is_internal_rtmidi_port(port_name):
+        return False
+
+    if available_inputs:
+        input_keys = {_stable_port_key(candidate) for candidate in available_inputs}
+        if lowered in input_keys and "rtpmidid:" not in lowered:
+            return False
+
+    return True
+
+
+def filter_valid_output_ports(available_ports: list[str], available_inputs: list[str] | None = None) -> list[str]:
+    return [
+        port_name for port_name in available_ports
+        if is_valid_output_port(port_name, available_inputs=available_inputs)
+    ]
+
+
 def port_is_present(actual_port: str | None, available_ports: list[str]) -> bool:
     if not actual_port:
         return False
@@ -126,18 +158,23 @@ def pick_default_input_port(available_ports: list[str]) -> str | None:
     return available_ports[0] if available_ports else None
 
 
-def pick_default_output_port(available_ports: list[str]) -> str | None:
+def pick_default_output_port(
+    available_ports: list[str],
+    available_inputs: list[str] | None = None,
+) -> str | None:
     for port_name in available_ports:
-        lowered = port_name.lower()
-        if "through" in lowered or "rpi" in lowered:
-            continue
-        if is_fake_rtp_port(port_name):
-            continue
-        return port_name
+        if is_valid_output_port(port_name, available_inputs=available_inputs):
+            return port_name
     return None
 
 
-def _resolve_port(requested_port: str | None, available_ports: list[str], *, exclude_fake_rtp: bool) -> PortResolution:
+def _resolve_port(
+    requested_port: str | None,
+    available_ports: list[str],
+    *,
+    exclude_fake_rtp: bool,
+    available_inputs: list[str] | None = None,
+) -> PortResolution:
     if not requested_port or requested_port == "default":
         return PortResolution(
             requested_port=requested_port,
@@ -148,8 +185,19 @@ def _resolve_port(requested_port: str | None, available_ports: list[str], *, exc
 
     filtered_ports = [
         candidate for candidate in available_ports
-        if not (exclude_fake_rtp and is_fake_rtp_port(candidate))
+        if not (exclude_fake_rtp and not is_valid_output_port(candidate, available_inputs=available_inputs))
     ]
+
+    if exclude_fake_rtp and requested_port not in filtered_ports and not is_valid_output_port(
+        requested_port,
+        available_inputs=available_inputs,
+    ):
+        return PortResolution(
+            requested_port=requested_port,
+            selected_port=None,
+            status=PortResolutionStatus.UNAVAILABLE,
+            reason="Requested output port is invalid for playback",
+        )
 
     if requested_port in filtered_ports:
         return PortResolution(
@@ -207,5 +255,14 @@ def resolve_input_port(requested_port: str | None, available_ports: list[str]) -
     return _resolve_port(requested_port, available_ports, exclude_fake_rtp=False)
 
 
-def resolve_output_port(requested_port: str | None, available_ports: list[str]) -> PortResolution:
-    return _resolve_port(requested_port, available_ports, exclude_fake_rtp=True)
+def resolve_output_port(
+    requested_port: str | None,
+    available_ports: list[str],
+    available_inputs: list[str] | None = None,
+) -> PortResolution:
+    return _resolve_port(
+        requested_port,
+        available_ports,
+        exclude_fake_rtp=True,
+        available_inputs=available_inputs,
+    )

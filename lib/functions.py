@@ -85,31 +85,22 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     try:
         mid = mido.MidiFile("Songs/" + song_path)
         fastColorWipe(strip, True, ledsettings)
-        # length = mid.length
-        t0 = False
+        t0 = None
         total_delay = 0
-        delay = 0
         for message in mid:
             if song_path in saving.is_playing_midi.keys():
-                if not t0:
+                if t0 is None:
                     t0 = time.perf_counter()
 
                 total_delay += message.time
-                current_time = (time.perf_counter() - t0) + message.time
-                drift = total_delay - current_time
+                msg_timestamp = t0 + total_delay
+                if not message.is_meta:
+                    midiports.schedule_rtp_message(message, due_time=msg_timestamp, source="midifile")
 
-                if drift < 0:
-                    delay = message.time + drift
-                else:
-                    delay = message.time
-                if delay < 0:
-                    delay = 0
-
-                msg_timestamp = time.perf_counter() + delay
+                delay = max(0.0, msg_timestamp - time.perf_counter())
                 if delay > 0:
                     time.sleep(delay)
                 if not message.is_meta:
-                    midiports.enqueue_rtp_message(message, msg_timestamp=msg_timestamp)
                     if midiports.should_process_locally(message):
                         midiports.midifile_queue.append((message.copy(time=0), msg_timestamp))
 

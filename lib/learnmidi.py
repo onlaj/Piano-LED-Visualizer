@@ -472,8 +472,9 @@ class LearnMIDI:
 
                 self.current_idx = start_idx
                 absolute_idx = start_idx
+                track_slice = self.song_tracks[start_idx:end_idx]
 
-                for msg in self.song_tracks[start_idx:end_idx]:
+                for track_index, msg in enumerate(track_slice):
                     self.midiports.last_activity = time.time()
                     # Exit thread if learning is stopped
                     if not self.is_started_midi:
@@ -589,8 +590,9 @@ class LearnMIDI:
                             hand_hint_notesR = []
                             # Play any pending software notes only after all required notes have been pressed
                             if set(notes_to_press).issubset(notes_pressed) and self.pending_software_notes:
+                                due_time = time.perf_counter()
                                 for software_note in self.pending_software_notes:
-                                    self.midiports.enqueue_rtp_message(software_note)
+                                    self.midiports.schedule_rtp_message(software_note, due_time=due_time)
                                 self.pending_software_notes.clear()
 
                             # Turn off the pressed LEDs
@@ -601,6 +603,7 @@ class LearnMIDI:
                     # Realize time delay, consider also the time lost during computation
                     delay = max(0, tDelay - (
                             time.time() - time_prev) - 0.003)  # 0.003 sec calibratable to account for extra time loss
+                    event_due_perf = time.perf_counter() + delay
                     time.sleep(delay)
                     time_prev = time.time()
 
@@ -636,7 +639,6 @@ class LearnMIDI:
                                         except ValueError:
                                             pass  # do nothing
                             self.ledstrip.strip.setPixelColor(note_position, Color(red, green, blue))
-                            self.ledstrip.strip.show()
                         # Save notes to press
                         if msg.type == 'note_on' and msg.velocity > 0 and (
                                 msg.channel == self.hands or self.hands == 0):
@@ -651,16 +653,25 @@ class LearnMIDI:
                                 # Right hand notes
                                 self.practice == 2):  # Listen mode
                             if self.practice == 2:
-                                # In Listen mode, play immediately
-                                self.midiports.enqueue_rtp_message(msg)
+                                self.midiports.schedule_rtp_message(msg, due_time=event_due_perf)
                             else:
                                 # Check if there are any user notes to press at this moment
                                 if notes_to_press:
                                     # If there are user notes to press, store this software note to play when user presses their key
                                     self.pending_software_notes.append(msg)
                                 else:
-                                    # If no user notes to press, play the software note immediately
-                                    self.midiports.enqueue_rtp_message(msg)
+                                    self.midiports.schedule_rtp_message(msg, due_time=event_due_perf)
+
+                        next_msg = track_slice[track_index + 1] if (track_index + 1) < len(track_slice) else None
+                        next_delay = None
+                        if next_msg is not None:
+                            next_delay = mido.tick2second(
+                                next_msg.time,
+                                self.ticks_per_beat,
+                                self.song_tempo * 100 / self.set_tempo,
+                            )
+                        if next_msg is None or next_delay > 0:
+                            self.ledstrip.strip.show()
 
                     absolute_idx += 1
 
@@ -668,8 +679,9 @@ class LearnMIDI:
                     # and we've reached the next note's time, play and clear the pending notes
                     if (self.pending_software_notes and not notes_to_press and
                             self.next_note_time and time.time() >= self.next_note_time):
+                        due_time = time.perf_counter()
                         for software_note in self.pending_software_notes:
-                            self.midiports.enqueue_rtp_message(software_note)
+                            self.midiports.schedule_rtp_message(software_note, due_time=due_time)
                         self.pending_software_notes.clear()
                         self.next_note_time = None
                         self.next_note_delay = None

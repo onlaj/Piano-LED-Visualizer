@@ -19,6 +19,25 @@ class FakePlayPort:
         self.sent.append(msg)
 
 
+class FakeInputBackend:
+    def __init__(self):
+        self.calls = []
+
+    def ignore_types(self, sysex=True, timing=True, active_sense=True):
+        self.calls.append(
+            {
+                "sysex": sysex,
+                "timing": timing,
+                "active_sense": active_sense,
+            }
+        )
+
+
+class FakeInputPort:
+    def __init__(self):
+        self._rt = FakeInputBackend()
+
+
 class FakeMidiMessage:
     def __init__(self, msg_type="note_on", channel=0, note=60, velocity=100, time=0):
         self.type = msg_type
@@ -41,6 +60,7 @@ class TestMidiPorts(unittest.TestCase):
         ports.midi_queue = deque(maxlen=midi_maxlen)
         ports.websocket_midi_queue = deque(maxlen=websocket_maxlen)
         ports.live_forward_queue = deque(maxlen=forward_maxlen)
+        ports.scheduled_forward_queue = deque(maxlen=forward_maxlen)
         ports.websocket_publish_queue = deque(maxlen=forward_maxlen)
         ports.drop_counter = 0
         ports.drop_counts = {}
@@ -52,6 +72,10 @@ class TestMidiPorts(unittest.TestCase):
             "websocket_dropped": 0,
             "send_time_total_ms": 0.0,
             "send_time_max_ms": 0.0,
+            "scheduled_sent": 0,
+            "scheduled_late_messages": 0,
+            "scheduled_late_max_ms": 0.0,
+            "scheduled_late_last_ms": 0.0,
         }
         ports.last_activity = 0
         ports.inport = None
@@ -161,6 +185,75 @@ class TestMidiPorts(unittest.TestCase):
         self.assertEqual(len(ports.live_forward_queue), 0)
         self.assertEqual(ports.ignored_counts["clock"], 1)
         self.assertEqual(ports.ignored_counts["start"], 1)
+
+    def test_schedule_rtp_message_waits_until_due_time(self):
+        ports = self.make_ports(forward_maxlen=16)
+        msg = FakeMidiMessage(note=74)
+
+        with patch("lib.midiports.time.perf_counter", return_value=100.0):
+            queued = ports.schedule_rtp_message(msg, due_time=100.5)
+
+        self.assertTrue(queued)
+        self.assertEqual(len(ports.playport.sent), 0)
+        self.assertEqual(len(ports.scheduled_forward_queue), 1)
+
+        with patch("lib.midiports.time.perf_counter", return_value=100.1):
+            self.assertFalse(ports._flush_live_forward_queue_once())
+        self.assertEqual(len(ports.playport.sent), 0)
+
+        with patch("lib.midiports.time.perf_counter", side_effect=[100.6, 100.7]):
+            self.assertTrue(ports._flush_live_forward_queue_once())
+
+        self.assertEqual(len(ports.playport.sent), 1)
+        self.assertIs(ports.playport.sent[0], msg)
+
+    def test_immediate_rtp_messages_are_not_blocked_by_future_scheduled_messages(self):
+        ports = self.make_ports(forward_maxlen=16)
+        scheduled = FakeMidiMessage(note=80)
+        immediate = FakeMidiMessage(note=81)
+
+        with patch("lib.midiports.time.perf_counter", return_value=100.0):
+            ports.schedule_rtp_message(scheduled, due_time=101.0)
+            ports.enqueue_rtp_message(immediate)
+
+        with patch("lib.midiports.time.perf_counter", side_effect=[100.1, 100.2]):
+            self.assertTrue(ports._flush_live_forward_queue_once())
+
+        self.assertEqual([msg.note for msg in ports.playport.sent], [81])
+        self.assertEqual(len(ports.scheduled_forward_queue), 1)
+
+    def test_scheduled_rtp_lateness_is_tracked_in_diagnostics(self):
+        ports = self.make_ports(forward_maxlen=16)
+        msg = FakeMidiMessage(note=82)
+
+        with patch("lib.midiports.time.perf_counter", return_value=100.0):
+            ports.schedule_rtp_message(msg, due_time=100.0)
+
+        with patch("lib.midiports.time.perf_counter", side_effect=[100.25, 100.30, 100.30]), patch(
+            "lib.midiports._get_cached_input_names", return_value=[]
+        ), patch("lib.midiports._get_cached_output_names", return_value=[]):
+            ports._flush_live_forward_queue_once()
+            diagnostics = ports.get_rtp_diagnostics()
+
+        self.assertEqual(diagnostics["scheduled_late_messages"], 1)
+        self.assertGreaterEqual(diagnostics["scheduled_late_max_ms"], 200.0)
+
+    def test_configure_input_backend_filters_enables_rtmidi_timing_filter(self):
+        ports = self.make_ports()
+        input_port = FakeInputPort()
+
+        ports._configure_input_backend_filters(input_port)
+
+        self.assertEqual(
+            input_port._rt.calls,
+            [
+                {
+                    "sysex": False,
+                    "timing": True,
+                    "active_sense": True,
+                }
+            ],
+        )
 
     def test_diagnostics_refresh_runtime_play_port_label_from_current_alsa_slot(self):
         ports = self.make_ports()

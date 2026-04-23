@@ -9,6 +9,7 @@ from lib.log_setup import logger
 from lib.midiport_resolver import (
     PortResolutionStatus,
     descriptive_port_name,
+    is_valid_output_port,
     pick_default_input_port,
     pick_default_output_port,
     port_is_present,
@@ -89,6 +90,7 @@ class MidiPorts:
         self.midi_queue = deque(maxlen=1000)
         self.websocket_midi_queue = deque(maxlen=1000)
         self.live_forward_queue = deque(maxlen=2048)
+        self.scheduled_forward_queue = deque(maxlen=4096)
         self.websocket_publish_queue = deque(maxlen=512)
 
         self.queue_reserved_noteoff_slots = max(1, min(32, self.midi_queue.maxlen // 8))
@@ -102,6 +104,10 @@ class MidiPorts:
             "websocket_dropped": 0,
             "send_time_total_ms": 0.0,
             "send_time_max_ms": 0.0,
+            "scheduled_sent": 0,
+            "scheduled_late_messages": 0,
+            "scheduled_late_max_ms": 0.0,
+            "scheduled_late_last_ms": 0.0,
         }
 
         self.last_activity = 0
@@ -163,6 +169,7 @@ class MidiPorts:
             "midi_file": self.midifile_queue,
             "websocket_input": self.websocket_midi_queue,
             "live_forward": self.live_forward_queue,
+            "scheduled_forward": self.scheduled_forward_queue,
             "websocket_publish": self.websocket_publish_queue,
         }
         for name, queue in queues.items():
@@ -236,6 +243,42 @@ class MidiPorts:
         self.refresh_queue_diagnostics(now_perf=msg_timestamp)
         return queued
 
+    def schedule_rtp_message(self, msg, due_time, source="scheduled_forward", enqueued_at=None):
+        if self._should_ignore_live_message(msg):
+            ignored_type = getattr(msg, "type", "unknown")
+            self._increment_ignored(ignored_type)
+            diagnostics = self._ensure_runtime_diagnostics()
+            diagnostics.increment_counter("ignored_rtp_messages")
+            return False
+
+        if enqueued_at is None:
+            enqueued_at = time.perf_counter()
+
+        due_time = float(due_time)
+        item = (msg, enqueued_at, due_time)
+        queued = self._queue_with_policy(
+            self.scheduled_forward_queue,
+            item,
+            source,
+            reserve_slots=self.queue_reserved_noteoff_slots,
+        )
+        if queued and len(self.scheduled_forward_queue) > 1:
+            last_due = self.scheduled_forward_queue[-2][2]
+            if due_time < last_due:
+                self.scheduled_forward_queue.pop()
+                insert_at = len(self.scheduled_forward_queue)
+                for index, existing in enumerate(self.scheduled_forward_queue):
+                    if due_time < existing[2]:
+                        insert_at = index
+                        break
+                self.scheduled_forward_queue.insert(insert_at, item)
+
+        diagnostics = self._ensure_runtime_diagnostics()
+        diagnostics.increment_counter("scheduled_rtp_messages")
+        diagnostics.set_gauge("scheduled_rtp_next_due_in_ms", max(0.0, (due_time - enqueued_at) * 1000.0))
+        self.refresh_queue_diagnostics(now_perf=enqueued_at)
+        return queued
+
     def _format_websocket_midi_message(self, msg):
         msg_type = getattr(msg, "type", "")
         if msg_type not in ("note_on", "note_off"):
@@ -247,15 +290,35 @@ class MidiPorts:
         return f"midi_event{msg_type} channel={channel} note={note} velocity={velocity} time={time_val}"
 
     def _flush_live_forward_queue_once(self):
-        if not self.live_forward_queue:
-            return False
-
-        msg, _ = self.live_forward_queue.popleft()
         port = self.playport
         if port is None:
             return False
 
-        send_started = time.perf_counter()
+        now_perf = time.perf_counter()
+        if self.live_forward_queue:
+            msg, _ = self.live_forward_queue.popleft()
+            return self._send_rtp_message(msg, send_started=now_perf)
+
+        if not self.scheduled_forward_queue:
+            return False
+
+        msg, _, due_time = self.scheduled_forward_queue[0]
+        if due_time > now_perf:
+            diagnostics = self._ensure_runtime_diagnostics()
+            diagnostics.set_gauge("scheduled_rtp_next_due_in_ms", max(0.0, (due_time - now_perf) * 1000.0))
+            self.refresh_queue_diagnostics(now_perf=now_perf)
+            return False
+
+        self.scheduled_forward_queue.popleft()
+        return self._send_rtp_message(msg, send_started=now_perf, scheduled_due_time=due_time)
+
+    def _send_rtp_message(self, msg, send_started=None, scheduled_due_time=None):
+        port = self.playport
+        if port is None:
+            return False
+        if send_started is None:
+            send_started = time.perf_counter()
+
         try:
             port.send(msg)
             elapsed_seconds = time.perf_counter() - send_started
@@ -267,13 +330,23 @@ class MidiPorts:
             diagnostics = self._ensure_runtime_diagnostics()
             diagnostics.record_duration("rtp_send", elapsed_seconds)
             diagnostics.increment_counter("rtp_send_calls")
-            self.refresh_queue_diagnostics()
+            if scheduled_due_time is not None:
+                late_ms = max(0.0, (send_started - scheduled_due_time) * 1000.0)
+                self.forward_stats["scheduled_sent"] += 1
+                self.forward_stats["scheduled_late_last_ms"] = late_ms
+                diagnostics.set_gauge("scheduled_rtp_last_late_ms", round(late_ms, 4))
+                if late_ms > 1.0:
+                    self.forward_stats["scheduled_late_messages"] += 1
+                    diagnostics.increment_counter("scheduled_rtp_late_messages")
+                if late_ms > self.forward_stats["scheduled_late_max_ms"]:
+                    self.forward_stats["scheduled_late_max_ms"] = late_ms
+            self.refresh_queue_diagnostics(now_perf=send_started + elapsed_seconds)
             return True
         except Exception as e:
             self.forward_stats["live_send_errors"] += 1
             logger.debug(f"Skipping playport send: {e}")
             self._ensure_runtime_diagnostics().increment_counter("rtp_send_errors")
-            self.refresh_queue_diagnostics()
+            self.refresh_queue_diagnostics(now_perf=send_started)
             return False
 
     def _flush_websocket_publish_queue_once(self):
@@ -360,14 +433,46 @@ class MidiPorts:
             "reason": self.last_resolution_reason["input"],
         }
 
-    def _resolve_output_target(self, requested_port, available_outputs):
+    def _resolve_output_target(self, requested_port, available_outputs, available_inputs=None):
         if requested_port and requested_port != "default":
-            resolution = resolve_output_port(requested_port, available_outputs)
-            self.last_resolved_play_port = resolution.selected_port
-            self.last_resolution_reason["play"] = resolution.reason
-            return resolution
+            resolution = resolve_output_port(
+                requested_port,
+                available_outputs,
+                available_inputs=available_inputs,
+            )
+            if resolution.selected_port:
+                self.last_resolved_play_port = resolution.selected_port
+                self.last_resolution_reason["play"] = resolution.reason
+                return resolution
 
-        selected = pick_default_output_port(available_outputs)
+            if (
+                self.actual_play_port
+                and port_is_present(self.actual_play_port, available_outputs)
+                and is_valid_output_port(self.actual_play_port, available_inputs=available_inputs)
+            ):
+                selected = refresh_runtime_port_name(self.actual_play_port, available_outputs)
+                self.last_resolved_play_port = selected
+                self.last_resolution_reason["play"] = (
+                    f"{resolution.reason}; keeping current valid playback port"
+                )
+                return {
+                    "selected_port": selected,
+                    "status": PortResolutionStatus.RESOLVED_COMPATIBLE,
+                    "reason": self.last_resolution_reason["play"],
+                }
+
+            selected = pick_default_output_port(available_outputs, available_inputs=available_inputs)
+            self.last_resolved_play_port = selected
+            self.last_resolution_reason["play"] = (
+                f"{resolution.reason}; auto-selected first safe output port"
+            )
+            return {
+                "selected_port": selected,
+                "status": PortResolutionStatus.AUTO_SELECTED,
+                "reason": self.last_resolution_reason["play"],
+            }
+
+        selected = pick_default_output_port(available_outputs, available_inputs=available_inputs)
         self.last_resolved_play_port = selected
         self.last_resolution_reason["play"] = "Auto-selected first safe output port"
         return {
@@ -399,6 +504,20 @@ class MidiPorts:
         self.actual_input_port = refresh_runtime_port_name(self.actual_input_port, available_inputs)
         self.actual_play_port = refresh_runtime_port_name(self.actual_play_port, available_outputs)
 
+    def _configure_input_backend_filters(self, input_port):
+        backend = getattr(input_port, "_rt", None)
+        ignore_types = getattr(backend, "ignore_types", None)
+        if not callable(ignore_types):
+            return False
+
+        try:
+            # Filter MIDI timing traffic before it reaches the Python callback.
+            ignore_types(sysex=False, timing=True, active_sense=True)
+            return True
+        except Exception as e:
+            logger.warning("Failed to enable backend MIDI input filters: %s", e)
+            return False
+
     def _reconnect_input(self, force=False):
         available_inputs = _get_cached_input_names()
         self._refresh_runtime_port_labels(available_inputs=available_inputs, available_outputs=_get_cached_output_names())
@@ -426,6 +545,7 @@ class MidiPorts:
 
         try:
             self.inport = mido.open_input(selected_port, callback=self.msg_callback)
+            self._configure_input_backend_filters(self.inport)
             self.actual_input_port = selected_port
             logger.info("Input port active: %s", selected_port)
         except Exception as e:
@@ -437,10 +557,15 @@ class MidiPorts:
         return True
 
     def _reconnect_output(self, force=False):
+        available_inputs = _get_cached_input_names()
         available_outputs = _get_cached_output_names()
-        self._refresh_runtime_port_labels(available_inputs=_get_cached_input_names(), available_outputs=available_outputs)
+        self._refresh_runtime_port_labels(available_inputs=available_inputs, available_outputs=available_outputs)
         requested_port = self.usersettings.get_setting_value("play_port")
-        resolution = self._resolve_output_target(requested_port, available_outputs)
+        resolution = self._resolve_output_target(
+            requested_port,
+            available_outputs,
+            available_inputs=available_inputs,
+        )
         selected_port = self._resolve_selected_port(resolution)
 
         if self._should_keep_current_port(
@@ -464,6 +589,8 @@ class MidiPorts:
         try:
             self.playport = mido.open_output(selected_port)
             self.actual_play_port = selected_port
+            if requested_port != selected_port:
+                self.usersettings.change_setting_value("play_port", selected_port)
             logger.info("Play port active: %s", selected_port)
         except Exception as e:
             logger.info("Can't load play port '%s': %s", selected_port, e)
@@ -542,7 +669,11 @@ class MidiPorts:
         requested_output = self.usersettings.get_setting_value("play_port")
 
         input_resolution = self._resolve_input_target(requested_input, available_inputs)
-        output_resolution = self._resolve_output_target(requested_output, available_outputs)
+        output_resolution = self._resolve_output_target(
+            requested_output,
+            available_outputs,
+            available_inputs=available_inputs,
+        )
 
         selected_input = self._resolve_selected_port(input_resolution)
         selected_output = self._resolve_selected_port(output_resolution)
@@ -580,6 +711,7 @@ class MidiPorts:
                 "midi_file": len(self.midifile_queue),
                 "websocket_input": len(self.websocket_midi_queue),
                 "live_forward": len(self.live_forward_queue),
+                "scheduled_forward": len(self.scheduled_forward_queue),
                 "websocket_publish": len(self.websocket_publish_queue),
             },
             "actual_input_port": self.actual_input_port,
@@ -593,6 +725,9 @@ class MidiPorts:
             "live_send_errors": self.forward_stats["live_send_errors"],
             "websocket_sent": self.forward_stats["websocket_sent"],
             "websocket_dropped": self.forward_stats["websocket_dropped"],
+            "scheduled_sent": self.forward_stats["scheduled_sent"],
+            "scheduled_late_messages": self.forward_stats["scheduled_late_messages"],
+            "scheduled_late_max_ms": round(self.forward_stats["scheduled_late_max_ms"], 4),
             "avg_send_ms": round(avg_send_ms, 4),
             "max_send_ms": round(self.forward_stats["send_time_max_ms"], 4),
         }
@@ -607,6 +742,7 @@ class MidiPorts:
             "reconnect_count": self.reconnect_count,
             "live_send_errors": self.forward_stats["live_send_errors"],
             "websocket_dropped": self.forward_stats["websocket_dropped"],
+            "scheduled_late_messages": self.forward_stats["scheduled_late_messages"],
         }
         diagnostics["metadata"].update(
             {
@@ -699,12 +835,7 @@ class MidiPorts:
                 "websocket_input",
                 reserve_slots=self.queue_reserved_noteoff_slots,
             )
-            self._queue_with_policy(
-                self.live_forward_queue,
-                (msg, ts),
-                "forward",
-                reserve_slots=self.queue_reserved_noteoff_slots,
-            )
+            self.enqueue_rtp_message(msg, msg_timestamp=ts, source="forward")
             diagnostics = self._ensure_runtime_diagnostics()
             diagnostics.increment_counter("websocket_midi_messages")
             diagnostics.record_duration("websocket_midi_parse", time.perf_counter() - ts)
@@ -754,7 +885,11 @@ class MidiPorts:
                 secondary_present = bool(
                     self._resolve_selected_port(self._resolve_input_target(secondary_input_port, input_names))
                 ) if secondary_input_port and secondary_input_port != "default" else False
-                play_present = bool(self._resolve_selected_port(self._resolve_output_target(play_port, output_names)))
+                play_present = bool(
+                    self._resolve_selected_port(
+                        self._resolve_output_target(play_port, output_names, available_inputs=input_names)
+                    )
+                )
 
                 input_restored = input_present and (last_input_present is False)
                 secondary_restored = secondary_present and (last_secondary_present is False)

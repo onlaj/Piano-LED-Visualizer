@@ -3,6 +3,7 @@ from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
 from lib.functions import (get_last_logs, find_between, fastColorWipe, play_midi, clamp, validate_schedule_overlaps)
 from lib.led_animations import get_registry
+from lib.midiport_resolver import filter_valid_output_ports
 import lib.colormaps as cmap
 import psutil
 import threading
@@ -2137,7 +2138,10 @@ def get_songs():
 @webinterface.route('/api/get_ports', methods=['GET'])
 def get_ports():
     input_ports = list(dict.fromkeys(mido.get_input_names()))
-    output_ports = list(dict.fromkeys(mido.get_output_names()))
+    output_ports = filter_valid_output_ports(
+        list(dict.fromkeys(mido.get_output_names())),
+        available_inputs=input_ports,
+    )
     diagnostics = app_state.midiports.get_rtp_diagnostics() if app_state.midiports else {}
     runtime_diagnostics = app_state.midiports.get_runtime_diagnostics() if app_state.midiports else {}
     response = {
@@ -2389,8 +2393,8 @@ def parse_aconnect_ports(output, port_type="input"):
             current_client = client_match.group(1)
             current_client_name = client_match.group(2)
             
-            # Skip special clients
-            if current_client == "0" or "Through" in current_client_name or "RtMidi" in current_client_name:
+            # Skip system/meta clients that should not be user-connectable in the graph.
+            if current_client == "0" or "Through" in current_client_name:
                 current_client = None
             continue
         
