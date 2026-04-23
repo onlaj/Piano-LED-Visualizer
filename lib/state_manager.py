@@ -157,7 +157,7 @@ class StateManager:
             float: Sleep time in seconds
         """
         if self.current_state == SystemState.ACTIVE_USE:
-            return 0.01  # 10ms delay - responsive but prevents CPU spinning
+            return 0.002  # 2ms delay - drain MIDI aggressively while playing
         elif self.current_state == SystemState.NORMAL:
             return 0.006  # Standard delay (~167Hz)
         else:  # IDLE

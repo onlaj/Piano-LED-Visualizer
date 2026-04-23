@@ -498,7 +498,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings, state_manager=No
                 saving.start_time = time.perf_counter()
                 menu.screen_status = 1
                 GPIO.output(24, 1)
-                midiports.reconnect_ports()
+                midiports.ensure_ports_ready()
                 midiports.last_activity = time.time()
                 menu.show()
                 break
@@ -509,7 +509,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings, state_manager=No
             saving.start_time = time.perf_counter()
             menu.screen_status = 1
             GPIO.output(24, 1)
-            midiports.reconnect_ports()
+            midiports.ensure_ports_ready()
             menu.show()
             break
 

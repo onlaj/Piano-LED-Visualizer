@@ -763,7 +763,8 @@ function show_port_setup_popup() {
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             const response = JSON.parse(this.responseText);
-            const ports = response.ports_list || [];
+            const ports = response.input_ports || response.ports_list || [];
+            window.portSetupOutputPorts = response.output_ports || [];
             
             // Clear dropdown
             dropdown.innerHTML = '';
@@ -857,7 +858,8 @@ function handle_port_setup_cancel() {
 }
 
 /**
- * Handle submit button click - set both input_port and play_port
+ * Handle submit button click - set input_port and only mirror play_port when
+ * the same concrete port also exists as an output.
  */
 function handle_port_setup_submit() {
     const dropdown = document.getElementById('port_setup_dropdown');
@@ -877,9 +879,12 @@ function handle_port_setup_submit() {
     // Set input_port first
     change_setting('input_port', selectedPort);
     
-    // Set play_port after a short delay to ensure input_port is set first
+    // Only mirror play_port when the same concrete name exists in output ports.
     setTimeout(function() {
-        change_setting('play_port', selectedPort);
+        const outputPorts = window.portSetupOutputPorts || [];
+        if (outputPorts.includes(selectedPort)) {
+            change_setting('play_port', selectedPort);
+        }
         
         // Save preference if checkbox is checked
         if (dontShowAgain && dontShowAgain.checked) {
@@ -1875,23 +1880,28 @@ function get_ports() {
                     secondary_input_select.options[i] = null;
                     playback_select.options[i] = null;
                 }
-                response["ports_list"].forEach(function (item, index) {
+                const inputPorts = response["input_ports"] || response["ports_list"] || [];
+                const outputPorts = response["output_ports"] || [];
+
+                inputPorts.forEach(function (item, index) {
                     const opt = document.createElement('option');
                     const opt2 = document.createElement('option');
-                    const opt3 = document.createElement('option');
                     opt.appendChild(document.createTextNode(item));
                     opt2.appendChild(document.createTextNode(item));
-                    opt3.appendChild(document.createTextNode(item));
                     opt.value = item;
                     opt2.value = item;
-                    opt3.value = item;
                     active_input_select.appendChild(opt);
                     secondary_input_select.appendChild(opt2);
+                });
+                outputPorts.forEach(function (item, index) {
+                    const opt3 = document.createElement('option');
+                    opt3.appendChild(document.createTextNode(item));
+                    opt3.value = item;
                     playback_select.appendChild(opt3);
                 });
                 active_input_select.value = response["input_port"];
                 secondary_input_select.value = response["secondary_input_port"];
-                playback_select.value = response["play_port"];
+                playback_select.value = response["actual_play_port"] || response["play_port"];
             }
             
             // Update raw textarea

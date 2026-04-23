@@ -68,8 +68,7 @@ class MIDIEventProcessor:
         get_position = get_note_position
         led_count = ledstrip.led_number
 
-        # Process a bounded slice per frame to avoid jitter and keep FPS stable
-        # group near-identical timestamps and process notes first
+        # Process a bounded slice per frame to avoid jitter while preserving FIFO order.
         t0 = time.perf_counter()
         processed = 0
 
@@ -102,37 +101,26 @@ class MIDIEventProcessor:
             color_mode.MidiEvent(msg, None, ledstrip)
             saving.restart_time()
 
-        # Bounded drain with bursts grouped by timestamp (~1.5ms window)
-        BURST_WINDOW = 0.0015  # 1.5 ms
-        BURST_LIMIT  = 64      # avoid starving under continuous streams
-
         midipending = midiports.midipending
-        while midipending and processed < 512 and (time.perf_counter() - t0) < 0.003:
-            head_msg, head_ts = midipending.popleft()
-            burst = [(head_msg, head_ts)]
-            # Coalesce a small burst of messages with almost the same timestamp
-            while midipending and len(burst) < BURST_LIMIT:
-                nxt_msg, nxt_ts = midipending[0]
-                if abs(nxt_ts - head_ts) <= BURST_WINDOW:
-                    burst.append(midipending.popleft())
-                else:
-                    break
+        queue_depth = len(midipending)
+        is_active_use = bool(self.state_manager and self.state_manager.is_active_use())
+        max_messages = 1536 if is_active_use else 512
+        max_duration = 0.008 if is_active_use else 0.003
 
-            # Notes first (reduce visual latency for chords), then others
-            for m, ts in burst:
-                if getattr(m, "type", None) in ("note_on", "note_off"):
-                    _process_one(m, ts)
-                    processed += 1
-                    if processed >= 512:
-                        break
+        if queue_depth > 768:
+            max_messages = min(max(max_messages, queue_depth * 2), 8192)
+            max_duration = max(max_duration, 0.02 if is_active_use else 0.01)
+        elif queue_depth > 512:
+            max_messages = min(max(max_messages, queue_depth * 2), 4096)
+            max_duration = max(max_duration, 0.015 if is_active_use else 0.008)
+        elif queue_depth > 256:
+            max_messages = min(max(max_messages, queue_depth), 2048)
+            max_duration = max(max_duration, 0.01 if is_active_use else 0.006)
 
-            if processed < 512:
-                for m, ts in burst:
-                    if getattr(m, "type", None) not in ("note_on", "note_off"):
-                        _process_one(m, ts)
-                        processed += 1
-                        if processed >= 512:
-                            break
+        while midipending and processed < max_messages and (time.perf_counter() - t0) < max_duration:
+            msg, msg_timestamp = midipending.popleft()
+            _process_one(msg, msg_timestamp)
+            processed += 1
         return processed > 0
     
     def handle_note_off(self, msg, msg_timestamp, note_position):

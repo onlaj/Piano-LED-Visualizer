@@ -1933,8 +1933,8 @@ def get_settings():
     response["sides_color_mode"] = app_state.usersettings.get_setting_value("adjacent_mode")
     response["sides_color"] = sides_color
 
-    response["input_port"] = app_state.usersettings.get_setting_value("input_port")
-    response["play_port"] = app_state.usersettings.get_setting_value("play_port")
+    response["input_port"] = app_state.midiports.actual_input_port or app_state.usersettings.get_setting_value("input_port")
+    response["play_port"] = app_state.midiports.actual_play_port or app_state.usersettings.get_setting_value("play_port")
 
     response["skipped_notes"] = app_state.usersettings.get_setting_value("skipped_notes")
     response["note_offsets"] = app_state.usersettings.get_setting_value("note_offsets")
@@ -2010,8 +2010,8 @@ def get_settings():
 
 @webinterface.route('/api/get_recording_status', methods=['GET'])
 def get_recording_status():
-    response = {"input_port": app_state.usersettings.get_setting_value("input_port"),
-                "play_port": app_state.usersettings.get_setting_value("play_port"),
+    response = {"input_port": app_state.midiports.actual_input_port or app_state.usersettings.get_setting_value("input_port"),
+                "play_port": app_state.midiports.actual_play_port or app_state.usersettings.get_setting_value("play_port"),
                 "isrecording": app_state.saving.is_recording, "isplaying": app_state.saving.is_playing_midi}
 
     return jsonify(response)
@@ -2136,13 +2136,22 @@ def get_songs():
 
 @webinterface.route('/api/get_ports', methods=['GET'])
 def get_ports():
-    ports = mido.get_input_names()
-    ports = list(dict.fromkeys(ports))
-    response = {"ports_list": ports, "input_port": app_state.usersettings.get_setting_value("input_port"),
-                "secondary_input_port": app_state.usersettings.get_setting_value("secondary_input_port"),
-                "play_port": app_state.usersettings.get_setting_value("play_port"),
-                "connected_ports": str(subprocess.check_output(["aconnect", "-i", "-l"])),
-                "midi_logging": app_state.usersettings.get_setting_value("midi_logging")}
+    input_ports = list(dict.fromkeys(mido.get_input_names()))
+    output_ports = list(dict.fromkeys(mido.get_output_names()))
+    diagnostics = app_state.midiports.get_rtp_diagnostics() if app_state.midiports else {}
+    response = {
+        "ports_list": input_ports,  # legacy alias for existing UI paths
+        "input_ports": input_ports,
+        "output_ports": output_ports,
+        "input_port": app_state.usersettings.get_setting_value("input_port"),
+        "secondary_input_port": app_state.usersettings.get_setting_value("secondary_input_port"),
+        "play_port": app_state.usersettings.get_setting_value("play_port"),
+        "actual_input_port": diagnostics.get("actual_input_port"),
+        "actual_play_port": diagnostics.get("actual_play_port"),
+        "connected_ports": str(subprocess.check_output(["aconnect", "-i", "-l"])),
+        "midi_logging": app_state.usersettings.get_setting_value("midi_logging"),
+        "rtp_diagnostics": diagnostics,
+    }
 
     return jsonify(response)
 
