@@ -69,60 +69,12 @@ def shift(lst, num_shifts):
 
 
 def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
-    midiports.midifile_queue.append((mido.Message('note_on'), time.perf_counter()))
-    strip = ledstrip.strip
-
-    if song_path in saving.is_playing_midi.keys():
-        menu.render_message(song_path, "Already playing", 2000)
-        return
-
-    saving.is_playing_midi.clear()
-
-    saving.is_playing_midi[song_path] = True
-    menu.render_message("Playing: ", song_path, 2000)
-    saving.t = threading.currentThread()
-
-    try:
-        mid = mido.MidiFile("Songs/" + song_path)
-        fastColorWipe(strip, True, ledsettings)
-        t0 = None
-        total_delay = 0
-        for message in mid:
-            if song_path in saving.is_playing_midi.keys():
-                if t0 is None:
-                    t0 = time.perf_counter()
-
-                total_delay += message.time
-                msg_timestamp = t0 + total_delay
-                if not message.is_meta:
-                    midiports.schedule_rtp_message(message, due_time=msg_timestamp, source="midifile")
-
-                delay = max(0.0, msg_timestamp - time.perf_counter())
-                if delay > 0:
-                    time.sleep(delay)
-                if not message.is_meta:
-                    if midiports.should_process_locally(message):
-                        midiports.midifile_queue.append((message.copy(time=0), msg_timestamp))
-
-            else:
-                midiports.midifile_queue.clear()
-                clear_ledstrip_state(ledstrip)
-                break
-        logger.info('play time: {:.2f} s (expected {:.2f})'.format(time.perf_counter() - t0, total_delay))
-        # print('play time: {:.2f} s (expected {:.2f})'.format(time.perf_counter() - t0, length))
-        # saving.is_playing_midi = False
-    except FileNotFoundError:
-        menu.render_message(song_path, "File not found", 2000)
-    except Exception as e:
-        menu.render_message(song_path, "Error while playing song " + str(e), 2000)
-        logger.warning(e)
-    finally:
-        midiports.midifile_queue.clear()
-        try:
-            clear_ledstrip_state(ledstrip)
-        except Exception as e:
-            logger.debug(f"LED cleanup failed: {e}")
-    saving.is_playing_midi.clear()
+    scheduler = getattr(saving, "playback_scheduler", None)
+    if scheduler is None:
+        from lib.midi_playback_scheduler import MidiPlaybackScheduler
+        scheduler = MidiPlaybackScheduler(midiports, saving, menu, ledsettings, ledstrip)
+        saving.playback_scheduler = scheduler
+    return scheduler.play(song_path)
 
 
 def is_within_schedule(schedule_list):

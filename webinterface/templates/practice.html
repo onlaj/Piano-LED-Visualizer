@@ -24,6 +24,31 @@
         let practiceWebSocket = null;
         let practiceToolUrl = '';
         let iframeOrigin = '';
+        let practiceCleanedUp = false;
+        const cleanupCallbacks = [];
+
+        if (typeof window.__pianoLedPracticeCleanup === 'function') {
+            window.__pianoLedPracticeCleanup();
+        }
+        window.__pianoLedPracticeCleanup = cleanupPractice;
+
+        function addPracticeListener(target, eventName, handler, options) {
+            target.addEventListener(eventName, handler, options);
+            cleanupCallbacks.push(function () {
+                target.removeEventListener(eventName, handler, options);
+            });
+        }
+
+        function runCleanupCallbacks() {
+            while (cleanupCallbacks.length) {
+                const cleanup = cleanupCallbacks.pop();
+                try {
+                    cleanup();
+                } catch (error) {
+                    console.warn('Practice cleanup callback failed:', error);
+                }
+            }
+        }
 
         // Helper to check for debug mode
         // Enable by adding ?debug to URL or running localStorage.setItem('piano_led_debug', 'true')
@@ -429,24 +454,24 @@
                 'mozfullscreenchange',
                 'MSFullscreenChange'
             ];
+            const handleFullscreenChange = function () {
+                const iframe = document.getElementById('pianoVisualizerIframe');
+                if (iframe) {
+                    // Check current fullscreen state
+                    const isFullscreen = !!(
+                        document.fullscreenElement ||
+                        document.webkitFullscreenElement ||
+                        document.mozFullScreenElement ||
+                        document.msFullscreenElement
+                    );
 
+                    console.log('Fullscreen state changed:', isFullscreen);
+                    // Send state update to iframe
+                    sendFullscreenState(isFullscreen);
+                }
+            };
             fullscreenEvents.forEach(event => {
-                document.addEventListener(event, function () {
-                    const iframe = document.getElementById('pianoVisualizerIframe');
-                    if (iframe) {
-                        // Check current fullscreen state
-                        const isFullscreen = !!(
-                            document.fullscreenElement ||
-                            document.webkitFullscreenElement ||
-                            document.mozFullScreenElement ||
-                            document.msFullscreenElement
-                        );
-
-                        console.log('Fullscreen state changed:', isFullscreen);
-                        // Send state update to iframe
-                        sendFullscreenState(isFullscreen);
-                    }
-                });
+                addPracticeListener(document, event, handleFullscreenChange);
             });
         }
 
@@ -506,7 +531,7 @@
         // Set up postMessage handlers for bidirectional MIDI communication and fullscreen
         function setupPostMessageHandlers() {
             // Listen for messages from iframe (Piano Visualizer → Piano LED Visualizer)
-            window.addEventListener('message', function (event) {
+            const handlePracticeMessage = function (event) {
                 // Validate origin
                 if (!iframeOrigin || event.origin !== iframeOrigin) {
                     // For development, allow localhost origins
@@ -575,12 +600,21 @@
                     // Only log non-MIDI messages that aren't from piano-visualizer and aren't backup messages
                     console.log('Received message from iframe:', event.data);
                 }
-            });
+            };
+            addPracticeListener(window, 'message', handlePracticeMessage);
         }
 
         // Cleanup when leaving practice tab
         function cleanupPractice() {
+            if (practiceCleanedUp) {
+                return;
+            }
+            practiceCleanedUp = true;
             console.log('Cleaning up Practice tab');
+            runCleanupCallbacks();
+            if (window.__pianoLedPracticeCleanup === cleanupPractice) {
+                window.__pianoLedPracticeCleanup = null;
+            }
 
             // First, stop MIDI processing by setting practice_active to false
             // This prevents any new MIDI messages from being processed
@@ -631,7 +665,7 @@
         // Since this page loads via AJAX, the script runs immediately when the HTML is inserted
         // So we need to wait a moment for the DOM to be ready
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializePractice);
+            addPracticeListener(document, 'DOMContentLoaded', initializePractice);
         } else {
             // DOM is ready, but since this is loaded via AJAX, wait a bit for elements to be inserted
             setTimeout(initializePractice, 50);
@@ -646,16 +680,17 @@
             }, 100);
         }
 
-        window.addEventListener('resize', handleResize);
-        window.addEventListener('orientationchange', function () {
+        addPracticeListener(window, 'resize', handleResize);
+        const handleOrientationChange = function () {
             // Wait a bit for orientation change to complete
             setTimeout(function () {
                 updatePracticeContainerHeight();
             }, 200);
-        });
+        };
+        addPracticeListener(window, 'orientationchange', handleOrientationChange);
 
         // Cleanup when page unloads (user navigates away)
-        window.addEventListener('beforeunload', cleanupPractice);
+        addPracticeListener(window, 'beforeunload', cleanupPractice);
 
         // Also cleanup when loadAjax is called for a different page
         // Store original loadAjax if it exists (global scope)
@@ -667,7 +702,7 @@
         }
 
         if (typeof window.loadAjax === 'function') {
-            window.loadAjax = function (subpage) {
+            const practiceLoadAjaxWrapper = function (subpage) {
                 // If loading a different page, cleanup practice
                 if (subpage !== 'practice') {
                     cleanupPractice();
@@ -675,6 +710,12 @@
                 // Call original loadAjax
                 return window.originalLoadAjax.apply(this, arguments);
             };
+            window.loadAjax = practiceLoadAjaxWrapper;
+            cleanupCallbacks.push(function () {
+                if (window.loadAjax === practiceLoadAjaxWrapper) {
+                    window.loadAjax = window.originalLoadAjax;
+                }
+            });
         }
     })();
 </script>

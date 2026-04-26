@@ -1,10 +1,11 @@
 import threading
 import time
-from collections import deque
 
 import mido
 
 from lib import connectall
+from lib.midi_connection_manager import MidiConnectionManager
+from lib.midi_queues import MidiQueues
 from lib.log_setup import logger
 from lib.midiport_resolver import (
     PortResolutionStatus,
@@ -86,14 +87,16 @@ class MidiPorts:
         self.runtime_diagnostics = RuntimeDiagnostics()
 
         # midi queues contain tuples (midi_msg, timestamp)
-        self.midifile_queue = deque(maxlen=500)
-        self.midi_queue = deque(maxlen=1000)
-        self.websocket_midi_queue = deque(maxlen=1000)
-        self.live_forward_queue = deque(maxlen=2048)
-        self.scheduled_forward_queue = deque(maxlen=4096)
-        self.websocket_publish_queue = deque(maxlen=512)
+        self.queues = MidiQueues()
+        self.midifile_queue = self.queues.file_queue
+        self.midi_queue = self.queues.live_visualizer_queue
+        self.learning_midi_queue = self.queues.live_learning_queue
+        self.websocket_midi_queue = self.queues.websocket_queue
+        self.live_forward_queue = self.queues.live_forward_queue
+        self.scheduled_forward_queue = self.queues.scheduled_forward_queue
+        self.websocket_publish_queue = self.queues.websocket_publish_queue
 
-        self.queue_reserved_noteoff_slots = max(1, min(32, self.midi_queue.maxlen // 8))
+        self.queue_reserved_noteoff_slots = self.queues.reserved_noteoff_slots
         self.drop_counter = 0
         self.drop_counts = {}
         self.ignored_counts = {}
@@ -118,6 +121,8 @@ class MidiPorts:
         self.last_resolved_input_port = None
         self.last_resolved_play_port = None
         self.last_resolution_reason = {}
+        self.port_runtime_reconnects = 0
+        self.connection_manager = MidiConnectionManager(self)
         self.last_reconnect_time = None
         self.reconnect_count = 0
         self.midipending = None
@@ -127,6 +132,7 @@ class MidiPorts:
         self.live_forward_thread = None
         self.websocket_publish_thread = None
         self.ignored_message_types = set(IGNORED_RTP_MESSAGE_TYPES)
+        self.forward_backoff_until = 0.0
 
         # Known python-rtmidi first-access quirk on some systems.
         try:
@@ -145,6 +151,18 @@ class MidiPorts:
         if not hasattr(self, "runtime_diagnostics") or self.runtime_diagnostics is None:
             self.runtime_diagnostics = RuntimeDiagnostics()
         return self.runtime_diagnostics
+
+    def _refresh_port_cache(self):
+        return _refresh_port_cache()
+
+    def _get_cached_input_names(self):
+        return _get_cached_input_names()
+
+    def _get_cached_output_names(self):
+        return _get_cached_output_names()
+
+    def port_is_present(self, actual_port, available_ports):
+        return port_is_present(actual_port, available_ports)
 
     def _queue_oldest_age_ms(self, queue, now_perf=None):
         if not queue:
@@ -166,6 +184,7 @@ class MidiPorts:
 
         queues = {
             "live_input": self.midi_queue,
+            "learning_input": getattr(self, "learning_midi_queue", []),
             "midi_file": self.midifile_queue,
             "websocket_input": self.websocket_midi_queue,
             "live_forward": self.live_forward_queue,
@@ -183,6 +202,13 @@ class MidiPorts:
         self.drop_counter += 1
         self.drop_counts[key] = self.drop_counts.get(key, 0) + 1
 
+    def _sync_queue_drop_counters(self):
+        queues = getattr(self, "queues", None)
+        if queues is None:
+            return
+        self.drop_counter = getattr(queues, "drop_counter", self.drop_counter)
+        self.drop_counts = dict(getattr(queues, "drop_counts", self.drop_counts))
+
     def _increment_ignored(self, key):
         self.ignored_counts[key] = self.ignored_counts.get(key, 0) + 1
 
@@ -198,7 +224,7 @@ class MidiPorts:
             return "control_change"
         return "other"
 
-    def _queue_with_policy(self, queue, item, source, reserve_slots=0):
+    def _queue_with_policy(self, queue, item, source, reserve_slots=0, count_drops=True):
         msg = item[0] if isinstance(item, tuple) else item
         event_type = self._classify_message(msg)
         soft_limit = queue.maxlen - reserve_slots if queue.maxlen else None
@@ -206,15 +232,50 @@ class MidiPorts:
         if queue.maxlen:
             if event_type == "note_off":
                 if len(queue) >= queue.maxlen:
-                    self._increment_drop(f"{source}_{event_type}")
+                    if count_drops:
+                        self._increment_drop(f"{source}_{event_type}")
                     return False
             elif soft_limit is not None and len(queue) >= max(0, soft_limit):
                 key = f"{source}_{event_type if event_type == 'note_on' else 'noncritical'}"
-                self._increment_drop(key)
+                if count_drops:
+                    self._increment_drop(key)
                 return False
 
         queue.append(item)
         return True
+
+    def enqueue_file_message(self, msg, timestamp=None):
+        if timestamp is None:
+            timestamp = time.perf_counter()
+        if hasattr(self, "queues"):
+            return self.queues.enqueue_file(msg, timestamp=timestamp)
+        self.midifile_queue.append((msg, timestamp))
+        return True
+
+    def enqueue_live_message(self, msg, timestamp=None):
+        if timestamp is None:
+            timestamp = time.perf_counter()
+        if hasattr(self, "queues"):
+            queued = self.queues.enqueue_live(msg, timestamp=timestamp)
+            self._sync_queue_drop_counters()
+            return queued
+        queued_visualizer = self._queue_with_policy(
+            self.midi_queue,
+            (msg, timestamp),
+            "live",
+            reserve_slots=self.queue_reserved_noteoff_slots,
+        )
+        learning_queue = getattr(self, "learning_midi_queue", None)
+        if learning_queue is None:
+            return queued_visualizer
+        queued_learning = self._queue_with_policy(
+            learning_queue,
+            (msg, timestamp),
+            "learning",
+            reserve_slots=self.queue_reserved_noteoff_slots,
+            count_drops=False,
+        )
+        return queued_visualizer or queued_learning
 
     def _should_ignore_live_message(self, msg):
         configured_types = getattr(self, "ignored_message_types", set())
@@ -234,12 +295,16 @@ class MidiPorts:
         if msg_timestamp is None:
             msg_timestamp = time.perf_counter()
 
-        queued = self._queue_with_policy(
-            self.live_forward_queue,
-            (msg, msg_timestamp),
-            source,
-            reserve_slots=self.queue_reserved_noteoff_slots,
-        )
+        if hasattr(self, "queues"):
+            queued = self.queues.enqueue_live_forward(msg, timestamp=msg_timestamp, source=source)
+            self._sync_queue_drop_counters()
+        else:
+            queued = self._queue_with_policy(
+                self.live_forward_queue,
+                (msg, msg_timestamp),
+                source,
+                reserve_slots=self.queue_reserved_noteoff_slots,
+            )
         self.refresh_queue_diagnostics(now_perf=msg_timestamp)
         return queued
 
@@ -255,23 +320,32 @@ class MidiPorts:
             enqueued_at = time.perf_counter()
 
         due_time = float(due_time)
-        item = (msg, enqueued_at, due_time)
-        queued = self._queue_with_policy(
-            self.scheduled_forward_queue,
-            item,
-            source,
-            reserve_slots=self.queue_reserved_noteoff_slots,
-        )
-        if queued and len(self.scheduled_forward_queue) > 1:
-            last_due = self.scheduled_forward_queue[-2][2]
-            if due_time < last_due:
-                self.scheduled_forward_queue.pop()
-                insert_at = len(self.scheduled_forward_queue)
-                for index, existing in enumerate(self.scheduled_forward_queue):
-                    if due_time < existing[2]:
-                        insert_at = index
-                        break
-                self.scheduled_forward_queue.insert(insert_at, item)
+        if hasattr(self, "queues"):
+            queued = self.queues.enqueue_scheduled_forward(
+                msg,
+                enqueued_at=enqueued_at,
+                due_time=due_time,
+                source=source,
+            )
+            self._sync_queue_drop_counters()
+        else:
+            item = (msg, enqueued_at, due_time)
+            queued = self._queue_with_policy(
+                self.scheduled_forward_queue,
+                item,
+                source,
+                reserve_slots=self.queue_reserved_noteoff_slots,
+            )
+            if queued and len(self.scheduled_forward_queue) > 1:
+                last_due = self.scheduled_forward_queue[-2][2]
+                if due_time < last_due:
+                    self.scheduled_forward_queue.pop()
+                    insert_at = len(self.scheduled_forward_queue)
+                    for index, existing in enumerate(self.scheduled_forward_queue):
+                        if due_time < existing[2]:
+                            insert_at = index
+                            break
+                    self.scheduled_forward_queue.insert(insert_at, item)
 
         diagnostics = self._ensure_runtime_diagnostics()
         diagnostics.increment_counter("scheduled_rtp_messages")
@@ -295,9 +369,46 @@ class MidiPorts:
             return False
 
         now_perf = time.perf_counter()
+        if now_perf < getattr(self, "forward_backoff_until", 0.0):
+            return False
+
+        if hasattr(self, "queues"):
+            live_item = self.queues.peek_live_forward()
+            if live_item is not None:
+                msg = live_item[0]
+                sent = self._send_rtp_message(msg, send_started=now_perf)
+                if sent:
+                    self.queues.pop_live_forward(expected=live_item)
+                else:
+                    self.forward_backoff_until = now_perf + 0.05
+                return sent
+
+            scheduled_item = self.queues.peek_due_scheduled_forward(now_perf=now_perf)
+            if scheduled_item is None:
+                next_item = self.queues.peek_next_scheduled_forward()
+                if next_item is not None:
+                    due_time = next_item[2]
+                    diagnostics = self._ensure_runtime_diagnostics()
+                    diagnostics.set_gauge("scheduled_rtp_next_due_in_ms", max(0.0, (due_time - now_perf) * 1000.0))
+                    self.refresh_queue_diagnostics(now_perf=now_perf)
+                return False
+
+            msg, _, due_time, _ = scheduled_item
+            sent = self._send_rtp_message(msg, send_started=now_perf, scheduled_due_time=due_time)
+            if sent:
+                self.queues.pop_due_scheduled_forward(now_perf=now_perf, expected=scheduled_item)
+            else:
+                self.forward_backoff_until = now_perf + 0.05
+            return sent
+
         if self.live_forward_queue:
-            msg, _ = self.live_forward_queue.popleft()
-            return self._send_rtp_message(msg, send_started=now_perf)
+            msg, _ = self.live_forward_queue[0]
+            sent = self._send_rtp_message(msg, send_started=now_perf)
+            if sent:
+                self.live_forward_queue.popleft()
+            else:
+                self.forward_backoff_until = now_perf + 0.05
+            return sent
 
         if not self.scheduled_forward_queue:
             return False
@@ -309,8 +420,12 @@ class MidiPorts:
             self.refresh_queue_diagnostics(now_perf=now_perf)
             return False
 
-        self.scheduled_forward_queue.popleft()
-        return self._send_rtp_message(msg, send_started=now_perf, scheduled_due_time=due_time)
+        sent = self._send_rtp_message(msg, send_started=now_perf, scheduled_due_time=due_time)
+        if sent:
+            self.scheduled_forward_queue.popleft()
+        else:
+            self.forward_backoff_until = now_perf + 0.05
+        return sent
 
     def _send_rtp_message(self, msg, send_started=None, scheduled_due_time=None):
         port = self.playport
@@ -353,7 +468,14 @@ class MidiPorts:
         if not self.websocket_publish_queue:
             return False
 
-        msg, _ = self.websocket_publish_queue.popleft()
+        if hasattr(self, "queues"):
+            publish_item = self.queues.pop_websocket_publish()
+        else:
+            publish_item = self.websocket_publish_queue.popleft()
+        if publish_item is None:
+            return False
+
+        msg, _ = publish_item
         publish_started = time.perf_counter()
         try:
             from webinterface import app_state, webinterface
@@ -461,14 +583,13 @@ class MidiPorts:
                     "reason": self.last_resolution_reason["play"],
                 }
 
-            selected = pick_default_output_port(available_outputs, available_inputs=available_inputs)
-            self.last_resolved_play_port = selected
+            self.last_resolved_play_port = None
             self.last_resolution_reason["play"] = (
-                f"{resolution.reason}; auto-selected first safe output port"
+                f"{resolution.reason}; waiting for explicit playback port"
             )
             return {
-                "selected_port": selected,
-                "status": PortResolutionStatus.AUTO_SELECTED,
+                "selected_port": None,
+                "status": PortResolutionStatus.UNAVAILABLE,
                 "reason": self.last_resolution_reason["play"],
             }
 
@@ -501,8 +622,14 @@ class MidiPorts:
         if available_outputs is None:
             available_outputs = _get_cached_output_names()
 
+        previous_input_port = self.actual_input_port
+        previous_play_port = self.actual_play_port
         self.actual_input_port = refresh_runtime_port_name(self.actual_input_port, available_inputs)
         self.actual_play_port = refresh_runtime_port_name(self.actual_play_port, available_outputs)
+        return {
+            "input_changed": previous_input_port != self.actual_input_port,
+            "play_changed": previous_play_port != self.actual_play_port,
+        }
 
     def _configure_input_backend_filters(self, input_port):
         backend = getattr(input_port, "_rt", None)
@@ -520,20 +647,27 @@ class MidiPorts:
 
     def _reconnect_input(self, force=False):
         available_inputs = _get_cached_input_names()
-        self._refresh_runtime_port_labels(available_inputs=available_inputs, available_outputs=_get_cached_output_names())
+        runtime_label_changes = self._refresh_runtime_port_labels(
+            available_inputs=available_inputs,
+            available_outputs=_get_cached_output_names(),
+        )
         requested_port = self.usersettings.get_setting_value("input_port")
         resolution = self._resolve_input_target(requested_port, available_inputs)
         selected_port = self._resolve_selected_port(resolution)
 
-        if self._should_keep_current_port(
+        can_keep_current_port = self._should_keep_current_port(
             requested_port,
             self.actual_input_port,
             self.inport,
             available_inputs,
             selected_port,
             force,
-        ):
+        )
+        if can_keep_current_port and not runtime_label_changes["input_changed"]:
             return False
+        if runtime_label_changes["input_changed"]:
+            self.port_runtime_reconnects = getattr(self, "port_runtime_reconnects", 0) + 1
+            self._ensure_runtime_diagnostics().increment_counter("port_runtime_reconnects")
 
         old_port = self.inport
         self.inport = None
@@ -559,7 +693,10 @@ class MidiPorts:
     def _reconnect_output(self, force=False):
         available_inputs = _get_cached_input_names()
         available_outputs = _get_cached_output_names()
-        self._refresh_runtime_port_labels(available_inputs=available_inputs, available_outputs=available_outputs)
+        runtime_label_changes = self._refresh_runtime_port_labels(
+            available_inputs=available_inputs,
+            available_outputs=available_outputs,
+        )
         requested_port = self.usersettings.get_setting_value("play_port")
         resolution = self._resolve_output_target(
             requested_port,
@@ -568,15 +705,19 @@ class MidiPorts:
         )
         selected_port = self._resolve_selected_port(resolution)
 
-        if self._should_keep_current_port(
+        can_keep_current_port = self._should_keep_current_port(
             requested_port,
             self.actual_play_port,
             self.playport,
             available_outputs,
             selected_port,
             force,
-        ):
+        )
+        if can_keep_current_port and not runtime_label_changes["play_changed"]:
             return False
+        if runtime_label_changes["play_changed"]:
+            self.port_runtime_reconnects = getattr(self, "port_runtime_reconnects", 0) + 1
+            self._ensure_runtime_diagnostics().increment_counter("port_runtime_reconnects")
 
         old_port = self.playport
         self.playport = None
@@ -626,8 +767,7 @@ class MidiPorts:
 
     def connectall(self):
         """Reconnect mido ports and then manage aconnect connections."""
-        self.reconnect_ports(force=False)
-        connectall.connectall(self.usersettings)
+        self.connection_manager.connectall()
 
     def add_instance(self, menu):
         self.menu = menu
@@ -652,6 +792,9 @@ class MidiPorts:
 
     def reconnect_ports(self, force=False):
         """Reconnect input and output ports deterministically."""
+        if hasattr(self, "connection_manager"):
+            self.connection_manager.reconnect_ports(force=force)
+            return
         _refresh_port_cache()
         changed_input = self._reconnect_input(force=force)
         changed_output = self._reconnect_output(force=force)
@@ -660,10 +803,11 @@ class MidiPorts:
             self.last_reconnect_time = time.time()
 
     def ports_need_reconnect(self):
+        if hasattr(self, "connection_manager"):
+            return self.connection_manager.ports_need_reconnect()
         _refresh_port_cache()
         available_inputs = _get_cached_input_names()
         available_outputs = _get_cached_output_names()
-        self._refresh_runtime_port_labels(available_inputs=available_inputs, available_outputs=available_outputs)
 
         requested_input = self.usersettings.get_setting_value("input_port")
         requested_output = self.usersettings.get_setting_value("play_port")
@@ -703,11 +847,17 @@ class MidiPorts:
             if send_count else 0.0
         )
         return {
+            "connection_state": {
+                "input_ready": self.inport is not None and self.actual_input_port is not None,
+                "play_ready": self.playport is not None and self.actual_play_port is not None,
+                "monitor_running": bool(self.monitor_running),
+            },
             "drop_counter": self.drop_counter,
             "drop_counts": dict(self.drop_counts),
             "ignored_counts": dict(self.ignored_counts),
             "queue_depths": {
                 "live_input": len(self.midi_queue),
+                "learning_input": len(getattr(self, "learning_midi_queue", [])),
                 "midi_file": len(self.midifile_queue),
                 "websocket_input": len(self.websocket_midi_queue),
                 "live_forward": len(self.live_forward_queue),
@@ -721,6 +871,7 @@ class MidiPorts:
             "last_resolution_reason": dict(self.last_resolution_reason),
             "last_reconnect_time": self.last_reconnect_time,
             "reconnect_count": self.reconnect_count,
+            "port_runtime_reconnects": getattr(self, "port_runtime_reconnects", 0),
             "live_sent": self.forward_stats["live_sent"],
             "live_send_errors": self.forward_stats["live_send_errors"],
             "websocket_sent": self.forward_stats["websocket_sent"],
@@ -739,7 +890,8 @@ class MidiPorts:
             "drop_counter": self.drop_counter,
             "drop_counts": dict(self.drop_counts),
             "ignored_counts": dict(self.ignored_counts),
-            "reconnect_count": self.reconnect_count,
+                "reconnect_count": self.reconnect_count,
+                "port_runtime_reconnects": getattr(self, "port_runtime_reconnects", 0),
             "live_send_errors": self.forward_stats["live_send_errors"],
             "websocket_dropped": self.forward_stats["websocket_dropped"],
             "scheduled_late_messages": self.forward_stats["scheduled_late_messages"],
@@ -750,6 +902,8 @@ class MidiPorts:
                 "actual_play_port": self.actual_play_port,
                 "last_resolved_input_port": self.last_resolved_input_port,
                 "last_resolved_play_port": self.last_resolved_play_port,
+                "input_ready": self.inport is not None and self.actual_input_port is not None,
+                "play_ready": self.playport is not None and self.actual_play_port is not None,
             }
         )
         return diagnostics
@@ -768,21 +922,20 @@ class MidiPorts:
 
         ts = time.perf_counter()
         self.last_activity = time.time()
-        self._queue_with_policy(
-            self.midi_queue,
-            (msg, ts),
-            "live",
-            reserve_slots=self.queue_reserved_noteoff_slots,
-        )
+        self.enqueue_live_message(msg, timestamp=ts)
         self.enqueue_rtp_message(msg, msg_timestamp=ts)
 
         if self._classify_message(msg) in ("note_on", "note_off"):
-            self._queue_with_policy(
-                self.websocket_publish_queue,
-                (msg, ts),
-                "websocket_publish",
-                reserve_slots=0,
-            )
+            if hasattr(self, "queues"):
+                self.queues.enqueue_websocket_publish(msg, timestamp=ts)
+                self._sync_queue_drop_counters()
+            else:
+                self._queue_with_policy(
+                    self.websocket_publish_queue,
+                    (msg, ts),
+                    "websocket_publish",
+                    reserve_slots=0,
+                )
         diagnostics = self._ensure_runtime_diagnostics()
         diagnostics.increment_counter("midi_callback_calls")
         diagnostics.record_duration("midi_callback", time.perf_counter() - callback_started)
@@ -801,40 +954,59 @@ class MidiPorts:
                 return
 
             msg_type = parts[0]
-            if msg_type not in ("note_on", "note_off"):
+            if msg_type not in ("note_on", "note_off", "control_change"):
                 logger.debug(f"Unsupported MIDI message type from websocket: {msg_type}")
                 return
 
             channel = 0
             note = 0
             velocity = 0
+            control = 0
+            control_value = 0
             time_val = 0
 
             for part in parts[1:]:
                 if "=" not in part:
                     continue
-                key, value = part.split("=", 1)
+                key, raw_value = part.split("=", 1)
                 try:
                     if key == "channel":
-                        channel = int(value)
+                        channel = int(raw_value)
                     elif key == "note":
-                        note = int(value)
+                        note = int(raw_value)
                     elif key == "velocity":
-                        velocity = int(value)
+                        velocity = int(raw_value)
+                    elif key in ("control", "controller"):
+                        control = int(raw_value)
+                    elif key == "value":
+                        control_value = int(raw_value)
                     elif key == "time":
-                        time_val = float(value)
+                        time_val = float(raw_value)
                 except ValueError:
                     logger.warning(f"Invalid value in websocket MIDI message: {part}")
 
-            msg = mido.Message(msg_type, channel=channel, note=note, velocity=velocity, time=time_val)
+            if msg_type == "control_change":
+                msg = mido.Message(
+                    msg_type,
+                    channel=channel,
+                    control=control,
+                    value=control_value,
+                    time=time_val,
+                )
+            else:
+                msg = mido.Message(msg_type, channel=channel, note=note, velocity=velocity, time=time_val)
             ts = time.perf_counter()
             self.last_activity = time.time()
-            self._queue_with_policy(
-                self.websocket_midi_queue,
-                (msg, ts),
-                "websocket_input",
-                reserve_slots=self.queue_reserved_noteoff_slots,
-            )
+            if hasattr(self, "queues"):
+                self.queues.enqueue_websocket(msg, timestamp=ts)
+                self._sync_queue_drop_counters()
+            else:
+                self._queue_with_policy(
+                    self.websocket_midi_queue,
+                    (msg, ts),
+                    "websocket_input",
+                    reserve_slots=self.queue_reserved_noteoff_slots,
+                )
             self.enqueue_rtp_message(msg, msg_timestamp=ts, source="forward")
             diagnostics = self._ensure_runtime_diagnostics()
             diagnostics.increment_counter("websocket_midi_messages")
@@ -845,7 +1017,43 @@ class MidiPorts:
 
     def clear_websocket_midi_queue(self):
         """Clear the websocket MIDI queue."""
-        self.websocket_midi_queue.clear()
+        if hasattr(self, "queues"):
+            self.queues.clear_websocket()
+        else:
+            self.websocket_midi_queue.clear()
+
+    def clear_scheduled_rtp_messages(self, source=None):
+        if hasattr(self, "queues"):
+            return self.queues.clear_scheduled_forward(source=source)
+        if source is None:
+            removed = len(self.scheduled_forward_queue)
+            self.scheduled_forward_queue.clear()
+            return removed
+        kept = []
+        removed = 0
+        for item in self.scheduled_forward_queue:
+            item_source = item[3] if len(item) > 3 else None
+            if item_source == source:
+                removed += 1
+            else:
+                kept.append(item)
+        self.scheduled_forward_queue.clear()
+        self.scheduled_forward_queue.extend(kept)
+        return removed
+
+    def send_all_notes_off(self):
+        sent_any = False
+        for channel in range(16):
+            for control, value in ((64, 0), (120, 0), (123, 0)):
+                msg = mido.Message(
+                    "control_change",
+                    channel=channel,
+                    control=control,
+                    value=value,
+                    time=0,
+                )
+                sent_any = self._send_rtp_message(msg) or sent_any
+        return sent_any
 
     def start_midi_monitor(self):
         """Start monitoring for MIDI device changes and auto-connect."""
@@ -901,6 +1109,9 @@ class MidiPorts:
                         self.connectall()
                     except Exception as e:
                         logger.info("connectall() raised: {}".format(e))
+                elif self.ports_need_reconnect():
+                    logger.info("MIDI port runtime changed. Reconnecting ports.")
+                    self.reconnect_ports(force=False)
                 elif play_restored:
                     logger.info("MIDI play port restored. Reconnecting ports.")
                     self.reconnect_ports(force=False)

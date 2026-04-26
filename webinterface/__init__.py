@@ -34,6 +34,7 @@ class AppState:
         self.hotspot = None
         self.platform = None
         self.state_manager = None
+        self.playback_scheduler = None
         self.ledemu_clients = set()  # Track active LED emulator clients
         self.ledemu_pause = False
         self.current_profile_id = None
@@ -64,27 +65,33 @@ def start_server(loop):
                             break
                     
                     if messages:
-                        if not app_state.websocket_midi_clients:
+                        clients = list(app_state.websocket_midi_clients)
+                        if not clients:
+                            await asyncio.sleep(0.01)
                             continue
-                            
-                        # Create send tasks for all clients
-                        send_tasks = []
+
                         disconnected_clients = set()
-                        
-                        for ws in app_state.websocket_midi_clients:
+                        send_tasks = []
+
+                        for ws in clients:
                             for msg in messages:
                                 try:
-                                    # Create a task for each send so one slow client doesn't block others
-                                    send_tasks.append(asyncio.create_task(ws.send(str(msg))))
+                                    send_tasks.append((ws, asyncio.create_task(ws.send(str(msg)))))
                                 except Exception:
                                     disconnected_clients.add(ws)
-                        
+
                         if send_tasks:
-                            await asyncio.gather(*send_tasks, return_exceptions=True)
-                            
-                        # Cleanup disconnected clients
+                            results = await asyncio.gather(
+                                *(task for _, task in send_tasks),
+                                return_exceptions=True,
+                            )
+                            for (ws, _), result in zip(send_tasks, results):
+                                if isinstance(result, Exception):
+                                    disconnected_clients.add(ws)
+
                         if disconnected_clients:
-                            app_state.websocket_midi_clients -= disconnected_clients
+                            for ws in disconnected_clients:
+                                app_state.websocket_midi_clients.discard(ws)
                             
                 await asyncio.sleep(0.01)
             except Exception as e:
@@ -137,14 +144,23 @@ def start_server(loop):
                 except Exception as e:
                     logger.warning(f"Error receiving websocket message: {e}")
             
-            # Run both send and receive concurrently
-            await asyncio.gather(send_messages(), receive_messages())
+            send_task = asyncio.create_task(send_messages())
+            receive_task = asyncio.create_task(receive_messages())
+            done, pending = await asyncio.wait(
+                {send_task, receive_task},
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+            for task in pending:
+                task.cancel()
+            if pending:
+                await asyncio.gather(*pending, return_exceptions=True)
+            for task in done:
+                task.result()
         except Exception as e:
             logger.warning(f"WebSocket learning handler error: {e}")
         finally:
-            if websocket in app_state.websocket_midi_clients:
-                app_state.websocket_midi_clients.remove(websocket)
-                logger.info(f"WebSocket MIDI client disconnected. Active clients: {len(app_state.websocket_midi_clients)}")
+            app_state.websocket_midi_clients.discard(websocket)
+            logger.info(f"WebSocket MIDI client disconnected. Active clients: {len(app_state.websocket_midi_clients)}")
 
     async def ledemu_recv(websocket):
         async for message in websocket:

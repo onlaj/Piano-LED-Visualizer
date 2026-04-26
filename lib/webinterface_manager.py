@@ -39,6 +39,7 @@ class WebInterfaceManager:
             app_state.hotspot = self.hotspot
             app_state.platform = self.platform
             app_state.state_manager = self.state_manager
+            app_state.playback_scheduler = getattr(self.saving, "playback_scheduler", None)
 
             webinterface.jinja_env.auto_reload = True
             webinterface.config['TEMPLATES_AUTO_RELOAD'] = True

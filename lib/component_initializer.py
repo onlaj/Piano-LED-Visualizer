@@ -9,6 +9,7 @@ from lib.ledsettings import LedSettings
 from lib.ledstrip import LedStrip
 from lib.log_setup import logger
 from lib.menulcd import MenuLCD
+from lib.midi_playback_scheduler import MidiPlaybackScheduler
 from lib.midiports import MidiPorts
 from lib.platform import PlatformRasp, PlatformNull, Hotspot
 from lib.savemidi import SaveMIDI
@@ -54,6 +55,14 @@ class ComponentInitializer:
         self.menu = MenuLCD("config/menu.xml", self.args, self.usersettings, self.ledsettings,
                             self.ledstrip, self.learning, self.saving, self.midiports,
                             self.hotspot, self.platform)
+        self.playback_scheduler = MidiPlaybackScheduler(
+            self.midiports,
+            self.saving,
+            self.menu,
+            self.ledsettings,
+            self.ledstrip,
+        )
+        self.saving.playback_scheduler = self.playback_scheduler
         self.setup_components()
 
     def setup_components(self):

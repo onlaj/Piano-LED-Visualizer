@@ -8,14 +8,19 @@ from unittest.mock import patch
 sys.path.append("./")
 sys.path.append("../")
 
+from lib.midi_queues import MidiQueues
 from lib.midiports import MidiPorts
 
 
 class FakePlayPort:
-    def __init__(self):
+    def __init__(self, fail_times=0):
         self.sent = []
+        self.fail_times = fail_times
 
     def send(self, msg):
+        if self.fail_times:
+            self.fail_times -= 1
+            raise RuntimeError("temporary RTP send failure")
         self.sent.append(msg)
 
 
@@ -39,14 +44,30 @@ class FakeInputPort:
 
 
 class FakeMidiMessage:
-    def __init__(self, msg_type="note_on", channel=0, note=60, velocity=100, time=0):
+    def __init__(
+        self,
+        msg_type="note_on",
+        channel=0,
+        note=60,
+        velocity=100,
+        time=0,
+        control=64,
+        value=127,
+    ):
         self.type = msg_type
         self.channel = channel
         self.note = note
         self.velocity = velocity
         self.time = time
+        self.control = control
+        self.value = value
 
     def __str__(self):
+        if self.type == "control_change":
+            return (
+                f"{self.type} channel={self.channel} control={self.control} "
+                f"value={self.value} time={self.time}"
+            )
         return (
             f"{self.type} channel={self.channel} note={self.note} "
             f"velocity={self.velocity} time={self.time}"
@@ -56,12 +77,22 @@ class FakeMidiMessage:
 class TestMidiPorts(unittest.TestCase):
     def make_ports(self, *, midi_maxlen=4, websocket_maxlen=4, forward_maxlen=4):
         ports = MidiPorts.__new__(MidiPorts)
-        ports.midifile_queue = deque(maxlen=500)
-        ports.midi_queue = deque(maxlen=midi_maxlen)
-        ports.websocket_midi_queue = deque(maxlen=websocket_maxlen)
-        ports.live_forward_queue = deque(maxlen=forward_maxlen)
-        ports.scheduled_forward_queue = deque(maxlen=forward_maxlen)
-        ports.websocket_publish_queue = deque(maxlen=forward_maxlen)
+        ports.queues = MidiQueues(
+            live_maxlen=midi_maxlen,
+            file_maxlen=500,
+            websocket_maxlen=websocket_maxlen,
+            forward_maxlen=forward_maxlen,
+            scheduled_forward_maxlen=forward_maxlen,
+            websocket_publish_maxlen=forward_maxlen,
+            reserved_noteoff_slots=1,
+        )
+        ports.midifile_queue = ports.queues.file_queue
+        ports.midi_queue = ports.queues.live_visualizer_queue
+        ports.websocket_midi_queue = ports.queues.websocket_queue
+        ports.learning_midi_queue = ports.queues.live_learning_queue
+        ports.live_forward_queue = ports.queues.live_forward_queue
+        ports.scheduled_forward_queue = ports.queues.scheduled_forward_queue
+        ports.websocket_publish_queue = ports.queues.websocket_publish_queue
         ports.drop_counter = 0
         ports.drop_counts = {}
         ports.ignored_counts = {}
@@ -91,7 +122,9 @@ class TestMidiPorts(unittest.TestCase):
         ports.last_resolved_input_port = None
         ports.last_resolved_play_port = None
         ports.last_resolution_reason = {}
+        ports.port_runtime_reconnects = 0
         ports.ignored_message_types = {"clock", "active_sensing"}
+        ports.forward_backoff_until = 0.0
         return ports
 
     def test_live_input_is_not_forwarded_synchronously(self):
@@ -101,6 +134,7 @@ class TestMidiPorts(unittest.TestCase):
         ports.msg_callback(msg)
 
         self.assertEqual(len(ports.midi_queue), 1)
+        self.assertEqual(len(ports.learning_midi_queue), 1)
         self.assertEqual(
             len(ports.playport.sent),
             0,
@@ -112,6 +146,18 @@ class TestMidiPorts(unittest.TestCase):
 
         self.assertEqual(len(ports.playport.sent), 1)
         self.assertIs(ports.playport.sent[0], msg)
+
+    def test_learning_queue_does_not_steal_live_visualizer_input(self):
+        ports = self.make_ports()
+        msg = FakeMidiMessage(note=67)
+
+        ports.msg_callback(msg)
+
+        learning_msg, _ = ports.learning_midi_queue.popleft()
+        visualizer_msg, _ = ports.midi_queue.popleft()
+
+        self.assertIs(learning_msg, msg)
+        self.assertIs(visualizer_msg, msg)
 
     def test_queue_reserves_space_for_note_off_without_evicting_accepted_events(self):
         ports = self.make_ports(midi_maxlen=4, forward_maxlen=16)
@@ -148,6 +194,42 @@ class TestMidiPorts(unittest.TestCase):
 
         self.assertEqual(len(ports.playport.sent), 1)
         self.assertEqual(ports.playport.sent[0].note, 64)
+
+    def test_websocket_control_change_routes_sustain_to_forward_queue(self):
+        ports = self.make_ports()
+
+        ports.add_websocket_midi_message(
+            "midi_eventcontrol_change channel=0 control=64 value=127 time=0"
+        )
+
+        self.assertEqual(len(ports.websocket_midi_queue), 1)
+        self.assertEqual(len(ports.live_forward_queue), 1)
+
+        ports._flush_live_forward_queue_once()
+
+        self.assertEqual(len(ports.playport.sent), 1)
+        self.assertEqual(ports.playport.sent[0].type, "control_change")
+        self.assertEqual(ports.playport.sent[0].control, 64)
+        self.assertEqual(ports.playport.sent[0].value, 127)
+
+    def test_failed_playport_send_keeps_live_forward_message_for_retry(self):
+        ports = self.make_ports()
+        ports.playport = FakePlayPort(fail_times=1)
+        msg = FakeMidiMessage(note=65)
+
+        ports.enqueue_rtp_message(msg)
+
+        with patch("lib.midiports.time.perf_counter", side_effect=[100.0, 100.1, 100.2]):
+            self.assertFalse(ports._flush_live_forward_queue_once())
+
+        self.assertEqual(len(ports.playport.sent), 0)
+        self.assertEqual(len(ports.live_forward_queue), 1)
+
+        with patch("lib.midiports.time.perf_counter", side_effect=[101.0, 101.1]):
+            self.assertTrue(ports._flush_live_forward_queue_once())
+
+        self.assertEqual(len(ports.live_forward_queue), 0)
+        self.assertEqual(ports.playport.sent, [msg])
 
     def test_realtime_clock_is_ignored_before_entering_live_queues(self):
         ports = self.make_ports()
@@ -269,6 +351,83 @@ class TestMidiPorts(unittest.TestCase):
             diagnostics = ports.get_rtp_diagnostics()
 
         self.assertEqual(diagnostics["actual_play_port"], "rtpmidid:OSCMidi 128:3")
+
+    def test_input_reconnect_reopens_port_when_saved_device_returns_with_new_alsa_id(self):
+        ports = self.make_ports()
+        ports.usersettings = type(
+            "FakeSettings",
+            (),
+            {"get_setting_value": lambda self, name: "mio:mio MIDI 1 16:0"},
+        )()
+        ports.inport = FakeInputPort()
+        ports.actual_input_port = "mio:mio MIDI 1 16:0"
+        opened = []
+
+        def fake_open_input(port_name, callback=None):
+            opened.append(port_name)
+            return FakeInputPort()
+
+        with patch("lib.midiports._get_cached_input_names", return_value=["mio:mio MIDI 1 24:0"]), patch(
+            "lib.midiports._get_cached_output_names", return_value=[]
+        ), patch("lib.midiports.mido.open_input", side_effect=fake_open_input):
+            changed = ports._reconnect_input(force=False)
+
+        self.assertTrue(changed)
+        self.assertEqual(opened, ["mio:mio MIDI 1 24:0"])
+        self.assertEqual(ports.actual_input_port, "mio:mio MIDI 1 24:0")
+        self.assertEqual(ports.port_runtime_reconnects, 1)
+
+    def test_output_reconnect_reopens_port_when_saved_device_returns_with_new_alsa_id(self):
+        ports = self.make_ports()
+        ports.usersettings = type(
+            "FakeSettings",
+            (),
+            {
+                "get_setting_value": lambda self, name: "rtpmidid:OSCMidi 128:3",
+                "change_setting_value": lambda self, name, value: None,
+            },
+        )()
+        ports.playport = FakePlayPort()
+        ports.actual_play_port = "rtpmidid:OSCMidi 128:3"
+        opened = []
+
+        def fake_open_output(port_name):
+            opened.append(port_name)
+            return FakePlayPort()
+
+        with patch("lib.midiports._get_cached_input_names", return_value=[]), patch(
+            "lib.midiports._get_cached_output_names", return_value=["rtpmidid:OSCMidi 130:3"]
+        ), patch("lib.midiports.mido.open_output", side_effect=fake_open_output):
+            changed = ports._reconnect_output(force=False)
+
+        self.assertTrue(changed)
+        self.assertEqual(opened, ["rtpmidid:OSCMidi 130:3"])
+        self.assertEqual(ports.actual_play_port, "rtpmidid:OSCMidi 130:3")
+        self.assertEqual(ports.port_runtime_reconnects, 1)
+
+    def test_explicit_missing_play_port_does_not_fallback_or_rewrite_setting(self):
+        ports = self.make_ports()
+        changed_settings = []
+        ports.usersettings = type(
+            "FakeSettings",
+            (),
+            {
+                "get_setting_value": lambda self, name: "rtpmidid:SavedSession 128:3",
+                "change_setting_value": lambda self, name, value: changed_settings.append((name, value)),
+            },
+        )()
+        ports.playport = None
+        ports.actual_play_port = None
+
+        with patch("lib.midiports._get_cached_input_names", return_value=[]), patch(
+            "lib.midiports._get_cached_output_names", return_value=["rtpmidid:OtherSession 130:3"]
+        ), patch("lib.midiports.mido.open_output") as open_output:
+            changed = ports._reconnect_output(force=False)
+
+        self.assertFalse(changed)
+        open_output.assert_not_called()
+        self.assertEqual(changed_settings, [])
+        self.assertIsNone(ports.actual_play_port)
 
     def test_runtime_diagnostics_include_queue_depth_and_age_peaks(self):
         ports = self.make_ports()

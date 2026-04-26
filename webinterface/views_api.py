@@ -1,7 +1,7 @@
 from webinterface import webinterface, app_state
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import (get_last_logs, find_between, fastColorWipe, play_midi, clamp, validate_schedule_overlaps)
+from lib.functions import (get_last_logs, find_between, fastColorWipe, clamp, validate_schedule_overlaps)
 from lib.led_animations import get_registry
 from lib.midiport_resolver import filter_valid_output_ports
 import lib.colormaps as cmap
@@ -1264,16 +1264,28 @@ def change_setting():
             logger.warning("Converting failed")
 
     if setting_name == "start_midi_play":
-        app_state.saving.t = threading.Thread(target=play_midi, args=(value, app_state.midiports,
-                                                                         app_state.saving, app_state.menu,
-                                                                         app_state.ledsettings,
-                                                                         app_state.ledstrip))
+        scheduler = app_state.playback_scheduler
+        if scheduler is None:
+            from lib.midi_playback_scheduler import MidiPlaybackScheduler
+            scheduler = MidiPlaybackScheduler(
+                app_state.midiports,
+                app_state.saving,
+                app_state.menu,
+                app_state.ledsettings,
+                app_state.ledstrip,
+            )
+            app_state.playback_scheduler = scheduler
+            app_state.saving.playback_scheduler = scheduler
+        app_state.saving.t = threading.Thread(target=scheduler.play, args=(value,))
         app_state.saving.t.start()
 
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "stop_midi_play":
-        app_state.saving.is_playing_midi.clear()
+        if app_state.playback_scheduler is not None:
+            app_state.playback_scheduler.stop()
+        else:
+            app_state.saving.is_playing_midi.clear()
         fastColorWipe(app_state.ledstrip.strip, True, app_state.ledsettings)
 
         return jsonify(success=True, reload_songs=True)
@@ -1291,7 +1303,7 @@ def change_setting():
         return jsonify(success=True)
 
     if setting_name == "stop_learning_song":
-        app_state.learning.is_started_midi = False
+        app_state.learning.stop_learning()
         fastColorWipe(app_state.ledstrip.strip, True, app_state.ledsettings)
 
         return jsonify(success=True)

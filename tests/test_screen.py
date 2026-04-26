@@ -1,3 +1,7 @@
+import pytest
+
+pytest.importorskip("spidev")
+
 import LCD_1in44
 import LCD_Config
 

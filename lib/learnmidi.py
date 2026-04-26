@@ -14,6 +14,7 @@ from lib.rpi_drivers import Color
 import numpy as np
 import pickle
 from lib.log_setup import logger
+from lib.learning_input_adapter import LearningInputAdapter
 from lib.score_manager import ScoreManager
 from webinterface import app_state
 
@@ -52,6 +53,7 @@ class LearnMIDI:
         self.usersettings = usersettings
         self.ledsettings = ledsettings
         self.midiports = midiports
+        self.input_adapter = LearningInputAdapter(midiports.queues)
         self.ledstrip = ledstrip
         
         # Initialize the score manager
@@ -99,6 +101,8 @@ class LearnMIDI:
         self.ticks_per_beat = 240
         self.is_loaded_midi = {}
         self.is_started_midi = False
+        self.learning_state = "stopped"
+        self._state_lock = threading.RLock()
         self.t = None
 
         self.current_idx = 0
@@ -136,9 +140,16 @@ class LearnMIDI:
     def restart_learning(self):
         if self.is_started_midi:
             self.is_started_midi = False
-            self.t.join()
+            if self.t and self.t is not threading.current_thread():
+                self.t.join(timeout=2)
             self.t = threading.Thread(target=self.learn_midi)
             self.t.start()
+
+    def stop_learning(self):
+        with self._state_lock:
+            self.learning_state = "stopping"
+            self.is_started_midi = False
+        logger.info("learning_midi transition=stopping")
 
     def restart_loop(self):
         self.awaiting_restart_loop = True
@@ -401,10 +412,14 @@ class LearnMIDI:
     def learn_midi(self):
         loops_count = 0
         # Preliminary checks
-        if self.is_started_midi:
-            return
+        with self._state_lock:
+            if self.is_started_midi:
+                return
+            self.learning_state = "starting"
+            logger.info("learning_midi transition=starting")
         if self.loading == 0:
             self.menu.render_message("Load song to start", "", 1500)
+            self.learning_state = "stopped"
             return
         elif 0 < self.loading < 4:
             self.is_started_midi = True  # Prevent restarting the Thread
@@ -412,6 +427,8 @@ class LearnMIDI:
                 time.sleep(0.1)
         if self.loading == 4:
             self.is_started_midi = True  # Prevent restarting the Thread
+            self.learning_state = "running"
+            logger.info("learning_midi transition=running")
             # Reset the score when starting a new learning session
             self.score_manager.reset()
             self.right_hand_timing.clear()
@@ -433,6 +450,8 @@ class LearnMIDI:
             }))
         elif self.loading == 5:
             self.is_started_midi = False  # Allow restarting the Thread
+            self.learning_state = "error"
+            logger.info("learning_midi transition=error")
             return
 
         self.t = threading.currentThread()
@@ -506,11 +525,7 @@ class LearnMIDI:
                             while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
                                 if self.awaiting_restart_loop:
                                     break
-                                while self.midiports.midi_queue:
-                                    msg_in, msg_timestamp = self.midiports.midi_queue.popleft()
-                                    if msg_in.type not in ("note_on", "note_off"):
-                                        continue
-
+                                for msg_in, msg_timestamp in self.input_adapter.drain_note_events():
                                     note = int(find_between(str(msg_in), "note=", " "))
 
                                     if "note_off" in str(msg_in):
@@ -694,6 +709,8 @@ class LearnMIDI:
             except Exception as e:
                 logger.warning(e)
                 self.is_started_midi = False
+                self.learning_state = "error"
+                logger.info("learning_midi transition=error")
 
             if not self.is_loop_active or self.is_started_midi is False:
                 keep_looping = False
@@ -747,6 +764,9 @@ class LearnMIDI:
                     score_logger.info(f"Sent session summary (length: {len(json.dumps(summary_data))})") # Log length for debugging if needed
                 except Exception as e:
                     score_logger.error(f"Error preparing/sending session summary: {e}")
+        if self.learning_state != "error":
+            self.learning_state = "stopped"
+            logger.info("learning_midi transition=stopped")
 
     def convert_midi_to_abc(self, midi_file):
         if not os.path.isfile('Songs/' + midi_file.replace(".mid", ".abc")):

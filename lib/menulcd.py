@@ -1444,7 +1444,11 @@ class MenuLCD:
                 self.render_message("Recording canceled", "", 2000)
                 self.saving.cancel_recording()
             if choice == "Stop playing":
-                self.saving.is_playing_midi.clear()
+                scheduler = getattr(self.saving, "playback_scheduler", None)
+                if scheduler is not None:
+                    scheduler.stop()
+                else:
+                    self.saving.is_playing_midi.clear()
                 self.render_message("Playing stopped", "", 2000)
                 fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
 
@@ -1459,7 +1463,7 @@ class MenuLCD:
                     self.learning.t = threading.Thread(target=self.learning.learn_midi)
                     self.learning.t.start()
                 else:
-                    self.learning.is_started_midi = False
+                    self.learning.stop_learning()
                     fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
                 self.show(location)
 
