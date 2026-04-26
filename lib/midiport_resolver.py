@@ -166,6 +166,8 @@ def refresh_runtime_port_name(actual_port: str | None, available_ports: list[str
 
 def pick_default_input_port(available_ports: list[str]) -> str | None:
     for port_name in available_ports:
+        if _stable_port_key(port_name).startswith("rtpmidid:"):
+            continue
         if is_valid_input_port(port_name):
             return port_name
     return None

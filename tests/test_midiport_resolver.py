@@ -96,11 +96,23 @@ class TestMidiPortResolver(unittest.TestCase):
                 "Midi Through:Midi Through Port-0 14:0",
                 "rtpmidid:Network Export 129:0",
                 "rtpmidid:Announcements 129:1",
+                "rtpmidid:PC_Robin 129:2",
                 "RtMidiIn Client:RtMidi input 128:0",
             ]
         )
 
         self.assertIsNone(selected)
+
+    def test_default_input_selection_prefers_local_usb_over_rtp_sessions(self):
+        selected = pick_default_input_port(
+            [
+                "Midi Through:Midi Through Port-0 14:0",
+                "rtpmidid:PC_Robin 129:2",
+                "USB AudioDevice:USB AudioDevice MIDI 1 20:0",
+            ]
+        )
+
+        self.assertEqual(selected, "USB AudioDevice:USB AudioDevice MIDI 1 20:0")
 
     def test_input_resolution_rejects_stale_internal_midi_through_setting(self):
         resolution = resolve_input_port(
