@@ -90,6 +90,20 @@ class TestMidiPortResolver(unittest.TestCase):
         self.assertEqual(resolution.status, PortResolutionStatus.RESOLVED_COMPATIBLE)
         self.assertEqual(resolution.selected_port, "mio:mio MIDI 1 24:0")
 
+    def test_explicit_usb_input_waits_instead_of_falling_back_to_rtp(self):
+        resolution = resolve_input_port(
+            "USB AudioDevice:USB AudioDevice MIDI 1 16:0",
+            [
+                "Midi Through:Midi Through Port-0 14:0",
+                "rtpmidid:Network Export 129:0",
+                "rtpmidid:Announcements 129:1",
+                "rtpmidid:PC_Robin 129:2",
+            ],
+        )
+
+        self.assertEqual(resolution.status, PortResolutionStatus.UNAVAILABLE)
+        self.assertIsNone(resolution.selected_port)
+
     def test_default_input_selection_waits_instead_of_using_internal_ports(self):
         selected = pick_default_input_port(
             [
