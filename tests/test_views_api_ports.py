@@ -6,7 +6,7 @@ import unittest
 sys.path.append("./")
 sys.path.append("../")
 
-from webinterface.views_api import parse_aconnect_ports
+from webinterface.views_api import include_configured_ports, parse_aconnect_ports
 
 
 ACONNECT_SAMPLE = """client 16: 'USB AudioDevice' [type=kernel,card=0]
@@ -33,6 +33,26 @@ class TestViewsApiPorts(unittest.TestCase):
         self.assertIn("130:0", port_ids)
         self.assertIn("128:2", port_ids)
         self.assertIn("16:0", port_ids)
+
+    def test_include_configured_ports_keeps_unavailable_usb_input_selectable(self):
+        ports = include_configured_ports(
+            [
+                "Midi Through:Midi Through Port-0 14:0",
+                "rtpmidid:PC_Robin 128:2",
+            ],
+            "USB AudioDevice:USB AudioDevice MIDI 1 16:0",
+            "default",
+            None,
+        )
+
+        self.assertEqual(
+            ports,
+            [
+                "USB AudioDevice:USB AudioDevice MIDI 1 16:0",
+                "Midi Through:Midi Through Port-0 14:0",
+                "rtpmidid:PC_Robin 128:2",
+            ],
+        )
 
 
 if __name__ == "__main__":
