@@ -8,6 +8,7 @@ sys.path.append("../")
 
 from lib.midiport_resolver import (
     PortResolutionStatus,
+    pick_default_input_port,
     pick_default_output_port,
     refresh_runtime_port_name,
     is_fake_rtp_port,
@@ -88,6 +89,30 @@ class TestMidiPortResolver(unittest.TestCase):
 
         self.assertEqual(resolution.status, PortResolutionStatus.RESOLVED_COMPATIBLE)
         self.assertEqual(resolution.selected_port, "mio:mio MIDI 1 24:0")
+
+    def test_default_input_selection_waits_instead_of_using_internal_ports(self):
+        selected = pick_default_input_port(
+            [
+                "Midi Through:Midi Through Port-0 14:0",
+                "rtpmidid:Network Export 129:0",
+                "rtpmidid:Announcements 129:1",
+                "RtMidiIn Client:RtMidi input 128:0",
+            ]
+        )
+
+        self.assertIsNone(selected)
+
+    def test_input_resolution_rejects_stale_internal_midi_through_setting(self):
+        resolution = resolve_input_port(
+            "Midi Through:Midi Through Port-0 14:0",
+            [
+                "Midi Through:Midi Through Port-0 14:0",
+            ],
+        )
+
+        self.assertEqual(resolution.status, PortResolutionStatus.UNAVAILABLE)
+        self.assertIsNone(resolution.selected_port)
+        self.assertIn("invalid", resolution.reason.lower())
 
     def test_runtime_port_name_prefers_same_alsa_slot_over_stale_session_name(self):
         refreshed = refresh_runtime_port_name(

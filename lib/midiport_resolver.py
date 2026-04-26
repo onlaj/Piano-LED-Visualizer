@@ -76,6 +76,21 @@ def is_internal_rtmidi_port(port_name: str | None) -> bool:
     return "rtmidiin client" in key or "rtmdiout client" in key or "rtmidiout client" in key
 
 
+def is_valid_input_port(port_name: str | None) -> bool:
+    if not port_name:
+        return False
+
+    lowered = _stable_port_key(port_name)
+    if "through" in lowered or "rpi" in lowered:
+        return False
+    if is_fake_rtp_port(port_name):
+        return False
+    if is_internal_rtmidi_port(port_name):
+        return False
+
+    return True
+
+
 def is_valid_output_port(port_name: str | None, available_inputs: list[str] | None = None) -> bool:
     if not port_name:
         return False
@@ -151,11 +166,9 @@ def refresh_runtime_port_name(actual_port: str | None, available_ports: list[str
 
 def pick_default_input_port(available_ports: list[str]) -> str | None:
     for port_name in available_ports:
-        lowered = port_name.lower()
-        if "through" in lowered or "rpi" in lowered:
-            continue
-        return port_name
-    return available_ports[0] if available_ports else None
+        if is_valid_input_port(port_name):
+            return port_name
+    return None
 
 
 def pick_default_output_port(
@@ -252,7 +265,18 @@ def _resolve_port(
 
 
 def resolve_input_port(requested_port: str | None, available_ports: list[str]) -> PortResolution:
-    return _resolve_port(requested_port, available_ports, exclude_fake_rtp=False)
+    if requested_port and requested_port != "default" and not is_valid_input_port(requested_port):
+        return PortResolution(
+            requested_port=requested_port,
+            selected_port=None,
+            status=PortResolutionStatus.UNAVAILABLE,
+            reason="Requested input port is invalid for MIDI input",
+        )
+    return _resolve_port(
+        requested_port,
+        [port_name for port_name in available_ports if is_valid_input_port(port_name)],
+        exclude_fake_rtp=False,
+    )
 
 
 def resolve_output_port(
