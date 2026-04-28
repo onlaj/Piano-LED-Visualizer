@@ -139,16 +139,19 @@ class ProfileManager:
             return
         with self._lock, self._connect() as conn:
             cur = conn.cursor()
-            for song in songs:
-                cur.execute(
-                    "INSERT OR IGNORE INTO highscores(profile_id, song_name, high_score) VALUES(?,?,0)",
-                    (profile_id, song)
-                )
-                cur.execute(
-                    "INSERT OR IGNORE INTO learning_settings(profile_id, song_name, loop, tempo, hands, mute_hands, wrong_notes, future_notes, mistakes, start, end, lh_color, rh_color, prev_lh_color, prev_rh_color, lh_active, rh_active) VALUES(?,?,1,100,0,0,1,0,0,0,100,5,0,0,0,1,1)",
-                    (profile_id, song)
-                )
-            conn.commit()
+            try:
+                for song in songs:
+                    cur.execute(
+                        "INSERT OR IGNORE INTO highscores(profile_id, song_name, high_score) VALUES(?,?,0)",
+                        (profile_id, song)
+                    )
+                    cur.execute(
+                        "INSERT OR IGNORE INTO learning_settings(profile_id, song_name, loop, tempo, hands, mute_hands, wrong_notes, future_notes, mistakes, start, end, lh_color, rh_color, prev_lh_color, prev_rh_color, lh_active, rh_active) VALUES(?,?,1,100,0,0,1,0,0,0,100,5,0,0,0,1,1)",
+                        (profile_id, song)
+                    )
+                conn.commit()
+            except sqlite3.IntegrityError as e:
+                logger.debug(f"IntegrityError in ensure_song_entries for profile {profile_id}: {e}")
 
     def get_highscores(self, profile_id: int) -> Dict[str, int]:
         # Populate missing songs with 0
@@ -167,18 +170,22 @@ class ProfileManager:
             return False
         with self._lock, self._connect() as conn:
             cur = conn.cursor()
-            # Make sure row exists
-            cur.execute(
-                "INSERT OR IGNORE INTO highscores(profile_id, song_name, high_score) VALUES(?,?,0)",
-                (profile_id, song_name)
-            )
-            # Only update if higher
-            cur.execute(
-                "UPDATE highscores SET high_score=? WHERE profile_id=? AND song_name=? AND high_score < ?",
-                (new_score, profile_id, song_name, new_score)
-            )
-            changed = cur.rowcount > 0
-            conn.commit()
+            try:
+                # Make sure row exists
+                cur.execute(
+                    "INSERT OR IGNORE INTO highscores(profile_id, song_name, high_score) VALUES(?,?,0)",
+                    (profile_id, song_name)
+                )
+                # Only update if higher
+                cur.execute(
+                    "UPDATE highscores SET high_score=? WHERE profile_id=? AND song_name=? AND high_score < ?",
+                    (new_score, profile_id, song_name, new_score)
+                )
+                changed = cur.rowcount > 0
+                conn.commit()
+            except sqlite3.IntegrityError as e:
+                logger.debug(f"IntegrityError in update_highscore for profile {profile_id}: {e}")
+                changed = False
         return changed
 
     def get_learning_settings(self, profile_id: int, song_name: str) -> Dict[str, int]:
@@ -194,8 +201,8 @@ class ProfileManager:
         if row:
             ret_dict = {"loop": row[0], "practice": row[1], "tempo": row[2], "hands": row[3], "mute_hands": row[4], "wrong_notes": row[5], "future_notes": row[6], "mistakes": row[7], "start": row[8], "end": row[9], "lh_color": row[10], "rh_color": row[11], "prev_lh_color": row[12], "prev_rh_color": row[13], "lh_active": row[14], "rh_active": row[15]}
         else:
-            logger.warning(f"No learning section found for profile {profile_id} and song {song_name}. Returning defaults.")
-            ret_dict = {"loop": 1, "practice": 0, "tempo": 100, "hands": 0, "mute_hands": 0, "wrong_notes": 1, "future_notes": 0, "mistakes": 0, "start": 0, "end": 100, "lh_color": 5, "rh_color": 0, "prev_lh_color": 0, "prev_lh_color": 0, "lh_active": 1, "rh_active": 1}
+            logger.debug(f"No learning section found for profile {profile_id} and song {song_name}. Returning defaults.")
+            ret_dict = {"loop": 1, "practice": 0, "tempo": 100, "hands": 0, "mute_hands": 0, "wrong_notes": 1, "future_notes": 0, "mistakes": 0, "start": 0, "end": 100, "lh_color": 5, "rh_color": 0, "prev_lh_color": 0, "prev_rh_color": 0, "lh_active": 1, "rh_active": 1}
         return ret_dict
 
     def update_learning_setting(self, profile_id: int, song_name: str, key: str, val: int) -> bool:
@@ -205,18 +212,22 @@ class ProfileManager:
             return False
         with self._lock, self._connect() as conn:
             cur = conn.cursor()
-            # Make sure row exists, we enter defaults first
-            cur.execute(
-                "INSERT OR IGNORE INTO learning_settings(profile_id, song_name, loop, tempo, hands, mute_hands, wrong_notes, future_notes, mistakes, start, end, lh_color, rh_color, prev_lh_color, prev_rh_color, lh_active, rh_active) VALUES(?,?,1,100,0,0,1,0,0,0,100,0,0,0,0,1,1)",
-                (profile_id, song_name)
-            )
-            # Update
-            cur.execute(
-                "UPDATE learning_settings SET " + key + "=? WHERE profile_id=? AND song_name=?",
-                (val, profile_id, song_name)
-            )
-            changed = cur.rowcount > 0
-            conn.commit()
+            try:
+                # Make sure row exists, we enter defaults first
+                cur.execute(
+                    "INSERT OR IGNORE INTO learning_settings(profile_id, song_name, loop, tempo, hands, mute_hands, wrong_notes, future_notes, mistakes, start, end, lh_color, rh_color, prev_lh_color, prev_rh_color, lh_active, rh_active) VALUES(?,?,1,100,0,0,1,0,0,0,100,0,0,0,0,1,1)",
+                    (profile_id, song_name)
+                )
+                # Update
+                cur.execute(
+                    "UPDATE learning_settings SET " + key + "=? WHERE profile_id=? AND song_name=?",
+                    (val, profile_id, song_name)
+                )
+                changed = cur.rowcount > 0
+                conn.commit()
+            except sqlite3.IntegrityError as e:
+                logger.debug(f"IntegrityError in update_learning_setting for profile {profile_id}: {e}")
+                changed = False
         return changed
 
     def delete_profile(self, profile_id: int):
