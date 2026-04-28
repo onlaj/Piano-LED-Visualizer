@@ -105,7 +105,11 @@ class MIDIEventProcessor:
             saving.restart_time()
 
         midipending = midiports.midipending
-        queue_depth = len(midipending)
+        queues = getattr(midiports, "queues", None)
+        if queues is not None:
+            queue_depth = queues.queue_depth(midipending)
+        else:
+            queue_depth = len(midipending)
         diagnostics = midiports._ensure_runtime_diagnostics()
         diagnostics.set_metadata("selected_midi_queue", queue_name)
         diagnostics.set_gauge("midi_queue_depth_before", queue_depth)
@@ -123,13 +127,22 @@ class MIDIEventProcessor:
             max_messages = min(max(max_messages, queue_depth), 2048)
             max_duration = max(max_duration, 0.01 if is_active_use else 0.006)
 
-        while midipending and processed < max_messages and (time.perf_counter() - t0) < max_duration:
-            msg, msg_timestamp = midipending.popleft()
+        while processed < max_messages and (time.perf_counter() - t0) < max_duration:
+            if queues is not None:
+                item = queues.pop_queue(midipending)
+            else:
+                item = midipending.popleft() if midipending else None
+            if item is None:
+                break
+            msg, msg_timestamp = item
             _process_one(msg, msg_timestamp)
             processed += 1
         diagnostics.increment_counter("midi_events_processed_total", processed)
         diagnostics.set_gauge("midi_events_processed_last", processed)
-        diagnostics.set_gauge("midi_queue_depth_after", len(midipending))
+        if queues is not None:
+            diagnostics.set_gauge("midi_queue_depth_after", queues.queue_depth(midipending))
+        else:
+            diagnostics.set_gauge("midi_queue_depth_after", len(midipending))
         self.midiports.refresh_queue_diagnostics()
         return processed > 0
     

@@ -16,12 +16,16 @@ class MidiQueues:
         websocket_publish_maxlen=512,
         reserved_noteoff_slots=None,
     ):
-        self.live_visualizer_queue = deque(maxlen=live_maxlen)
-        self.live_learning_queue = deque(maxlen=live_maxlen)
-        self.file_queue = deque(maxlen=file_maxlen)
-        self.websocket_queue = deque(maxlen=websocket_maxlen)
-        self.live_forward_queue = deque(maxlen=forward_maxlen)
-        self.scheduled_forward_queue = deque(maxlen=scheduled_forward_maxlen)
+        # MIDI-bearing queues are intentionally unbounded: dropping here loses
+        # musical state. The *_maxlen arguments remain accepted as capacity
+        # hints for older callers/tests, but only non-critical UI queues are
+        # bounded.
+        self.live_visualizer_queue = deque()
+        self.live_learning_queue = deque()
+        self.file_queue = deque()
+        self.websocket_queue = deque()
+        self.live_forward_queue = deque()
+        self.scheduled_forward_queue = deque()
         self.websocket_publish_queue = deque(maxlen=websocket_publish_maxlen)
         self.reserved_noteoff_slots = (
             reserved_noteoff_slots
@@ -50,7 +54,7 @@ class MidiQueues:
 
     def _reserve_slots_for(self, queue):
         if not queue.maxlen:
-            return self.reserved_noteoff_slots
+            return 0
         queue_reserve = max(1, queue.maxlen // 8)
         return min(self.reserved_noteoff_slots, queue_reserve)
 
@@ -131,7 +135,11 @@ class MidiQueues:
             )
             if is_note:
                 self.queue_with_policy(
-                    self.websocket_publish_queue, item, "websocket_publish", reserve_slots=self._reserve_slots_for(self.websocket_publish_queue),
+                    self.websocket_publish_queue,
+                    item,
+                    "websocket_publish",
+                    reserve_slots=self._reserve_slots_for(self.websocket_publish_queue),
+                    count_drops=False,
                 )
             return True
 
@@ -263,6 +271,16 @@ class MidiQueues:
             while queue and (max_messages is None or len(drained) < max_messages):
                 drained.append(queue.popleft())
         return drained
+
+    def pop_queue(self, queue):
+        with self._lock:
+            if not queue:
+                return None
+            return queue.popleft()
+
+    def queue_depth(self, queue):
+        with self._lock:
+            return len(queue)
 
     def drain_live_for_visualizer(self, max_messages=None):
         return self.drain_queue(self.live_visualizer_queue, max_messages=max_messages)

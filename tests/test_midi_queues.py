@@ -29,21 +29,48 @@ class TestMidiQueues(unittest.TestCase):
         self.assertEqual(queues.drain_live_for_visualizer(), [])
         self.assertEqual(queues.drain_live_for_learning(), [])
 
-    def test_live_drop_policy_reserves_space_for_note_off_per_consumer(self):
+    def test_live_critical_queues_do_not_drop_when_capacity_hint_is_small(self):
         queues = MidiQueues(live_maxlen=4, reserved_noteoff_slots=1)
 
         self.assertTrue(queues.enqueue_live(FakeMidiMessage(note=60), timestamp=1.0))
         self.assertTrue(queues.enqueue_live(FakeMidiMessage(note=61), timestamp=2.0))
         self.assertTrue(queues.enqueue_live(FakeMidiMessage(note=62), timestamp=3.0))
-        self.assertFalse(queues.enqueue_live(FakeMidiMessage(note=63), timestamp=4.0))
+        self.assertTrue(queues.enqueue_live(FakeMidiMessage(note=63), timestamp=4.0))
         self.assertTrue(queues.enqueue_live(FakeMidiMessage("note_off", note=60, velocity=0), timestamp=5.0))
 
         visualizer_notes = [msg.note for msg, _ in queues.drain_live_for_visualizer()]
         learning_notes = [msg.note for msg, _ in queues.drain_live_for_learning()]
 
-        self.assertEqual(visualizer_notes, [60, 61, 62, 60])
-        self.assertEqual(learning_notes, [60, 61, 62, 60])
-        self.assertEqual(queues.drop_counts["live_note_on"], 1)
+        self.assertEqual(visualizer_notes, [60, 61, 62, 63, 60])
+        self.assertEqual(learning_notes, [60, 61, 62, 63, 60])
+        self.assertEqual(queues.drop_counter, 0)
+        self.assertEqual(queues.drop_counts, {})
+
+    def test_stress_live_and_scheduled_queues_are_lossless_and_ordered(self):
+        total = 50_000
+        queues = MidiQueues(live_maxlen=4, scheduled_forward_maxlen=4, reserved_noteoff_slots=1)
+
+        for index in range(total):
+            queues.enqueue_live(FakeMidiMessage(note=index % 128), timestamp=float(index))
+            queues.enqueue_scheduled_forward(
+                FakeMidiMessage(note=index % 128),
+                enqueued_at=0.0,
+                due_time=float(index),
+                source="stress",
+            )
+
+        live = queues.drain_live_for_visualizer()
+        scheduled = []
+        for index in range(total):
+            item = queues.pop_due_scheduled_forward(now_perf=float(index))
+            self.assertIsNotNone(item)
+            scheduled.append(item)
+
+        self.assertEqual(len(live), total)
+        self.assertEqual([timestamp for _, timestamp in live[:8]], [float(i) for i in range(8)])
+        self.assertEqual(len(scheduled), total)
+        self.assertEqual([item[2] for item in scheduled[:8]], [float(i) for i in range(8)])
+        self.assertEqual(queues.drop_counter, 0)
 
     def test_clear_file_queue_does_not_clear_live_or_learning_queues(self):
         queues = MidiQueues(live_maxlen=8)

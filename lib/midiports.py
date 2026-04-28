@@ -134,6 +134,7 @@ class MidiPorts:
         self.ignored_message_types = set(IGNORED_RTP_MESSAGE_TYPES)
         self._cached_ignored_set = frozenset(self.ignored_message_types)
         self.forward_backoff_until = 0.0
+        self.forward_condition = threading.Condition()
 
         # Known python-rtmidi first-access quirk on some systems.
         try:
@@ -279,8 +280,21 @@ class MidiPorts:
         return queued_visualizer or queued_learning
 
     def _should_ignore_live_message(self, msg):
-        configured_types = getattr(self, "ignored_message_types", set())
-        return getattr(msg, "type", None) in self._cached_ignored_set
+        ignored_set = getattr(self, "_cached_ignored_set", None)
+        if ignored_set is None:
+            ignored_set = frozenset(set(IGNORED_RTP_MESSAGE_TYPES) | set(getattr(self, "ignored_message_types", set())))
+            try:
+                self._cached_ignored_set = ignored_set
+            except Exception:
+                pass
+        return getattr(msg, "type", None) in ignored_set
+
+    def _notify_forward_worker(self):
+        condition = getattr(self, "forward_condition", None)
+        if condition is None:
+            return
+        with condition:
+            condition.notify()
 
     def should_process_locally(self, msg):
         return self._classify_message(msg) in {"note_on", "note_off", "control_change"}
@@ -306,6 +320,8 @@ class MidiPorts:
                 source,
                 reserve_slots=self.queue_reserved_noteoff_slots,
             )
+        if queued:
+            self._notify_forward_worker()
         self.refresh_queue_diagnostics(now_perf=msg_timestamp)
         return queued
 
@@ -351,6 +367,8 @@ class MidiPorts:
         diagnostics = self._ensure_runtime_diagnostics()
         diagnostics.increment_counter("scheduled_rtp_messages")
         diagnostics.set_gauge("scheduled_rtp_next_due_in_ms", max(0.0, (due_time - enqueued_at) * 1000.0))
+        if queued:
+            self._notify_forward_worker()
         self.refresh_queue_diagnostics(now_perf=enqueued_at)
         return queued
 
@@ -511,16 +529,31 @@ class MidiPorts:
 
     def _live_forward_loop(self):
         while self.worker_running:
-            # Batch-drain: send up to 64 messages per wakeup to prevent
-            # queue buildup during MIDI file playback bursts.
             sent_any = False
-            for _ in range(64):
+            for _ in range(256):
                 if self._flush_live_forward_queue_once():
                     sent_any = True
                 else:
                     break
-            if not sent_any:
-                time.sleep(0.001)
+            if sent_any:
+                continue
+
+            timeout = 0.05
+            now_perf = time.perf_counter()
+            if hasattr(self, "queues"):
+                next_item = self.queues.peek_next_scheduled_forward()
+                if next_item is not None:
+                    timeout = max(0.0, min(timeout, next_item[2] - now_perf))
+            elif self.scheduled_forward_queue:
+                timeout = max(0.0, min(timeout, self.scheduled_forward_queue[0][2] - now_perf))
+
+            condition = getattr(self, "forward_condition", None)
+            if condition is None:
+                time.sleep(timeout)
+                continue
+            with condition:
+                if self.worker_running:
+                    condition.wait(timeout=timeout)
 
     def _websocket_publish_loop(self):
         while self.worker_running:
@@ -535,6 +568,8 @@ class MidiPorts:
             return
 
         self.worker_running = True
+        if not hasattr(self, "forward_condition") or self.forward_condition is None:
+            self.forward_condition = threading.Condition()
         self.live_forward_thread = threading.Thread(target=self._live_forward_loop, daemon=True)
         self.websocket_publish_thread = threading.Thread(target=self._websocket_publish_loop, daemon=True)
         self.live_forward_thread.start()
@@ -936,6 +971,7 @@ class MidiPorts:
         if hasattr(self, "queues"):
             self.queues.enqueue_all_live(msg, timestamp=ts, source="rtp_rx", is_note=is_note)
             self._sync_queue_drop_counters()
+            self._notify_forward_worker()
         else:
             self.enqueue_live_message(msg, timestamp=ts)
             self.enqueue_rtp_message(msg, msg_timestamp=ts)

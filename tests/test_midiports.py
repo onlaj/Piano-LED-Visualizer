@@ -159,27 +159,27 @@ class TestMidiPorts(unittest.TestCase):
         self.assertIs(learning_msg, msg)
         self.assertIs(visualizer_msg, msg)
 
-    def test_queue_reserves_space_for_note_off_without_evicting_accepted_events(self):
+    def test_live_and_forward_critical_queues_do_not_drop_when_capacity_hint_is_small(self):
         ports = self.make_ports(midi_maxlen=4, forward_maxlen=16)
         first = FakeMidiMessage(note=60)
         second = FakeMidiMessage(note=61)
         third = FakeMidiMessage(note=62)
-        dropped_note_on = FakeMidiMessage(note=63)
+        fourth = FakeMidiMessage(note=63)
         note_off = FakeMidiMessage(msg_type="note_off", note=60, velocity=0)
 
         ports.msg_callback(first)
         ports.msg_callback(second)
         ports.msg_callback(third)
-        ports.msg_callback(dropped_note_on)
+        ports.msg_callback(fourth)
         ports.msg_callback(note_off)
 
         queued = [msg.note for msg, _ in ports.midi_queue]
         queued_types = [msg.type for msg, _ in ports.midi_queue]
 
-        self.assertEqual(queued, [60, 61, 62, 60])
-        self.assertEqual(queued_types, ["note_on", "note_on", "note_on", "note_off"])
-        self.assertEqual(ports.drop_counter, 1)
-        self.assertEqual(ports.drop_counts["live_note_on"], 1)
+        self.assertEqual(queued, [60, 61, 62, 63, 60])
+        self.assertEqual(queued_types, ["note_on", "note_on", "note_on", "note_on", "note_off"])
+        self.assertEqual(ports.drop_counter, 0)
+        self.assertEqual(ports.drop_counts, {})
 
     def test_websocket_input_queues_playback_instead_of_sending_synchronously(self):
         ports = self.make_ports()
@@ -432,7 +432,7 @@ class TestMidiPorts(unittest.TestCase):
     def test_runtime_diagnostics_include_queue_depth_and_age_peaks(self):
         ports = self.make_ports()
 
-        with patch("lib.midiports.time.perf_counter", side_effect=[100.0, 100.0, 100.001, 103.0]), patch(
+        with patch("lib.midiports.time.perf_counter", side_effect=[100.0, 100.0, 103.0]), patch(
             "lib.midiports._get_cached_input_names", return_value=[]
         ), patch("lib.midiports._get_cached_output_names", return_value=[]):
             ports.msg_callback(FakeMidiMessage())
@@ -463,6 +463,60 @@ class TestMidiPorts(unittest.TestCase):
             ports._websocket_publish_loop()
 
         sleep_mock.assert_not_called()
+
+    def test_live_forward_loop_does_not_sleep_while_backlog_remains(self):
+        ports = self.make_ports(forward_maxlen=4)
+        ports.worker_running = True
+        ports.live_forward_queue.extend(
+            [
+                (FakeMidiMessage(note=60), 0.0, "stress"),
+                (FakeMidiMessage(note=61), 0.0, "stress"),
+            ]
+        )
+
+        def fake_flush():
+            if ports.live_forward_queue:
+                ports.live_forward_queue.popleft()
+                if not ports.live_forward_queue:
+                    ports.worker_running = False
+                return True
+            ports.worker_running = False
+            return False
+
+        ports._flush_live_forward_queue_once = fake_flush
+
+        with patch("lib.midiports.time.sleep") as sleep_mock:
+            ports._live_forward_loop()
+
+        sleep_mock.assert_not_called()
+
+    def test_stress_live_and_scheduled_forward_paths_are_lossless(self):
+        total = 50_000
+        ports = self.make_ports(midi_maxlen=4, forward_maxlen=4)
+        ports.playport = FakePlayPort()
+
+        for index in range(total):
+            ports.msg_callback(FakeMidiMessage(note=index % 128))
+            ports.schedule_rtp_message(
+                FakeMidiMessage(note=(index + 1) % 128),
+                due_time=float(index),
+                enqueued_at=0.0,
+                source="stress_scheduled",
+            )
+
+        self.assertEqual(len(ports.midi_queue), total)
+        self.assertEqual(len(ports.live_forward_queue), total)
+        self.assertEqual(len(ports.scheduled_forward_queue), total)
+        self.assertEqual(ports.drop_counter, 0)
+
+        with patch("lib.midiports.time.perf_counter", return_value=float(total)):
+            while ports.live_forward_queue or ports.scheduled_forward_queue:
+                ports._flush_live_forward_queue_once()
+
+        self.assertEqual(len(ports.playport.sent), total * 2)
+        self.assertEqual(len(ports.live_forward_queue), 0)
+        self.assertEqual(len(ports.scheduled_forward_queue), 0)
+        self.assertEqual(ports.drop_counter, 0)
 
 
 if __name__ == "__main__":
