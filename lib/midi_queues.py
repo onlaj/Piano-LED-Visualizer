@@ -1,3 +1,4 @@
+import bisect
 import threading
 import time
 from collections import deque
@@ -153,10 +154,19 @@ class MidiQueues:
                 source,
                 reserve_slots=self._reserve_slots_for(self.scheduled_forward_queue),
             )
-            if queued:
-                ordered = sorted(self.scheduled_forward_queue, key=lambda entry: entry[2])
-                self.scheduled_forward_queue.clear()
-                self.scheduled_forward_queue.extend(ordered)
+            if queued and len(self.scheduled_forward_queue) > 1:
+                # O(log n) insertion: find the correct position for the newly
+                # appended item and rotate it there instead of re-sorting the
+                # entire deque (which was O(n log n) per insert).
+                new_item = self.scheduled_forward_queue[-1]
+                new_due = new_item[2]
+                prev_due = self.scheduled_forward_queue[-2][2] if len(self.scheduled_forward_queue) >= 2 else new_due
+                if new_due < prev_due:
+                    self.scheduled_forward_queue.pop()
+                    # Convert to list for bisect, insert, convert back
+                    due_times = [entry[2] for entry in self.scheduled_forward_queue]
+                    insert_at = bisect.bisect_right(due_times, new_due)
+                    self.scheduled_forward_queue.insert(insert_at, new_item)
             return queued
 
     def peek_due_scheduled_forward(self, now_perf=None):

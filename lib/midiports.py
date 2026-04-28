@@ -510,7 +510,15 @@ class MidiPorts:
 
     def _live_forward_loop(self):
         while self.worker_running:
-            if not self._flush_live_forward_queue_once():
+            # Batch-drain: send up to 64 messages per wakeup to prevent
+            # queue buildup during MIDI file playback bursts.
+            sent_any = False
+            for _ in range(64):
+                if self._flush_live_forward_queue_once():
+                    sent_any = True
+                else:
+                    break
+            if not sent_any:
                 time.sleep(0.001)
 
     def _websocket_publish_loop(self):
