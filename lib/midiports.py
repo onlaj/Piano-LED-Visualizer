@@ -132,6 +132,7 @@ class MidiPorts:
         self.live_forward_thread = None
         self.websocket_publish_thread = None
         self.ignored_message_types = set(IGNORED_RTP_MESSAGE_TYPES)
+        self._cached_ignored_set = frozenset(self.ignored_message_types)
         self.forward_backoff_until = 0.0
 
         # Known python-rtmidi first-access quirk on some systems.
@@ -279,7 +280,7 @@ class MidiPorts:
 
     def _should_ignore_live_message(self, msg):
         configured_types = getattr(self, "ignored_message_types", set())
-        return getattr(msg, "type", None) in (set(configured_types) | IGNORED_RTP_MESSAGE_TYPES)
+        return getattr(msg, "type", None) in self._cached_ignored_set
 
     def should_process_locally(self, msg):
         return self._classify_message(msg) in {"note_on", "note_off", "control_change"}
@@ -378,7 +379,7 @@ class MidiPorts:
                 msg = live_item[0]
                 sent = self._send_rtp_message(msg, send_started=now_perf)
                 if sent:
-                    self.queues.pop_live_forward(expected=live_item)
+                    self.queues.pop_live_forward()
                 else:
                     self.forward_backoff_until = now_perf + 0.05
                 return sent
@@ -930,24 +931,29 @@ class MidiPorts:
 
         ts = time.perf_counter()
         self.last_activity = time.time()
-        self.enqueue_live_message(msg, timestamp=ts)
-        self.enqueue_rtp_message(msg, msg_timestamp=ts)
+        
+        is_note = self._classify_message(msg) in ("note_on", "note_off")
+        if hasattr(self, "queues"):
+            self.queues.enqueue_all_live(msg, timestamp=ts, source="rtp_rx", is_note=is_note)
+            self._sync_queue_drop_counters()
+        else:
+            self.enqueue_live_message(msg, timestamp=ts)
+            self.enqueue_rtp_message(msg, msg_timestamp=ts)
 
-        if self._classify_message(msg) in ("note_on", "note_off"):
-            if hasattr(self, "queues"):
-                self.queues.enqueue_websocket_publish(msg, timestamp=ts)
-                self._sync_queue_drop_counters()
-            else:
+            if is_note:
                 self._queue_with_policy(
                     self.websocket_publish_queue,
                     (msg, ts),
                     "websocket_publish",
                     reserve_slots=0,
                 )
-        diagnostics = self._ensure_runtime_diagnostics()
-        diagnostics.increment_counter("midi_callback_calls")
-        diagnostics.record_duration("midi_callback", time.perf_counter() - callback_started)
-        self.refresh_queue_diagnostics(now_perf=ts)
+
+        # Skip costly diagnostics overhead during high throughput
+        if not hasattr(self, "queues"):
+            diagnostics = self._ensure_runtime_diagnostics()
+            diagnostics.increment_counter("midi_callback_calls")
+            diagnostics.record_duration("midi_callback", time.perf_counter() - callback_started)
+            self.refresh_queue_diagnostics(now_perf=ts)
 
     def add_websocket_midi_message(self, msg_string):
         """

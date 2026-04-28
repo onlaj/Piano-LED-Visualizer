@@ -357,7 +357,8 @@ class LearnMIDI:
                         red, green, blue = [int(c * brightness) for c in self.hand_colorList[self.hand_colorL]]
 
                     self.ledstrip.strip.setPixelColor(note_position, Color(red, green, blue))
-                    self.ledstrip.strip.show()
+        if notes:
+            self.ledstrip.strip.show()
 
     def handle_wrong_notes(self, wrong_notes, hand_hint_notesL, hand_hint_notesR):
 
@@ -596,6 +597,13 @@ class LearnMIDI:
 
                                 self.handle_wrong_notes(wrong_notes, hand_hint_notesL, hand_hint_notesR)
                                 wrong_notes.clear()
+
+                                # Yield CPU to allow the mido callback thread to
+                                # enqueue incoming MIDI messages (they share the
+                                # same RLock).  Without this sleep the tight spin
+                                # loop can starve the callback thread under GIL
+                                # pressure, causing message loss.
+                                time.sleep(0.001)
 
                                 # light up predicted future notes again in case the future note was pressed
                                 # and color was overwritten

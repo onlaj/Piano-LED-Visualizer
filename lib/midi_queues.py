@@ -112,6 +112,29 @@ class MidiQueues:
                 reserve_slots=self._reserve_slots_for(self.websocket_queue),
             )
 
+    def enqueue_all_live(self, msg, timestamp=None, source="rtp_rx", is_note=False):
+        if timestamp is None:
+            timestamp = time.perf_counter()
+            
+        item = (msg, timestamp)
+        item_forward = (msg, timestamp, source)
+        
+        with self._lock:
+            self.queue_with_policy(
+                self.live_visualizer_queue, item, "live", reserve_slots=self.reserved_noteoff_slots,
+            )
+            self.queue_with_policy(
+                self.live_learning_queue, item, "learning", reserve_slots=self.reserved_noteoff_slots, count_drops=False,
+            )
+            self.queue_with_policy(
+                self.live_forward_queue, item_forward, source, reserve_slots=self._reserve_slots_for(self.live_forward_queue),
+            )
+            if is_note:
+                self.queue_with_policy(
+                    self.websocket_publish_queue, item, "websocket_publish", reserve_slots=self._reserve_slots_for(self.websocket_publish_queue),
+                )
+            return True
+
     def enqueue_live_forward(self, msg, timestamp=None, source="forward"):
         if timestamp is None:
             timestamp = time.perf_counter()
