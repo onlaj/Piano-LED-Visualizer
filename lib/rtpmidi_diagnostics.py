@@ -118,7 +118,9 @@ def parse_rtpmidid_status(status_payload, play_port=None):
     ready = _peer_is_ready(network_peer)
     error_reason = None
     if not ready:
-        error_reason = f"{session_name} RTP peer is visible but not connected"
+        error_reason = (
+            f"{session_name} ALSA playport is open but the RTP network session is not connected"
+        )
 
     return {
         "play_network_ready": ready,

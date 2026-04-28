@@ -101,6 +101,7 @@ class TestRtpMidiDiagnostics(unittest.TestCase):
         self.assertFalse(diagnostics["play_network_ready"])
         self.assertEqual(diagnostics["rtpmidi_peer_status"], "0")
         self.assertEqual(diagnostics["rtpmidi_remote_host"], "PC_Robin-2.local:5004")
+        self.assertIn("alsa", diagnostics["rtpmidi_error_reason"].lower())
         self.assertIn("not connected", diagnostics["rtpmidi_error_reason"].lower())
 
     def test_connected_osc_session_is_ready_when_network_peer_has_remote_identity(self):
