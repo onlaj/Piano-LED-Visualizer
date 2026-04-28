@@ -6,7 +6,11 @@ import unittest
 sys.path.append("./")
 sys.path.append("../")
 
-from webinterface.views_api import configured_ports_missing_from_available, parse_aconnect_ports
+from webinterface.views_api import (
+    build_get_ports_response,
+    configured_ports_missing_from_available,
+    parse_aconnect_ports,
+)
 
 
 ACONNECT_SAMPLE = """client 16: 'USB AudioDevice' [type=kernel,card=0]
@@ -60,6 +64,34 @@ class TestViewsApiPorts(unittest.TestCase):
                 "USB AudioDevice:USB AudioDevice MIDI 1 16:0",
             ],
         )
+
+    def test_get_ports_response_exposes_rtpmidi_network_diagnostics(self):
+        response = build_get_ports_response(
+            raw_input_ports=["USB AudioDevice:USB AudioDevice MIDI 1 16:0"],
+            raw_output_ports=["rtpmidid:OSCMidi 129:2"],
+            configured_input="USB AudioDevice:USB AudioDevice MIDI 1 16:0",
+            configured_secondary_input="default",
+            configured_play="rtpmidid:OSCMidi 129:2",
+            midi_logging="1",
+            connected_ports="",
+            rtp_diagnostics={
+                "actual_input_port": "USB AudioDevice:USB AudioDevice MIDI 1 16:0",
+                "actual_play_port": "rtpmidid:OSCMidi 129:2",
+            },
+            runtime_diagnostics={},
+            rtpmidi_network_diagnostics={
+                "play_network_ready": False,
+                "rtpmidi_peer_status": "0",
+                "rtpmidi_remote_host": "PC_Robin-2.local:5004",
+                "rtpmidi_error_reason": "OSCMidi RTP peer is visible but not connected",
+            },
+        )
+
+        self.assertEqual(response["input_ports"], ["USB AudioDevice:USB AudioDevice MIDI 1 16:0"])
+        self.assertEqual(response["output_ports"], ["rtpmidid:OSCMidi 129:2"])
+        self.assertFalse(response["play_network_ready"])
+        self.assertEqual(response["rtp_diagnostics"]["play_network_ready"], False)
+        self.assertEqual(response["rtpmidi_remote_host"], "PC_Robin-2.local:5004")
 
 
 if __name__ == "__main__":

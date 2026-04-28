@@ -8,6 +8,7 @@ from lib.midiport_resolver import (
     filter_valid_output_ports,
     is_fake_rtp_port,
 )
+from lib.rtpmidi_diagnostics import get_rtpmidid_network_diagnostics
 import lib.colormaps as cmap
 import psutil
 import threading
@@ -2157,36 +2158,23 @@ def get_ports():
     configured_secondary_input = app_state.usersettings.get_setting_value("secondary_input_port")
     configured_play = app_state.usersettings.get_setting_value("play_port")
     raw_input_ports = list(dict.fromkeys(mido.get_input_names()))
-    input_ports = filter_valid_input_ports(raw_input_ports)
-    output_ports = filter_valid_output_ports(
-        list(dict.fromkeys(mido.get_output_names())),
-        available_inputs=raw_input_ports,
-    )
+    raw_output_ports = list(dict.fromkeys(mido.get_output_names()))
     diagnostics = app_state.midiports.get_rtp_diagnostics() if app_state.midiports else {}
     runtime_diagnostics = app_state.midiports.get_runtime_diagnostics() if app_state.midiports else {}
-    response = {
-        "ports_list": input_ports,  # legacy alias for existing UI paths
-        "input_ports": input_ports,
-        "output_ports": output_ports,
-        "input_port": configured_input,
-        "secondary_input_port": configured_secondary_input,
-        "play_port": configured_play,
-        "unavailable_configured_input_ports": configured_ports_missing_from_available(
-            input_ports,
-            configured_input,
-            configured_secondary_input,
-        ),
-        "unavailable_configured_output_ports": configured_ports_missing_from_available(
-            output_ports,
-            configured_play,
-        ),
-        "actual_input_port": diagnostics.get("actual_input_port"),
-        "actual_play_port": diagnostics.get("actual_play_port"),
-        "connected_ports": str(subprocess.check_output(["aconnect", "-i", "-l"])),
-        "midi_logging": app_state.usersettings.get_setting_value("midi_logging"),
-        "rtp_diagnostics": diagnostics,
-        "runtime_diagnostics": runtime_diagnostics,
-    }
+    actual_play_port = diagnostics.get("actual_play_port") or configured_play
+    rtpmidi_network_diagnostics = get_rtpmidid_network_diagnostics(actual_play_port)
+    response = build_get_ports_response(
+        raw_input_ports=raw_input_ports,
+        raw_output_ports=raw_output_ports,
+        configured_input=configured_input,
+        configured_secondary_input=configured_secondary_input,
+        configured_play=configured_play,
+        midi_logging=app_state.usersettings.get_setting_value("midi_logging"),
+        connected_ports=str(subprocess.check_output(["aconnect", "-i", "-l"])),
+        rtp_diagnostics=diagnostics,
+        runtime_diagnostics=runtime_diagnostics,
+        rtpmidi_network_diagnostics=rtpmidi_network_diagnostics,
+    )
 
     return jsonify(response)
 
@@ -2413,6 +2401,54 @@ def configured_ports_missing_from_available(available_ports, *configured_ports):
         if configured_port not in ports and configured_port not in missing:
             missing.append(configured_port)
     return missing
+
+
+def build_get_ports_response(
+    *,
+    raw_input_ports,
+    raw_output_ports,
+    configured_input,
+    configured_secondary_input,
+    configured_play,
+    midi_logging,
+    connected_ports,
+    rtp_diagnostics,
+    runtime_diagnostics,
+    rtpmidi_network_diagnostics=None,
+):
+    raw_input_ports = list(dict.fromkeys(raw_input_ports or []))
+    raw_output_ports = list(dict.fromkeys(raw_output_ports or []))
+    input_ports = filter_valid_input_ports(raw_input_ports)
+    output_ports = filter_valid_output_ports(raw_output_ports, available_inputs=raw_input_ports)
+    rtp_diagnostics = dict(rtp_diagnostics or {})
+    network_diagnostics = dict(rtpmidi_network_diagnostics or {})
+    rtp_diagnostics.update(network_diagnostics)
+
+    response = {
+        "ports_list": input_ports,  # legacy alias for existing UI paths
+        "input_ports": input_ports,
+        "output_ports": output_ports,
+        "input_port": configured_input,
+        "secondary_input_port": configured_secondary_input,
+        "play_port": configured_play,
+        "unavailable_configured_input_ports": configured_ports_missing_from_available(
+            input_ports,
+            configured_input,
+            configured_secondary_input,
+        ),
+        "unavailable_configured_output_ports": configured_ports_missing_from_available(
+            output_ports,
+            configured_play,
+        ),
+        "actual_input_port": rtp_diagnostics.get("actual_input_port"),
+        "actual_play_port": rtp_diagnostics.get("actual_play_port"),
+        "connected_ports": connected_ports,
+        "midi_logging": str(midi_logging),
+        "rtp_diagnostics": rtp_diagnostics,
+        "runtime_diagnostics": runtime_diagnostics or {},
+    }
+    response.update(network_diagnostics)
+    return response
 
 
 def parse_aconnect_ports(output, port_type="input"):

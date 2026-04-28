@@ -1913,10 +1913,8 @@ function get_ports() {
                 document.getElementById('connect_all_textarea').innerHTML = connected_ports;
             }
             
-            if (response["midi_logging"] === "1") {
-                const checkbox = document.getElementById("midi_events_checkbox");
-                if (checkbox) checkbox.checked = true;
-            }
+            const checkbox = document.getElementById("midi_events_checkbox");
+            if (checkbox) checkbox.checked = String(response["midi_logging"]) === "1";
         }
     };
     xhttp.open("GET", "/api/get_ports", true);

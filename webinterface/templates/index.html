@@ -31,6 +31,15 @@
     // Store WebSocket globally so practice page can reuse it
     window.mainWebSocket = null;
     window.mainWebSocketMessageHandlers = [];
+    window.handleMidiEvent = function(rawData) {
+        const textarea = document.getElementById('midi_events_textarea');
+        if (typeof (textarea) != 'undefined' && textarea != null) {
+            const d = new Date();
+            const t = "\r\n" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "." + d.getMilliseconds() + " ";
+            textarea.value += t + rawData.replace("midi_event", "");
+            textarea.scrollTop = textarea.scrollHeight;
+        }
+    };
     
     function establish_socket_connection(try_count) {
         // If practice page has a connection, reuse it
@@ -71,23 +80,18 @@
                     }
                  }; 
             }
-            if (typeof window.handleMidiEvent !== 'function') {
-                window.handleMidiEvent = function(rawData) {
-                     let textarea = document.getElementById('midi_events_textarea');
-                     if (typeof (textarea) != 'undefined' && textarea != null) {
-                        const d = new Date();
-                        var t = "\r\n" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "." + d.getMilliseconds() + " "
-                        textarea.value += t + rawData.replace("midi_event", ""); 
-                        textarea.scrollTop = textarea.scrollHeight;
-                    }
-                 };
-            }
-
             let data;
             try {
                 // First check if it's a midi_event string before trying JSON parse
                 if (typeof event.data === 'string' && event.data.startsWith("midi_event")) {
-                     window.handleMidiEvent(event.data);
+                    window.handleMidiEvent(event.data);
+                    for (const handler of window.mainWebSocketMessageHandlers) {
+                        try {
+                            handler(event.data);
+                        } catch (e) {
+                            console.warn("MIDI event handler failed:", e);
+                        }
+                    }
                     return;
                 }
                 data = JSON.parse(event.data);
