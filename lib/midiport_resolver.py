@@ -91,6 +91,13 @@ def is_valid_input_port(port_name: str | None) -> bool:
     return True
 
 
+def filter_valid_input_ports(available_ports: list[str]) -> list[str]:
+    return [
+        port_name for port_name in available_ports
+        if is_valid_input_port(port_name) and not _stable_port_key(port_name).startswith("rtpmidid:")
+    ]
+
+
 def is_valid_output_port(port_name: str | None, available_inputs: list[str] | None = None) -> bool:
     if not port_name:
         return False
@@ -165,11 +172,8 @@ def refresh_runtime_port_name(actual_port: str | None, available_ports: list[str
 
 
 def pick_default_input_port(available_ports: list[str]) -> str | None:
-    for port_name in available_ports:
-        if _stable_port_key(port_name).startswith("rtpmidid:"):
-            continue
-        if is_valid_input_port(port_name):
-            return port_name
+    for port_name in filter_valid_input_ports(available_ports):
+        return port_name
     return None
 
 

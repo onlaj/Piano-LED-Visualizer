@@ -10,6 +10,7 @@ from lib.midiport_resolver import (
     PortResolutionStatus,
     pick_default_input_port,
     pick_default_output_port,
+    filter_valid_input_ports,
     refresh_runtime_port_name,
     is_fake_rtp_port,
     resolve_input_port,
@@ -127,6 +128,19 @@ class TestMidiPortResolver(unittest.TestCase):
         )
 
         self.assertEqual(selected, "USB AudioDevice:USB AudioDevice MIDI 1 20:0")
+
+    def test_selectable_input_ports_hide_internal_and_rtp_ports(self):
+        selected = filter_valid_input_ports(
+            [
+                "Midi Through:Midi Through Port-0 14:0",
+                "rtpmidid:Network Export 128:0",
+                "rtpmidid:Announcements 128:1",
+                "rtpmidid:PC_Robin 128:2",
+                "USB AudioDevice:USB AudioDevice MIDI 1 20:0",
+            ]
+        )
+
+        self.assertEqual(selected, ["USB AudioDevice:USB AudioDevice MIDI 1 20:0"])
 
     def test_input_resolution_rejects_stale_internal_midi_through_setting(self):
         resolution = resolve_input_port(

@@ -13,6 +13,8 @@ ACONNECT_SAMPLE = """client 16: 'USB AudioDevice' [type=kernel,card=0]
     0 'USB AudioDevice MIDI 1'
         Connecting To: 129:0
 client 128: 'rtpmidid' [type=user,pid=1140]
+    0 'Network Export  '
+    1 'Announcements   '
     2 'OSCMidi         '
         Connected From: 130:0[real:0]
 client 129: 'RtMidiIn Client' [type=user,pid=2537]
@@ -33,6 +35,13 @@ class TestViewsApiPorts(unittest.TestCase):
         self.assertIn("130:0", port_ids)
         self.assertIn("128:2", port_ids)
         self.assertIn("16:0", port_ids)
+
+    def test_parse_aconnect_ports_hides_fake_rtp_meta_ports_from_graph(self):
+        ports = parse_aconnect_ports(ACONNECT_SAMPLE, "all")
+        port_ids = {port["id"] for port in ports}
+
+        self.assertNotIn("128:0", port_ids)
+        self.assertNotIn("128:1", port_ids)
 
     def test_configured_ports_missing_from_available_reports_absent_usb_without_selecting_it(self):
         missing = configured_ports_missing_from_available(

@@ -3,7 +3,11 @@ from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
 from lib.functions import (get_last_logs, find_between, fastColorWipe, clamp, validate_schedule_overlaps)
 from lib.led_animations import get_registry
-from lib.midiport_resolver import filter_valid_output_ports
+from lib.midiport_resolver import (
+    filter_valid_input_ports,
+    filter_valid_output_ports,
+    is_fake_rtp_port,
+)
 import lib.colormaps as cmap
 import psutil
 import threading
@@ -2152,10 +2156,11 @@ def get_ports():
     configured_input = app_state.usersettings.get_setting_value("input_port")
     configured_secondary_input = app_state.usersettings.get_setting_value("secondary_input_port")
     configured_play = app_state.usersettings.get_setting_value("play_port")
-    input_ports = list(dict.fromkeys(mido.get_input_names()))
+    raw_input_ports = list(dict.fromkeys(mido.get_input_names()))
+    input_ports = filter_valid_input_ports(raw_input_ports)
     output_ports = filter_valid_output_ports(
         list(dict.fromkeys(mido.get_output_names())),
-        available_inputs=input_ports,
+        available_inputs=raw_input_ports,
     )
     diagnostics = app_state.midiports.get_rtp_diagnostics() if app_state.midiports else {}
     runtime_diagnostics = app_state.midiports.get_runtime_diagnostics() if app_state.midiports else {}
@@ -2439,6 +2444,8 @@ def parse_aconnect_ports(output, port_type="input"):
             if port_match:
                 port_id = port_match.group(1)
                 port_name = port_match.group(2)
+                if is_fake_rtp_port(f"{current_client_name}:{port_name.strip()}"):
+                    continue
                 full_id = f"{current_client}:{port_id}"
                 
                 ports.append({
