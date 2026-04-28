@@ -599,6 +599,9 @@ function get_settings(home = true) {
                     if (response["disable_backlight_on_idle"] === "1") {
                         document.getElementById("disable_backlight").checked = true;
                     }
+                    if (document.getElementById("disable_logs") && response["disable_logs"] === "1") {
+                        document.getElementById("disable_logs").checked = true;
+                    }
                     document.getElementById("skipped_notes").value = response["skipped_notes"];
                     document.getElementById("led_count").value = response["led_count"];
                     document.getElementById("leds_per_meter").value = response["leds_per_meter"];

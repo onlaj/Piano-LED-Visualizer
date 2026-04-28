@@ -140,6 +140,7 @@
 	<is_led_activeL>1</is_led_activeL>
 	<is_led_activeR>1</is_led_activeR>
     <midi_logging>0</midi_logging>
+    <disable_logs>0</disable_logs>
     <is_hotspot_active>1</is_hotspot_active>
 
 	<led_gamma>1</led_gamma>

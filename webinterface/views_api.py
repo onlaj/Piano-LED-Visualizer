@@ -314,6 +314,12 @@ def change_setting():
         app_state.ledsettings.disable_backlight_on_idle = int(value)
         app_state.usersettings.change_setting_value("disable_backlight_on_idle", app_state.ledsettings.disable_backlight_on_idle)
 
+    if setting_name == "disable_logs":
+        value = int(value == 'true')
+        app_state.usersettings.change_setting_value("disable_logs", value)
+        from lib.log_setup import apply_log_setting
+        apply_log_setting(value)
+
     if setting_name == "backlight_color":
         rgb = wc.hex_to_rgb("#" + value)
 
@@ -1946,6 +1952,7 @@ def get_settings():
     response["backlight_brightness"] = backlight_brightness
     response["backlight_color"] = backlight_color
     response["disable_backlight_on_idle"] = disable_backlight_on_idle
+    response["disable_logs"] = app_state.usersettings.get_setting_value("disable_logs")
     response["led_gamma"] = app_state.usersettings.get_setting_value("led_gamma")
 
     response["sides_color_mode"] = app_state.usersettings.get_setting_value("adjacent_mode")

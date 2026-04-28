@@ -7,7 +7,7 @@ from lib.functions import startup_animation, fastColorWipe
 from lib.learnmidi import LearnMIDI
 from lib.ledsettings import LedSettings
 from lib.ledstrip import LedStrip
-from lib.log_setup import logger
+from lib.log_setup import logger, apply_log_setting
 from lib.menulcd import MenuLCD
 from lib.midi_playback_scheduler import MidiPlaybackScheduler
 from lib.midiports import MidiPorts
@@ -32,6 +32,8 @@ class ComponentInitializer:
             self.platform = platform_future.result()
             self.usersettings = usersettings_future.result()
             self.saving = saving_future.result()
+            
+            apply_log_setting(self.usersettings.get_setting_value("disable_logs"))
         
         # Phase 2: Initialize components that depend on UserSettings in parallel
         with ThreadPoolExecutor(max_workers=2) as executor:

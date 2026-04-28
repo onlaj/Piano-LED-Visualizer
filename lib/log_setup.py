@@ -35,3 +35,15 @@ def log_unhandled_exception(exc_type, exc_value, exc_traceback):
 
 # Set the custom exception handler
 sys.excepthook = log_unhandled_exception
+
+def apply_log_setting(disable_logs):
+    if str(disable_logs) == '1' or str(disable_logs).lower() == 'true':
+        logger.setLevel(logging.CRITICAL + 1)
+        console_handler.setLevel(logging.CRITICAL + 1)
+        file_handler.setLevel(logging.CRITICAL + 1)
+        logging.disable(logging.CRITICAL)
+    else:
+        logger.setLevel(logging.DEBUG)
+        console_handler.setLevel(logging.DEBUG)
+        file_handler.setLevel(logging.DEBUG)
+        logging.disable(logging.NOTSET)
