@@ -57,3 +57,12 @@ def test_song_backend_play_uses_explicit_song_name_attribute():
     assert "data-song-name" in source
     assert "start_midi_playback()" in source
     assert "midi_player').src" not in source
+
+
+def test_song_playback_helpers_are_loaded_globally_not_only_in_ajax_html():
+    source = Path("webinterface/static/index.js").read_text(encoding="utf-8")
+
+    assert "function start_midi_playback()" in source
+    assert "function stop_midi_playback()" in source
+    assert "dataset.songName" in source
+    assert "change_setting('start_midi_play', songName)" in source

@@ -334,6 +334,39 @@ function change_setting(setting_name, value, second_value = false, disable_seque
 }
 
 
+function set_midi_playback_buttons(isPlaying) {
+    const startButton = document.getElementById('start_midi_play');
+    const stopButton = document.getElementById('stop_midi_play');
+    if (!startButton || !stopButton) {
+        return;
+    }
+    startButton.classList.toggle('hidden', isPlaying);
+    stopButton.classList.toggle('hidden', !isPlaying);
+}
+
+
+function start_midi_playback() {
+    const midiPlayer = document.getElementById('midi_player');
+    const songName = midiPlayer ? midiPlayer.dataset.songName : '';
+    if (!songName) {
+        return;
+    }
+    change_setting('start_midi_play', songName);
+    set_midi_playback_buttons(true);
+}
+
+
+function stop_midi_playback() {
+    const midiPlayer = document.getElementById('midi_player');
+    if (midiPlayer && typeof midiPlayer.stop === 'function') {
+        document.getElementById('midi_player').stop();
+    }
+    clearTimeout(scrolldelay);
+    change_setting('stop_midi_play', '');
+    set_midi_playback_buttons(false);
+}
+
+
 function press_button(element) {
     element.classList.add("pressed");
     setTimeout(function () {
