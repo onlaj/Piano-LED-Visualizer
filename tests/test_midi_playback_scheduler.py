@@ -45,8 +45,6 @@ class FakeMidiPorts:
 class FakeUserSettings:
     def __init__(self, values=None):
         self.values = {
-            "reliable_midi_enabled": "0",
-            "reliable_midi_required": "0",
             "reliable_midi_host": "oscmidi-rtp.local",
             "reliable_midi_port": "5056",
         }
@@ -143,10 +141,18 @@ class TestMidiPlaybackScheduler(unittest.TestCase):
             (live_msg, 1.0, 20.0, "live"),
         )
 
-    def test_playback_queues_local_file_events_and_schedules_rtp(self):
+    def test_playback_uses_reliable_by_default_without_rtp_scheduling(self):
         midiports = FakeMidiPorts()
         saving = FakeSaving()
-        scheduler = MidiPlaybackScheduler(midiports, saving, FakeMenu(), None, None)
+        client = FakeReliableClient()
+        scheduler = MidiPlaybackScheduler(
+            midiports,
+            saving,
+            FakeMenu(),
+            None,
+            None,
+            reliable_client_factory=lambda _settings: client,
+        )
         mid = mido.MidiFile(ticks_per_beat=480)
         track = mido.MidiTrack()
         mid.tracks.append(track)
@@ -160,15 +166,12 @@ class TestMidiPlaybackScheduler(unittest.TestCase):
 
         self.assertEqual([msg.note for msg, _ in midiports.file_enqueued], [60, 60])
         self.assertEqual(midiports.queues.drain_file(), [])
-        self.assertEqual([msg.note for msg, _, source in midiports.scheduled], [60, 60])
-        self.assertEqual([source for _, _, source in midiports.scheduled], ["midifile", "midifile"])
+        self.assertEqual(len(client.calls), 1)
+        self.assertEqual(midiports.scheduled, [])
         self.assertEqual(scheduler.state, PlaybackState.STOPPED)
 
     def test_reliable_playback_submits_score_without_scheduling_rtp(self):
         midiports = FakeMidiPorts()
-        midiports.usersettings = FakeUserSettings(
-            {"reliable_midi_enabled": "1", "reliable_midi_required": "1"}
-        )
         client = FakeReliableClient()
         scheduler = MidiPlaybackScheduler(
             midiports,
@@ -199,11 +202,8 @@ class TestMidiPlaybackScheduler(unittest.TestCase):
         self.assertEqual([msg.note for msg, _ in midiports.file_enqueued], [60, 60, 60])
         self.assertTrue(client.handle.waited)
 
-    def test_reliable_required_failure_refuses_playback_without_rtp_fallback(self):
+    def test_reliable_failure_refuses_playback_without_rtp_fallback(self):
         midiports = FakeMidiPorts()
-        midiports.usersettings = FakeUserSettings(
-            {"reliable_midi_enabled": "1", "reliable_midi_required": "1"}
-        )
         client = FakeReliableClient(error=ReliablePlaybackError("connect failed"))
         scheduler = MidiPlaybackScheduler(
             midiports,

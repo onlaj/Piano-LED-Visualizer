@@ -116,6 +116,8 @@
 	<input_port>default</input_port>
 	<secondary_input_port>default</secondary_input_port>
 	<play_port>default</play_port>
+	<reliable_midi_host>oscmidi-rtp.local</reliable_midi_host>
+	<reliable_midi_port>5056</reliable_midi_port>
 
 	<!-- Learn MIDI -->
 	<sort_by>dateDesc</sort_by>

@@ -76,9 +76,7 @@ class MidiPlaybackScheduler:
         try:
             mid = mido.MidiFile("Songs/" + song_path)
             compiled = compile_midi_messages(mid)
-            if self._reliable_enabled():
-                return self._play_reliable(song_path, compiled)
-            return self._play_legacy(song_path, compiled)
+            return self._play_reliable(song_path, compiled)
         except FileNotFoundError:
             self.state = PlaybackState.ERROR
             if self.menu is not None:
@@ -113,13 +111,10 @@ class MidiPlaybackScheduler:
             if not isinstance(e, ReliablePlaybackError):
                 e = ReliablePlaybackError(str(e))
             logger.warning(f"Reliable MIDI playback unavailable: {e}")
-            if self._reliable_required():
-                self.state = PlaybackState.ERROR
-                if self.menu is not None:
-                    self.menu.render_message(song_path, "Reliable MIDI unavailable", 2000)
-                return False
-            logger.warning("Falling back to RTP MIDI playback because reliable MIDI is optional")
-            return self._play_legacy(song_path, compiled)
+            self.state = PlaybackState.ERROR
+            if self.menu is not None:
+                self.menu.render_message(song_path, "Reliable MIDI unavailable", 2000)
+            return False
 
         t0 = handle.start_perf
         self._play_local_events(song_path, compiled, t0)
@@ -149,22 +144,6 @@ class MidiPlaybackScheduler:
         )
         return True
 
-    def _play_legacy(self, song_path, compiled):
-        t0 = time.perf_counter() + (DEFAULT_START_DELAY_MS / 1000.0)
-        for due_us, message in compiled.local_messages:
-            if self.stop_event.is_set():
-                logger.info("midi_playback transition=stopping song=%s", song_path)
-                break
-            self.midiports.schedule_rtp_message(
-                message.copy(time=0),
-                due_time=t0 + (due_us / 1_000_000.0),
-                source="midifile",
-            )
-
-        self._play_local_events(song_path, compiled, t0)
-        logger.info("play time: {:.2f} s (expected {:.2f})".format(time.perf_counter() - t0, compiled.total_delay_s))
-        return not self.stop_event.is_set()
-
     def _play_local_events(self, song_path, compiled, start_perf):
         index = 0
         local_messages = compiled.local_messages
@@ -186,21 +165,6 @@ class MidiPlaybackScheduler:
 
     def _usersettings(self):
         return getattr(self.midiports, "usersettings", None)
-
-    def _setting_enabled(self, name, default="0"):
-        settings = self._usersettings()
-        if settings is None:
-            return default == "1"
-        value = settings.get_setting_value(name)
-        if value is None:
-            value = default
-        return str(value).strip().lower() in {"1", "true", "yes", "on"}
-
-    def _reliable_enabled(self):
-        return self._setting_enabled("reliable_midi_enabled", default="0")
-
-    def _reliable_required(self):
-        return self._setting_enabled("reliable_midi_required", default="0")
 
     def _enqueue_file_message(self, msg, timestamp):
         if hasattr(self.midiports, "enqueue_file_message"):
