@@ -1,7 +1,13 @@
 from webinterface import webinterface, app_state
 from flask import render_template, send_file, request, jsonify
-from werkzeug.security import safe_join
-from lib.functions import (get_last_logs, find_between, fastColorWipe, clamp, validate_schedule_overlaps)
+from lib.functions import (
+    get_last_logs,
+    find_between,
+    fastColorWipe,
+    clamp,
+    validate_schedule_overlaps,
+    stop_midi_playback,
+)
 from lib.led_animations import get_registry
 from lib.midiport_resolver import (
     filter_valid_input_ports,
@@ -18,6 +24,8 @@ from xml.dom import minidom
 import xml.etree.ElementTree as ET
 import glob
 import shutil
+from io import BytesIO
+from pathlib import Path
 from subprocess import call
 import subprocess
 import datetime
@@ -30,12 +38,60 @@ import re
 from lib.rpi_drivers import GPIO
 from lib.log_setup import logger
 from flask import abort
+from lib.song_file_security import (
+    SongFileError,
+    bundle_member_paths,
+    bundle_prefix,
+    is_bundle_main,
+    resolve_song_cache_path,
+    resolve_song_path,
+    validate_song_filename,
+)
 
 SENSECOVER = 12
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(SENSECOVER, GPIO.IN, GPIO.PUD_UP)
 
 pid = psutil.Process(os.getpid())
+SONGS_DIR = Path("Songs").resolve()
+SHEET_MUSIC_EXTENSIONS = (".musicxml", ".xml", ".mxl", ".abc")
+
+
+def _song_error(error, status_code=None, **extra):
+    status = status_code or getattr(error, "status_code", 400)
+    payload = {"success": False, "error": str(error)}
+    payload.update(extra)
+    return jsonify(payload), status
+
+
+def _rename_song_cache_if_exists(old_name, new_name):
+    old_cache = resolve_song_cache_path(old_name, base_dir=SONGS_DIR)
+    new_cache = resolve_song_cache_path(new_name, base_dir=SONGS_DIR)
+    if old_cache.exists():
+        old_cache.rename(new_cache)
+
+
+def _delete_song_cache_if_exists(song_name):
+    cache_path = resolve_song_cache_path(song_name, base_dir=SONGS_DIR)
+    if cache_path.exists():
+        cache_path.unlink()
+
+
+def _sidecar_paths(song_name):
+    song_path = resolve_song_path(song_name, base_dir=SONGS_DIR, must_exist=False, allowed_extensions={"mid"})
+    for extension in SHEET_MUSIC_EXTENSIONS:
+        yield song_path.with_suffix(extension)
+
+
+def _bundle_renames(current_name, new_name):
+    old_prefix = bundle_prefix(current_name)
+    new_prefix = Path(new_name).stem
+    renames = []
+    for member in bundle_member_paths(current_name, base_dir=SONGS_DIR):
+        suffix = member.name[len(old_prefix):]
+        member_new_name = validate_song_filename(f"{new_prefix}{suffix}")
+        renames.append((member, resolve_song_path(member_new_name, base_dir=SONGS_DIR, must_exist=False)))
+    return renames
 
 
 @webinterface.route('/api/start_animation', methods=['GET'])
@@ -1195,86 +1251,106 @@ def change_setting():
         return jsonify(success=True)
 
     if setting_name == "change_song_name":
-        if os.path.exists("Songs/" + second_value):
-            return jsonify(success=False, reload_songs=True, error=second_value + " already exists")
+        try:
+            current_name = validate_song_filename(value, allowed_extensions={"mid"})
+            new_name = validate_song_filename(second_value, allowed_extensions={"mid"})
+            current_path = resolve_song_path(current_name, base_dir=SONGS_DIR, must_exist=True, allowed_extensions={"mid"})
+            new_path = resolve_song_path(new_name, base_dir=SONGS_DIR, must_exist=False, allowed_extensions={"mid"})
+        except SongFileError as e:
+            return _song_error(e, reload_songs=True)
 
-        if "_main" in value:
-            search_name = value.replace("_main.mid", "")
-            for fname in os.listdir('Songs'):
-                if search_name in fname:
-                    new_name = second_value.replace(".mid", "") + fname.replace(search_name, "")
-                    os.rename('Songs/' + fname, 'Songs/' + new_name)
+        if is_bundle_main(current_name):
+            renames = _bundle_renames(current_name, new_name)
+            for _old_path, planned_path in renames:
+                if planned_path.exists():
+                    return jsonify(success=False, reload_songs=True, error=planned_path.name + " already exists")
+            for old_path, planned_path in renames:
+                old_name = old_path.name
+                planned_name = planned_path.name
+                old_path.rename(planned_path)
+                if old_path.suffix.lower() == ".mid":
+                    _rename_song_cache_if_exists(old_name, planned_name)
         else:
-            os.rename('Songs/' + value, 'Songs/' + second_value)
-            os.rename('Songs/cache/' + value + ".p", 'Songs/cache/' + second_value + ".p")
+            if new_path.exists():
+                return jsonify(success=False, reload_songs=True, error=new_name + " already exists")
+            current_path.rename(new_path)
+            _rename_song_cache_if_exists(current_name, new_name)
 
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "remove_song":
-        if "_main" in value:
-            name_no_suffix = value.replace("_main.mid", "")
-            for fname in os.listdir('Songs'):
-                if name_no_suffix in fname:
-                    os.remove("Songs/" + fname)
+        try:
+            song_name = validate_song_filename(value, allowed_extensions={"mid"})
+            song_path = resolve_song_path(song_name, base_dir=SONGS_DIR, must_exist=True, allowed_extensions={"mid"})
+        except SongFileError as e:
+            return _song_error(e, reload_songs=True)
+
+        if is_bundle_main(song_name):
+            for path in bundle_member_paths(song_name, base_dir=SONGS_DIR):
+                old_name = path.name
+                path.unlink()
+                if path.suffix.lower() == ".mid":
+                    _delete_song_cache_if_exists(old_name)
         else:
-            os.remove("Songs/" + value)
-
-            file_types = [".musicxml", ".xml", ".mxl", ".abc"]
-            for file_type in file_types:
-                try:
-                    os.remove("Songs/" + value.replace(".mid", file_type))
-                except:
-                    pass
-
-            try:
-                os.remove("Songs/cache/" + value + ".p")
-            except:
-                logger.info("No cache file for " + value)
+            song_path.unlink()
+            for sidecar in _sidecar_paths(song_name):
+                if sidecar.exists():
+                    sidecar.unlink()
+            _delete_song_cache_if_exists(song_name)
 
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "download_song":
-        if "_main" in value:
-            zipObj = ZipFile("Songs/" + value.replace(".mid", "") + ".zip", 'w')
-            name_no_suffix = value.replace("_main.mid", "")
-            songs_count = 0
-            for fname in os.listdir('Songs'):
-                if name_no_suffix in fname and ".zip" not in fname:
-                    songs_count += 1
-                    zipObj.write("Songs/" + fname)
-            zipObj.close()
-            if songs_count == 1:
-                os.remove("Songs/" + value.replace(".mid", "") + ".zip")
-                return send_file(safe_join("../Songs/" + value), mimetype='application/x-csv',
-                                 download_name=value,
-                                 as_attachment=True)
-            else:
-                return send_file(safe_join("../Songs/" + value.replace(".mid", "")) + ".zip",
-                                 mimetype='application/x-csv',
-                                 download_name=value.replace(".mid", "") + ".zip", as_attachment=True)
-        else:
-            return send_file(safe_join("../Songs/" + value), mimetype='application/x-csv', download_name=value,
-                             as_attachment=True)
+        try:
+            song_name = validate_song_filename(value, allowed_extensions={"mid"})
+            song_path = resolve_song_path(song_name, base_dir=SONGS_DIR, must_exist=True, allowed_extensions={"mid"})
+        except SongFileError as e:
+            return _song_error(e)
+
+        if is_bundle_main(song_name):
+            members = bundle_member_paths(song_name, base_dir=SONGS_DIR)
+            if len(members) > 1:
+                archive = BytesIO()
+                with ZipFile(archive, "w") as zip_obj:
+                    for member in members:
+                        zip_obj.write(member, arcname=member.name)
+                archive.seek(0)
+                zip_name = Path(song_name).with_suffix(".zip").name
+                return send_file(
+                    archive,
+                    mimetype="application/zip",
+                    download_name=zip_name,
+                    as_attachment=True,
+                )
+
+        return send_file(str(song_path), mimetype='application/x-csv', download_name=song_name, as_attachment=True)
 
     if setting_name == "download_sheet_music":
-        file_types = [".musicxml", ".xml", ".mxl", ".abc"]
-        i = 0
-        while i < len(file_types):
-            try:
-                new_name = value.replace(".mid", file_types[i])
-                return send_file(safe_join("../Songs/" + new_name), mimetype='application/x-csv',
-                                 download_name=new_name,
-                                 as_attachment=True)
-            except:
-                i += 1
-        app_state.learning.convert_midi_to_abc(value)
         try:
-            return send_file(safe_join("../Songs/", value.replace(".mid", ".abc")), mimetype='application/x-csv',
-                             download_name=value.replace(".mid", ".abc"), as_attachment=True)
-        except:
-            logger.warning("Converting failed")
+            song_name = validate_song_filename(value, allowed_extensions={"mid"})
+            song_path = resolve_song_path(song_name, base_dir=SONGS_DIR, must_exist=True, allowed_extensions={"mid"})
+        except SongFileError as e:
+            return _song_error(e)
+
+        for sidecar in _sidecar_paths(song_name):
+            if sidecar.exists():
+                return send_file(str(sidecar), mimetype='application/x-csv', download_name=sidecar.name, as_attachment=True)
+
+        try:
+            app_state.learning.convert_midi_to_abc(song_name)
+        except Exception as e:
+            logger.warning("Converting failed: %s", e)
+        abc_path = song_path.with_suffix(".abc")
+        if abc_path.exists():
+            return send_file(str(abc_path), mimetype='application/x-csv', download_name=abc_path.name, as_attachment=True)
+        return _song_error(SongFileError("sheet music not found", status_code=404))
 
     if setting_name == "start_midi_play":
+        try:
+            song_name = validate_song_filename(value, allowed_extensions={"mid"})
+            resolve_song_path(song_name, base_dir=SONGS_DIR, must_exist=True, allowed_extensions={"mid"})
+        except SongFileError as e:
+            return _song_error(e, reload_songs=True)
         scheduler = app_state.playback_scheduler
         if scheduler is None:
             from lib.midi_playback_scheduler import MidiPlaybackScheduler
@@ -1287,22 +1363,30 @@ def change_setting():
             )
             app_state.playback_scheduler = scheduler
             app_state.saving.playback_scheduler = scheduler
-        app_state.saving.t = threading.Thread(target=scheduler.play, args=(value,))
+        app_state.saving.t = threading.Thread(target=scheduler.play, args=(song_name,))
         app_state.saving.t.start()
 
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "stop_midi_play":
-        if app_state.playback_scheduler is not None:
-            app_state.playback_scheduler.stop()
-        else:
-            app_state.saving.is_playing_midi.clear()
-        fastColorWipe(app_state.ledstrip.strip, True, app_state.ledsettings)
+        stop_midi_playback(
+            app_state.midiports,
+            app_state.saving,
+            app_state.menu,
+            app_state.ledsettings,
+            app_state.ledstrip,
+            scheduler=app_state.playback_scheduler,
+        )
 
         return jsonify(success=True, reload_songs=True)
 
     if setting_name == "learning_load_song":
-        app_state.learning.t = threading.Thread(target=app_state.learning.load_midi, args=(value,))
+        try:
+            song_name = validate_song_filename(value, allowed_extensions={"mid"})
+            resolve_song_path(song_name, base_dir=SONGS_DIR, must_exist=True, allowed_extensions={"mid"})
+        except SongFileError as e:
+            return _song_error(e, reload_learning_settings=True)
+        app_state.learning.t = threading.Thread(target=app_state.learning.load_midi, args=(song_name,))
         app_state.learning.t.start()
 
         return jsonify(success=True, reload_learning_settings=True)

@@ -1974,6 +1974,9 @@ function get_recording_status() {
                 document.getElementById("midi_player_wrapper").classList.remove("hidden");
                 document.getElementById("start_midi_play").classList.add("hidden");
                 document.getElementById("stop_midi_play").classList.remove("hidden");
+            } else if (document.getElementById("start_midi_play")) {
+                document.getElementById("start_midi_play").classList.remove("hidden");
+                document.getElementById("stop_midi_play").classList.add("hidden");
             }
         }
     };

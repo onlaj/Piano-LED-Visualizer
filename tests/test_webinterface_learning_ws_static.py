@@ -30,3 +30,30 @@ def test_main_websocket_uses_stable_midi_event_handler_across_ajax_pages():
     assert "window.handleMidiEvent = function(rawData)" in source
     assert "window.mainWebSocketMessageHandlers" in source
     assert "for (const handler of window.mainWebSocketMessageHandlers)" in source
+
+
+def test_song_stop_button_stops_browser_player_and_backend_playback():
+    source = Path("webinterface/templates/songs.html").read_text(encoding="utf-8")
+
+    assert "stop_midi_playback()" in source
+    assert "document.getElementById('midi_player').stop()" in source
+    assert "change_setting('stop_midi_play'" in source
+
+
+def test_recording_status_syncs_play_and_stop_buttons_both_directions():
+    source = Path("webinterface/static/js/ui.js").read_text(encoding="utf-8")
+
+    assert "start_midi_play" in source
+    assert "stop_midi_play" in source
+    assert "classList.remove(\"hidden\")" in source
+    assert "classList.add(\"hidden\")" in source
+    assert "Object.keys(response[\"isplaying\"]).length > 0" in source
+    assert "else if (document.getElementById(\"start_midi_play\")" in source
+
+
+def test_song_backend_play_uses_explicit_song_name_attribute():
+    source = Path("webinterface/templates/songs.html").read_text(encoding="utf-8")
+
+    assert "data-song-name" in source
+    assert "start_midi_playback()" in source
+    assert "midi_player').src" not in source

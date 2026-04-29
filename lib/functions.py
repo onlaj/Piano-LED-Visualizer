@@ -77,6 +77,39 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
     return scheduler.play(song_path)
 
 
+def stop_midi_playback(midiports, saving, menu=None, ledsettings=None, ledstrip=None, scheduler=None, join_timeout=1.0):
+    scheduler = scheduler or getattr(saving, "playback_scheduler", None)
+    if scheduler is not None:
+        scheduler.stop()
+    else:
+        if hasattr(saving, "is_playing_midi"):
+            saving.is_playing_midi.clear()
+        if hasattr(midiports, "clear_scheduled_rtp_messages"):
+            midiports.clear_scheduled_rtp_messages(source="midifile")
+        elif hasattr(midiports, "queues"):
+            midiports.queues.clear_scheduled_forward(source="midifile")
+        if hasattr(midiports, "queues"):
+            midiports.queues.clear_file()
+        elif hasattr(midiports, "midifile_queue"):
+            midiports.midifile_queue.clear()
+        if hasattr(midiports, "send_all_notes_off"):
+            try:
+                midiports.send_all_notes_off()
+            except Exception as e:
+                logger.debug(f"MIDI panic send failed: {e}")
+
+    playback_thread = getattr(saving, "t", None)
+    if playback_thread is not None and playback_thread is not threading.current_thread():
+        try:
+            if playback_thread.is_alive():
+                playback_thread.join(timeout=join_timeout)
+        except RuntimeError:
+            pass
+
+    if ledstrip is not None and ledsettings is not None:
+        fastColorWipe(ledstrip.strip, True, ledsettings)
+
+
 def is_within_schedule(schedule_list):
     """
     Check if current time is within any of the scheduled intervals.

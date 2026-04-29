@@ -40,7 +40,9 @@ class MidiPlaybackScheduler:
         return self.state == PlaybackState.RUNNING
 
     def stop(self):
+        handle = None
         with self._lock:
+            was_active = self.state in (PlaybackState.RUNNING, PlaybackState.STOPPING)
             if self.state == PlaybackState.RUNNING:
                 self.state = PlaybackState.STOPPING
             self.stop_event.set()
@@ -49,17 +51,24 @@ class MidiPlaybackScheduler:
             self._clear_file_queue()
             handle = self._reliable_handle
             self._reliable_handle = None
-            if handle is not None:
-                handle.stop()
-            self._send_playback_panic()
-            self.state = PlaybackState.STOPPED
             self.current_song = None
+
+        if handle is not None:
+            handle.stop()
+
+        self._send_playback_panic()
+
+        with self._lock:
+            if not was_active:
+                self.stop_event.clear()
+                self.state = PlaybackState.STOPPED
             logger.info("midi_playback transition=stopped")
 
     def play(self, song_path):
         with self._lock:
-            if self.state == PlaybackState.RUNNING:
-                self.menu.render_message(song_path, "Already playing", 2000)
+            if self.state in (PlaybackState.RUNNING, PlaybackState.STOPPING):
+                if self.menu is not None:
+                    self.menu.render_message(song_path, "Already playing", 2000)
                 return False
             self.state = PlaybackState.RUNNING
             self.current_song = song_path
@@ -96,6 +105,7 @@ class MidiPlaybackScheduler:
                 except Exception as e:
                     logger.debug(f"LED cleanup failed: {e}")
             with self._lock:
+                self._reliable_handle = None
                 self.saving.is_playing_midi.clear()
                 self.current_song = None
                 self.stop_event.clear()
@@ -106,12 +116,19 @@ class MidiPlaybackScheduler:
         try:
             client = self.reliable_client_factory(self._usersettings())
             handle = client.play_events(song_path, compiled, start_delay_ms=DEFAULT_START_DELAY_MS)
-            self._reliable_handle = handle
+            with self._lock:
+                if self.stop_event.is_set() or self.state != PlaybackState.RUNNING:
+                    handle.stop()
+                    return False
+                self._reliable_handle = handle
         except Exception as e:
             if not isinstance(e, ReliablePlaybackError):
                 e = ReliablePlaybackError(str(e))
             logger.warning(f"Reliable MIDI playback unavailable: {e}")
-            self.state = PlaybackState.ERROR
+            with self._lock:
+                if self.stop_event.is_set():
+                    return False
+                self.state = PlaybackState.ERROR
             if self.menu is not None:
                 self.menu.render_message(song_path, "Reliable MIDI unavailable", 2000)
             return False
@@ -120,15 +137,29 @@ class MidiPlaybackScheduler:
         self._play_local_events(song_path, compiled, t0)
         if self.stop_event.is_set():
             handle.stop()
+            with self._lock:
+                if self._reliable_handle is handle:
+                    self._reliable_handle = None
             return False
 
         completion_timeout = max(5.0, compiled.total_delay_s + 5.0)
-        completed = handle.wait_completed(timeout=completion_timeout)
-        self._reliable_handle = None
+        try:
+            completed = handle.wait_completed(timeout=completion_timeout)
+        except Exception:
+            with self._lock:
+                if self._reliable_handle is handle:
+                    self._reliable_handle = None
+            if self.stop_event.is_set():
+                return False
+            raise
+        with self._lock:
+            if self._reliable_handle is handle:
+                self._reliable_handle = None
         processed = int(completed.get("processed", -1))
         dropped = int(completed.get("dropped", -1))
         if processed != compiled.total or dropped != 0:
-            self.state = PlaybackState.ERROR
+            with self._lock:
+                self.state = PlaybackState.ERROR
             logger.warning(
                 "Reliable MIDI playback incomplete: processed=%s expected=%s dropped=%s",
                 processed,
@@ -155,10 +186,17 @@ class MidiPlaybackScheduler:
             due_time = start_perf + (due_us / 1_000_000.0)
             delay = max(0.0, due_time - time.perf_counter())
             if delay > 0:
-                time.sleep(delay)
+                if self.stop_event.wait(delay):
+                    logger.info("midi_playback transition=stopping song=%s", song_path)
+                    break
+            if self.stop_event.is_set():
+                logger.info("midi_playback transition=stopping song=%s", song_path)
+                break
 
             while index < len(local_messages) and local_messages[index][0] == due_us:
                 _, message = local_messages[index]
+                if self.stop_event.is_set():
+                    break
                 if self.midiports.should_process_locally(message):
                     self._enqueue_file_message(message.copy(time=0), due_time)
                 index += 1

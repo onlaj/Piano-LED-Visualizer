@@ -224,6 +224,7 @@
             <div class="flex glass-light hover:glass rounded-glass transition-smooth-fast m-auto mb-2">
                 <midi-player
                         src=""
+                        data-song-name=""
                         sound-font id="midi_player"
                         visualizer="#myVisualizer">
                 </midi-player>
@@ -248,11 +249,7 @@
             </div>
             <div class="flex m-auto">
                 <div class="p-2">
-                    <button id="start_midi_play" onclick="song_name = document.getElementById('midi_player').src;
-                        song_name = song_name.replace('api/change_setting?setting_name=download_song&value=', '');
-                        change_setting('start_midi_play', song_name);
-                        this.classList.add('hidden');
-                        this.nextElementSibling.classList.remove('hidden');"
+                    <button id="start_midi_play" onclick="start_midi_playback();"
                             class="w-40 h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center">
                         <span class="flex uppercase text-xs m-auto ">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 " fill="none" viewBox="0 0 24 24"
@@ -266,9 +263,7 @@
                         </span>
                     </button>
 
-                    <button id="stop_midi_play" onclick="change_setting('stop_midi_play', '');
-                    this.classList.add('hidden');
-                    this.previousElementSibling.classList.remove('hidden');"
+                    <button id="stop_midi_play" onclick="stop_midi_playback();"
                             class="w-40 h-10 outline-none mb-2 glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center hidden">
                         <span class="flex uppercase text-xs m-auto">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -283,6 +278,37 @@
                             </div>
                         </span>
                     </button>
+                    <script>
+                        function set_midi_playback_buttons(isPlaying) {
+                            const startButton = document.getElementById('start_midi_play');
+                            const stopButton = document.getElementById('stop_midi_play');
+                            if (!startButton || !stopButton) {
+                                return;
+                            }
+                            startButton.classList.toggle('hidden', isPlaying);
+                            stopButton.classList.toggle('hidden', !isPlaying);
+                        }
+
+                        function start_midi_playback() {
+                            const midiPlayer = document.getElementById('midi_player');
+                            const songName = midiPlayer ? midiPlayer.dataset.songName : '';
+                            if (!songName) {
+                                return;
+                            }
+                            change_setting('start_midi_play', songName);
+                            set_midi_playback_buttons(true);
+                        }
+
+                        function stop_midi_playback() {
+                            const midiPlayer = document.getElementById('midi_player');
+                            if (midiPlayer && typeof midiPlayer.stop === 'function') {
+                                document.getElementById('midi_player').stop();
+                            }
+                            clearTimeout(scrolldelay);
+                            change_setting('stop_midi_play', '');
+                            set_midi_playback_buttons(false);
+                        }
+                    </script>
                 </div>
             </div>
         </div>

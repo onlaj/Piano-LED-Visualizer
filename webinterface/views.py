@@ -3,6 +3,7 @@ from flask import render_template, request, jsonify
 import os
 
 import time
+from lib.song_file_security import SongFileError, resolve_song_path, validate_song_filename
 
 ALLOWED_EXTENSIONS = {'mid', 'musicxml', 'mxl', 'xml', 'abc'}
 
@@ -75,12 +76,18 @@ def upload_file():
         if 'file' not in request.files:
             return jsonify(success=False, error="no file")
         file = request.files['file']
-        filename = file.filename
-        if os.path.exists("Songs/" + filename):
+        raw_filename = (file.filename or "").replace("'", "")
+        try:
+            filename = validate_song_filename(raw_filename)
+            song_path = resolve_song_path(
+                filename,
+                base_dir=webinterface.config['UPLOAD_FOLDER'],
+                must_exist=False,
+            )
+        except SongFileError as e:
+            return jsonify(success=False, error=str(e), song_name=raw_filename)
+        if song_path.exists():
             return jsonify(success=False, error="file already exists", song_name=filename)
-        if not allowed_file(file.filename):
-            return jsonify(success=False, error="not a midi file", song_name=filename)
 
-        filename = filename.replace("'", "")
-        file.save(os.path.join(webinterface.config['UPLOAD_FOLDER'], filename))
+        file.save(str(song_path))
         return jsonify(success=True, reload_songs=True, song_name=filename)

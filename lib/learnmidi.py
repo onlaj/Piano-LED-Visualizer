@@ -103,6 +103,7 @@ class LearnMIDI:
         self.is_started_midi = False
         self.learning_state = "stopped"
         self._state_lock = threading.RLock()
+        self.stop_event = threading.Event()
         self.t = None
 
         self.current_idx = 0
@@ -139,17 +140,46 @@ class LearnMIDI:
 
     def restart_learning(self):
         if self.is_started_midi:
-            self.is_started_midi = False
+            self.stop_learning()
             if self.t and self.t is not threading.current_thread():
                 self.t.join(timeout=2)
             self.t = threading.Thread(target=self.learn_midi)
             self.t.start()
 
     def stop_learning(self):
+        stop_event = getattr(self, "stop_event", None)
+        if stop_event is None:
+            stop_event = threading.Event()
+            self.stop_event = stop_event
         with self._state_lock:
             self.learning_state = "stopping"
             self.is_started_midi = False
+            stop_event.set()
+            if hasattr(self, "pending_software_notes"):
+                self.pending_software_notes.clear()
+            self.next_note_time = None
+            self.next_note_delay = None
+        if hasattr(self.midiports, "clear_scheduled_rtp_messages"):
+            self.midiports.clear_scheduled_rtp_messages(source="learning")
+        elif hasattr(self.midiports, "queues"):
+            self.midiports.queues.clear_scheduled_forward(source="learning")
+        if hasattr(self.midiports, "send_all_notes_off"):
+            try:
+                self.midiports.send_all_notes_off()
+            except Exception as e:
+                logger.debug(f"Learning MIDI panic send failed: {e}")
         logger.info("learning_midi transition=stopping")
+
+    def _wait_or_stopped(self, delay):
+        stop_event = getattr(self, "stop_event", None)
+        if stop_event is None:
+            stop_event = threading.Event()
+            self.stop_event = stop_event
+        if stop_event.is_set() or not self.is_started_midi:
+            return True
+        if delay <= 0:
+            return False
+        return stop_event.wait(delay) or not self.is_started_midi
 
     def restart_loop(self):
         self.awaiting_restart_loop = True
@@ -257,6 +287,8 @@ class LearnMIDI:
         except Exception as e:
             logger.warning(f"Failed to fetch learning section: {e}")
         self.is_started_midi = False  # Stop current learning song
+        if hasattr(self, "stop_event"):
+            self.stop_event.set()
         self.t = threading.current_thread()
 
         # Load song from cache
@@ -416,6 +448,9 @@ class LearnMIDI:
         with self._state_lock:
             if self.is_started_midi:
                 return
+            if not hasattr(self, "stop_event"):
+                self.stop_event = threading.Event()
+            self.stop_event.clear()
             self.learning_state = "starting"
             logger.info("learning_midi transition=starting")
         if self.loading == 0:
@@ -425,7 +460,9 @@ class LearnMIDI:
         elif 0 < self.loading < 4:
             self.is_started_midi = True  # Prevent restarting the Thread
             while 0 < self.loading < 4:
-                time.sleep(0.1)
+                if self._wait_or_stopped(0.1):
+                    self.learning_state = "stopped"
+                    return
         if self.loading == 4:
             self.is_started_midi = True  # Prevent restarting the Thread
             self.learning_state = "running"
@@ -461,7 +498,8 @@ class LearnMIDI:
 
         keep_looping = True
         while keep_looping:
-            time.sleep(1)
+            if self._wait_or_stopped(1):
+                break
             self.score_manager.reset()
             self.right_hand_timing.clear()
             self.left_hand_timing.clear()
@@ -603,7 +641,8 @@ class LearnMIDI:
                                 # same RLock).  Without this sleep the tight spin
                                 # loop can starve the callback thread under GIL
                                 # pressure, causing message loss.
-                                time.sleep(0.001)
+                                if self._wait_or_stopped(0.001):
+                                    break
 
                                 # light up predicted future notes again in case the future note was pressed
                                 # and color was overwritten
@@ -615,7 +654,13 @@ class LearnMIDI:
                             if set(notes_to_press).issubset(notes_pressed) and self.pending_software_notes:
                                 due_time = time.perf_counter()
                                 for software_note in self.pending_software_notes:
-                                    self.midiports.schedule_rtp_message(software_note, due_time=due_time)
+                                    if self._wait_or_stopped(0):
+                                        break
+                                    self.midiports.schedule_rtp_message(
+                                        software_note,
+                                        due_time=due_time,
+                                        source="learning",
+                                    )
                                 self.pending_software_notes.clear()
 
                             # Turn off the pressed LEDs
@@ -627,7 +672,8 @@ class LearnMIDI:
                     delay = max(0, tDelay - (
                             time.time() - time_prev) - 0.003)  # 0.003 sec calibratable to account for extra time loss
                     event_due_perf = time.perf_counter() + delay
-                    time.sleep(delay)
+                    if self._wait_or_stopped(delay):
+                        break
                     time_prev = time.time()
 
                     # Light-up LEDs with the notes to press
@@ -676,14 +722,18 @@ class LearnMIDI:
                                 # Right hand notes
                                 self.practice == 2):  # Listen mode
                             if self.practice == 2:
-                                self.midiports.schedule_rtp_message(msg, due_time=event_due_perf)
+                                self.midiports.schedule_rtp_message(msg, due_time=event_due_perf, source="learning")
                             else:
                                 # Check if there are any user notes to press at this moment
                                 if notes_to_press:
                                     # If there are user notes to press, store this software note to play when user presses their key
                                     self.pending_software_notes.append(msg)
                                 else:
-                                    self.midiports.schedule_rtp_message(msg, due_time=event_due_perf)
+                                    self.midiports.schedule_rtp_message(
+                                        msg,
+                                        due_time=event_due_perf,
+                                        source="learning",
+                                    )
 
                         next_msg = track_slice[track_index + 1] if (track_index + 1) < len(track_slice) else None
                         next_delay = None
@@ -704,7 +754,13 @@ class LearnMIDI:
                             self.next_note_time and time.time() >= self.next_note_time):
                         due_time = time.perf_counter()
                         for software_note in self.pending_software_notes:
-                            self.midiports.schedule_rtp_message(software_note, due_time=due_time)
+                            if self._wait_or_stopped(0):
+                                break
+                            self.midiports.schedule_rtp_message(
+                                software_note,
+                                due_time=due_time,
+                                source="learning",
+                            )
                         self.pending_software_notes.clear()
                         self.next_note_time = None
                         self.next_note_delay = None

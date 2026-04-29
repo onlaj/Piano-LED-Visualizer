@@ -1444,13 +1444,14 @@ class MenuLCD:
                 self.render_message("Recording canceled", "", 2000)
                 self.saving.cancel_recording()
             if choice == "Stop playing":
-                scheduler = getattr(self.saving, "playback_scheduler", None)
-                if scheduler is not None:
-                    scheduler.stop()
-                else:
-                    self.saving.is_playing_midi.clear()
+                stop_midi_playback(
+                    self.midiports,
+                    self.saving,
+                    self,
+                    self.ledsettings,
+                    self.ledstrip,
+                )
                 self.render_message("Playing stopped", "", 2000)
-                fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
 
         # Learn MIDI
         if location == "Load_song":

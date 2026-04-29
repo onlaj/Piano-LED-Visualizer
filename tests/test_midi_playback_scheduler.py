@@ -11,7 +11,7 @@ sys.path.append("../")
 
 from lib.midi_playback_scheduler import MidiPlaybackScheduler, PlaybackState
 from lib.midi_queues import MidiQueues
-from lib.reliable_midi_playback_client import ReliablePlaybackError
+from lib.reliable_midi_playback_client import CompiledMidiPlayback, ReliablePlaybackError
 
 
 class FakeMidiPorts:
@@ -140,6 +140,34 @@ class TestMidiPlaybackScheduler(unittest.TestCase):
             midiports.queues.pop_due_scheduled_forward(now_perf=20.0),
             (live_msg, 1.0, 20.0, "live"),
         )
+
+    def test_stop_during_wait_before_local_event_does_not_enqueue_stale_file_message(self):
+        midiports = FakeMidiPorts()
+        scheduler = MidiPlaybackScheduler(midiports, FakeSaving(), FakeMenu(), None, None)
+        scheduler.state = PlaybackState.RUNNING
+        message = mido.Message("note_on", note=60, velocity=100)
+        compiled = CompiledMidiPlayback(
+            events=[{"seq": 0, "dueUs": 1_000_000, "data": message.bytes()}],
+            local_messages=[(1_000_000, message)],
+            total_delay_s=1.0,
+        )
+
+        with patch("lib.midi_playback_scheduler.time.perf_counter", return_value=100.0):
+            scheduler.stop_event.wait = lambda _delay: (scheduler.stop_event.set() or True)
+            scheduler._play_local_events("song.mid", compiled, start_perf=100.0)
+
+        self.assertEqual(midiports.file_enqueued, [])
+        self.assertEqual(list(midiports.queues.file_queue), [])
+
+    def test_play_refuses_new_song_while_previous_stop_is_still_finalizing(self):
+        midiports = FakeMidiPorts()
+        scheduler = MidiPlaybackScheduler(midiports, FakeSaving(), FakeMenu(), None, None)
+        scheduler.state = PlaybackState.STOPPING
+
+        with patch("lib.midi_playback_scheduler.mido.MidiFile") as midi_file:
+            self.assertFalse(scheduler.play("song.mid"))
+
+        midi_file.assert_not_called()
 
     def test_playback_uses_reliable_by_default_without_rtp_scheduling(self):
         midiports = FakeMidiPorts()
