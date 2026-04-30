@@ -490,6 +490,10 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings, state_manager=No
 
 # Get note position on the strip
 def get_note_position(note, ledstrip, ledsettings):
+    cached_get_note_position = getattr(ledstrip, "get_note_position", None)
+    if callable(cached_get_note_position):
+        return cached_get_note_position(note, ledsettings)
+
     note_offsets = ledsettings.note_offsets
     note_offset = 0
 

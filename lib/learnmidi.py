@@ -47,6 +47,13 @@ def get_tempo(mid):
     return 500000  # If not found return default tempo
 
 
+def _extract_midi_note_velocity(msg):
+    note = int(msg.note)
+    if msg.type == 'note_off':
+        return note, 0
+    return note, int(msg.velocity)
+
+
 class LearnMIDI:
     def __init__(self, usersettings, ledsettings, midiports, ledstrip):
         self.menu = None
@@ -565,12 +572,7 @@ class LearnMIDI:
                                 if self.awaiting_restart_loop:
                                     break
                                 for msg_in, msg_timestamp in self.input_adapter.drain_note_events():
-                                    note = int(find_between(str(msg_in), "note=", " "))
-
-                                    if "note_off" in str(msg_in):
-                                        velocity = 0
-                                    else:
-                                        velocity = int(find_between(str(msg_in), "velocity=", " "))
+                                    note, velocity = _extract_midi_note_velocity(msg_in)
 
                                     # check if note is NOT in the list of notes to press
                                     if note not in notes_to_press:

@@ -15,80 +15,102 @@ class LEDEffectsProcessor:
     def process_fade_effects(self, event_loop_time):
         any_led_changed = False
         active_leds = 0
-        for n, strength in enumerate(self.ledstrip.keylist):
+        ledstrip = self.ledstrip
+        ledsettings = self.ledsettings
+        keylist = ledstrip.keylist
+        keylist_status = ledstrip.keylist_status
+        keylist_sustained = ledstrip.keylist_sustained
+        keylist_color = ledstrip.keylist_color
+        mode = ledsettings.mode
+        color_update = self.color_mode.ColorUpdate
+        set_pixel_color = ledstrip.strip.setPixelColor
+        set_adjacent_colors = ledstrip.set_adjacent_colors
+        screensaver_is_running = self.menu.screensaver_is_running
+        sustain_value = getattr(ledstrip, "sustain_value", self.last_sustain)
+        backlight_color = None
+
+        if mode == "Fading":
+            speed = ledsettings.fadingspeed
+        elif mode == "Velocity":
+            speed = ledsettings.velocity_speed
+        elif mode == "Pedal":
+            speed = ledsettings.pedal_speed
+        else:
+            speed = ledsettings.fadingspeed
+
+        def get_backlight_color():
+            nonlocal backlight_color
+            if backlight_color is None:
+                backlight_level = float(ledsettings.backlight_brightness_percent) / 100
+                backlight_color = (
+                    int(ledsettings.get_backlight_color("Red")) * backlight_level,
+                    int(ledsettings.get_backlight_color("Green")) * backlight_level,
+                    int(ledsettings.get_backlight_color("Blue")) * backlight_level,
+                )
+            return backlight_color
+
+        for n, strength in enumerate(keylist):
             if strength <= 0:
                 continue
             active_leds += 1
 
-            if type(self.ledstrip.keylist_color[n]) is list:
-                red = self.ledstrip.keylist_color[n][0]
-                green = self.ledstrip.keylist_color[n][1]
-                blue = self.ledstrip.keylist_color[n][2]
+            if type(keylist_color[n]) is list:
+                red = keylist_color[n][0]
+                green = keylist_color[n][1]
+                blue = keylist_color[n][2]
             else:
                 red, green, blue = (0, 0, 0)
 
             led_changed = False
-            new_color = self.color_mode.ColorUpdate(None, n, (red, green, blue))
+            new_color = color_update(None, n, (red, green, blue))
             if new_color is not None:
                 red, green, blue = new_color
                 led_changed = True
 
             fading = 1
 
-            if self.ledsettings.mode == "Velocity" or self.ledsettings.mode == "Pedal" or (
-                    self.ledsettings.mode == "Fading" and self.ledstrip.keylist_status[n] == 0):
+            if mode == "Velocity" or mode == "Pedal" or (
+                    mode == "Fading" and keylist_status[n] == 0):
                 fading = (strength / float(100)) / 10
                 red = int(red * fading)
                 green = int(green * fading)
                 blue = int(blue * fading)
 
-                # Use mode-specific speed
-                if self.ledsettings.mode == "Fading":
-                    speed = self.ledsettings.fadingspeed
-                elif self.ledsettings.mode == "Velocity":
-                    speed = self.ledsettings.velocity_speed
-                elif self.ledsettings.mode == "Pedal":
-                    speed = self.ledsettings.pedal_speed
-                else:
-                    speed = self.ledsettings.fadingspeed
-
                 decrease_amount = int((event_loop_time / float(speed / 1000)) * 1000)
-                self.ledstrip.keylist[n] = max(0, self.ledstrip.keylist[n] - decrease_amount)
+                keylist[n] = max(0, keylist[n] - decrease_amount)
                 led_changed = True
 
-            if self.ledsettings.mode == "Velocity" or self.ledsettings.mode == "Pedal":
+            if mode == "Velocity" or mode == "Pedal":
                 # Check if key is pressed or sustained
-                key_active = self.ledstrip.keylist_status[n] == 1 or self.ledstrip.keylist_sustained[n] == 1
+                key_active = keylist_status[n] == 1 or keylist_sustained[n] == 1
                 
-                if int(self.last_sustain) >= self.pedal_deadzone and not key_active:
+                if int(sustain_value) >= self.pedal_deadzone and not key_active:
                     # Keep the lights on when the pedal is pressed and key was released
-                    self.ledstrip.keylist[n] = 1000
+                    keylist[n] = 1000
                     led_changed = True
-                elif int(self.last_sustain) < self.pedal_deadzone and self.ledstrip.keylist_status[n] == 0 and self.ledstrip.keylist_sustained[n] == 0:
+                elif int(sustain_value) < self.pedal_deadzone and keylist_status[n] == 0 and keylist_sustained[n] == 0:
                     # Turn off if pedal is not pressed and key is not active or sustained
-                    self.ledstrip.keylist[n] = 0
+                    keylist[n] = 0
                     red, green, blue = (0, 0, 0)
                     led_changed = True
 
-            if self.ledstrip.keylist[n] <= 0 and self.menu.screensaver_is_running is not True:
-                backlight_level = float(self.ledsettings.backlight_brightness_percent) / 100
-                red = int(self.ledsettings.get_backlight_color("Red")) * backlight_level
-                green = int(self.ledsettings.get_backlight_color("Green")) * backlight_level
-                blue = int(self.ledsettings.get_backlight_color("Blue")) * backlight_level
+            if keylist[n] <= 0 and screensaver_is_running is not True:
+                red, green, blue = get_backlight_color()
                 led_changed = True
 
             if led_changed:
-                self.ledstrip.strip.setPixelColor(n, Color(int(red), int(green), int(blue)))
-                self.ledstrip.set_adjacent_colors(n, Color(int(red), int(green), int(blue)), False, fading)
+                color = Color(int(red), int(green), int(blue))
+                set_pixel_color(n, color)
+                set_adjacent_colors(n, color, False, fading)
                 any_led_changed = True
         
-        if self.ledsettings.mode == "Pulse":
+        if mode == "Pulse":
             if self.process_pulse_effects():
                 any_led_changed = True
 
         if self.runtime_diagnostics is not None:
             self.runtime_diagnostics.set_gauge("active_leds_last", active_leds)
-            self.runtime_diagnostics.set_gauge("active_pulses_last", len(self.ledstrip.active_pulses))
+            self.runtime_diagnostics.set_gauge("active_pulses_last", len(ledstrip.active_pulses))
 
         return any_led_changed
 
@@ -100,6 +122,7 @@ class LEDEffectsProcessor:
 
         current_time = time.perf_counter()
         pulses_to_remove = []
+        surviving_pulses = []
         leds_to_update = {}
         
         max_dist = self.ledsettings.pulse_animation_distance
@@ -146,9 +169,11 @@ class LEDEffectsProcessor:
                 if release_progress >= 1.0:
                     pulses_to_remove.append(pulse)
                     continue
-                    
+
                 # Linear expansion of the "hole"
                 current_inner_radius = release_progress * max_dist
+
+            surviving_pulses.append(pulse)
             
             # Flicker (Sustain Phase)
             # If fully expanded and not yet in release (or early release), add flicker
@@ -208,12 +233,12 @@ class LEDEffectsProcessor:
             final_r = min(255, int(color[0] + br))
             final_g = min(255, int(color[1] + bg))
             final_b = min(255, int(color[2] + bb))
-            
-            self.ledstrip.strip.setPixelColor(i, Color(final_r, final_g, final_b))
-            self.ledstrip.set_adjacent_colors(i, Color(final_r, final_g, final_b), False)
 
-        for p in pulses_to_remove:
-            if p in self.ledstrip.active_pulses:
-                self.ledstrip.active_pulses.remove(p)
+            pixel_color = Color(final_r, final_g, final_b)
+            self.ledstrip.strip.setPixelColor(i, pixel_color)
+            self.ledstrip.set_adjacent_colors(i, pixel_color, False)
+
+        if pulses_to_remove:
+            self.ledstrip.active_pulses = surviving_pulses
 
         return True

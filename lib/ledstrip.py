@@ -15,6 +15,8 @@ class LedStrip:
         self.leds_per_meter = int(self.usersettings.get_setting_value("leds_per_meter"))
         self.shift = int(self.usersettings.get_setting_value("shift"))
         self.reverse = int(self.usersettings.get_setting_value("reverse"))
+        self._note_position_cache_key = None
+        self._note_position_cache = {}
 
         self.brightness = 255 * self.brightness_percent / 100
         self.led_gamma = float(usersettings.get_setting_value("led_gamma"))
@@ -81,6 +83,46 @@ class LedStrip:
                 self.driver = "emu"
         elif self.driver == "emu":
             self.strip = PixelStrip_Emu(int(self.led_number))
+
+    def _note_position_state_key(self, ledsettings):
+        note_offsets = tuple(tuple(offset) for offset in ledsettings.note_offsets)
+        return (
+            self.shift,
+            self.reverse,
+            self.led_number,
+            self.leds_per_meter,
+            note_offsets,
+        )
+
+    def get_note_position(self, note, ledsettings):
+        cache_key = self._note_position_state_key(ledsettings)
+        if getattr(self, "_note_position_cache_key", None) != cache_key:
+            self._note_position_cache_key = cache_key
+            self._note_position_cache = {}
+
+        cache = self._note_position_cache
+        if note in cache:
+            return cache[note]
+
+        note_offsets = cache_key[4]
+        note_offset = 0
+
+        for threshold, offset in note_offsets:
+            if note > threshold:
+                note_offset += offset
+
+        note_offset -= self.shift
+
+        density = self.leds_per_meter / 72
+        note_pos_raw = int(density * (note - 20) - note_offset)
+
+        if self.reverse:
+            note_position = max(0, self.led_number - note_pos_raw)
+        else:
+            note_position = max(0, note_pos_raw)
+
+        cache[note] = note_position
+        return note_position
 
 
     def change_gamma(self, value):

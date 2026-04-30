@@ -132,7 +132,12 @@ def gradient_to_cmaplut(gradient, gamma=1, entries=256, int_table=True):
         return [(x[0], x[1], x[2]) for x in table.T]
 
 
-def update_colormap(name, gamma):
+def set_current_gamma(gamma):
+    global _current_gamma
+    _current_gamma = gamma
+
+
+def update_colormap(name, gamma, update_current_gamma=True):
     """Generate a colormap from its gradient. Thread-safe."""
     global colormaps, colormaps_preview, gradients, _current_gamma
 
@@ -145,7 +150,8 @@ def update_colormap(name, gamma):
             # Store directly in the underlying dict
             dict.__setitem__(colormaps, name, gradient_to_cmaplut(gradients[name], gamma))
             colormaps_preview[name] = gradient_to_cmaplut(gradients[name], 2.2, 64)
-            _current_gamma = gamma
+            if update_current_gamma:
+                _current_gamma = gamma
     except Exception as e:
         logger.warning(f"Loading colormap {name} failed: {e}")
 
@@ -297,4 +303,4 @@ def update_multicolor(multicolor_range, multicolor):
         # default to some error color
         gradients["^Multicolor"] = [(15, 5, 5)]
 
-    update_colormap("^Multicolor", 1)
+    update_colormap("^Multicolor", 1, update_current_gamma=False)

@@ -1,8 +1,9 @@
 import time
+import inspect
 
 from rpi_ws281x import Color
 
-from lib.functions import get_note_position, find_between
+from lib.functions import get_note_position
 from lib.log_setup import logger
 
 # Import app_state to check practice_active flag
@@ -33,6 +34,7 @@ class MIDIEventProcessor:
         self.color_mode = color_mode
         self.state_manager = state_manager
         self.last_sustain = 0  # Track sustain pedal state
+        self._state_manager_accepts_midi_activity_time = None
         # Time tracking for sequence advancement to prevent rapid triggering
         self.last_sequence_advance = 0
 
@@ -68,7 +70,8 @@ class MIDIEventProcessor:
         handle_note_off = self.handle_note_off
         handle_note_on = self.handle_note_on
         handle_control_change = self.handle_control_change
-        get_position = get_note_position
+        fallback_get_position = get_note_position
+        ledstrip_get_position = getattr(ledstrip, "get_note_position", None)
         led_count = ledstrip.led_number
 
         # Process a bounded slice per frame to avoid jitter while preserving FIFO order.
@@ -83,16 +86,20 @@ class MIDIEventProcessor:
                 except Exception as e:
                     logger.warning(f"[process midi events] Unexpected exception occurred: {e}")
 
-            midiports.last_activity = time.time()
+            current_time = time.time()
+            midiports.last_activity = current_time
             # Update state manager for MIDI activity
             if self.state_manager:
-                self.state_manager.update_midi_activity()
+                self._update_midi_activity(current_time)
 
             msg_type = getattr(msg, "type", None)
             velocity = getattr(msg, "velocity", 0)
 
             if ledsettings.mode != "Disabled" and msg_type in ("note_on", "note_off"):
-                note_position = get_position(msg.note, ledstrip, ledsettings)
+                if callable(ledstrip_get_position):
+                    note_position = ledstrip_get_position(msg.note, ledsettings)
+                else:
+                    note_position = fallback_get_position(msg.note, ledstrip, ledsettings)
                 if 0 <= note_position < led_count:
                     if msg_type == "note_off" or velocity == 0:
                         handle_note_off(msg, msg_timestamp, note_position)
@@ -145,6 +152,40 @@ class MIDIEventProcessor:
             diagnostics.set_gauge("midi_queue_depth_after", len(midipending))
         self.midiports.refresh_queue_diagnostics()
         return processed > 0
+
+    def _update_midi_activity(self, current_time):
+        accepts_current_time = self._state_manager_accepts_midi_activity_time
+        if accepts_current_time is None:
+            accepts_current_time = self._state_manager_update_accepts_current_time()
+            self._state_manager_accepts_midi_activity_time = accepts_current_time
+
+        if accepts_current_time:
+            self.state_manager.update_midi_activity(current_time)
+        else:
+            self.state_manager.update_midi_activity()
+
+    def _state_manager_update_accepts_current_time(self):
+        try:
+            signature = inspect.signature(self.state_manager.update_midi_activity)
+        except (AttributeError, TypeError, ValueError):
+            return False
+
+        for parameter in signature.parameters.values():
+            if parameter.kind in (
+                inspect.Parameter.POSITIONAL_ONLY,
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                inspect.Parameter.VAR_POSITIONAL,
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def _is_external_software_channel(msg):
+        return getattr(msg, "channel", None) in (11, 12, "11", "12")
+
+    @staticmethod
+    def _is_right_hand_channel(msg):
+        return getattr(msg, "channel", None) in (12, "12")
     
     def handle_note_off(self, msg, msg_timestamp, note_position):
         """
@@ -157,17 +198,12 @@ class MIDIEventProcessor:
             msg_timestamp: Timestamp when the message was received
             note_position: Position on the LED strip corresponding to the note
         """
-        # Extract channel from message to check if it's from external software
-        channel = find_between(str(msg), "channel=", " ")
-        # Strip trailing commas (mido message format: "channel=12, note=60...")
-        channel = channel.rstrip(',') if channel else False
-        
         # Clear external software tracking flag if external software turns off the LED
         # Allow local piano input to also turn off LEDs even if they were lit by external software
         # This is essential for learning mode where Synthesia lights the LED (channels 11/12)
         # but the user's piano (channel 0) should be able to turn it off
         if self.ledstrip.keylist_external_software[note_position] == 1:
-            if channel == "12" or channel == "11":
+            if self._is_external_software_channel(msg):
                 # External software is turning off the LED - clear tracking
                 self.ledstrip.keylist_external_software[note_position] = 0
         
@@ -271,15 +307,12 @@ class MIDIEventProcessor:
             self.ledstrip.keylist[note_position] = 0  # Pulse handles lighting
 
         # Handle special channels for hand coloring (channels 11 and 12)
-        channel = find_between(str(msg), "channel=", " ")
-        # Strip trailing commas (mido message format: "channel=12, note=60...")
-        channel = channel.rstrip(',') if channel else False
-        if channel == "12" or channel == "11":
+        if self._is_external_software_channel(msg):
             # Mark this LED as externally controlled by external software
             self.ledstrip.keylist_external_software[note_position] = 1
             if self.ledsettings.skipped_notes != "Finger-based":
                 # Apply right hand or left hand color
-                if channel == "12":
+                if self._is_right_hand_channel(msg):
                     hand_color = self.learning.hand_colorR
                 else:
                     hand_color = self.learning.hand_colorL
@@ -326,6 +359,7 @@ class MIDIEventProcessor:
         # Track sustain pedal state (MIDI CC 64)
         if control == 64:  # Sustain pedal
             self.last_sustain = value
+            self.ledstrip.sustain_value = value
             
             # Handle sustain pedal release - clear all sustained notes
             pedal_deadzone = 10  # Standard MIDI deadzone for sustain pedal

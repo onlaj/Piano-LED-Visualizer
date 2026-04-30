@@ -2,6 +2,7 @@
 
 import sys
 import unittest
+from unittest.mock import patch
 
 sys.path.append("./")
 sys.path.append("../")
@@ -24,6 +25,16 @@ class TestStateManager(unittest.TestCase):
         normal_delay = manager.get_loop_delay()
 
         self.assertLess(active_delay, normal_delay)
+
+    def test_update_midi_activity_uses_supplied_timestamp_without_time_lookup(self):
+        manager = StateManager(FakeUserSettings())
+        supplied_time = 1234.5
+
+        with patch("lib.state_manager.time.time", side_effect=AssertionError("time.time should not be called")):
+            manager.update_midi_activity(current_time=supplied_time)
+
+        self.assertEqual(manager.last_midi_activity, supplied_time)
+        self.assertEqual(manager.last_user_activity, supplied_time)
 
 
 if __name__ == "__main__":

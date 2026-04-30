@@ -80,11 +80,16 @@ class StateManager:
             self.screen_off_delay = 3600      # 60 minutes
             self.screensaver_delay = 600      # 10 minutes
     
-    def update_midi_activity(self):
+    def update_midi_activity(self, current_time=None):
         """Called when MIDI message is received"""
-        self.last_midi_activity = time.time()
-        # MIDI activity also counts as general activity
-        self.last_user_activity = time.time()
+        if current_time is None:
+            self.last_midi_activity = time.time()
+            # MIDI activity also counts as general activity
+            self.last_user_activity = time.time()
+            return
+
+        self.last_midi_activity = current_time
+        self.last_user_activity = current_time
     
     def update_user_activity(self):
         """Called when user interacts (web, buttons)"""
