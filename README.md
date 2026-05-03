@@ -180,7 +180,7 @@ If for some reasons it does not work try to remove whole project and clone it ag
 
 `sudo rm -rf Piano-LED-Visualizer`
 
-`sudo git clone https://github.com/onlaj/Piano-LED-Visualizer`
+`sudo git clone https://github.com/GoulagmanYt/Piano-LED-Visualizer`
 
 
 ![Image](https://i.imgur.com/9MgNUl5.jpg?1)

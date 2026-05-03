@@ -25,7 +25,7 @@ If you are not able to connect your monitor, mouse and keyboard to RPi you can c
 
 Run installation script:
 
-`sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/autoinstall.sh)"`
+`sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/GoulagmanYt/Piano-LED-Visualizer/master/autoinstall.sh)"`
 
 **or follow those steps:**
  
@@ -99,7 +99,7 @@ We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://githu
 
 - GIT clone repository
 
-`sudo git clone https://github.com/onlaj/Piano-LED-Visualizer`
+`sudo git clone https://github.com/GoulagmanYt/Piano-LED-Visualizer`
 
 `cd Piano-LED-Visualizer`
 - Install required libraries
