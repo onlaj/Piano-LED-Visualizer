@@ -1,11 +1,13 @@
-# <a href="url"><img src="https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/Docs/logo.svg" align="left" height="40" width="40" ></a> Piano LED Visualizer
-### <a style="color:inherit;margin-left:10px;" href="https://discord.gg/kQyABw8GCD"><img src="https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/Docs/discord-logo.svg" align="left" height="25" width="25">Join Discord</a>
+# <a href="url"><img src="https://raw.githubusercontent.com/GoulagmanYt/Piano-LED-Visualizer/master/Docs/logo.svg" align="left" height="40" width="40" ></a> Piano LED Visualizer
+### <a style="color:inherit;margin-left:10px;" href="https://discord.gg/kQyABw8GCD"><img src="https://raw.githubusercontent.com/GoulagmanYt/Piano-LED-Visualizer/master/Docs/discord-logo.svg" align="left" height="25" width="25">Join Discord</a>
 
-## [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/onlaj)
+## [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/GoulagmanYt/Piano-LED-Visualizer)
 
 [![Everything Is AWESOME](https://i.imgur.com/AEGVXs2.png)](https://www.youtube.com/watch?v=t6PyMeW4dmw "Piano LED Visualizer")
 
 The Piano LED Visualizer is a project that enables you to connect an LED strip to your Raspberry Pi and enhance your piano playing with captivating visual effects. This repository provides detailed instructions on how to set up the LED strip, connect it to a digital piano, and synchronize the lighting with your playing. Additionally, it offers integration with external software such as Synthesia for an enhanced learning experience.
+
+This fork is based on the original Piano LED Visualizer project by [Onlaj](https://github.com/onlaj/Piano-LED-Visualizer).
 # Features
 
 - Visual Effects: Acts as a sound visualizer, making your piano playing look cool with lights that react to your music.
@@ -28,7 +30,7 @@ The Piano LED Visualizer is a project that enables you to connect an LED strip t
 
 - Cool Animations: Enjoy light animations to add atmosphere to your music.
 
-## [Detailed feature showcase with images](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/features.md)
+## [Detailed feature showcase with images](https://github.com/GoulagmanYt/Piano-LED-Visualizer/blob/master/Docs/features.md)
 
 # What you need:
 
@@ -48,7 +50,7 @@ The Piano LED Visualizer is a project that enables you to connect an LED strip t
 
 **Not required but worth having, to make everything look neat:**
 
-  - Custom 3d printed case (*I attached [STL file](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/RPICaseModel.stl) with modified 3d model, there is additional space and holes for power socket and wires, [here](https://www.thingiverse.com/thing:3393553) is original model*). Optionally you can use models without a holes for screen, hdmi and sd port, provided by [fermaton](https://github.com/fermaton)
+  - Custom 3d printed case (*I attached [STL file](https://github.com/GoulagmanYt/Piano-LED-Visualizer/blob/master/Docs/RPICaseModel.stl) with modified 3d model, there is additional space and holes for power socket and wires, [here](https://www.thingiverse.com/thing:3393553) is original model*). Optionally you can use models without a holes for screen, hdmi and sd port, provided by [fermaton](https://github.com/fermaton)
   - Nylon standoffs M2.5 10mm [Amazon US](https://amzn.to/3Ku1Lma) | [Aliexpress](https://s.click.aliexpress.com/e/_DkrBqaX)
   - Screws M2.5 10mm [Amazon US](https://amzn.to/47iQv5P) | [Aliexpress](https://s.click.aliexpress.com/e/_DmAzsqB)
   - Waveshare LCD TFT 1,44'' 128x128px [Amazon US](https://amzn.to/2YkW5nC) | [Aliexpress](http://s.click.aliexpress.com/e/cpk00blQ)
@@ -58,7 +60,7 @@ The Piano LED Visualizer is a project that enables you to connect an LED strip t
   Alternative made of silica gel: [Aliexpress](https://s.click.aliexpress.com/e/_A0HNfF)  *(choose T0515 for 12mm 2 meters, credits to [vzoltan](https://github.com/vzoltan) for finding this)*
   - Double side tape to stick everything on the piano
   - Windows 10 laptop/tablet with bluetooth to run Synthesia
-  - magnetic or mechanical switch to detect if the keyboard cover is opened or closed, if your piano has one (see [Instructions](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/cover_detection.md))
+  - magnetic or mechanical switch to detect if the keyboard cover is opened or closed, if your piano has one (see [Instructions](https://github.com/GoulagmanYt/Piano-LED-Visualizer/blob/master/Docs/cover_detection.md))
 
   *For items like screws, standoffs, and wires, look at local hardware stores to avoid buying in bulk.*
 
@@ -81,10 +83,10 @@ The Raspberry Pi sets up a Wi-Fi hotspot named 'PianoLEDVisualizer' with the pas
 Once connected, open your browser and go to "pianoledvisualizer.local" to access the web interface. 
 Use the "Network" tab there to link the Raspberry Pi to your regular network.
 
-You can also connect Raspberry Pi to your network [manually](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
+You can also connect Raspberry Pi to your network [manually](https://github.com/GoulagmanYt/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
 
 ### 2. **Manual installation**
-[Instructions](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
+[Instructions](https://github.com/GoulagmanYt/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
 
 ## Connecting LED Strip to Raspberry Pi
 There is no point to reinvent the wheel again, so here is a nice [diagram](https://web.archive.org/web/20230319222537/https://tutorials-raspberrypi.com/wp-content/uploads/2017/03/Raspberry-Pi-WS2812-Steckplatine.png).
@@ -103,7 +105,7 @@ Optionally, you can connect a switch to BCM pin 12 and GND. Attach the switch to
 If you are wondering how to connect wires to RPI if screen hat is taking all pins here is a [picture](https://i.imgur.com/7KhwM7r.jpg) of how I did it. There should be a gap between RPI and screen so you can solder your wires or just wrap cables around the pins and separate them with heat shrink bands.
 
 After connecting all cables as described above everything should fit nicely to case. Scroll down to see some photos of the setup I made
-If you don't have a 3d printer, try to find some company or private person who will print it for you. I paid 12USD for my print. [RPICaseModel.stl](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/RPICaseModel.stl "RPICaseModel.stl")
+If you don't have a 3d printer, try to find some company or private person who will print it for you. I paid 12USD for my print. [RPICaseModel.stl](https://github.com/GoulagmanYt/Piano-LED-Visualizer/blob/master/Docs/RPICaseModel.stl "RPICaseModel.stl")
 
 ## Web interface
 The visualizer comes with a web interface with which you can control the colors of the LED strip, change port settings, run animations of the strip, control sequences and manage midi files, including downloading, uploading, renaming, deleting, and playing.

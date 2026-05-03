@@ -21,7 +21,7 @@ This configuration will make it easier to connect to your Raspberry Pi using SSH
 
 Install [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/) on your SD card.
 
-If you are not able to connect your monitor, mouse and keyboard to RPi you can connect to it using SSH over [Wi-Fi](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
+If you are not able to connect your monitor, mouse and keyboard to RPi you can connect to it using SSH over [Wi-Fi](https://github.com/GoulagmanYt/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
 
 Run installation script:
 
