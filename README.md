@@ -8,14 +8,14 @@
 The Piano LED Visualizer is a project that enables you to connect an LED strip to your Raspberry Pi and enhance your piano playing with captivating visual effects. This repository provides detailed instructions on how to set up the LED strip, connect it to a digital piano, and synchronize the lighting with your playing. Additionally, it offers integration with external software such as Synthesia for an enhanced learning experience.
 
 This fork is based on the original Piano LED Visualizer project by [Onlaj](https://github.com/onlaj/Piano-LED-Visualizer).
-This version is optimized for OSCMidi-based RTP-MIDI setups, with stability and reconnection improvements for low-latency playback.
+This version is optimized for [OSCMidi](https://github.com/GoulagmanYt/RTP-OSC-Midi-tool)-based RTP-MIDI setups, with stability and reconnection improvements for low-latency playback.
 # Features
 
 - Visual Effects: Acts as a sound visualizer, making your piano playing look cool with lights that react to your music.
 
 - Learning: Lights above the keys show you which ones to play, helping you learn piano.
 
-- MIDI Integration: Supports external software like Synthesia and is optimized for OSCMidi RTP-MIDI routing.
+- MIDI Integration: Supports external software like Synthesia and is optimized for [OSCMidi RTP-MIDI routing](https://github.com/GoulagmanYt/RTP-OSC-Midi-tool).
 
 - Customizable Lights: You can change the colors and brightness of the lights to fit your style.
 
