@@ -20,6 +20,8 @@ The script applies:
 
 ## Expected RTP-MIDI setup with oscMIDI
 
+This fork is optimized for OSCMidi-based RTP-MIDI routing and keeps the session name stable for reliable reconnection.
+
 - `oscMIDI` session name should stay fixed, for example `OSCMidiRobin64!`
 - `oscMIDI` should keep RTP control/data on `5004/5005`
 - PLV `play_port` should resolve to the real session port, never `rtpmidid:Network Export` or `rtpmidid:Announcements`
