@@ -32,6 +32,8 @@ def restart_script():
 
 class VisualizerApp:
     def __init__(self):
+        self.ci = None
+        self.component_initializer = None
         signal.signal(signal.SIGTERM, self.handle_shutdown)
         signal.signal(signal.SIGINT, self.handle_shutdown)
         self.fh = None
@@ -130,10 +132,14 @@ class VisualizerApp:
         return result
 
     def handle_shutdown(self, signum, frame):
-        # Turn off all LEDs before shutting down
-        stop_animations(self.ci.menu)
-        fastColorWipe(self.ci.ledstrip.strip, True, self.ci.ledsettings)
-        sys.exit(0)
+        ci = getattr(self, "ci", None)
+        if ci is not None:
+            try:
+                stop_animations(ci.menu)
+                fastColorWipe(ci.ledstrip.strip, True, ci.ledsettings)
+            except Exception as error:
+                logger.warning(f"[shutdown] Could not clear LEDs cleanly: {error}")
+        os._exit(0)
     
     def ensure_singleton(self):
         self.fh = open(os.path.realpath(__file__), 'r')

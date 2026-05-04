@@ -365,11 +365,13 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings, state_manager=No
     if menu.screensaver_settings["local_ip"] == "1":
         local_ip = get_ip_address()
 
-    try:
-        midiports.inport.poll()
-    except Exception as e:
-        menu.render_message("Error while getting ports", "", 2000)
-        logger.warning("Error while getting ports " + str(e))
+    inport = getattr(midiports, "inport", None)
+    if inport is not None:
+        try:
+            inport.poll()
+        except Exception as e:
+            menu.render_message("Error while getting ports", "", 2000)
+            logger.warning("Error while getting ports " + str(e))
 
     while True:
         manage_idle_animation(ledstrip, ledsettings, menu, midiports, state_manager)
