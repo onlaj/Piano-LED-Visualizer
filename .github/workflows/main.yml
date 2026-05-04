@@ -27,6 +27,7 @@ jobs:
         dd if=/dev/zero bs=1G count=1 >> raspi.img
         sudo losetup -fP raspi.img
         LOOPDEV=$(sudo losetup -j raspi.img | cut -d: -f1)
+        echo "LOOPDEV=$LOOPDEV" >> "$GITHUB_ENV"
         sudo parted $LOOPDEV resizepart 2 100%
         sudo e2fsck -y -f ${LOOPDEV}p2  # Added "-y" for auto-repair
         
@@ -42,11 +43,13 @@ jobs:
       run: |
         # Set hostname
         echo "pianoledvisualizer" | sudo tee rootfs/etc/hostname
-        sudo sed -i 's/raspberrypi/pianoledvisualizer.local/g' rootfs/etc/hosts
+        sudo sed -i -E 's/^(127\.0\.1\.1\s+).*/\1pianoledvisualizer/' rootfs/etc/hosts
 
         # Create user
-        sudo chroot rootfs useradd -m -G sudo -s /bin/bash plv
+        sudo chroot rootfs useradd -m -G sudo,audio,video,input,render,plugdev,dialout,netdev,spi,i2c,gpio -s /bin/bash plv
         echo "plv:visualizer" | sudo chroot rootfs chpasswd
+        echo "plv ALL=(ALL) NOPASSWD: ALL" | sudo tee rootfs/etc/sudoers.d/010_pi-nopasswd
+        sudo chmod 0440 rootfs/etc/sudoers.d/010_pi-nopasswd
 
         # Remove pi user
         sudo chroot rootfs userdel -r pi
@@ -66,8 +69,8 @@ jobs:
             libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev \
             libical-dev libreadline-dev fonts-freefont-ttf \
             libopenjp2-7 libtiff6 libjack0 libjack-dev autoconf \
-            libtool make gcc build-essential scons swig abcmidi && \
-          systemctl mask ssh switch-root.service && \
+            libtool make gcc build-essential scons swig abcmidi iw && \
+          systemctl enable ssh && \
           apt-get clean && \
           rm -rf /var/lib/apt/lists/*"
 
@@ -97,8 +100,11 @@ jobs:
     - name: Install Piano LED Visualizer
       run: |
         sudo chroot rootfs /bin/bash -c " \
-          git clone https://github.com/onlaj/Piano-LED-Visualizer /home/plv/Piano-LED-Visualizer && \
-          pip3 install -r /home/plv/Piano-LED-Visualizer/requirements.txt"
+          git clone --branch master https://github.com/GoulagmanYt/Piano-LED-Visualizer.git /home/Piano-LED-Visualizer && \
+          git -C /home/Piano-LED-Visualizer config --local pull.ff only && \
+          git -C /home/Piano-LED-Visualizer config --local core.filemode false && \
+          chown -R plv:plv /home/Piano-LED-Visualizer && \
+          pip3 install -r /home/Piano-LED-Visualizer/requirements.txt --break-system-packages"
 
         # Configure service
         echo "[Unit]
@@ -110,13 +116,96 @@ jobs:
         WantedBy=multi-user.target
         
         [Service]
-        ExecStart=sudo python3 /home/plv/Piano-LED-Visualizer/visualizer.py
+        WorkingDirectory=/home/Piano-LED-Visualizer/
+        ExecStart=/usr/bin/python3 /home/Piano-LED-Visualizer/visualizer.py
         Restart=always
         Type=simple
-        User=plv
-        Group=plv" | sudo tee rootfs/etc/systemd/system/visualizer.service
+        User=root
+        Group=root" | sudo tee rootfs/etc/systemd/system/visualizer.service
+
+        sudo mkdir -p rootfs/etc/systemd/system/rtpmidid.service.d
+        cat <<'EOF' | sudo tee rootfs/etc/systemd/system/rtpmidid.service.d/override.conf
+        [Unit]
+        After=network-online.target
+        Wants=network-online.target
+
+        [Service]
+        Restart=always
+        RestartSec=2
+        EOF
+
+        sudo mkdir -p rootfs/etc/NetworkManager/conf.d
+        cat <<'EOF' | sudo tee rootfs/etc/NetworkManager/conf.d/30-wifi-powersave-off.conf
+        [connection]
+        wifi.powersave=2
+        EOF
+
+        cat <<'EOF' | sudo tee rootfs/usr/local/sbin/plv-lowlatency-apply.sh
+        #!/usr/bin/env bash
+        set -u
+
+        for governor in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+          [ -e "$governor" ] || continue
+          if grep -qw performance "$(dirname "$governor")/scaling_available_governors" 2>/dev/null; then
+            echo performance > "$governor" 2>/dev/null || true
+          fi
+        done
+
+        if command -v iw >/dev/null 2>&1; then
+          for iface in $(iw dev 2>/dev/null | awk '$1 == "Interface" {print $2}'); do
+            iw dev "$iface" set power_save off 2>/dev/null || true
+          done
+        fi
+
+        if command -v vcgencmd >/dev/null 2>&1; then
+          vcgencmd get_throttled || true
+        fi
+        EOF
+        sudo chmod 0755 rootfs/usr/local/sbin/plv-lowlatency-apply.sh
+
+        cat <<'EOF' | sudo tee rootfs/etc/systemd/system/plv-lowlatency.service
+        [Unit]
+        Description=Piano LED Visualizer low-latency tuning
+        After=NetworkManager.service wpa_supplicant.service
+        Before=visualizer.service
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/sbin/plv-lowlatency-apply.sh
+        RemainAfterExit=yes
+
+        [Install]
+        WantedBy=multi-user.target
+        EOF
+
+        sudo mkdir -p rootfs/etc/systemd/system/visualizer.service.d
+        cat <<'EOF' | sudo tee rootfs/etc/systemd/system/visualizer.service.d/override.conf
+        [Unit]
+        After=network-online.target plv-lowlatency.service
+        Wants=network-online.target plv-lowlatency.service
+
+        [Service]
+        WorkingDirectory=/home/Piano-LED-Visualizer/
+        ExecStart=
+        ExecStart=/usr/bin/python3 /home/Piano-LED-Visualizer/visualizer.py
+        Restart=always
+        RestartSec=1
+        User=root
+        Group=root
+        SupplementaryGroups=audio gpio spi i2c video input render
+        UMask=0002
+        Nice=-10
+        IOSchedulingClass=realtime
+        IOSchedulingPriority=0
+        CPUSchedulingPolicy=rr
+        CPUSchedulingPriority=5
+        LimitRTPRIO=10
+        LimitNICE=-10
+        LimitMEMLOCK=64M
+        EOF
 
         sudo chroot rootfs systemctl enable visualizer.service
+        sudo chroot rootfs systemctl enable plv-lowlatency.service
 
     - name: Clean up
       run: |

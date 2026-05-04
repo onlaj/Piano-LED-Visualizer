@@ -1,5 +1,12 @@
 #!/bin/bash
 
+REPO_URL="https://github.com/GoulagmanYt/Piano-LED-Visualizer.git"
+REPO_BRANCH="master"
+APP_DIR="/home/Piano-LED-Visualizer"
+PLV_USER="plv"
+PLV_PASSWORD="visualizer"
+PLV_HOSTNAME="pianoledvisualizer"
+
 # Function to display error message and exit
 display_error() {
   echo "Error: $1" >&2
@@ -42,6 +49,7 @@ execute_command() {
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then
       echo "Command failed with exit code $exit_code."
+      exit $exit_code
     fi
   fi
 }
@@ -52,6 +60,35 @@ execute_command() {
 update_os() {
   execute_command "sudo apt-get update" "check_internet"
   execute_command "sudo apt-get upgrade -y"
+}
+
+configure_pi_identity() {
+  local user_groups="sudo"
+  for group in audio video input render plugdev dialout netdev spi i2c gpio; do
+    if getent group "$group" >/dev/null 2>&1; then
+      user_groups="${user_groups},${group}"
+    fi
+  done
+
+  execute_command "sudo hostnamectl set-hostname ${PLV_HOSTNAME}"
+  execute_command "sudo sed -i -E 's/^(127\\.0\\.1\\.1\\s+).*/\\1${PLV_HOSTNAME}/' /etc/hosts"
+  if ! getent hosts "${PLV_HOSTNAME}" >/dev/null 2>&1; then
+    echo "127.0.1.1 ${PLV_HOSTNAME}" | sudo tee -a /etc/hosts >/dev/null
+  fi
+
+  if ! id -u "${PLV_USER}" >/dev/null 2>&1; then
+    execute_command "sudo useradd -m -s /bin/bash -G ${user_groups} ${PLV_USER}"
+  fi
+
+  echo "${PLV_USER}:${PLV_PASSWORD}" | sudo chpasswd
+  execute_command "sudo usermod -aG ${user_groups} ${PLV_USER}"
+  echo "${PLV_USER} ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/010_pi-nopasswd >/dev/null
+  execute_command "sudo chmod 0440 /etc/sudoers.d/010_pi-nopasswd"
+
+  if systemctl list-unit-files ssh.service --no-legend 2>/dev/null | grep -q '^ssh\.service'; then
+    execute_command "sudo systemctl enable ssh.service"
+    execute_command "sudo systemctl start ssh.service"
+  fi
 }
 
 # Function to create and configure the autoconnect script
@@ -114,13 +151,17 @@ enable_spi_interface() {
 
 # Function to install required packages
 install_packages() {
-  execute_command "sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2 libavahi-client3 libavahi-common3 libc6 libfmt9 libgcc-s1 libstdc++6 python3 libopenblas-dev libavahi-client-dev libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libatlas-base-dev libopenjp2-7 libtiff6 libjack0 libjack-dev fonts-freefont-ttf gcc make build-essential scons swig abcmidi" "check_internet"
+  execute_command "sudo apt-get install -y ruby git wget iw python3-pip autotools-dev libtool autoconf libasound2 libavahi-client3 libavahi-common3 libc6 libfmt9 libgcc-s1 libstdc++6 python3 libopenblas-dev libavahi-client-dev libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libatlas-base-dev libopenjp2-7 libtiff6 libjack0 libjack-dev fonts-freefont-ttf gcc make build-essential scons swig abcmidi" "check_internet"
 }
 
 # Function to disable audio output
 disable_audio_output() {
   echo 'blacklist snd_bcm2835' | sudo tee -a /etc/modprobe.d/snd-blacklist.conf > /dev/null
-  sudo sed -i 's/dtparam=audio=on/#dtparam=audio=on/' /boot/config.txt
+  local boot_config="/boot/firmware/config.txt"
+  if [ ! -f "$boot_config" ]; then
+    boot_config="/boot/config.txt"
+  fi
+  sudo sed -i 's/^dtparam=audio=on/#dtparam=audio=on/' "$boot_config"
 }
 
 # Function to install RTP-midi server
@@ -128,19 +169,29 @@ install_rtpmidi_server() {
   execute_command "cd /home/"
   execute_command "sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v24.12/rtpmidid_24.12.2_armhf.deb" "check_internet"
   execute_command "sudo dpkg -i rtpmidid_24.12.2_armhf.deb"
-  execute_command "sudo apt -f install"
+  execute_command "sudo apt -f install -y"
   execute_command "rm rtpmidid_24.12.2_armhf.deb"
 }
 
 
 # Function to install Piano-LED-Visualizer
 install_piano_led_visualizer() {
-  execute_command "cd /home/"
-  execute_command "sudo git clone https://github.com/GoulagmanYt/Piano-LED-Visualizer" "check_internet"
-  execute_command "sudo chown -R $USER:$USER /home/Piano-LED-Visualizer"
-  execute_command "sudo chmod -R u+rwx /home/Piano-LED-Visualizer"
-  execute_command "cd Piano-LED-Visualizer"
-  execute_command "sudo pip3 install -r requirements.txt --break-system-packages" "check_internet"
+  if [ -d "${APP_DIR}/.git" ]; then
+    execute_command "sudo git -C ${APP_DIR} remote set-url origin ${REPO_URL}"
+    execute_command "sudo git -C ${APP_DIR} fetch origin ${REPO_BRANCH}" "check_internet"
+    execute_command "sudo git -C ${APP_DIR} checkout ${REPO_BRANCH}"
+    execute_command "sudo git -C ${APP_DIR} pull --ff-only origin ${REPO_BRANCH}" "check_internet"
+  else
+    if [ -e "${APP_DIR}" ]; then
+      execute_command "sudo mv ${APP_DIR} ${APP_DIR}.pre-autoinstall-$(date +%Y%m%d-%H%M%S)"
+    fi
+    execute_command "cd /home/ && sudo git clone --branch ${REPO_BRANCH} ${REPO_URL} ${APP_DIR}" "check_internet"
+  fi
+
+  execute_command "sudo git -C ${APP_DIR} config --local pull.ff only"
+  execute_command "sudo git -C ${APP_DIR} config --local core.filemode false"
+  execute_command "sudo chown -R ${PLV_USER}:${PLV_USER} ${APP_DIR}"
+  execute_command "sudo pip3 install -r ${APP_DIR}/requirements.txt --break-system-packages" "check_internet"
   execute_command "sudo raspi-config nonint do_boot_behaviour B2"
   cat <<EOF | sudo tee /lib/systemd/system/visualizer.service > /dev/null
 [Unit]
@@ -152,17 +203,17 @@ Wants=network-online.target
 WantedBy=multi-user.target
 
 [Service]
-ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py
+WorkingDirectory=${APP_DIR}/
+ExecStart=/usr/bin/python3 ${APP_DIR}/visualizer.py
 Restart=always
 Type=simple
-User=plv
-Group=plv
+User=root
+Group=root
 EOF
   execute_command "sudo systemctl daemon-reload"
   execute_command "sudo systemctl enable visualizer.service"
-  execute_command "sudo systemctl start visualizer.service"
-
-  execute_command "sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/"
+  execute_command "sudo bash ${APP_DIR}/scripts/configure_rtpmidi_stability.sh rtpmidid"
+  execute_command "sudo env PLV_DIR=${APP_DIR} bash ${APP_DIR}/scripts/configure_pi_low_latency.sh"
 }
 
 finish_installation() {
@@ -193,10 +244,11 @@ echo "
 #       \\/    |_||___/ \\__,_| \\__,_||_||_|/___|\\___||_|
 #
 # Autoinstall script
-# - by Onlaj
+# - maintained by GoulagmanYt, based on the original Onlaj installer
 "
 
 # Main script execution
+configure_pi_identity
 update_os
 configure_autoconnect_script
 enable_spi_interface
