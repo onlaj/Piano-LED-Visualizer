@@ -10,10 +10,6 @@ NM_CONF_FILE="${NM_CONF_DIR}/30-wifi-powersave-off.conf"
 echo "Configuring systemd override for ${SERVICE_NAME}..."
 sudo install -d "${OVERRIDE_DIR}"
 cat <<'EOF' | sudo tee "${OVERRIDE_FILE}" >/dev/null
-[Unit]
-After=network-online.target
-Wants=network-online.target
-
 [Service]
 Restart=always
 RestartSec=2

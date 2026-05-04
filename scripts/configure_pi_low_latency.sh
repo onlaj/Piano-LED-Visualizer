@@ -31,8 +31,12 @@ set -u
 
 for governor in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
   [ -e "$governor" ] || continue
-  if grep -qw performance "$(dirname "$governor")/scaling_available_governors" 2>/dev/null; then
-    echo performance > "$governor" 2>/dev/null || true
+  dir=$(dirname "$governor")
+  available=$(cat "$dir/scaling_available_governors" 2>/dev/null || true)
+  if echo "$available" | grep -qw ondemand; then
+    echo ondemand > "$governor" 2>/dev/null || true
+  elif echo "$available" | grep -qw schedutil; then
+    echo schedutil > "$governor" 2>/dev/null || true
   fi
 done
 
