@@ -4,6 +4,7 @@ import sys
 import os
 import fcntl
 import signal
+import threading
 import time
 
 from lib.argument_parser import ArgumentParser
@@ -20,6 +21,7 @@ from lib.color_mode import ColorMode
 from lib.webinterface_manager import WebInterfaceManager
 from lib.state_manager import StateManager
 from lib.display_refresh_policy import DisplayRefreshPolicy
+from lib.rpi_drivers import Color
 
 from lib.log_setup import logger
 
@@ -43,11 +45,13 @@ class VisualizerApp:
         # State tracking
         self.last_sustain = 0
         self.pedal_deadzone = 10
+        self._input_detected_blink_lock = threading.Lock()
 
         # Initialize components
         self.args = ArgumentParser().args
         self.component_initializer = ComponentInitializer(self.args)
         self.ci = self.component_initializer
+        self.ci.midiports.on_input_connected = self.handle_input_connected
         
         # Check and enable SPI if running on Raspberry Pi
         if hasattr(self.ci.platform, 'check_and_enable_spi'):
@@ -130,6 +134,35 @@ class VisualizerApp:
         result = callback(*args)
         self.runtime_diagnostics.record_duration(metric_name, time.perf_counter() - started)
         return result
+
+    def handle_input_connected(self, port_name):
+        logger.info("MIDI input detected: %s", port_name)
+        threading.Thread(target=self._blink_input_detected, daemon=True).start()
+
+    def _blink_input_detected(self):
+        if not self._input_detected_blink_lock.acquire(blocking=False):
+            return
+        try:
+            ci = getattr(self, "ci", None)
+            if ci is None:
+                return
+            strip = ci.ledstrip.strip
+            green = Color(0, 255, 0)
+            off = Color(0, 0, 0)
+            end_time = time.monotonic() + 2.0
+            enabled = True
+            while time.monotonic() < end_time:
+                color = green if enabled else off
+                for led in range(strip.numPixels()):
+                    strip.setPixelColor(led, color)
+                strip.show()
+                enabled = not enabled
+                time.sleep(0.25)
+            fastColorWipe(strip, True, ci.ledsettings)
+        except Exception as error:
+            logger.warning("Could not blink LEDs for MIDI input detection: %s", error)
+        finally:
+            self._input_detected_blink_lock.release()
 
     def handle_shutdown(self, signum, frame):
         ci = getattr(self, "ci", None)

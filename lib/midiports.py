@@ -128,6 +128,7 @@ class MidiPorts:
         self.midipending = None
         self.midi_monitor_thread = None
         self.monitor_running = False
+        self.on_input_connected = None
         self.worker_running = False
         self.live_forward_thread = None
         self.websocket_publish_thread = None
@@ -689,6 +690,15 @@ class MidiPorts:
             logger.warning("Failed to enable backend MIDI input filters: %s", e)
             return False
 
+    def _notify_input_connected(self, port_name):
+        callback = getattr(self, "on_input_connected", None)
+        if not callable(callback):
+            return
+        try:
+            callback(port_name)
+        except Exception as e:
+            logger.warning("MIDI input connected callback failed: %s", e)
+
     def _reconnect_input(self, force=False):
         available_inputs = _get_cached_input_names()
         runtime_label_changes = self._refresh_runtime_port_labels(
@@ -713,6 +723,7 @@ class MidiPorts:
             self.port_runtime_reconnects = getattr(self, "port_runtime_reconnects", 0) + 1
             self._ensure_runtime_diagnostics().increment_counter("port_runtime_reconnects")
 
+        previous_input_port = self.actual_input_port
         old_port = self.inport
         self.inport = None
         self.actual_input_port = None
@@ -726,6 +737,8 @@ class MidiPorts:
             self._configure_input_backend_filters(self.inport)
             self.actual_input_port = selected_port
             logger.info("Input port active: %s", selected_port)
+            if previous_input_port is None:
+                self._notify_input_connected(selected_port)
         except Exception as e:
             logger.info("Can't load input port '%s': %s", selected_port, e)
             self.inport = None
@@ -1120,6 +1133,48 @@ class MidiPorts:
             self.midi_monitor_thread.join(timeout=1)
         logger.info("MIDI device monitor stopped")
 
+    def _auto_reconnect_once(self, last_input_present, last_secondary_present, last_play_present):
+        _refresh_port_cache()
+        input_names = _get_cached_input_names()
+        output_names = _get_cached_output_names()
+
+        input_port = self.usersettings.get_setting_value("input_port")
+        secondary_input_port = self.usersettings.get_setting_value("secondary_input_port")
+        play_port = self.usersettings.get_setting_value("play_port")
+
+        input_present = bool(self._resolve_selected_port(self._resolve_input_target(input_port, input_names)))
+        secondary_present = bool(
+            self._resolve_selected_port(self._resolve_input_target(secondary_input_port, input_names))
+        ) if secondary_input_port and secondary_input_port != "default" else False
+        play_present = bool(
+            self._resolve_selected_port(
+                self._resolve_output_target(play_port, output_names, available_inputs=input_names)
+            )
+        )
+
+        input_restored = input_present and (last_input_present is False)
+        secondary_restored = secondary_present and (last_secondary_present is False)
+        play_restored = play_present and (last_play_present is False)
+        input_missing = self.inport is None or self.actual_input_port is None
+
+        if input_missing and input_present:
+            logger.info("MIDI input available while no input is open. Reconnecting ports.")
+            self.reconnect_ports(force=False)
+        elif input_restored or secondary_restored:
+            logger.info("MIDI input port restored. Triggering connectall()")
+            try:
+                self.connectall()
+            except Exception as e:
+                logger.info("connectall() raised: {}".format(e))
+        elif self.ports_need_reconnect():
+            logger.info("MIDI port runtime changed. Reconnecting ports.")
+            self.reconnect_ports(force=False)
+        elif play_restored:
+            logger.info("MIDI play port restored. Reconnecting ports.")
+            self.reconnect_ports(force=False)
+
+        return input_present, secondary_present, play_present
+
     def auto_reconnect_loop(self):
         """
         Monitor configured input/secondary/play ports by name.
@@ -1131,44 +1186,11 @@ class MidiPorts:
 
         while self.monitor_running:
             try:
-                _refresh_port_cache()
-                input_names = _get_cached_input_names()
-                output_names = _get_cached_output_names()
-
-                input_port = self.usersettings.get_setting_value("input_port")
-                secondary_input_port = self.usersettings.get_setting_value("secondary_input_port")
-                play_port = self.usersettings.get_setting_value("play_port")
-
-                input_present = bool(self._resolve_selected_port(self._resolve_input_target(input_port, input_names)))
-                secondary_present = bool(
-                    self._resolve_selected_port(self._resolve_input_target(secondary_input_port, input_names))
-                ) if secondary_input_port and secondary_input_port != "default" else False
-                play_present = bool(
-                    self._resolve_selected_port(
-                        self._resolve_output_target(play_port, output_names, available_inputs=input_names)
-                    )
+                last_input_present, last_secondary_present, last_play_present = self._auto_reconnect_once(
+                    last_input_present,
+                    last_secondary_present,
+                    last_play_present,
                 )
-
-                input_restored = input_present and (last_input_present is False)
-                secondary_restored = secondary_present and (last_secondary_present is False)
-                play_restored = play_present and (last_play_present is False)
-
-                if input_restored or secondary_restored:
-                    logger.info("MIDI input port restored. Triggering connectall()")
-                    try:
-                        self.connectall()
-                    except Exception as e:
-                        logger.info("connectall() raised: {}".format(e))
-                elif self.ports_need_reconnect():
-                    logger.info("MIDI port runtime changed. Reconnecting ports.")
-                    self.reconnect_ports(force=False)
-                elif play_restored:
-                    logger.info("MIDI play port restored. Reconnecting ports.")
-                    self.reconnect_ports(force=False)
-
-                last_input_present = input_present
-                last_secondary_present = secondary_present
-                last_play_present = play_present
                 time.sleep(3)
             except Exception as e:
                 logger.info("auto_reconnect_loop error: {}".format(e))

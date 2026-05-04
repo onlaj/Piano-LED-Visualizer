@@ -114,6 +114,7 @@ class TestMidiPorts(unittest.TestCase):
         ports.midipending = None
         ports.midi_monitor_thread = None
         ports.monitor_running = False
+        ports.on_input_connected = None
         ports.queue_reserved_noteoff_slots = 1
         ports.last_reconnect_time = None
         ports.reconnect_count = 0
@@ -376,6 +377,56 @@ class TestMidiPorts(unittest.TestCase):
         self.assertEqual(opened, ["mio:mio MIDI 1 24:0"])
         self.assertEqual(ports.actual_input_port, "mio:mio MIDI 1 24:0")
         self.assertEqual(ports.port_runtime_reconnects, 1)
+
+    def test_input_connected_callback_fires_once_when_usb_input_is_opened(self):
+        ports = self.make_ports()
+        ports.usersettings = type(
+            "FakeSettings",
+            (),
+            {"get_setting_value": lambda self, name: "default"},
+        )()
+        connected = []
+        ports.on_input_connected = connected.append
+
+        def fake_open_input(port_name, callback=None):
+            return FakeInputPort()
+
+        with patch(
+            "lib.midiports._get_cached_input_names",
+            return_value=["USB AudioDevice:USB AudioDevice MIDI 1 16:0"],
+        ), patch("lib.midiports._get_cached_output_names", return_value=[]), patch(
+            "lib.midiports.mido.open_input",
+            side_effect=fake_open_input,
+        ):
+            self.assertTrue(ports._reconnect_input(force=True))
+            self.assertFalse(ports._reconnect_input(force=False))
+
+        self.assertEqual(connected, ["USB AudioDevice:USB AudioDevice MIDI 1 16:0"])
+
+    def test_auto_reconnect_iteration_retries_when_input_is_missing_until_usb_appears(self):
+        ports = self.make_ports()
+        ports.usersettings = type(
+            "FakeSettings",
+            (),
+            {"get_setting_value": lambda self, name: "default"},
+        )()
+        reconnects = []
+        ports.reconnect_ports = lambda force=False: reconnects.append(force)
+
+        with patch(
+            "lib.midiports._get_cached_input_names",
+            return_value=["USB AudioDevice:USB AudioDevice MIDI 1 16:0"],
+        ), patch(
+            "lib.midiports._get_cached_output_names",
+            return_value=[],
+        ), patch(
+            "lib.midiports._refresh_port_cache",
+            return_value=None,
+        ):
+            state = ports._auto_reconnect_once(False, False, False)
+
+        self.assertEqual(reconnects, [False])
+        self.assertEqual(state, (True, False, False))
 
     def test_output_reconnect_reopens_port_when_saved_device_returns_with_new_alsa_id(self):
         ports = self.make_ports()
