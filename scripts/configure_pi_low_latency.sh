@@ -111,25 +111,34 @@ echo "Removing obsolete reliable_midi enable/required flags from PLV XML config.
 if [ -d "${PLV_DIR}/config" ]; then
   for xml in "${PLV_DIR}/config/settings.xml" "${PLV_DIR}/config/default_settings.xml"; do
     [ -f "$xml" ] || continue
-    backup_file "$xml"
-    run python3 - "$xml" <<'PY'
+    run python3 - "$xml" "$STAMP" <<'PY'
+import shutil
 import sys
 import xml.etree.ElementTree as ET
 
 path = sys.argv[1]
+stamp = sys.argv[2]
 tree = ET.parse(path)
 root = tree.getroot()
+changed = False
 for tag in ("reliable_midi_enabled", "reliable_midi_required"):
     elem = root.find(tag)
     if elem is not None:
         root.remove(elem)
+        changed = True
 for tag, value in (("reliable_midi_host", "oscmidi-rtp.local"), ("reliable_midi_port", "5056")):
     elem = root.find(tag)
     if elem is None:
         elem = ET.SubElement(root, tag)
+        changed = True
     if not (elem.text or "").strip():
         elem.text = value
-tree.write(path)
+        changed = True
+if changed:
+    shutil.copy2(path, f"{path}.bak-lowlatency-{stamp}")
+    tree.write(path)
+else:
+    print(f"{path}: reliable MIDI defaults already current")
 PY
   done
 fi

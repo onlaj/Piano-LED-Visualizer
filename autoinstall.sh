@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 REPO_URL="https://github.com/GoulagmanYt/Piano-LED-Visualizer.git"
 REPO_BRANCH="master"
@@ -15,7 +16,7 @@ display_error() {
 
 # Function to execute a command and handle errors, with optional internet connectivity check
 execute_command() {
-  local check_internet="$2"  # Check for internet if this argument is provided
+  local check_internet="${2:-}"  # Check for internet if this argument is provided
 
   echo "Executing: $1"
 
@@ -177,10 +178,11 @@ install_rtpmidi_server() {
 # Function to install Piano-LED-Visualizer
 install_piano_led_visualizer() {
   if [ -d "${APP_DIR}/.git" ]; then
-    execute_command "sudo git -C ${APP_DIR} remote set-url origin ${REPO_URL}"
-    execute_command "sudo git -C ${APP_DIR} fetch origin ${REPO_BRANCH}" "check_internet"
-    execute_command "sudo git -C ${APP_DIR} checkout ${REPO_BRANCH}"
-    execute_command "sudo git -C ${APP_DIR} pull --ff-only origin ${REPO_BRANCH}" "check_internet"
+    execute_command "sudo chown -R ${PLV_USER}:${PLV_USER} ${APP_DIR}"
+    execute_command "sudo -u ${PLV_USER} git -C ${APP_DIR} remote set-url origin ${REPO_URL}"
+    execute_command "sudo -u ${PLV_USER} git -C ${APP_DIR} fetch origin ${REPO_BRANCH}" "check_internet"
+    execute_command "sudo -u ${PLV_USER} git -C ${APP_DIR} checkout ${REPO_BRANCH}"
+    execute_command "sudo -u ${PLV_USER} git -C ${APP_DIR} pull --ff-only origin ${REPO_BRANCH}" "check_internet"
   else
     if [ -e "${APP_DIR}" ]; then
       execute_command "sudo mv ${APP_DIR} ${APP_DIR}.pre-autoinstall-$(date +%Y%m%d-%H%M%S)"
@@ -188,9 +190,9 @@ install_piano_led_visualizer() {
     execute_command "cd /home/ && sudo git clone --branch ${REPO_BRANCH} ${REPO_URL} ${APP_DIR}" "check_internet"
   fi
 
-  execute_command "sudo git -C ${APP_DIR} config --local pull.ff only"
-  execute_command "sudo git -C ${APP_DIR} config --local core.filemode false"
   execute_command "sudo chown -R ${PLV_USER}:${PLV_USER} ${APP_DIR}"
+  execute_command "sudo -u ${PLV_USER} git -C ${APP_DIR} config --local pull.ff only"
+  execute_command "sudo -u ${PLV_USER} git -C ${APP_DIR} config --local core.filemode false"
   execute_command "sudo pip3 install -r ${APP_DIR}/requirements.txt --break-system-packages" "check_internet"
   execute_command "sudo raspi-config nonint do_boot_behaviour B2"
   cat <<EOF | sudo tee /lib/systemd/system/visualizer.service > /dev/null
@@ -212,8 +214,19 @@ Group=root
 EOF
   execute_command "sudo systemctl daemon-reload"
   execute_command "sudo systemctl enable visualizer.service"
+}
+
+apply_default_runtime_tuning() {
+  echo "Applying default Raspberry Pi runtime tuning..."
   execute_command "sudo bash ${APP_DIR}/scripts/configure_rtpmidi_stability.sh rtpmidid"
   execute_command "sudo env PLV_DIR=${APP_DIR} bash ${APP_DIR}/scripts/configure_pi_low_latency.sh"
+  execute_command "sudo systemctl enable visualizer.service rtpmidid.service plv-lowlatency.service"
+  execute_command "sudo systemctl restart rtpmidid.service"
+  execute_command "sudo systemctl restart visualizer.service"
+  execute_command "systemctl is-active visualizer.service"
+  execute_command "systemctl is-active rtpmidid.service"
+  execute_command "systemctl is-active plv-lowlatency.service"
+  execute_command "sudo -u ${PLV_USER} git -C ${APP_DIR} status --short --branch"
 }
 
 finish_installation() {
@@ -256,4 +269,5 @@ install_packages
 disable_audio_output
 install_rtpmidi_server
 install_piano_led_visualizer
+apply_default_runtime_tuning
 finish_installation
