@@ -110,11 +110,6 @@ def is_valid_output_port(port_name: str | None, available_inputs: list[str] | No
     if is_internal_rtmidi_port(port_name):
         return False
 
-    if available_inputs:
-        input_keys = {_stable_port_key(candidate) for candidate in available_inputs}
-        if lowered in input_keys and "rtpmidid:" not in lowered:
-            return False
-
     return True
 
 
@@ -181,9 +176,14 @@ def pick_default_output_port(
     available_ports: list[str],
     available_inputs: list[str] | None = None,
 ) -> str | None:
-    for port_name in available_ports:
-        if is_valid_output_port(port_name, available_inputs=available_inputs):
+    valid_ports = filter_valid_output_ports(available_ports, available_inputs=available_inputs)
+    input_keys = {_stable_port_key(candidate) for candidate in (available_inputs or [])}
+
+    for port_name in valid_ports:
+        if _stable_port_key(port_name) not in input_keys:
             return port_name
+    for port_name in valid_ports:
+        return port_name
     return None
 
 

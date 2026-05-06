@@ -93,6 +93,26 @@ class TestViewsApiPorts(unittest.TestCase):
         self.assertEqual(response["rtp_diagnostics"]["play_network_ready"], False)
         self.assertEqual(response["rtpmidi_remote_host"], "PC_Robin-2.local:5004")
 
+    def test_get_ports_response_lists_usb_device_as_selectable_play_output(self):
+        response = build_get_ports_response(
+            raw_input_ports=["USB AudioDevice:USB AudioDevice MIDI 1 16:0"],
+            raw_output_ports=[
+                "USB AudioDevice:USB AudioDevice MIDI 1 16:0",
+                "rtpmidid:OSCMidi 129:2",
+            ],
+            configured_input="USB AudioDevice:USB AudioDevice MIDI 1 16:0",
+            configured_secondary_input="default",
+            configured_play="USB AudioDevice:USB AudioDevice MIDI 1 16:0",
+            midi_logging="0",
+            connected_ports="",
+            rtp_diagnostics={},
+            runtime_diagnostics={},
+            rtpmidi_network_diagnostics={},
+        )
+
+        self.assertIn("USB AudioDevice:USB AudioDevice MIDI 1 16:0", response["output_ports"])
+        self.assertEqual(response["play_port"], "USB AudioDevice:USB AudioDevice MIDI 1 16:0")
+
 
 if __name__ == "__main__":
     unittest.main()

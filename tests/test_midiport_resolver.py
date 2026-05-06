@@ -49,7 +49,7 @@ class TestMidiPortResolver(unittest.TestCase):
         self.assertEqual(resolution.status, PortResolutionStatus.UNAVAILABLE)
         self.assertIsNone(resolution.selected_port)
 
-    def test_output_resolution_rejects_input_only_targets(self):
+    def test_output_resolution_allows_explicit_usb_target_that_is_also_input(self):
         resolution = resolve_output_port(
             "USB AudioDevice:USB AudioDevice MIDI 1 16:0",
             [
@@ -61,9 +61,8 @@ class TestMidiPortResolver(unittest.TestCase):
             ],
         )
 
-        self.assertEqual(resolution.status, PortResolutionStatus.UNAVAILABLE)
-        self.assertIsNone(resolution.selected_port)
-        self.assertIn("invalid", resolution.reason.lower())
+        self.assertEqual(resolution.status, PortResolutionStatus.EXACT)
+        self.assertEqual(resolution.selected_port, "USB AudioDevice:USB AudioDevice MIDI 1 16:0")
 
     def test_default_output_selection_skips_internal_and_input_only_ports(self):
         selected = pick_default_output_port(
@@ -78,6 +77,19 @@ class TestMidiPortResolver(unittest.TestCase):
         )
 
         self.assertEqual(selected, "rtpmidid:OSCMidi 128:2")
+
+    def test_default_output_selection_can_use_usb_when_it_is_the_only_real_output(self):
+        selected = pick_default_output_port(
+            [
+                "USB AudioDevice:USB AudioDevice MIDI 1 16:0",
+                "RtMidiIn Client:RtMidi input 129:0",
+            ],
+            available_inputs=[
+                "USB AudioDevice:USB AudioDevice MIDI 1 16:0",
+            ],
+        )
+
+        self.assertEqual(selected, "USB AudioDevice:USB AudioDevice MIDI 1 16:0")
 
     def test_input_resolution_matches_same_device_across_dynamic_alsa_ids(self):
         resolution = resolve_input_port(
