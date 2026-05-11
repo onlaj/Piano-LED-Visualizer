@@ -1,6 +1,7 @@
 *.pyc
 *.pyo
 .idea/
+.worktrees/
 config/settings.xml
 webinterface/node_modules
 visualizer.log
