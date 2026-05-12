@@ -728,7 +728,9 @@ select.glass-light {
 /* Enhanced Hover States */
 .hover-lift {
     position: relative;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    will-change: transform;
+    isolation: isolate;
 }
 
 .hover-lift:hover {
