@@ -172,9 +172,10 @@
                     </svg>
                 </button>
 
-                <button onclick="change_setting('learning_load_song', '{{key}}');get_learning_status();
+                <button onclick="document.getElementById('stop_learning').click();
+                change_setting('learning_load_song', '{{key}}');get_learning_status();
                 document.getElementById('learn_midi_wrapper').classList.remove('hidden');
-                document.getElementById('stop_learning').click();window.loadSheet('{{key}}')"
+                window.loadSheet('{{key}}')"
                         class="p-2 glass-light hover:glass rounded-glass transition-smooth-fast cursor-pointer group"
                         title="Learn" data-translate-title="learn">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24"
