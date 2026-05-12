@@ -2025,23 +2025,25 @@ function sync_playback_state() {
             // --- Restore learning state ---
             if (response.learning_song) {
                 const learnWrapper = document.getElementById('learn_midi_wrapper');
-                if (learnWrapper) learnWrapper.classList.remove('hidden');
 
                 if (response.is_learning) {
-                    // Learning is actively running - show stop button
+                    // Learning is actively running - unhide wrapper and show stop button
+                    if (learnWrapper) learnWrapper.classList.remove('hidden');
                     const startLearning = document.getElementById('start_learning');
                     const stopLearning = document.getElementById('stop_learning');
                     if (startLearning) startLearning.classList.add('hidden');
                     if (stopLearning) stopLearning.classList.remove('hidden');
                 } else if (response.learning_loaded) {
-                    // Song is loaded but not learning - show start button
+                    // Song is loaded but not learning.
+                    // We DO NOT unhide the wrapper here so the UI stays clean after stopping
+                    // or switching tabs. The user can click 'Learn' on a song to reveal it again.
                     const startLearning = document.getElementById('start_learning');
                     const stopLearning = document.getElementById('stop_learning');
                     if (startLearning) {
                         startLearning.classList.remove('hidden', 'pointer-events-none', 'opacity-50');
                     }
                     if (stopLearning) stopLearning.classList.add('hidden');
-                    // Refresh learning settings
+                    // Refresh learning settings in background
                     get_learning_status();
                 }
             }
