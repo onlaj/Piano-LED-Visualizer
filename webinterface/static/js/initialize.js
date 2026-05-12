@@ -471,6 +471,9 @@ function initialize_songs() {
     }
     // Now load songs (highscores fetch will use the restored profile id)
     get_songs();
+    // Sync playback/learning state from backend after DOM is ready
+    // Use a short delay to let get_songs() render the song list elements
+    setTimeout(sync_playback_state, 500);
     initialize_upload();
     window.addEventListener('resize', function (event) {
         const visualizer = document.getElementById('myVisualizer');

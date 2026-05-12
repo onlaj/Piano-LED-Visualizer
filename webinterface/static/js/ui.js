@@ -1956,31 +1956,98 @@ function get_recording_status() {
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             let response = JSON.parse(this.responseText);
-            document.getElementById("input_port").innerHTML = response["input_port"];
-            document.getElementById("play_port").innerHTML = response["play_port"];
+            const inputPortEl = document.getElementById("input_port");
+            if (inputPortEl) inputPortEl.innerHTML = response["input_port"];
+            const playPortEl = document.getElementById("play_port");
+            if (playPortEl) playPortEl.innerHTML = response["play_port"];
+
+            const recordingStatusEl = document.getElementById("recording_status");
+            const startRecBtn = document.getElementById("start_recording_button");
+            const saveRecBtn = document.getElementById("save_recording_button");
+            const cancelRecBtn = document.getElementById("cancel_recording_button");
 
             if (response["isrecording"]) {
-                document.getElementById("recording_status").innerHTML = '<p class="animate-pulse text-red-400">recording</p>';
-                document.getElementById("start_recording_button").classList.add('pointer-events-none', 'animate-pulse');
-                document.getElementById("save_recording_button").classList.remove('pointer-events-none', 'opacity-50');
-                document.getElementById("cancel_recording_button").classList.remove('pointer-events-none', 'opacity-50');
+                if (recordingStatusEl) recordingStatusEl.innerHTML = '<p class="animate-pulse text-red-400">recording</p>';
+                if (startRecBtn) startRecBtn.classList.add('pointer-events-none', 'animate-pulse');
+                if (saveRecBtn) saveRecBtn.classList.remove('pointer-events-none', 'opacity-50');
+                if (cancelRecBtn) cancelRecBtn.classList.remove('pointer-events-none', 'opacity-50');
             } else {
-                document.getElementById("recording_status").innerHTML = '<p>idle</p>';
-                document.getElementById("start_recording_button").classList.remove('pointer-events-none', 'animate-pulse');
-                document.getElementById("save_recording_button").classList.add('pointer-events-none', 'opacity-50');
-                document.getElementById("cancel_recording_button").classList.add('pointer-events-none', 'opacity-50');
+                if (recordingStatusEl) recordingStatusEl.innerHTML = '<p>idle</p>';
+                if (startRecBtn) startRecBtn.classList.remove('pointer-events-none', 'animate-pulse');
+                if (saveRecBtn) saveRecBtn.classList.add('pointer-events-none', 'opacity-50');
+                if (cancelRecBtn) cancelRecBtn.classList.add('pointer-events-none', 'opacity-50');
             }
-            if (Object.keys(response["isplaying"]).length > 0) {
-                document.getElementById("midi_player_wrapper").classList.remove("hidden");
-                document.getElementById("start_midi_play").classList.add("hidden");
-                document.getElementById("stop_midi_play").classList.remove("hidden");
-            } else if (document.getElementById("start_midi_play")) {
-                document.getElementById("start_midi_play").classList.remove("hidden");
-                document.getElementById("stop_midi_play").classList.add("hidden");
+            // Playback button state is now handled by sync_playback_state()
+            // Only reset buttons if nothing is playing and elements exist
+            if (Object.keys(response["isplaying"]).length === 0) {
+                const startBtn = document.getElementById("start_midi_play");
+                const stopBtn = document.getElementById("stop_midi_play");
+                if (startBtn) startBtn.classList.remove("hidden");
+                if (stopBtn) stopBtn.classList.add("hidden");
             }
         }
     };
     xhttp.open("GET", "/api/get_recording_status", true);
+    xhttp.send();
+}
+
+/**
+ * Sync playback & learning UI state from the backend.
+ * Called when entering the Songs tab to restore button visibility
+ * and player state after a tab switch.
+ */
+function sync_playback_state() {
+    const xhttp = new XMLHttpRequest();
+    xhttp.timeout = 5000;
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            const response = JSON.parse(this.responseText);
+
+            // --- Restore MIDI playback state ---
+            if (response.is_playing && response.playing_song) {
+                const midiPlayer = document.getElementById('midi_player');
+                const wrapper = document.getElementById('midi_player_wrapper');
+                const startBtn = document.getElementById('start_midi_play');
+                const stopBtn = document.getElementById('stop_midi_play');
+
+                if (midiPlayer) {
+                    midiPlayer.dataset.songName = response.playing_song;
+                    // Load the song source so the player element is usable
+                    if (!midiPlayer.src || !midiPlayer.src.includes(encodeURIComponent(response.playing_song))) {
+                        midiPlayer.src = 'api/change_setting?setting_name=download_song&value=' + encodeURIComponent(response.playing_song);
+                    }
+                }
+                if (wrapper) wrapper.classList.remove('hidden');
+                if (startBtn) startBtn.classList.add('hidden');
+                if (stopBtn) stopBtn.classList.remove('hidden');
+            }
+
+            // --- Restore learning state ---
+            if (response.learning_song) {
+                const learnWrapper = document.getElementById('learn_midi_wrapper');
+                if (learnWrapper) learnWrapper.classList.remove('hidden');
+
+                if (response.is_learning) {
+                    // Learning is actively running - show stop button
+                    const startLearning = document.getElementById('start_learning');
+                    const stopLearning = document.getElementById('stop_learning');
+                    if (startLearning) startLearning.classList.add('hidden');
+                    if (stopLearning) stopLearning.classList.remove('hidden');
+                } else if (response.learning_loaded) {
+                    // Song is loaded but not learning - show start button
+                    const startLearning = document.getElementById('start_learning');
+                    const stopLearning = document.getElementById('stop_learning');
+                    if (startLearning) {
+                        startLearning.classList.remove('hidden', 'pointer-events-none', 'opacity-50');
+                    }
+                    if (stopLearning) stopLearning.classList.add('hidden');
+                    // Refresh learning settings
+                    get_learning_status();
+                }
+            }
+        }
+    };
+    xhttp.open("GET", "/api/get_playback_status", true);
     xhttp.send();
 }
 

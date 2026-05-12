@@ -2126,6 +2126,30 @@ def get_recording_status():
     return jsonify(response)
 
 
+@webinterface.route('/api/get_playback_status', methods=['GET'])
+def get_playback_status():
+    """Return current playback & learning state for frontend sync."""
+    # Playback state
+    playing_song = None
+    is_playing = False
+    if app_state.saving.is_playing_midi:
+        playing_song = next(iter(app_state.saving.is_playing_midi), None)
+        is_playing = playing_song is not None
+
+    # Learning state
+    is_learning = getattr(app_state.learning, 'is_started_midi', False)
+    learning_song = getattr(app_state.learning, 'current_song_name', None)
+    learning_loaded = app_state.learning.loading == 4  # 4 = loaded/ready
+
+    return jsonify({
+        "is_playing": is_playing,
+        "playing_song": playing_song,
+        "is_learning": is_learning,
+        "learning_song": learning_song,
+        "learning_loaded": learning_loaded,
+    })
+
+
 @webinterface.route('/api/get_learning_status', methods=['GET'])
 def get_learning_status():
     # Update learning settings for current song from DB in case we changed the song

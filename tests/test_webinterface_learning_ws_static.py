@@ -33,11 +33,13 @@ def test_main_websocket_uses_stable_midi_event_handler_across_ajax_pages():
 
 
 def test_song_stop_button_stops_browser_player_and_backend_playback():
-    source = Path("webinterface/templates/songs.html").read_text(encoding="utf-8")
+    # The onclick reference lives in songs.html; the function body is in index.js
+    songs_source = Path("webinterface/templates/songs.html").read_text(encoding="utf-8")
+    assert "stop_midi_playback()" in songs_source
 
-    assert "stop_midi_playback()" in source
-    assert "document.getElementById('midi_player').stop()" in source
-    assert "change_setting('stop_midi_play'" in source
+    index_source = Path("webinterface/static/index.js").read_text(encoding="utf-8")
+    assert "document.getElementById('midi_player').stop()" in index_source
+    assert "change_setting('stop_midi_play'" in index_source
 
 
 def test_recording_status_syncs_play_and_stop_buttons_both_directions():
@@ -47,8 +49,9 @@ def test_recording_status_syncs_play_and_stop_buttons_both_directions():
     assert "stop_midi_play" in source
     assert "classList.remove(\"hidden\")" in source
     assert "classList.add(\"hidden\")" in source
-    assert "Object.keys(response[\"isplaying\"]).length > 0" in source
-    assert "else if (document.getElementById(\"start_midi_play\")" in source
+    assert "Object.keys(response[\"isplaying\"]).length === 0" in source
+    # Sync function handles playback state restoration
+    assert "sync_playback_state" in source
 
 
 def test_song_backend_play_uses_explicit_song_name_attribute():
