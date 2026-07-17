@@ -117,6 +117,28 @@ function get_homepage_data_loop() {
             if (cardUsagePercentEl) {
                 cardUsagePercentEl.innerHTML = response_pc_stats["card_space_percent"] + "%";
             }
+
+            // Estimated LED power draw
+            const ledCurrentEl = document.getElementById("led_current_a");
+            if (ledCurrentEl && response_pc_stats.led_current_a !== undefined) {
+                ledCurrentEl.innerHTML = Number(response_pc_stats.led_current_a).toFixed(2) + " A";
+            }
+            const ledPowerEl = document.getElementById("led_power_w");
+            if (ledPowerEl && response_pc_stats.led_power_w !== undefined) {
+                ledPowerEl.innerHTML = Number(response_pc_stats.led_power_w).toFixed(1) + " W";
+            }
+            const ledMaxEl = document.getElementById("led_current_max_a");
+            if (ledMaxEl && response_pc_stats.led_current_max_a !== undefined) {
+                ledMaxEl.innerHTML = Number(response_pc_stats.led_current_max_a).toFixed(1);
+            }
+            // Populate the per-strip tuning inputs (skip the one being edited)
+            ["led_ma_per_channel", "led_idle_ma", "led_supply_voltage"].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el && el !== document.activeElement && response_pc_stats[id] !== undefined) {
+                    el.value = response_pc_stats[id];
+                }
+            });
+
             const downloadNumberEl = document.getElementById("download_number");
             if (downloadNumberEl) {
                 animateValue(downloadNumberEl, last_download, download, refresh_rate * 500, true);

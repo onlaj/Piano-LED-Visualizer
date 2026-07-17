@@ -149,6 +149,10 @@ Notice, that you won't be able to use web interface
 
 - RPi alone should be fine powering up to 10 LEDs at the same time, although I do not recommend it.
 
+**Q - How much current do my LEDs draw?**
+
+- The homepage shows an **estimated LED draw** (amps and watts), calculated live from the colors currently on the strip — no meter needed. Because draw varies by LED chip/strip, tune the three inputs on that card to match yours: **mA/ch** (per-color current at full, ~20 mA for WS2812B), **idle mA** (per-LED quiescent, ~1 mA), and **Volts** (supply, usually 5). It's an estimate of commanded output, not a measurement.
+
 **Q - Do I need soldering skills to make it?**
 
 - Users reported that LED strips bought on Amazon are shipped in one meter strips, in that case you would need to solder them. I bought mine on Aliexpress and it was 2 meters long strip in one piece. As for connecting wires to RPi, I just wrapped them around pins and tightened it with heat shrink bands.

@@ -147,6 +147,11 @@
 	<led_pin>18</led_pin>
 	<led_channel>0</led_channel>
 
+	<!-- LED power estimate (tune to your strip; shown on the dashboard) -->
+	<led_ma_per_channel>20</led_ma_per_channel>
+	<led_idle_ma>1</led_idle_ma>
+	<led_supply_voltage>5</led_supply_voltage>
+
     <hotspot_password>visualizer</hotspot_password>
 
     <web_listen_ip></web_listen_ip>
