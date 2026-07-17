@@ -153,6 +153,29 @@
                         <output id="brightness_percent" class="flex justify-center text-sm">50%</output>
                     </div>
                 </div>
+                <!-- Estimated LED power draw (live, from current pixels; tune to your strip) -->
+                <div class="glass-light rounded-glass p-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400" data-translate="est_led_draw">Est. LED draw</span>
+                        <span class="text-sm font-bold"><span id="led_current_a">-.--</span> A
+                            <span class="text-xs font-normal text-gray-500 dark:text-gray-400">(<span id="led_power_w">--</span> W)</span></span>
+                    </div>
+                    <div class="text-[10px] text-gray-500 dark:text-gray-400 mb-2">max <span id="led_current_max_a">--</span> A (all LEDs full white)</div>
+                    <div class="grid grid-cols-3 gap-1">
+                        <label class="text-[10px] text-gray-500 dark:text-gray-400">mA/ch
+                            <input id="led_ma_per_channel" type="number" min="0" step="0.5"
+                                   onchange="change_setting('led_ma_per_channel', this.value)"
+                                   class="w-full glass-light rounded px-1 py-0.5 text-xs"></label>
+                        <label class="text-[10px] text-gray-500 dark:text-gray-400">idle mA
+                            <input id="led_idle_ma" type="number" min="0" step="0.1"
+                                   onchange="change_setting('led_idle_ma', this.value)"
+                                   class="w-full glass-light rounded px-1 py-0.5 text-xs"></label>
+                        <label class="text-[10px] text-gray-500 dark:text-gray-400">Volts
+                            <input id="led_supply_voltage" type="number" min="0" step="0.1"
+                                   onchange="change_setting('led_supply_voltage', this.value)"
+                                   class="w-full glass-light rounded px-1 py-0.5 text-xs"></label>
+                    </div>
+                </div>
                 <div>
                     <label data-translate="backlight"
                         class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Backlight</label>

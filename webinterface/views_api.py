@@ -208,8 +208,13 @@ def get_homepage_data():
         'led_pin': app_state.usersettings.get_setting_value("led_pin") or '18',
         'timezone': app_state.platform.get_current_timezone() if hasattr(app_state.platform, 'get_current_timezone') else 'UTC',
     }
-    homepage_data.update(estimate_led_power())
     return jsonify(homepage_data)
+
+
+@webinterface.route('/api/get_led_power', methods=['GET'])
+def get_led_power():
+    """Live estimated LED strip current/power (polled by the LED settings page)."""
+    return jsonify(estimate_led_power())
 
 
 @webinterface.route('/api/get_timezones', methods=['GET'])

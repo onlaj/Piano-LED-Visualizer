@@ -117,28 +117,6 @@ function get_homepage_data_loop() {
             if (cardUsagePercentEl) {
                 cardUsagePercentEl.innerHTML = response_pc_stats["card_space_percent"] + "%";
             }
-
-            // Estimated LED power draw
-            const ledCurrentEl = document.getElementById("led_current_a");
-            if (ledCurrentEl && response_pc_stats.led_current_a !== undefined) {
-                ledCurrentEl.innerHTML = Number(response_pc_stats.led_current_a).toFixed(2) + " A";
-            }
-            const ledPowerEl = document.getElementById("led_power_w");
-            if (ledPowerEl && response_pc_stats.led_power_w !== undefined) {
-                ledPowerEl.innerHTML = Number(response_pc_stats.led_power_w).toFixed(1) + " W";
-            }
-            const ledMaxEl = document.getElementById("led_current_max_a");
-            if (ledMaxEl && response_pc_stats.led_current_max_a !== undefined) {
-                ledMaxEl.innerHTML = Number(response_pc_stats.led_current_max_a).toFixed(1);
-            }
-            // Populate the per-strip tuning inputs (skip the one being edited)
-            ["led_ma_per_channel", "led_idle_ma", "led_supply_voltage"].forEach(function (id) {
-                const el = document.getElementById(id);
-                if (el && el !== document.activeElement && response_pc_stats[id] !== undefined) {
-                    el.value = response_pc_stats[id];
-                }
-            });
-
             const downloadNumberEl = document.getElementById("download_number");
             if (downloadNumberEl) {
                 animateValue(downloadNumberEl, last_download, download, refresh_rate * 500, true);
@@ -246,6 +224,28 @@ function get_homepage_data_loop() {
         }
     };
     xhttp.open("GET", "/api/get_homepage_data", true);
+    xhttp.send();
+}
+
+// Live estimated LED power draw for the LED settings page
+function get_led_power_loop() {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            const d = JSON.parse(this.responseText);
+            const cur = document.getElementById("led_current_a");
+            if (cur && d.led_current_a !== undefined) cur.innerHTML = Number(d.led_current_a).toFixed(2);
+            const pw = document.getElementById("led_power_w");
+            if (pw && d.led_power_w !== undefined) pw.innerHTML = Number(d.led_power_w).toFixed(1);
+            const mx = document.getElementById("led_current_max_a");
+            if (mx && d.led_current_max_a !== undefined) mx.innerHTML = Number(d.led_current_max_a).toFixed(1);
+            ["led_ma_per_channel", "led_idle_ma", "led_supply_voltage"].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el && el !== document.activeElement && d[id] !== undefined) el.value = d[id];
+            });
+        }
+    };
+    xhttp.open("GET", "/api/get_led_power", true);
     xhttp.send();
 }
 function get_colormap_gradients() {

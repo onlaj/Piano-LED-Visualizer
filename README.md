@@ -151,7 +151,7 @@ Notice, that you won't be able to use web interface
 
 **Q - How much current do my LEDs draw?**
 
-- The homepage shows an **estimated LED draw** (amps and watts), calculated live from the colors currently on the strip — no meter needed. Because draw varies by LED chip/strip, tune the three inputs on that card to match yours: **mA/ch** (per-color current at full, ~20 mA for WS2812B), **idle mA** (per-LED quiescent, ~1 mA), and **Volts** (supply, usually 5). It's an estimate of commanded output, not a measurement.
+- The **LED Settings** page shows an **estimated LED draw** (amps and watts), calculated live from the colors currently on the strip — no meter needed, and it updates as you adjust brightness/colors. Because draw varies by LED chip/strip, tune the three inputs on that card to match yours: **mA/ch** (per-color current at full, ~20 mA for WS2812B), **idle mA** (per-LED quiescent, ~1 mA), and **Volts** (supply, usually 5). It's an estimate of commanded output, not a measurement.
 
 **Q - Do I need soldering skills to make it?**
 

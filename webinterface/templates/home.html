@@ -130,40 +130,6 @@
                 </div>
             </div>
         </a>
-        <!-- Estimated LED power draw (computed from live pixels; tune to your strip) -->
-        <a class="glass shadow-glass-lg rounded-glass hover-lift intro-y transition-smooth m-1">
-            <div class="p-3">
-                <div class="flex justify-between items-center mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                    <div class="bg-green-500 rounded-full h-5 px-2 flex justify-items-center text-white font-semibold text-xs">
-                        <span id="led_power_w" class="flex items-center">-- W</span>
-                    </div>
-                </div>
-                <div id="led_current_a" class="text-xl font-bold">-.-- A</div>
-                <div class="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                    <span data-translate="est_led_draw">Est. LED draw</span>
-                    <span class="opacity-70">(max <span id="led_current_max_a">--</span> A)</span>
-                </div>
-                <div class="mt-2 grid grid-cols-3 gap-1">
-                    <label class="text-[10px] text-gray-500 dark:text-gray-400">mA/ch
-                        <input id="led_ma_per_channel" type="number" min="0" step="0.5"
-                               onchange="change_setting('led_ma_per_channel', this.value)"
-                               class="w-full glass-light rounded px-1 py-0.5 text-xs"></label>
-                    <label class="text-[10px] text-gray-500 dark:text-gray-400">idle mA
-                        <input id="led_idle_ma" type="number" min="0" step="0.1"
-                               onchange="change_setting('led_idle_ma', this.value)"
-                               class="w-full glass-light rounded px-1 py-0.5 text-xs"></label>
-                    <label class="text-[10px] text-gray-500 dark:text-gray-400">Volts
-                        <input id="led_supply_voltage" type="number" min="0" step="0.1"
-                               onchange="change_setting('led_supply_voltage', this.value)"
-                               class="w-full glass-light rounded px-1 py-0.5 text-xs"></label>
-                </div>
-            </div>
-        </a>
         <a class="glass shadow-glass-lg rounded-glass hover-lift intro-y transition-smooth m-1">
             <div class="p-3">
                 <div class="flex justify-between items-center mb-2">
