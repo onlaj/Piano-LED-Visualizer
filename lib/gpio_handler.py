@@ -1,6 +1,6 @@
 import time
 
-from RPi import GPIO
+from lib.rpi_drivers import GPIO
 
 from lib.functions import fastColorWipe
 

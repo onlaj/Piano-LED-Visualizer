@@ -6,7 +6,7 @@ import datetime
 import psutil
 import time
 import socket
-from lib.rpi_drivers import GPIO
+from lib.rpi_drivers import GPIO, HAT_DISABLED
 import math
 import subprocess
 import random
@@ -15,23 +15,6 @@ import os
 import json
 
 SENSECOVER = 12
-
-
-def hat_disabled():
-    """True when the LCD control HAT is disabled via the `disable_hat` setting.
-
-    Read straight from settings.xml: this module is imported before a UserSettings
-    instance exists. Disabling lets another HAT (e.g. the Geekworm X735) reuse the
-    GPIO pins PLV would otherwise claim for the joystick/buttons and cover sensor.
-    """
-    try:
-        from xml.etree import ElementTree as ET
-        return ET.parse("config/settings.xml").getroot().findtext("disable_hat") == "1"
-    except Exception:
-        return False
-
-
-HAT_DISABLED = hat_disabled()
 
 if not HAT_DISABLED:
     GPIO.setmode(GPIO.BCM)

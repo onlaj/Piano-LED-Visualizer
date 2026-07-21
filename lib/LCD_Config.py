@@ -25,7 +25,7 @@
  #
  
 from lib.null_drivers import SPInull
-from lib.rpi_drivers import GPIO, spidev
+from lib.rpi_drivers import GPIO, spidev, HAT_DISABLED
 import time
 import os
 
@@ -35,14 +35,7 @@ LCD_DC_PIN          = 25
 LCD_CS_PIN          = 8
 LCD_BL_PIN          = 24
 
-try:
-    from xml.etree import ElementTree as ET
-    _settings_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "settings.xml")
-    _hat_disabled = ET.parse(_settings_path).getroot().findtext("disable_hat") == "1"
-except Exception:
-    _hat_disabled = False
-
-if _hat_disabled:
+if HAT_DISABLED:
     # disable_hat=1: no LCD control HAT, so leave SPI0 alone. The WS281x LED strip on
     # GPIO10 owns /dev/spidev0.0; a second opener here interleaves on the bus and
     # scrambles the LED signal (scattered colors, flicker on every LCD redraw).
