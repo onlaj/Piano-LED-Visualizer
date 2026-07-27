@@ -57,7 +57,7 @@ update_os() {
 # Function to create and configure the autoconnect script
 configure_autoconnect_script() {
   # Create connectall.py file
-  cat <<EOF | sudo tee /usr/local/bin/connectall.py > /dev/null
+  sudo tee /usr/local/bin/connectall.py > /dev/null <<EOF
 #!/usr/bin/python3
 import subprocess
 
@@ -89,7 +89,7 @@ EOF
   execute_command "sudo service udev restart"
 
   # Create midi.service file
-  cat <<EOF | sudo tee /lib/systemd/system/midi.service > /dev/null
+  sudo tee /lib/systemd/system/midi.service > /dev/null <<EOF
 [Unit]
 Description=Initial USB MIDI connect
 
@@ -142,7 +142,7 @@ install_piano_led_visualizer() {
   execute_command "cd Piano-LED-Visualizer"
   execute_command "sudo pip3 install -r requirements.txt --break-system-packages" "check_internet"
   execute_command "sudo raspi-config nonint do_boot_behaviour B2"
-  cat <<EOF | sudo tee /lib/systemd/system/visualizer.service > /dev/null
+  sudo tee /lib/systemd/system/visualizer.service > /dev/null <<EOF
 [Unit]
 Description=Piano LED Visualizer
 After=network-online.target
