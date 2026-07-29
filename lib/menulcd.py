@@ -82,7 +82,8 @@ class MenuLCD:
             self.image = Image.open('webinterface/static/logo240_240.bmp')
         else:
             self.LCD = LCD_1in44.LCD()
-            self.font = ImageFont.load_default()
+            # Use TrueType: Pillow 10+ default fonts no longer expose .size
+            self.font = self._get_font_cached(self.lcd_ttf, self.scale(10))
             self.image = Image.open('webinterface/static/logo128_128.bmp')
 
         # Initialize UI theme
@@ -239,6 +240,21 @@ class MenuLCD:
                 font = ImageFont.load_default()
             self._font_cache[cache_key] = font
         return font
+
+    @staticmethod
+    def _font_height(font):
+        """Return font height compatible with Pillow 10+ (no .size on default fonts)."""
+        size = getattr(font, "size", None)
+        if size is not None:
+            return int(size)
+        if hasattr(font, "getmetrics"):
+            try:
+                ascent, descent = font.getmetrics()
+                return int(ascent + descent)
+            except Exception:
+                pass
+        bbox = font.getbbox("Ag")
+        return int(bbox[3] - bbox[1])
 
     @staticmethod
     def _split_color_components(color_str):
@@ -919,7 +935,7 @@ class MenuLCD:
         viewport_height_orig = lcd_height - content_start_y
         max_visible_items = 4
         # Set item dimensions
-        item_height = scale(theme.item_padding_v * 2) + self.font.size
+        item_height = scale(theme.item_padding_v * 2) + self._font_height(self.font)
         total_item_height = item_height + scale(theme.item_gap)
         # Limit viewport height
         viewport_height = min(viewport_height_orig, total_item_height * max_visible_items)
