@@ -143,39 +143,46 @@ class PlatformRasp(PlatformBase):
         check_profile = subprocess.run(['sudo', 'nmcli', 'connection', 'show', 'Hotspot'],
                                        capture_output=True, text=True)
 
-        if 'Hotspot' in check_profile.stdout:
-            logger.info("Hotspot profile already exists. Skipping creation.")
-            return
+        profile_exists = check_profile.returncode == 0 and 'Hotspot' in check_profile.stdout
 
-        # If we reach here, the profile doesn't exist, so we create it
-        logger.info("Creating new Hotspot profile...")
         # Default password if not provided
         password = "visualizer"
 
-
         try:
-            subprocess.run([
-                'sudo', 'nmcli', 'connection', 'add', 'type', 'wifi', 'ifname', 'wlan0',
-                'con-name', 'Hotspot', 'autoconnect', 'no', 'ssid', 'PianoLEDVisualizer'
-            ], check=True)
+            if not profile_exists:
+                # If we reach here, the profile doesn't exist, so we create it
+                logger.info("Creating new Hotspot profile...")
+                subprocess.run([
+                    'sudo', 'nmcli', 'connection', 'add', 'type', 'wifi', 'ifname', 'wlan0',
+                    'con-name', 'Hotspot', 'autoconnect', 'no', 'ssid', 'PianoLEDVisualizer'
+                ], check=True)
 
+                subprocess.run([
+                    'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
+                    '802-11-wireless.mode', 'ap', '802-11-wireless.band', 'bg',
+                    'ipv4.method', 'shared'
+                ], check=True)
+
+                subprocess.run([
+                    'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
+                    'wifi-sec.key-mgmt', 'wpa-psk'
+                ], check=True)
+
+                subprocess.run([
+                    'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
+                    'wifi-sec.psk', password
+                ], check=True)
+
+                logger.info(f"Hotspot profile created successfully with password: {password}")
+            else:
+                logger.info("Hotspot profile already exists.")
+
+            # Trixie/newer NM: WPA AP fails with "802.1X supplicant took too long"
+            # unless Protected Management Frames (802.11w) are disabled (pmf=1).
             subprocess.run([
                 'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
-                '802-11-wireless.mode', 'ap', '802-11-wireless.band', 'bg',
-                'ipv4.method', 'shared'
+                '802-11-wireless-security.pmf', '1'
             ], check=True)
-
-            subprocess.run([
-                'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
-                'wifi-sec.key-mgmt', 'wpa-psk'
-            ], check=True)
-
-            subprocess.run([
-                'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
-                'wifi-sec.psk', password
-            ], check=True)
-
-            logger.info(f"Hotspot profile created successfully with password: {password}")
         except subprocess.CalledProcessError as e:
             logger.warning(f"An error occurred while creating the Hotspot profile: {e}")
 
@@ -208,13 +215,50 @@ class PlatformRasp(PlatformBase):
 
     @staticmethod
     def enable_hotspot():
+        """Bring up the Hotspot AP. Ensures PMF is disabled (required on Trixie)."""
         logger.info("Enabling Hotspot")
-        subprocess.run(['sudo', 'nmcli', 'connection', 'up', 'Hotspot'])
+        # Ensure PMF is off before activation (safe on Bookworm; required on Trixie)
+        subprocess.run([
+            'sudo', 'nmcli', 'connection', 'modify', 'Hotspot',
+            '802-11-wireless-security.pmf', '1'
+        ], check=False, capture_output=True, text=True)
+        # Free wlan0 from any client Wi-Fi profile so AP mode can start
+        active = subprocess.run(
+            ['nmcli', '-t', '-f', 'NAME,DEVICE,TYPE', 'connection', 'show', '--active'],
+            capture_output=True, text=True, check=False
+        )
+        if active.returncode == 0:
+            for line in active.stdout.splitlines():
+                parts = line.split(':')
+                if len(parts) >= 2 and parts[1] == 'wlan0' and parts[0] != 'Hotspot':
+                    subprocess.run(
+                        ['sudo', 'nmcli', 'connection', 'down', parts[0]],
+                        check=False, capture_output=True, text=True
+                    )
+        time.sleep(2)
+        result = subprocess.run(
+            ['sudo', 'nmcli', 'connection', 'up', 'Hotspot'],
+            capture_output=True, text=True, check=False
+        )
+        if result.returncode != 0:
+            err = (result.stderr or result.stdout or "").strip()
+            logger.warning(f"Failed to enable Hotspot: {err}")
+        return result.returncode == 0
 
     @staticmethod
     def disable_hotspot():
+        """Take Hotspot down if it is active."""
         logger.info("Disabling Hotspot")
-        subprocess.run(['sudo', 'nmcli', 'connection', 'down', 'Hotspot'])
+        result = subprocess.run(
+            ['sudo', 'nmcli', 'connection', 'down', 'Hotspot'],
+            capture_output=True, text=True, check=False
+        )
+        # Not active is fine when switching to client Wi-Fi
+        if result.returncode != 0:
+            err = (result.stderr or result.stdout or "").strip()
+            if 'not an active connection' not in err.lower() and 'no active connection' not in err.lower():
+                logger.warning(f"Hotspot down: {err}")
+        time.sleep(3)
 
     @staticmethod
     def get_current_connections():
@@ -292,28 +336,81 @@ class PlatformRasp(PlatformBase):
         hotspot.last_wifi_check_time = current_time
 
     def connect_to_wifi(self, ssid, password, hotspot, usersettings):
-        # Disable the hotspot first
+        # Disable the hotspot first (includes settle delay)
         self.disable_hotspot()
 
+        # Sanitize a stable connection profile name (nmcli dislikes some chars in con-name)
+        con_name = "".join(c if c.isalnum() or c in "-_" else "_" for c in ssid)[:180] or "wifi"
+        password = password or ""
+
         try:
+            # Trixie NetworkManager: `nmcli device wifi connect ... password ...`
+            # fails with "802-11-wireless-security.key-mgmt: property is missing".
+            # Create/update an explicit connection profile instead (works on Bookworm too).
+            existing = subprocess.run(
+                ['nmcli', '-t', '-f', 'NAME', 'connection', 'show'],
+                capture_output=True, text=True, check=False
+            )
+            names = set(existing.stdout.splitlines()) if existing.returncode == 0 else set()
+
+            if con_name in names:
+                if password:
+                    subprocess.run([
+                        'sudo', 'nmcli', 'connection', 'modify', con_name,
+                        'connection.interface-name', 'wlan0',
+                        'connection.autoconnect', 'yes',
+                        '802-11-wireless.ssid', ssid,
+                        'wifi-sec.key-mgmt', 'wpa-psk',
+                        'wifi-sec.psk', password,
+                    ], check=True, capture_output=True, text=True)
+                else:
+                    subprocess.run([
+                        'sudo', 'nmcli', 'connection', 'modify', con_name,
+                        'connection.interface-name', 'wlan0',
+                        'connection.autoconnect', 'yes',
+                        '802-11-wireless.ssid', ssid,
+                    ], check=True, capture_output=True, text=True)
+            else:
+                add_cmd = [
+                    'sudo', 'nmcli', 'connection', 'add',
+                    'type', 'wifi',
+                    'ifname', 'wlan0',
+                    'con-name', con_name,
+                    'ssid', ssid,
+                    'connection.autoconnect', 'yes',
+                ]
+                if password:
+                    add_cmd.extend([
+                        'wifi-sec.key-mgmt', 'wpa-psk',
+                        'wifi-sec.psk', password,
+                    ])
+                subprocess.run(add_cmd, check=True, capture_output=True, text=True)
+
             result = subprocess.run(
-                ['sudo', 'nmcli', 'device', 'wifi', 'connect', ssid, 'password', password],
+                ['sudo', 'nmcli', 'connection', 'up', con_name],
                 capture_output=True,
                 text=True,
-                timeout=30  # Set a timeout for the connection attempt
+                timeout=45
             )
-            # Check if the connection was successful
             if result.returncode == 0:
                 logger.info(f"Successfully connected to {ssid}")
                 usersettings.change_setting_value("is_hotspot_active", 0)
                 return True
-            else:
-                logger.warning(f"Failed to connect to {ssid}. Error: {result.stderr}")
-                usersettings.change_setting_value("is_hotspot_active", 1)
-                self.enable_hotspot()
+
+            err = (result.stderr or result.stdout or "").strip()
+            logger.warning(f"Failed to connect to {ssid}. Error: {err}")
+            usersettings.change_setting_value("is_hotspot_active", 1)
+            self.enable_hotspot()
 
         except subprocess.TimeoutExpired:
             logger.warning(f"Connection attempt to {ssid} timed out")
+            usersettings.change_setting_value("is_hotspot_active", 1)
+            self.enable_hotspot()
+        except subprocess.CalledProcessError as e:
+            err = (getattr(e, 'stderr', None) or getattr(e, 'stdout', None) or str(e))
+            if isinstance(err, bytes):
+                err = err.decode(errors='replace')
+            logger.warning(f"Failed to connect to {ssid}. Error: {str(err).strip()}")
             usersettings.change_setting_value("is_hotspot_active", 1)
             self.enable_hotspot()
         except Exception as e:
@@ -324,6 +421,19 @@ class PlatformRasp(PlatformBase):
     def disconnect_from_wifi(self, hotspot, usersettings):
         logger.info("Disconnecting from wifi")
         hotspot.hotspot_script_time = time.time()
+        # Bring down active client Wi-Fi on wlan0, then start Hotspot
+        active = subprocess.run(
+            ['nmcli', '-t', '-f', 'NAME,DEVICE', 'connection', 'show', '--active'],
+            capture_output=True, text=True, check=False
+        )
+        if active.returncode == 0:
+            for line in active.stdout.splitlines():
+                parts = line.split(':')
+                if len(parts) >= 2 and parts[1] == 'wlan0' and parts[0] != 'Hotspot':
+                    subprocess.run(
+                        ['sudo', 'nmcli', 'connection', 'down', parts[0]],
+                        check=False, capture_output=True, text=True
+                    )
         self.enable_hotspot()
         usersettings.change_setting_value("is_hotspot_active", 1)
 
