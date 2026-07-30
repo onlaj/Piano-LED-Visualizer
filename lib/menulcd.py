@@ -223,22 +223,35 @@ class MenuLCD:
         return f"{color[0]},{color[1]},{color[2]}"
 
     def _get_font_cached(self, path, size):
-        """Load and cache TrueType fonts keyed by (path, size)."""
-        if not path or not os.path.exists(path):
-            return ImageFont.load_default()
+        """Load and cache TrueType fonts keyed by (path, size).
+
+        Falls back to Pillow's default bitmap font if FreeType/TTF is unavailable
+        (e.g. missing libfreetype.so.6 on a minimal Trixie Lite install).
+        """
         try:
             size_int = max(1, int(round(size)))
         except (TypeError, ValueError):
             size_int = 1
-        cache_key = (path, size_int)
+
+        if not path or not os.path.exists(path):
+            cache_key = ("__default__", size_int)
+        else:
+            cache_key = (path, size_int)
+
         font = self._font_cache.get(cache_key)
-        if font is None:
-            try:
+        if font is not None:
+            return font
+
+        try:
+            if path and os.path.exists(path):
                 font = ImageFont.truetype(path, size_int)
-            except Exception as exc:
-                logger.debug(f"Falling back to default font for {path} ({exc})")
+            else:
                 font = ImageFont.load_default()
-            self._font_cache[cache_key] = font
+        except Exception as exc:
+            logger.warning(f"Falling back to default font for {path} ({exc})")
+            font = ImageFont.load_default()
+
+        self._font_cache[cache_key] = font
         return font
 
     @staticmethod
@@ -1353,12 +1366,12 @@ class MenuLCD:
         top_offset = self.scale(2)
 
         if self.screensaver_settings["time"] == "1":
-            font_hour = ImageFont.truetype(self.lcd_ttf, self.scale(31))
+            font_hour = self._get_font_cached(self.lcd_ttf, self.scale(31))
             self.draw.text((self.scale(4), top_offset), hour, fill=self.text_color, font=font_hour)
             top_offset += self.scale(31)
 
         if self.screensaver_settings["date"] == "1":
-            font_date = ImageFont.truetype(self.lcd_ttf, self.scale(13))
+            font_date = self._get_font_cached(self.lcd_ttf, self.scale(13))
             self.draw.text((self.scale(34), top_offset), date, fill=self.text_color, font=font_date)
             top_offset += self.scale(13)
 
@@ -1376,7 +1389,7 @@ class MenuLCD:
         if info_height_font > self.scale(12):
             info_height_font = self.scale(12)
 
-        font = ImageFont.truetype(self.lcd_ttf, int(info_height_font))
+        font = self._get_font_cached(self.lcd_ttf, int(info_height_font))
 
         if self.screensaver_settings["cpu"] == "1":
             self.draw.text((self.scale(1), top_offset), "CPU: " + str(cpu) + "% (" + str(cpu_average) + "%)",
@@ -1396,7 +1409,7 @@ class MenuLCD:
                 info_height_font_network = self.scale(11)
             else:
                 info_height_font_network = int(info_height_font)
-            font_network = ImageFont.truetype(self.lcd_ttf, int(info_height_font_network))
+            font_network = self._get_font_cached(self.lcd_ttf, int(info_height_font_network))
             self.draw.text((self.scale(1), top_offset),
                            "D:" + str("{:.2f}".format(download)) + "Mb/s U:" + str("{:.2f}".format(upload)) + "Mb/s",
                            fill=self.text_color, font=font_network)
