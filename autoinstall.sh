@@ -1,9 +1,27 @@
 #!/bin/bash
+#
+# Autoinstall for Piano LED Visualizer on Raspberry Pi OS Trixie (Debian 13).
+# For Bookworm, use autoinstall_bookworm.sh instead.
+#
 
 # Function to display error message and exit
 display_error() {
   echo "Error: $1" >&2
   exit 1
+}
+
+require_trixie() {
+  if [ ! -f /etc/os-release ]; then
+    display_error "Cannot detect OS (/etc/os-release missing). This script requires Raspberry Pi OS Trixie."
+  fi
+  # shellcheck source=/dev/null
+  . /etc/os-release
+  if [ "${VERSION_CODENAME:-}" != "trixie" ]; then
+    echo "Error: This script requires Raspberry Pi OS Trixie (got: ${VERSION_CODENAME:-unknown})." >&2
+    echo "For Bookworm, use autoinstall_bookworm.sh instead:" >&2
+    echo "  sudo bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/autoinstall_bookworm.sh)\"" >&2
+    exit 1
+  fi
 }
 
 # Function to execute a command and handle errors, with optional internet connectivity check
@@ -42,11 +60,10 @@ execute_command() {
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then
       echo "Command failed with exit code $exit_code."
+      return "$exit_code"
     fi
   fi
 }
-
-
 
 # Function to update the OS
 update_os() {
@@ -54,10 +71,35 @@ update_os() {
   execute_command "sudo apt-get upgrade -y"
 }
 
+# Function to enable SPI interface
+enable_spi_interface() {
+  execute_command "sudo raspi-config nonint do_spi 0"
+}
+
+# Function to install required packages (Trixie)
+install_packages() {
+  execute_command "sudo apt-get install -y \
+    ruby git python3-pip python3-venv \
+    autotools-dev libtool autoconf \
+    libasound2t64 libavahi-client3 libavahi-common3 \
+    libc6 libgcc-s1 libstdc++6 python3 \
+    libopenblas-dev libavahi-client-dev libasound2-dev \
+    libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev \
+    libical-dev libreadline-dev \
+    libopenjp2-7 libtiff6 libjack0 libjack-dev \
+    fonts-freefont-ttf libfreetype6 gcc make build-essential scons swig abcmidi \
+    cmake pkg-config ninja-build libfmt-dev" "check_internet"
+}
+
+# Function to disable audio output (takes effect after final reboot)
+disable_audio_output() {
+  echo 'blacklist snd_bcm2835' | sudo tee /etc/modprobe.d/snd-blacklist.conf > /dev/null
+  sudo sed -i 's/dtparam=audio=on/#dtparam=audio=on/' /boot/firmware/config.txt
+}
+
 # Function to create and configure the autoconnect script
 configure_autoconnect_script() {
-  # Create connectall.py file
-  cat <<EOF | sudo tee /usr/local/bin/connectall.py > /dev/null
+  cat <<'EOF' | sudo tee /usr/local/bin/connectall.py > /dev/null
 #!/usr/bin/python3
 import subprocess
 
@@ -66,14 +108,14 @@ port_list = []
 client = "0"
 for line in str(ports).splitlines():
     if line.startswith("client "):
-        client = line[7:].split(":",2)[0]
+        client = line[7:].split(":", 2)[0]
         if client == "0" or "Through" in line:
             client = "0"
     else:
-        if client == "0" or line.startswith('\t'):
+        if client == "0" or line.startswith("\t"):
             continue
         port = line.split()[0]
-        port_list.append(client+":"+port)
+        port_list.append(client + ":" + port)
 for source in port_list:
     for target in port_list:
         if source != target:
@@ -81,14 +123,9 @@ for source in port_list:
 EOF
   execute_command "sudo chmod +x /usr/local/bin/connectall.py"
 
-  # Create udev rules file
-  echo 'ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/local/bin/connectall.py"' | sudo tee -a /etc/udev/rules.d/33-midiusb.rules > /dev/null
+  echo 'ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/local/bin/connectall.py"' \
+    | sudo tee /etc/udev/rules.d/33-midiusb.rules > /dev/null
 
-  # Reload services
-  execute_command "sudo udevadm control --reload"
-  execute_command "sudo service udev restart"
-
-  # Create midi.service file
   cat <<EOF | sudo tee /lib/systemd/system/midi.service > /dev/null
 [Unit]
 Description=Initial USB MIDI connect
@@ -100,47 +137,68 @@ ExecStart=/usr/local/bin/connectall.py
 WantedBy=multi-user.target
 EOF
 
-  # Reload daemon and enable service
+  execute_command "sudo udevadm control --reload"
   execute_command "sudo systemctl daemon-reload"
-  execute_command "sudo systemctl enable midi.service"
-  execute_command "sudo systemctl start midi.service"
+  execute_command "sudo systemctl enable --now midi.service"
 }
 
-# Function to enable SPI interface
-enable_spi_interface() {
-  # Edit config.txt file to enable SPI interface
-  execute_command "sudo raspi-config nonint do_spi 0"
+install_rtpmidi_arm64() {
+  execute_command "cd /home"
+  execute_command "sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v26.01/rtpmidid-debian-trixie-arm64-26.01.deb" "check_internet"
+  execute_command "sudo apt-get install -y libasound2t64 libavahi-client3 libavahi-common3" "check_internet"
+  execute_command "sudo dpkg -i rtpmidid-debian-trixie-arm64-26.01.deb"
+  execute_command "sudo apt -f install -y"
+  execute_command "sudo systemctl enable --now rtpmidid"
+  execute_command "rm -f rtpmidid-debian-trixie-arm64-26.01.deb"
 }
 
-# Function to install required packages
-install_packages() {
-  execute_command "sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2 libavahi-client3 libavahi-common3 libc6 libfmt9 libgcc-s1 libstdc++6 python3 libopenblas-dev libavahi-client-dev libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libatlas-base-dev libopenjp2-7 libtiff6 libjack0 libjack-dev fonts-freefont-ttf gcc make build-essential scons swig abcmidi" "check_internet"
+install_rtpmidi_armhf_from_source() {
+  echo "Building rtpmidid from source for armhf. On a Pi Zero this can take a long time — do not interrupt."
+  execute_command "cd /home"
+  execute_command "sudo rm -rf rtpmidid-src"
+  execute_command "sudo git clone --depth 1 --branch v26.01 https://github.com/davidmoreno/rtpmidid.git rtpmidid-src" "check_internet"
+  execute_command "cd /home/rtpmidid-src && sudo cmake -S . -B build \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DENABLE_TESTS=OFF \
+    -DENABLE_PCH=OFF \
+    -DUSE_FMT=ON \
+    -DCPP_VERSION=17 \
+    -GNinja"
+  execute_command "cd /home/rtpmidid-src && sudo cmake --build build"
+  execute_command "sudo install -m 755 /home/rtpmidid-src/build/src/rtpmidid /usr/bin/rtpmidid"
+  execute_command "sudo mkdir -p /etc/rtpmidid"
+  execute_command "sudo cp /home/rtpmidid-src/default.ini /etc/rtpmidid/default.ini"
+  execute_command "sudo cp /home/rtpmidid-src/debian/rtpmidid.service /lib/systemd/system/rtpmidid.service"
+  execute_command "sudo useradd -r -s /usr/sbin/nologin -G audio rtpmidid 2>/dev/null || true"
+  execute_command "sudo systemctl daemon-reload"
+  execute_command "sudo systemctl enable --now rtpmidid"
 }
 
-# Function to disable audio output
-disable_audio_output() {
-  echo 'blacklist snd_bcm2835' | sudo tee -a /etc/modprobe.d/snd-blacklist.conf > /dev/null
-  sudo sed -i 's/dtparam=audio=on/#dtparam=audio=on/' /boot/config.txt
-}
-
-# Function to install RTP-midi server
+# Function to install RTP-midi server (arch-specific)
 install_rtpmidi_server() {
-  execute_command "cd /home/"
-  execute_command "sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v24.12/rtpmidid_24.12.2_armhf.deb" "check_internet"
-  execute_command "sudo dpkg -i rtpmidid_24.12.2_armhf.deb"
-  execute_command "sudo apt -f install"
-  execute_command "rm rtpmidid_24.12.2_armhf.deb"
+  local arch
+  arch="$(dpkg --print-architecture)"
+  case "$arch" in
+    arm64)
+      install_rtpmidi_arm64
+      ;;
+    armhf)
+      install_rtpmidi_armhf_from_source
+      ;;
+    *)
+      display_error "Unsupported architecture for rtpmidid install: $arch (expected arm64 or armhf)"
+      ;;
+  esac
 }
-
 
 # Function to install Piano-LED-Visualizer
 install_piano_led_visualizer() {
-  execute_command "cd /home/"
+  execute_command "cd /home"
   execute_command "sudo git clone https://github.com/onlaj/Piano-LED-Visualizer" "check_internet"
   execute_command "sudo chown -R $USER:$USER /home/Piano-LED-Visualizer"
-  execute_command "sudo chmod -R u+rwx /home/Piano-LED-Visualizer"
-  execute_command "cd Piano-LED-Visualizer"
-  execute_command "sudo pip3 install -r requirements.txt --break-system-packages" "check_internet"
+  execute_command "cd /home/Piano-LED-Visualizer && python3 -m venv .venv"
+  execute_command "cd /home/Piano-LED-Visualizer && .venv/bin/pip install --upgrade pip" "check_internet"
+  execute_command "cd /home/Piano-LED-Visualizer && .venv/bin/pip install -r requirements.txt" "check_internet"
   execute_command "sudo raspi-config nonint do_boot_behaviour B2"
   cat <<EOF | sudo tee /lib/systemd/system/visualizer.service > /dev/null
 [Unit]
@@ -152,16 +210,15 @@ Wants=network-online.target
 WantedBy=multi-user.target
 
 [Service]
-ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py
+ExecStart=/home/Piano-LED-Visualizer/.venv/bin/python /home/Piano-LED-Visualizer/visualizer.py
 Restart=always
 Type=simple
-User=plv
-Group=plv
+User=root
+Group=root
+WorkingDirectory=/home/Piano-LED-Visualizer
 EOF
   execute_command "sudo systemctl daemon-reload"
   execute_command "sudo systemctl enable visualizer.service"
-  execute_command "sudo systemctl start visualizer.service"
-
   execute_command "sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/"
 }
 
@@ -192,16 +249,17 @@ echo "
 #      \\  /   | |\\__ \\| |_| || (_| || || | / /|  __/| |
 #       \\/    |_||___/ \\__,_| \\__,_||_||_|/___|\\___||_|
 #
-# Autoinstall script
+# Autoinstall script (Trixie)
 # - by Onlaj
 "
 
 # Main script execution
+require_trixie
 update_os
-configure_autoconnect_script
 enable_spi_interface
 install_packages
 disable_audio_output
+configure_autoconnect_script
 install_rtpmidi_server
 install_piano_led_visualizer
 finish_installation

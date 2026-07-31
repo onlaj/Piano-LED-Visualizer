@@ -1,125 +1,267 @@
-## Pre-installation setup
+# Manual installation (Raspberry Pi OS Trixie)
 
-Before installing Raspberry Pi OS Lite, it's recommended to configure your system with the following settings:
-- Username: plv
-- Password: visualizer
-- Local hostname: pianoledvisualizer.local
+Guide for a **fresh install** of Piano LED Visualizer on **Raspberry Pi OS Lite (Trixie / Debian 13)**.
 
-These settings can be easily configured using the **Raspberry Pi Imager** tool:
-1. Open Raspberry Pi Imager
-2. Select Raspberry Pi OS Lite (for RPi Zero) as your operating system
-3. Click the gear/cog icon to access advanced options
-4. Set the hostname to "pianoledvisualizer.local"
-5. Enable SSH
-6. Set username to "plv" and password to "visualizer"
-7. Configure your WiFi settings if needed
-8. Save settings and write the image to your SD card
+Validated on Trixie with **rtpmidid v26.01** built from source (`USE_FMT=ON`).
 
-This configuration will make it easier to connect to your Raspberry Pi using SSH via `ssh plv@pianoledvisualizer.local`
+> For the older Bookworm-era notes, see [manual_installation_bookworm.md](manual_installation_bookworm.md).  
+> Prefer a one-shot install? Use [`autoinstall.sh`](../autoinstall.sh) after flashing (Trixie).  
+> On Bookworm, use [`autoinstall_bookworm.sh`](../autoinstall_bookworm.sh) instead.
 
 ---
 
-Install [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/) on your SD card.
+## 0. Flash the OS
 
-If you are not able to connect your monitor, mouse and keyboard to RPi you can connect to it using SSH over [Wi-Fi](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
+1. Install [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
+2. Choose **Raspberry Pi OS Lite**:
+  - **Pi Zero / Zero W:** Lite **32-bit** (Trixie)
+  - **Pi Zero 2 W (or newer):** Lite **64-bit** (Trixie) is fine
+3. Open **OS customisation**:
+  - Hostname: `pianoledvisualizer`
+  - Enable SSH
+  - Username: `plv`
+  - Password: `visualizer`
+  - Configure Wi-Fi (recommended)
+4. Write the image to the SD card, boot the Pi, then connect:
 
-Run installation script:
+```bash
+ssh plv@pianoledvisualizer.local
+```
 
-`sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/autoinstall.sh)"`
+On new Trixie images, passwordless `sudo` is off by default. Enable it for easier setup:
 
-**or follow those steps:**
- 
-### 1. **Updating OS** 
-After succesfully booting RPi (and connecting to it by SSH if necessary) we need to make sure that everything is up to date.
-- `sudo apt-get update`
-- `sudo apt-get upgrade` //*it will take a while, go grab a coffee*
+```bash
+echo 'plv ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/010_plv-nopasswd
+sudo chmod 440 /etc/sudoers.d/010_plv-nopasswd
+```
+
+Optional locale fix (clears `perl: warning: Setting locale failed`). Prefer the noninteractive path:
+
+```bash
+sudo sed -i 's/^# *en_GB.UTF-8 UTF-8/en_GB.UTF-8 UTF-8/' /etc/locale.gen
+sudo locale-gen en_GB.UTF-8
+sudo update-locale LANG=en_GB.UTF-8 LC_ALL=en_GB.UTF-8
+unset LC_CTYPE
+export LANG=en_GB.UTF-8 LC_ALL=en_GB.UTF-8
+```
+
+Use `en_US.UTF-8` instead if you prefer. Then log out of SSH and reconnect.
 
 
-###  2. **Enabling SPI interface** ### 
- - Here you can find instruction: [Enable SPI Interface on the Raspberry Pi](https://www.raspberrypi-spy.co.uk/2014/08/enabling-the-spi-interface-on-the-raspberry-pi/)
- - Or simply use this command:
+---
+
+
+
+## 1. Update the OS
+
+```bash
+sudo apt-get update
+sudo apt-get upgrade -y
+```
+
+---
+
+
+
+## 2. Enable SPI
 
 ```bash
 sudo raspi-config nonint do_spi 0
 ```
 
-### 3. **Installing packages** //*ready for another cup?* ### 
+---
+
+
+
+## 3. Install system packages
 
 ```bash
-sudo apt-get install -y ruby git python3-pip autotools-dev libtool autoconf libasound2 libavahi-client3 libavahi-common3 libc6 libgcc-s1 libstdc++6 python3 libopenblas-dev libavahi-client-dev libasound2-dev libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libopenjp2-7 libtiff6 libjack0 libjack-dev fonts-freefont-ttf gcc make build-essential scons swig abcmidi
+sudo apt-get install -y \
+  ruby git python3-pip python3-venv \
+  autotools-dev libtool autoconf \
+  libasound2t64 libavahi-client3 libavahi-common3 \
+  libc6 libgcc-s1 libstdc++6 python3 \
+  libopenblas-dev libavahi-client-dev libasound2-dev \
+  libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev \
+  libical-dev libreadline-dev \
+  libopenjp2-7 libtiff6 libjack0 libjack-dev \
+  fonts-freefont-ttf libfreetype6 gcc make build-essential scons swig abcmidi \
+  cmake pkg-config ninja-build libfmt-dev
+```
+
+Notes for Trixie:
+
+- Use `libasound2t64` (not `libasound2`)
+- Do **not** install `libatlas-base-dev` (removed in Debian 13)
+- Do **not** install Bookworm `libfmt9` debs
+
+---
+
+
+
+## 4. Disable onboard audio
+
+WS281x LEDs need PWM; onboard audio conflicts with that.
+
+```bash
+echo 'blacklist snd_bcm2835' | sudo tee /etc/modprobe.d/snd-blacklist.conf
+sudo sed -i 's/dtparam=audio=on/#dtparam=audio=on/' /boot/firmware/config.txt
+sudo reboot
+```
+
+Reconnect over SSH after reboot.
+
+---
+
+
+
+## 5. USB MIDI auto-connect (recommended)
+
+```bash
+sudo tee /usr/local/bin/connectall.py >/dev/null <<'EOF'
+#!/usr/bin/python3
+import subprocess
+
+ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
+port_list = []
+client = "0"
+for line in str(ports).splitlines():
+    if line.startswith("client "):
+        client = line[7:].split(":", 2)[0]
+        if client == "0" or "Through" in line:
+            client = "0"
+    else:
+        if client == "0" or line.startswith("\t"):
+            continue
+        port = line.split()[0]
+        port_list.append(client + ":" + port)
+for source in port_list:
+    for target in port_list:
+        if source != target:
+            subprocess.call("aconnect %s %s" % (source, target), shell=True)
+EOF
+sudo chmod +x /usr/local/bin/connectall.py
+
+echo 'ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/local/bin/connectall.py"' \
+  | sudo tee /etc/udev/rules.d/33-midiusb.rules
+
+sudo tee /lib/systemd/system/midi.service >/dev/null <<'EOF'
+[Unit]
+Description=Initial USB MIDI connect
+
+[Service]
+ExecStart=/usr/local/bin/connectall.py
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo udevadm control --reload
+sudo systemctl daemon-reload
+sudo systemctl enable --now midi.service
+```
+
+---
+
+
+
+## 6. Install RTP MIDI (optional)
+
+
+Check architecture:
+
+```bash
+dpkg --print-architecture
+```
+
+This reports the **OS image** architecture (not the board alone):
+
+| Result | Meaning | Typical devices |
+|--------|---------|-----------------|
+| `armhf` | 32-bit | Pi Zero / Zero W (always). Also any board flashed with a 32-bit image |
+| `arm64` | 64-bit | Pi Zero 2 W, Pi 3 / 4 / 5 (and similar) when running a **64-bit** image |
+
+Follow **6a** for `arm64`, **6b** for `armhf`.
+
+### 6a. `arm64` - official Trixie package
+
+```bash
+cd /home
+sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v26.01/rtpmidid-debian-trixie-arm64-26.01.deb
+sudo apt-get install -y libasound2t64 libavahi-client3 libavahi-common3
+sudo dpkg -i rtpmidid-debian-trixie-arm64-26.01.deb
+sudo apt -f install -y
+sudo systemctl enable --now rtpmidid
+systemctl status rtpmidid --no-pager
 ```
 
 
-### 4. **Disabling audio output** ### 
 
-    sudo nano /etc/modprobe.d/snd-blacklist.conf
-- paste and save:
+### 6b. `armhf` (Pi Zero / Zero W) - build from source
 
-    `blacklist snd_bcm2835`
-- And one more file:
-
-    `sudo nano /boot/config.txt`
-- Change `dtparam=audio=on` to `#dtparam=audio=on`
-
-- Reboot RPi
-
-`sudo reboot`
-
-
-### 5. **Installing RTP-midi server** (optional) ### 
-*This part is not needed if you're not going to connect your RPi to PC.*
-
-We are going to use  [RTP MIDI User Space Driver Daemon for Linux](https://github.com/davidmoreno/rtpmidid/releases)
-
-- Navigate to /home folder:
-
-`cd /home/`
-
-- Download and install the prerequisite `libfmt9` package:
-
-`sudo wget http://ftp.de.debian.org/debian/pool/main/f/fmtlib/libfmt9_9.1.0+ds1-2_arm64.deb`
-
-`sudo dpkg -i libfmt9_9.1.0+ds1-2_arm64.deb`
-
-`sudo apt -f install`
-
-- Download and install `rtpmidid` package:
-
-
-`sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v24.12/rtpmidid_24.12.2_armhf.deb`
-
-`sudo dpkg -i rtpmidid_24.12.2_armhf.deb`
-
-`sudo apt -f install`
-
-### 6. **Installing Piano-LED-Visualizer** ###
-- Navigate to /home folder:
-
-`cd /home/`
-
-- GIT clone repository
-
-`sudo git clone https://github.com/onlaj/Piano-LED-Visualizer`
-
-`cd Piano-LED-Visualizer`
-- Install required libraries
-
-`sudo apt-get install -y python3-rpi.gpio python3-webcolors python3-psutil python3-mido python3-pillow python3-rtmidi python3-spidev python3-numpy python3-flask python3-waitress python3-websockets python3-werkzeug`
-
-`sudo pip3 install rpi-ws281x --break-system-packages`
-
-- Enable autologin on boot
-
-`sudo raspi-config`
-
-`Select "System options" then “Boot / Auto Login” then “Console Autologin” `
-- Enable autostart script on boot:
-
-`sudo nano /lib/systemd/system/visualizer.service`
-
-Paste and save:
+There is **no** official Trixie armhf deb. Build v26.01 with **libfmt** (required on GCC 14; default `std::format` fails to compile):
 
 ```bash
+cd /home
+sudo rm -rf rtpmidid-src
+sudo git clone --depth 1 --branch v26.01 https://github.com/davidmoreno/rtpmidid.git rtpmidid-src
+cd rtpmidid-src
+
+sudo cmake -S . -B build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DENABLE_TESTS=OFF \
+  -DENABLE_PCH=OFF \
+  -DUSE_FMT=ON \
+  -DCPP_VERSION=17 \
+  -GNinja
+
+sudo cmake --build build
+```
+
+Confirm cmake printed `Using fmt library`, then install:
+
+```bash
+sudo install -m 755 build/src/rtpmidid /usr/bin/rtpmidid
+sudo mkdir -p /etc/rtpmidid
+sudo cp default.ini /etc/rtpmidid/default.ini
+sudo cp debian/rtpmidid.service /lib/systemd/system/rtpmidid.service
+sudo useradd -r -s /usr/sbin/nologin -G audio rtpmidid 2>/dev/null || true
+sudo systemctl daemon-reload
+sudo systemctl enable --now rtpmidid
+systemctl status rtpmidid --no-pager
+```
+
+Expected: `Active: active (running)`.
+
+On a Pi Zero the compile can take a long time - do not interrupt it.
+
+---
+
+
+
+## 7. Install Piano LED Visualizer
+
+```bash
+cd /home
+sudo git clone https://github.com/onlaj/Piano-LED-Visualizer
+sudo chown -R "$USER:$USER" /home/Piano-LED-Visualizer
+cd /home/Piano-LED-Visualizer
+
+python3 -m venv .venv
+.venv/bin/pip install --upgrade pip
+.venv/bin/pip install -r requirements.txt
+```
+
+Enable console autologin:
+
+```bash
+sudo raspi-config nonint do_boot_behaviour B2
+```
+
+Create the service:
+
+```bash
+sudo tee /lib/systemd/system/visualizer.service >/dev/null <<'EOF'
 [Unit]
 Description=Piano LED Visualizer
 After=network-online.target
@@ -129,31 +271,79 @@ Wants=network-online.target
 WantedBy=multi-user.target
 
 [Service]
-ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py
+ExecStart=/home/Piano-LED-Visualizer/.venv/bin/python /home/Piano-LED-Visualizer/visualizer.py
 Restart=always
 Type=simple
-User=plv
-Group=plv
+User=root
+Group=root
+WorkingDirectory=/home/Piano-LED-Visualizer
+EOF
 ```
 
-*If you are using WaveShare 1.3inch 240x240 LED Hat instead of 1.44inch 128x128, edit accordingly:*
-`ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py --display 1in3`
+Optional flags on `ExecStart`:
 
-*If you want to use your RPi upside down add `--rotatescreen true` :*
+- WaveShare 1.3" 240×240: add `--display 1in3`
+- Upside-down mount: add `--rotatescreen true`
 
-`ExecStart=sudo python3 /home/Piano-LED-Visualizer/visualizer.py --rotatescreen true`
+Enable and reboot:
 
-- Reload daemon and enable service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable visualizer.service
+sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/
+sudo reboot
+```
 
-   `sudo systemctl daemon-reload`
-   
-   `sudo systemctl enable visualizer.service`
-    
-   `sudo systemctl start visualizer.service`
+After 1–3 minutes you should see the Visualizer menu on the LCD.  
+Web UI: `http://pianoledvisualizer.local` (same network), or the hotspot setup from the project image docs if you enable that later.
+
+---
 
 
-- Change permissions:
 
-  `sudo chmod a+rwxX -R /home/Piano-LED-Visualizer/`
+## Troubleshooting
 
-Now you can type `sudo reboot` to test if everything works. After 1-3 minutes you should see Visualizer menu on RPi screen.
+
+
+### Hotspot: `802.1X supplicant took too long to authenticate`
+
+Known Raspberry Pi OS **Trixie** issue with NetworkManager WPA access points. Disable Protected Management Frames (802.11w) on the Hotspot profile:
+
+```bash
+sudo nmcli connection modify Hotspot 802-11-wireless-security.pmf 1
+sudo nmcli connection up Hotspot
+```
+
+Current app code applies this automatically when creating/updating the profile. If an old broken profile already exists, run the commands above once (or delete and let the app recreate it: `sudo nmcli connection delete Hotspot`).
+
+### Wi-Fi reconnect: `key-mgmt: property is missing`
+
+On Trixie, `nmcli device wifi connect … password …` is broken. The app now creates an explicit connection profile with `wifi-sec.key-mgmt wpa-psk`.
+
+Manual test:
+
+```bash
+sudo nmcli connection down Hotspot
+sudo nmcli connection add type wifi ifname wlan0 con-name MyWifi ssid "YourSSID" \
+  wifi-sec.key-mgmt wpa-psk wifi-sec.psk "YourPassword"
+sudo nmcli connection up MyWifi
+```
+
+---
+
+
+
+## Quick checklist
+
+
+| Step       | Command / check                                                 |
+| ---------- | --------------------------------------------------------------- |
+| OS         | Trixie Lite (`cat /etc/os-release` → `VERSION_CODENAME=trixie`) |
+| Arch       | `armhf` for classic Zero; `arm64` for Zero 2 W 64-bit           |
+| SPI        | enabled                                                         |
+| Audio      | `dtparam=audio` commented in `/boot/firmware/config.txt`        |
+| rtpmidid   | `systemctl is-active rtpmidid` → `active` (if installed)        |
+| Visualizer | `systemctl is-active visualizer` → `active` after reboot        |
+| Hotspot    | `nmcli -f GENERAL.STATE connection show Hotspot` → activated    |
+
+
