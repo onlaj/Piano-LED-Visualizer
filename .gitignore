@@ -1,6 +1,7 @@
 *.pyc
 *.pyo
 .idea/
+.venv/
 config/settings.xml
 webinterface/node_modules
 visualizer.log

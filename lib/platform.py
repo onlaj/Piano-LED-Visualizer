@@ -93,14 +93,123 @@ class PlatformRasp(PlatformBase):
             subprocess.call(['sudo', 'apt-get', 'install', 'abcmidi', '-y'])
 
     @staticmethod
+    def _project_root():
+        return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    @staticmethod
+    def _os_codename():
+        """Return VERSION_CODENAME from /etc/os-release, or empty string if unavailable."""
+        try:
+            with open("/etc/os-release", encoding="utf-8") as f:
+                for line in f:
+                    if line.startswith("VERSION_CODENAME="):
+                        return line.split("=", 1)[1].strip().strip('"')
+        except OSError as e:
+            logger.warning(f"Could not read /etc/os-release: {e}")
+        return ""
+
+    @staticmethod
+    def _uses_venv_install(codename, project_root):
+        """
+        Prefer venv on Trixie and newer; system pip on Bookworm and older.
+        If OS detection fails, use .venv presence as fallback.
+        """
+        legacy = {"bookworm", "bullseye", "buster", "stretch", "jessie"}
+        if codename:
+            return codename not in legacy
+        venv_python = os.path.join(project_root, ".venv", "bin", "python")
+        return os.path.isfile(venv_python)
+
+    @staticmethod
+    def _ensure_venv(project_root):
+        venv_pip = os.path.join(project_root, ".venv", "bin", "pip")
+        if os.path.isfile(venv_pip):
+            return True
+        logger.info("Creating missing .venv for dependency install")
+        result = subprocess.run(
+            ["python3", "-m", "venv", os.path.join(project_root, ".venv")],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            logger.error(
+                f"Failed to create .venv (exit {result.returncode}): "
+                f"{result.stderr or result.stdout}"
+            )
+            return False
+        return os.path.isfile(venv_pip)
+
+    @staticmethod
+    def _install_requirements(project_root, use_venv):
+        if use_venv:
+            if not PlatformRasp._ensure_venv(project_root):
+                return False
+            pip_cmd = [
+                "sudo",
+                os.path.join(project_root, ".venv", "bin", "pip"),
+                "install",
+                "-r",
+                "requirements.txt",
+            ]
+            toolchain = "venv (.venv/bin/pip)"
+        else:
+            pip_cmd = [
+                "sudo",
+                "pip3",
+                "install",
+                "-r",
+                "requirements.txt",
+                "--break-system-packages",
+            ]
+            toolchain = "system pip3 --break-system-packages"
+
+        logger.info(f"Installing requirements via {toolchain}")
+        result = subprocess.run(
+            pip_cmd,
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            logger.error(
+                f"Dependency install failed (exit {result.returncode}): "
+                f"{result.stderr or result.stdout}"
+            )
+            return False
+        logger.info("Dependency install completed successfully")
+        return True
+
+    @staticmethod
     def update_visualizer():
+        project_root = PlatformRasp._project_root()
+        try:
+            os.chdir(project_root)
+        except OSError as e:
+            logger.error(f"Could not chdir to project root {project_root}: {e}")
+            return
+
+        codename = PlatformRasp._os_codename()
+        use_venv = PlatformRasp._uses_venv_install(codename, project_root)
+        logger.info(
+            f"Updating visualizer in {project_root} "
+            f"(OS codename={codename or 'unknown'}, "
+            f"deps={'venv' if use_venv else 'system pip'})"
+        )
+
         call("sudo git reset --hard HEAD", shell=True)
         call("sudo git checkout .", shell=True)
-        call("sudo git clean -fdx -e Songs/ -e "
-             "config/settings.xml -e config/wpa_disable_ap.conf -e visualizer.log", shell=True)
+        call(
+            "sudo git clean -fdx -e Songs/ -e "
+            "config/settings.xml -e config/wpa_disable_ap.conf -e visualizer.log "
+            "-e .venv -e .venv/",
+            shell=True,
+        )
         call("sudo git clean -fdx Songs/cache", shell=True)
         call("sudo git pull origin master", shell=True)
-        call("sudo pip install -r requirements.txt", shell=True)
+        PlatformRasp._install_requirements(project_root, use_venv)
 
     @staticmethod
     def shutdown():
