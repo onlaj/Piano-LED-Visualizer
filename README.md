@@ -66,25 +66,53 @@ The Piano LED Visualizer is a project that enables you to connect an LED strip t
 *Disclosure: All of the links above are affiliate links, which means that without additional costs for you, I will earn a commission if you make a purchase by clicking through it.*
 
 ## Software preparations
-There are two ways, you can use preconfigured system image or install everything manually.
+
+**Recommended OS:** [Raspberry Pi OS Lite](https://www.raspberrypi.com/software/) **Trixie** (Debian 13).
+
+- **Pi Zero / Zero W:** Lite **32-bit** (Trixie)
+- **Pi Zero 2 W (or newer):** Lite **64-bit** (Trixie) is fine
+
+When flashing with Raspberry Pi Imager, use **OS customisation**: hostname `pianoledvisualizer`, enable SSH, username `plv`, password `visualizer`, and configure Wi-Fi if needed.
+
+You can install via a preconfigured system image, autoinstall, or manual setup.
 
 ### 1. **System image**
-- Download the latest zip file from releases.
+- Download the latest zip file from [releases](https://github.com/onlaj/Piano-LED-Visualizer/releases).
 - Unzip the file.
-- Use program like [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager/) or [Etcher](https://www.balena.io/etcher/) to save system image to your SD card (4GB is a minimum).
+- Use a program like [Win32 Disk Imager](https://sourceforge.net/projects/win32diskimager/) or [Etcher](https://www.balena.io/etcher/) to write the image to your SD card (4GB minimum).
 
-If you don't need to connect your RPi to Wi-Fi you can eject SD card from your PC and put it in Raspberry Pi. After 3-8 minutes *(depending on how fast your SD card is)* you should see Visualizer menu on RPi screen.  
+**Note:** Prebuilt images in Releases may still be based on **Bookworm** until a new Trixie image is published. Check the release notes / asset description for the OS version before flashing. For a fresh Trixie install today, prefer autoinstall or manual install on a stock Trixie Lite image.
+
+If you don't need to connect your RPi to Wi-Fi you can eject the SD card from your PC and put it in the Raspberry Pi. After 3-8 minutes *(depending on how fast your SD card is)* you should see the Visualizer menu on the RPi screen.
 
 For version 1.5 and above:
 
-The Raspberry Pi sets up a Wi-Fi hotspot named 'PianoLEDVisualizer' with the password 'visualizer'. 
-Once connected, open your browser and go to "pianoledvisualizer.local" to access the web interface. 
+The Raspberry Pi sets up a Wi-Fi hotspot named 'PianoLEDVisualizer' with the password 'visualizer'.
+Once connected, open your browser and go to "pianoledvisualizer.local" to access the web interface.
 Use the "Network" tab there to link the Raspberry Pi to your regular network.
 
 You can also connect Raspberry Pi to your network [manually](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/wifi_setup.md)
 
-### 2. **Manual installation**
-[Instructions](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
+### 2. **Autoinstall**
+
+Flash Raspberry Pi OS Lite, enable SSH (Imager OS customisation), boot, SSH in, then run the matching script. Each script refuses the wrong OS codename.
+
+**Trixie** (recommended):
+
+```bash
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/autoinstall.sh)"
+```
+
+**Bookworm** (legacy):
+
+```bash
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/onlaj/Piano-LED-Visualizer/master/autoinstall_bookworm.sh)"
+```
+
+### 3. **Manual installation**
+
+- **Trixie (recommended):** [Docs/manual_installation.md](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation.md)
+- **Bookworm (legacy):** [Docs/manual_installation_bookworm.md](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/manual_installation_bookworm.md)
 
 ## Connecting LED Strip to Raspberry Pi
 There is no point to reinvent the wheel again, so here is a nice [diagram](https://web.archive.org/web/20230319222537/https://tutorials-raspberrypi.com/wp-content/uploads/2017/03/Raspberry-Pi-WS2812-Steckplatine.png).
@@ -116,11 +144,13 @@ Both devices must be connected to the same network. By default, web interface wo
 
  The port can also be changed with the script's argument `--port`
 
-    sudo python3 /home/Piano-LED-Visualizer/visualizer.py --port 5000
+    sudo /home/Piano-LED-Visualizer/.venv/bin/python /home/Piano-LED-Visualizer/visualizer.py --port 5000
 
 Although in my tests I did not notice any deterioration in performance, if necessary, you can disable the web interface with the `--webinterface` parameter
 
-    sudo python3 /home/Piano-LED-Visualizer/visualizer.py --webinterface false
+    sudo /home/Piano-LED-Visualizer/.venv/bin/python /home/Piano-LED-Visualizer/visualizer.py --webinterface false
+
+On Bookworm or older release-image installs that still use system Python, replace `.venv/bin/python` with `python3`.
 
 
 ## FAQ ##
@@ -169,18 +199,24 @@ After the update, a reboot is required.
 
 - **B** - Connect to your console using SSH and type:
 
-`cd /home/Piano-LED-Visualizer`
-and then 
+```bash
+cd /home/Piano-LED-Visualizer
+git pull origin master
+```
 
-`git pull origin master`
+On **Trixie** installs (venv-based), also refresh dependencies:
 
-If for some reasons it does not work try to remove whole project and clone it again.
+```bash
+.venv/bin/pip install -r requirements.txt
+```
 
-`cd /home`
+If for some reason that does not work, try removing the project and cloning it again (then re-run the Trixie or Bookworm install steps for dependencies / the service):
 
-`sudo rm -rf Piano-LED-Visualizer`
-
-`sudo git clone https://github.com/onlaj/Piano-LED-Visualizer`
+```bash
+cd /home
+sudo rm -rf Piano-LED-Visualizer
+sudo git clone https://github.com/onlaj/Piano-LED-Visualizer
+```
 
 
 ![Image](https://i.imgur.com/9MgNUl5.jpg?1)
