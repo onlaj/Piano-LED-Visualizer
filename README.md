@@ -150,7 +150,7 @@ Although in my tests I did not notice any deterioration in performance, if neces
 
     sudo /home/Piano-LED-Visualizer/.venv/bin/python /home/Piano-LED-Visualizer/visualizer.py --webinterface false
 
-On Bookworm or older release-image installs that still use system Python, replace `.venv/bin/python` with `python3`.
+On Trixie, the systemd service (`visualizer.service`) uses that same `.venv` interpreter as **root**; SSH login stays `plv`. On Bookworm or older release-image installs that still use system Python, replace `.venv/bin/python` with `python3`.
 
 
 ## FAQ ##

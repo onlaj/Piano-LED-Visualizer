@@ -1,0 +1,15 @@
+[Unit]
+Description=Piano LED Visualizer
+After=network-online.target
+Wants=network-online.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+ExecStart=/home/Piano-LED-Visualizer/.venv/bin/python /home/Piano-LED-Visualizer/visualizer.py
+Restart=always
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/home/Piano-LED-Visualizer

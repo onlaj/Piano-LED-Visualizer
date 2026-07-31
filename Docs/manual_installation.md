@@ -258,29 +258,13 @@ Enable console autologin:
 sudo raspi-config nonint do_boot_behaviour B2
 ```
 
-Create the service:
+Install the systemd unit from the repo. The service runs as **root** with the project venv (needed for LEDs, GPIO, and NetworkManager). SSH login remains `plv`.
 
 ```bash
-sudo tee /lib/systemd/system/visualizer.service >/dev/null <<'EOF'
-[Unit]
-Description=Piano LED Visualizer
-After=network-online.target
-Wants=network-online.target
-
-[Install]
-WantedBy=multi-user.target
-
-[Service]
-ExecStart=/home/Piano-LED-Visualizer/.venv/bin/python /home/Piano-LED-Visualizer/visualizer.py
-Restart=always
-Type=simple
-User=root
-Group=root
-WorkingDirectory=/home/Piano-LED-Visualizer
-EOF
+sudo cp /home/Piano-LED-Visualizer/systemd/visualizer.service /lib/systemd/system/visualizer.service
 ```
 
-Optional flags on `ExecStart`:
+Optional flags on `ExecStart` (edit the installed unit, then `sudo systemctl daemon-reload`):
 
 - WaveShare 1.3" 240×240: add `--display 1in3`
 - Upside-down mount: add `--rotatescreen true`
@@ -328,6 +312,23 @@ sudo nmcli connection add type wifi ifname wlan0 con-name MyWifi ssid "YourSSID"
   wifi-sec.key-mgmt wpa-psk wifi-sec.psk "YourPassword"
 sudo nmcli connection up MyWifi
 ```
+
+### Old service unit (`User=plv` / `sudo python3`)
+
+Bookworm-era units used `User=plv` and `ExecStart=sudo python3 …`. On Trixie, replace the unit with the repo file and ensure the venv exists:
+
+```bash
+cd /home/Piano-LED-Visualizer
+test -x .venv/bin/python || python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+sudo systemctl stop visualizer.service
+sudo cp systemd/visualizer.service /lib/systemd/system/visualizer.service
+sudo systemctl daemon-reload
+sudo systemctl enable visualizer.service
+sudo reboot
+```
+
+Confirm after reboot: `systemctl cat visualizer` shows `.venv/bin/python` and `User=root` (no nested `sudo` in `ExecStart`).
 
 ---
 
