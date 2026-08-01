@@ -19,18 +19,21 @@ class SaveMIDI:
         self.menu = menu
 
     def start_recording(self):
-        self.is_recording = True
-        self.menu.render_message("Recording started", "", 500)
         self.messages_to_save = dict()
         self.messages_to_save["main"] = []
         self.restart_time()
         self.first_note_time = 0
+        self.is_recording = True
+        self.menu.render_message("Recording started", "", 500)
 
     def cancel_recording(self):
         self.is_recording = False
         self.menu.render_message("Recording canceled", "", 1500)
 
     def add_track(self, status, note, velocity, time_value, hex_color="main"):
+        if not self.is_recording or self.messages_to_save is None:
+            return
+
         if self.first_note_time == 0:
             self.first_note_time = time_value
 
@@ -47,6 +50,9 @@ class SaveMIDI:
                 self.messages_to_save["main"].append(["note", time_value, status, note, velocity])
 
     def add_control_change(self, status, channel, control, value, time_value):
+        if not self.is_recording or self.messages_to_save is None:
+            return
+
         self.messages_to_save["main"].append(["control_change", time_value, status, channel, control, value])
 
     def save(self, filename):
@@ -70,8 +76,8 @@ class SaveMIDI:
 
             self.mid.save('Songs/' + filename + '_' + str(key) + '.mid')
 
-        self.messages_to_save = []
         self.is_recording = False
+        self.messages_to_save = None
         self.menu.render_message("File saved", filename + ".mid", 1500)
 
     def restart_time(self):
