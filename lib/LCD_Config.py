@@ -25,8 +25,9 @@
  #
  
 from lib.null_drivers import SPInull
-from lib.rpi_drivers import GPIO, spidev
+from lib.rpi_drivers import GPIO, spidev, HAT_DISABLED
 import time
+import os
 
 # Pin definition
 LCD_RST_PIN         = 27
@@ -34,12 +35,18 @@ LCD_DC_PIN          = 25
 LCD_CS_PIN          = 8
 LCD_BL_PIN          = 24
 
-try:
-    # SPI device, bus = 0, device = 0
-    SPI = spidev.SpiDev(0, 0)
-except:
-    print("Failed loading SPI device.  Using null driver.")
+if HAT_DISABLED:
+    # disable_hat=1: no LCD control HAT, so leave SPI0 alone. The WS281x LED strip on
+    # GPIO10 owns /dev/spidev0.0; a second opener here interleaves on the bus and
+    # scrambles the LED signal (scattered colors, flicker on every LCD redraw).
     SPI = SPInull()
+else:
+    try:
+        # SPI device, bus = 0, device = 0
+        SPI = spidev.SpiDev(0, 0)
+    except:
+        print("Failed loading SPI device.  Using null driver.")
+        SPI = SPInull()
 
 def epd_digital_write(pin, value):
     GPIO.output(pin, value)

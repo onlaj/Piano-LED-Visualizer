@@ -1,7 +1,8 @@
 from webinterface import webinterface, app_state
 from flask import render_template, send_file, request, jsonify
 from werkzeug.security import safe_join
-from lib.functions import (get_last_logs, find_between, fastColorWipe, play_midi, clamp, validate_schedule_overlaps)
+from lib.functions import (get_last_logs, find_between, fastColorWipe, play_midi, clamp, validate_schedule_overlaps,
+                           HAT_DISABLED, read_cover_open)
 from lib.led_animations import get_registry
 import lib.colormaps as cmap
 import psutil
@@ -26,8 +27,9 @@ from lib.log_setup import logger
 from flask import abort
 
 SENSECOVER = 12
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(SENSECOVER, GPIO.IN, GPIO.PUD_UP)
+if not HAT_DISABLED:
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(SENSECOVER, GPIO.IN, GPIO.PUD_UP)
 
 pid = psutil.Process(os.getpid())
 
@@ -134,7 +136,7 @@ def get_homepage_data():
 
     card_space = psutil.disk_usage('/')
 
-    cover_opened = GPIO.input(SENSECOVER)
+    cover_opened = read_cover_open()
 
     # Get system state
     system_state = app_state.state_manager.current_state.value.upper() if app_state.state_manager else 'UNKNOWN'

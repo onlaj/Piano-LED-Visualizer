@@ -153,6 +153,37 @@ Although in my tests I did not notice any deterioration in performance, if neces
 On Trixie, the systemd service (`visualizer.service`) uses that same `.venv` interpreter as **root**; SSH login stays `plv`. On Bookworm or older release-image installs that still use system Python, replace `.venv/bin/python` with `python3`.
 
 
+## Troubleshooting
+
+### Using other HATs with PLV
+
+PLV is built for the Waveshare 1.44"/1.3" LCD control HAT and claims its GPIO pins
+at startup. If you stack another HAT, watch for conflicts on these pins:
+
+| Pin (BCM) | PLV use |
+|-----------|---------|
+| 5, 6, 16, 19, 20, 21, 26 | LCD-HAT joystick / KEY buttons |
+| 13 | joystick press |
+| 12 | cover sensor |
+| 8, 24, 25, 27 | LCD screen (SPI CE / backlight / DC / reset) |
+
+Example: the **Geekworm X735** power/fan HAT uses GPIO5 for its safe-shutdown
+button. PLV enables a pull-up on GPIO5 for the joystick, which the X735 reads as a
+held button and powers the Pi off shortly after boot.
+
+To free the button and cover-sensor pins, disable the HAT integration in
+`config/settings.xml` and restart:
+
+    <disable_hat>1</disable_hat>
+
+    sudo systemctl restart visualizer   # or reboot
+
+This skips the joystick/button setup and the cover sensor — navigate the menu via
+the web interface instead. The LCD **screen** is controlled separately by
+`<display_type>` (leave it set for your screen, independent of this option). To
+*reassign* rather than disable individual buttons, edit the pin numbers in
+`lib/gpio_handler.py`.
+
 ## FAQ ##
 **Q - Can I use Raspberry Pi 1/2/3/4 instead of Zero?**
 

@@ -1,6 +1,6 @@
 import time
 
-from RPi import GPIO
+from lib.rpi_drivers import GPIO
 
 from lib.functions import fastColorWipe
 
@@ -14,9 +14,14 @@ class GPIOHandler:
         self.ledsettings = ledsettings
         self.usersettings = usersettings
         self.state_manager = state_manager
+        self.disable_hat = str(usersettings.get_setting_value("disable_hat")) == "1"
         self.setup_gpio()
 
     def setup_gpio(self):
+        if self.disable_hat:
+            # LCD control HAT disabled: leave the joystick/button pins (incl. GPIO5
+            # and GPIO13) free for another HAT. See the `disable_hat` setting.
+            return
         if self.args.rotatescreen != "true":
             self.KEYRIGHT = 26
             self.KEYLEFT = 5
@@ -47,6 +52,8 @@ class GPIOHandler:
         GPIO.setup(self.JPRESS, GPIO.IN, GPIO.PUD_UP)
 
     def process_gpio_keys(self):
+        if self.disable_hat:
+            return
         if GPIO.input(self.KEYUP) == 0:
             self.midiports.last_activity = time.time()
             if self.state_manager:
