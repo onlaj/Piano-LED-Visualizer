@@ -48,3 +48,18 @@ similar program but is useful if we want no delays during learning.
 The next configuration is specific to tablets or phones with the Android system. 
 After selecting the 'MIDI' option, Android will act as a MIDI device, 
 enabling the transmission of MIDI messages without the need for Sevilla's USB-USB.
+
+## Visualizer port setup
+
+After the hardware/network connection is in place:
+
+1. Open **Ports Settings** in the Visualizer.
+2. Set **Piano Port** to your digital piano.
+3. Set **Computer Port** to the RTP / USB-USB / Bluetooth / Android MIDI peer.
+4. Choose **MIDI Mode**:
+   - **Light show** - piano keys light the LEDs; computer traffic is ignored.
+   - **Learning** - transparent piano ↔ computer link in software. Guide lights (channels 11/12 or velocity 1) drive the LEDs; notes pass both ways. Control changes from the computer can be blocked (enabled by default).
+
+You can also toggle MIDI Mode from the web sidebar button or with hardware **KEY3**.
+
+No Connect/Disconnect ports step is required. The Visualizer reconnects the piano/computer ports automatically when a device is plugged back in.

@@ -114,6 +114,12 @@
 	<shift>0</shift>
 	<reverse>0</reverse>
 
+	<piano_port>default</piano_port>
+	<computer_port>default</computer_port>
+	<midi_mode>light_show</midi_mode>
+	<!-- Block control_change from computer->piano in Learning mode (reverb/volume/etc.) -->
+	<suppress_computer_control>1</suppress_computer_control>
+	<!-- Legacy port keys kept for migration fallback -->
 	<input_port>default</input_port>
 	<secondary_input_port>default</secondary_input_port>
 	<play_port>default</play_port>

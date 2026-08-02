@@ -115,57 +115,7 @@ Reconnect over SSH after reboot.
 
 
 
-## 5. USB MIDI auto-connect (recommended)
-
-```bash
-sudo tee /usr/local/bin/connectall.py >/dev/null <<'EOF'
-#!/usr/bin/python3
-import subprocess
-
-ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
-port_list = []
-client = "0"
-for line in str(ports).splitlines():
-    if line.startswith("client "):
-        client = line[7:].split(":", 2)[0]
-        if client == "0" or "Through" in line:
-            client = "0"
-    else:
-        if client == "0" or line.startswith("\t"):
-            continue
-        port = line.split()[0]
-        port_list.append(client + ":" + port)
-for source in port_list:
-    for target in port_list:
-        if source != target:
-            subprocess.call("aconnect %s %s" % (source, target), shell=True)
-EOF
-sudo chmod +x /usr/local/bin/connectall.py
-
-echo 'ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/local/bin/connectall.py"' \
-  | sudo tee /etc/udev/rules.d/33-midiusb.rules
-
-sudo tee /lib/systemd/system/midi.service >/dev/null <<'EOF'
-[Unit]
-Description=Initial USB MIDI connect
-
-[Service]
-ExecStart=/usr/local/bin/connectall.py
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo udevadm control --reload
-sudo systemctl daemon-reload
-sudo systemctl enable --now midi.service
-```
-
----
-
-
-
-## 6. Install RTP MIDI (optional)
+## 5. Install RTP MIDI (optional)
 
 
 Check architecture:
@@ -181,9 +131,9 @@ This reports the **OS image** architecture (not the board alone):
 | `armhf` | 32-bit | Pi Zero / Zero W (always). Also any board flashed with a 32-bit image |
 | `arm64` | 64-bit | Pi Zero 2 W, Pi 3 / 4 / 5 (and similar) when running a **64-bit** image |
 
-Follow **6a** for `arm64`, **6b** for `armhf`.
+Follow **5a** for `arm64`, **5b** for `armhf`.
 
-### 6a. `arm64` - official Trixie package
+### 5a. `arm64` - official Trixie package
 
 ```bash
 cd /home
@@ -197,7 +147,7 @@ systemctl status rtpmidid --no-pager
 
 
 
-### 6b. `armhf` (Pi Zero / Zero W) - build from source
+### 5b. `armhf` (Pi Zero / Zero W) - build from source
 
 There is **no** official Trixie armhf deb. Build v26.01 with **libfmt** (required on GCC 14; default `std::format` fails to compile):
 
@@ -239,7 +189,7 @@ On a Pi Zero the compile can take a long time - do not interrupt it.
 
 
 
-## 7. Install Piano LED Visualizer
+## 6. Install Piano LED Visualizer
 
 ```bash
 cd /home
@@ -311,6 +261,21 @@ sudo nmcli connection down Hotspot
 sudo nmcli connection add type wifi ifname wlan0 con-name MyWifi ssid "YourSSID" \
   wifi-sec.key-mgmt wpa-psk wifi-sec.psk "YourPassword"
 sudo nmcli connection up MyWifi
+```
+
+### Legacy USB MIDI autoconnect (`midi.service` / `connectall.py`)
+
+Older installs created a mesh `aconnect` script (`/usr/local/bin/connectall.py`), udev rule `33-midiusb.rules`, and `midi.service`. That is no longer used: Learning mode links piano ↔ computer inside the Visualizer.
+
+Starting the Visualizer once (without `--skipupdate`) removes those leftovers automatically. To clean up manually:
+
+```bash
+sudo systemctl disable --now midi.service 2>/dev/null || true
+sudo rm -f /lib/systemd/system/midi.service
+sudo systemctl daemon-reload
+sudo rm -f /etc/udev/rules.d/33-midiusb.rules /etc/udev/rules.d/33-midiusb.rules.disabled
+sudo udevadm control --reload
+sudo rm -f /usr/local/bin/connectall.py
 ```
 
 ### Old service unit (`User=plv` / `sudo python3`)

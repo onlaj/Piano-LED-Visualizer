@@ -73,11 +73,29 @@ class MIDIEventProcessor:
         t0 = time.perf_counter()
         processed = 0
 
-        def _process_one(msg, msg_timestamp):
-            """Route one message exactly like before (LEDs/recording/color mode)."""
-            if midi_logging_enabled and log_sink is not None and not getattr(msg, "is_meta", False):
+        midi_mode = "light_show"
+        try:
+            midi_mode = midiports.get_midi_mode()
+        except Exception:
+            midi_mode = self.usersettings.get_setting_value("midi_mode") or "light_show"
+
+        def _unpack_queue_item(item):
+            # (msg, ts) or (msg, ts, source)
+            if len(item) >= 3:
+                return item[0], item[1], item[2]
+            return item[0], item[1], None
+
+        def _process_one(msg, msg_timestamp, source=None):
+            # piano/computer already logged in MidiPorts
+            if (
+                midi_logging_enabled
+                and log_sink is not None
+                and not getattr(msg, "is_meta", False)
+                and source not in ("piano", "computer")
+            ):
                 try:
-                    log_sink.append("midi_event" + str(msg))
+                    tag = source if source else "other"
+                    log_sink.append("midi_event[{}] {}".format(tag, msg))
                 except Exception as e:
                     logger.warning(f"[process midi events] Unexpected exception occurred: {e}")
 
@@ -89,17 +107,31 @@ class MIDIEventProcessor:
             msg_type = getattr(msg, "type", None)
             velocity = getattr(msg, "velocity", 0)
 
+            # in learning, piano note_ons don't light LEDs (computer guide notes do)
+            skip_note_on_lighting = (
+                midi_mode == "learning"
+                and source == "piano"
+                and msg_type == "note_on"
+                and velocity > 0
+            )
+
             if ledsettings.mode != "Disabled" and msg_type in ("note_on", "note_off"):
                 note_position = get_position(msg.note, ledstrip, ledsettings)
                 if 0 <= note_position < led_count:
                     if msg_type == "note_off" or velocity == 0:
                         handle_note_off(msg, msg_timestamp, note_position)
                     elif velocity > 0:
-                        handle_note_on(msg, msg_timestamp, note_position)
+                        if skip_note_on_lighting:
+                            # still record, just don't light
+                            if saving.is_recording:
+                                saving.add_track("note_on", msg.note, velocity, msg_timestamp)
+                        else:
+                            handle_note_on(msg, msg_timestamp, note_position)
             elif msg_type == "control_change":
                 handle_control_change(msg, msg_timestamp)
 
-            color_mode.MidiEvent(msg, None, ledstrip)
+            if not skip_note_on_lighting:
+                color_mode.MidiEvent(msg, None, ledstrip)
             saving.restart_time()
 
         # Bounded drain with bursts grouped by timestamp (~1.5ms window)
@@ -108,28 +140,29 @@ class MIDIEventProcessor:
 
         midipending = midiports.midipending
         while midipending and processed < 512 and (time.perf_counter() - t0) < 0.003:
-            head_msg, head_ts = midipending.popleft()
-            burst = [(head_msg, head_ts)]
+            head_msg, head_ts, head_source = _unpack_queue_item(midipending.popleft())
+            burst = [(head_msg, head_ts, head_source)]
             # Coalesce a small burst of messages with almost the same timestamp
             while midipending and len(burst) < BURST_LIMIT:
-                nxt_msg, nxt_ts = midipending[0]
+                nxt_msg, nxt_ts, nxt_source = _unpack_queue_item(midipending[0])
                 if abs(nxt_ts - head_ts) <= BURST_WINDOW:
-                    burst.append(midipending.popleft())
+                    midipending.popleft()
+                    burst.append((nxt_msg, nxt_ts, nxt_source))
                 else:
                     break
 
             # Notes first (reduce visual latency for chords), then others
-            for m, ts in burst:
+            for m, ts, src in burst:
                 if getattr(m, "type", None) in ("note_on", "note_off"):
-                    _process_one(m, ts)
+                    _process_one(m, ts, src)
                     processed += 1
                     if processed >= 512:
                         break
 
             if processed < 512:
-                for m, ts in burst:
+                for m, ts, src in burst:
                     if getattr(m, "type", None) not in ("note_on", "note_off"):
-                        _process_one(m, ts)
+                        _process_one(m, ts, src)
                         processed += 1
                         if processed >= 512:
                             break
@@ -312,6 +345,10 @@ class MIDIEventProcessor:
         control = msg.control
         value = msg.value
 
+        # all notes off (synthesia sends this when leaving a song)
+        if control == 123:
+            self.clear_all_note_leds()
+
         # Track sustain pedal state (MIDI CC 64)
         if control == 64:  # Sustain pedal
             self.last_sustain = value
@@ -352,6 +389,24 @@ class MIDIEventProcessor:
         # Record the control change if recording is active
         if self.saving.is_recording:
             self.saving.add_control_change("control_change", 0, control, value, msg_timestamp)
+
+    def clear_all_note_leds(self):
+        idle_color, use_backlight = self._resolve_idle_color()
+        led_count = self.ledstrip.led_number
+        self.ledstrip.keylist = [0] * led_count
+        self.ledstrip.keylist_status = [0] * led_count
+        self.ledstrip.keylist_sustained = [0] * led_count
+        self.ledstrip.keylist_external_software = [0] * led_count
+        if hasattr(self.ledstrip, "keylist_color") and self.ledstrip.keylist_color is not None:
+            self.ledstrip.keylist_color = [0] * led_count
+        if hasattr(self.ledstrip, "active_pulses") and self.ledstrip.active_pulses is not None:
+            self.ledstrip.active_pulses.clear()
+        for i in range(led_count):
+            self._apply_idle_color(i, idle_color, use_backlight)
+        try:
+            self.ledstrip.strip.show()
+        except Exception:
+            pass
 
     def _resolve_idle_color(self):
         """Compute the color to apply when a key returns to its idle state."""

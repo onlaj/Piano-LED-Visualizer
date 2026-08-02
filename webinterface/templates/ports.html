@@ -1,265 +1,139 @@
 <div class="slide-in-content col-span-12 mt-1 w-full lg:w-4/5 xl:w-4/5 2xl:w-4/5 m-auto">
-    <!-- Input Port and Playback Port Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-        <!-- Input Port Card -->
+        <!-- Piano Port -->
         <div class="glass shadow-glass-lg rounded-glass hover-lift intro-y transition-smooth m-1">
-        <div class="w-full flex items-center p-3">
-            <div class="flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
-                </svg>
-                <span class="font-semibold text-sm" data-translate="input_port">Input Port</span>
-            </div>
-        </div>
-        <div class="p-3 pt-0 space-y-3">
-            <div class="flex flex-wrap -mx-3">
-                <div class="w-full md:w-2/5 px-3 md:mb-0">
-                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="active">
-                        Active
-                    </label>
-                <div class="relative">
-                    <select id="active_input" class="h-10 block appearance-none w-full glass-light
-        py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-                <div class="flex justify-center w-full h-10 md:w-1/5 px-3 mb-2 mt-4 md:mb-0">
-                    <button id="switch_ports"
-                            class="mt-2 w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden md:block lg:block xl:block 2xl:block"
-                         fill="none"
-                         viewBox="0 0 24 24"
-                         stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+            <div class="w-full flex items-center p-3">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
                     </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         class="h-6 w-6 xs:block sm:block md:hidden lg:hidden xl:hidden 2xl:hidden" fill="none"
-                         viewBox="0 0 24 24"
-                         stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-                    </svg>
-                        <span data-translate="switch">Switch</span>
-                    </button>
+                    <span class="font-semibold text-sm" data-translate="piano_port">Piano Port</span>
                 </div>
-
-                <div class="w-full md:w-2/5 px-3">
-                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="secondary">
-                        Secondary
+            </div>
+            <div class="p-3 pt-0 space-y-3">
+                <div class="w-full px-3">
+                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="select_piano_port">
+                        Select Piano Port
                     </label>
-                <div class="relative">
-                    <select id="secondary_input" class="h-10 block appearance-none w-full glass-light
-        py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                        </svg>
+                    <div class="relative">
+                        <select id="piano_input" class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                            </svg>
+                        </div>
                     </div>
-                    </div>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400" data-translate="piano_port_help">
+                        Used for lighting keys in Light show mode, and for playing notes back to the piano in Learning mode.
+                    </p>
                 </div>
             </div>
         </div>
-        </div>
 
-        <!-- Playback Port Card -->
+        <!-- Computer Port -->
         <div class="glass shadow-glass-lg rounded-glass hover-lift intro-y transition-smooth m-1">
-        <div class="w-full flex items-center p-3">
-            <div class="flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
-                </svg>
-                <span class="font-semibold text-sm" data-translate="playback_port">Playback Port</span>
-            </div>
-        </div>
-        <div class="p-3 pt-0 space-y-3">
-            <div class="w-full px-3 md:mb-0">
-                <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="active">
-                    Active
-                </label>
-            <div class="relative">
-                <select id="playback_input" class="h-10 block appearance-none w-full glass-light
-        py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
-                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+            <div class="w-full flex items-center p-3">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
+                    <span class="font-semibold text-sm" data-translate="computer_port">Computer Port</span>
                 </div>
             </div>
-        </div>
+            <div class="p-3 pt-0 space-y-3">
+                <div class="w-full px-3">
+                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="select_computer_port">
+                        Select Computer Port
+                    </label>
+                    <div class="relative">
+                        <select id="computer_input" class="h-10 block appearance-none w-full glass-light
+            py-2 px-2 pr-8 rounded-glass leading-tight transition-smooth-fast">
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-200">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400" data-translate="computer_port_help">
+                        RTP MIDI, USB-USB, or Bluetooth peer used with Synthesia and similar apps in Learning mode.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
-    </div>
 
-    <!-- Unified Ports and Connections Section -->
+    <!-- Mode + actions -->
     <div class="glass shadow-glass-lg rounded-glass intro-y transition-smooth m-1 mb-6">
         <div class="p-3 md:p-5">
-            <!-- Header with Title and Refresh Button -->
             <div class="w-full flex items-center mb-4">
                 <div class="flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
-                    <span class="font-semibold text-sm" data-translate="ports_and_connections">Ports and Connections</span>
+                    <span class="font-semibold text-sm" data-translate="midi_mode">MIDI Mode</span>
                 </div>
                 <div class="ml-auto">
-                    <button onclick="refresh_all_ports()" 
+                    <button onclick="refresh_ports_list()"
                             class="h-10 outline-none glass-light hover:glass font-bold py-2 px-3 md:px-4 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 md:w-5 md:h-5 mr-2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
-                </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 md:w-5 md:h-5 mr-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
+                        </svg>
                         <span data-translate="refresh">Refresh</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-4">
-                <div>
-                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="connect_ports">
-                        Connect ports
-                    </label>
-                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0
-                              005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-                        </svg>
-                    </button>
-                    <button onclick="connect_all_ports_action()"
-                            class="w-full h-10 outline-none glass-light font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center hidden">
-                        <span class="uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
-                    </button>
-                </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <button id="mode_light_show"
+                        onclick="change_setting('midi_mode', 'light_show'); set_midi_mode_ui('light_show');"
+                        class="h-12 outline-none glass-light hover:glass font-bold py-2 px-4 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                    <span data-translate="light_show">Light show</span>
+                </button>
+                <button id="mode_learning"
+                        onclick="change_setting('midi_mode', 'learning'); set_midi_mode_ui('learning');"
+                        class="h-12 outline-none glass-light hover:glass font-bold py-2 px-4 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                    <span data-translate="learning_mode">Learning</span>
+                </button>
+            </div>
 
-                <div>
-                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="disconnect_ports">
-                        Disconnect ports
-                    </label>
-                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
-                         viewBox="0 0 24 24"
-                         stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0
-                              10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"/>
-                        </svg>
-                    </button>
-                    <button onclick="disconnect_all_ports_action()"
-                            class="w-full h-10 outline-none glass-light font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center hidden">
-                        <span class="uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
-                    </button>
-                </div>
+            <p id="midi_mode_help" class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4" data-translate="light_show_help">
+                Light show: piano keys light the LEDs. Computer port is ignored.
+            </p>
 
-                <div>
-                    <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="restart_rtp">
-                        Restart RTP MIDI service
-                    </label>
-                    <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
-                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-full justify-items-center" fill="none"
+
+            <div class="flex items-start mb-4">
+                <input onclick="change_setting('suppress_computer_control', this.checked)"
+                       id="suppress_computer_control_checkbox" type="checkbox" value=""
+                       class="mt-0.5 w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <label for="suppress_computer_control_checkbox"
+                       class="pl-2 block text-xs font-semibold text-gray-600 dark:text-gray-400"
+                       data-translate="suppress_computer_control">
+                    Block control changes from computer to piano
+                </label>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 -mt-2" data-translate="suppress_computer_control_help">
+                In Learning mode, stop control_change messages (reverb, volume, etc.) from reaching the piano. Notes and guide lights still pass through.
+            </p>
+
+            <div>
+                <label class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400" data-translate="restart_rtp">
+                    Restart RTP MIDI service
+                </label>
+                <button onclick="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')"
+                        class="w-full sm:w-auto h-10 outline-none glass-light hover:glass font-bold py-2 px-4 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                    </button>
-                    <button onclick="change_setting('restart_rtp', '0');temporary_disable_button(this, 1500);"
-                            class="w-full h-10 outline-none glass-light font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center hidden">
-                        <span class="uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 md:mb-4" data-translate="connection_instructions">
-                Click on a sender port (left), then click on a receiver port (right) to create a one-way connection. Arrows show data flow direction. Click on connections to delete them.
-            </div>
-
-            <!-- Visual Connection Canvas Container -->
-            <div id="port-connection-container" class="relative glass-light rounded-glass p-3 m-1 flex gap-4" style="min-height: 600px;">
-                <!-- SVG for drawing connection lines - positioned absolutely to cover entire container -->
-                <svg id="connection-lines" class="absolute inset-0" style="width: 100%; height: 100%; pointer-events: none; z-index: 5;">
-                    <!-- Connection lines will be drawn here -->
-                    <defs>
-                        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                            <polygon points="0 0, 10 3, 0 6" fill="#3b82f6" />
-                        </marker>
-                        <marker id="arrowhead-hover" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                            <polygon points="0 0, 10 3, 0 6" fill="#ef4444" />
-                        </marker>
-                    </defs>
-                </svg>
-
-                <!-- Sender Ports (Left) - 40% -->
-                <div id="source-ports" class="flex-shrink-0 overflow-y-auto pr-2 relative" style="width: 40%; z-index: 1;">
-                    <div class="font-bold text-base mb-3 text-gray-400 dark:text-gray-300 sticky top-0 glass-light pb-2 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                        <span data-translate="sender_ports">Sender Ports (Output)</span>
-                    </div>
-                    <div id="source-ports-list" class="space-y-2">
-                        <!-- Source ports will be dynamically added here -->
-                    </div>
-                </div>
-
-                <!-- Middle spacer with direction indicator - 20% -->
-                <div class="flex-shrink-0 relative flex items-center justify-center" style="width: 20%; z-index: 0;">
-                    <div class="text-gray-500 dark:text-gray-400 pointer-events-none opacity-20">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                    </div>
-                </div>
-
-                <!-- Receiver Ports (Right) - 37% -->
-                <div id="destination-ports" class="flex-shrink-0 overflow-y-auto pl-2 pr-2 relative" style="width: 37%; z-index: 1;">
-                    <div class="font-bold text-base mb-3 text-gray-400 dark:text-gray-300 sticky top-0 glass-light pb-2 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
-                        </svg>
-                        <span data-translate="receiver_ports">Receiver Ports (Input)</span>
-                    </div>
-                    <div id="destination-ports-list" class="space-y-2">
-                        <!-- Destination ports will be dynamically added here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Connection Status -->
-            <div id="connection-status" class="mt-3 md:mt-4 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 glass-light p-3 m-1 md:p-3 rounded-glass">
-                <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span data-translate="no_port_selected">No port selected. Click a sender port to begin.</span>
-                </div>
-            </div>
-
-            <!-- Expandable Raw Output Section -->
-            <div class="mt-4">
-                <button onclick="toggle_raw_output()" 
-                        class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-4 rounded-glass transition-smooth-fast inline-flex items-center justify-between">
-                    <span class="text-sm text-gray-600 dark:text-gray-400" data-translate="show_raw_ports">Show Raw Port List (aconnect -l)</span>
-                    <svg id="raw-output-arrow" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
-                <div id="raw-output-container" class="hidden mt-2">
-                    <textarea id="connect_all_textarea"
-                              class="w-full px-3 py-2 glass-light rounded-glass focus:outline-none text-xs sm:text-sm"
-                              rows="16" readonly></textarea>
-                </div>
+                <button onclick="change_setting('restart_rtp', '0');temporary_disable_button(this, 1500);"
+                        class="w-full sm:w-auto h-10 outline-none glass-light font-bold py-2 px-4 rounded-glass transition-smooth-fast inline-flex items-center justify-center hidden">
+                    <span class="uppercase text-xs text-red-400" data-translate="confirm">Confirm</span>
+                </button>
             </div>
         </div>
     </div>
@@ -276,19 +150,38 @@
         </div>
         <div class="p-3 pt-0">
 
-            <div class="flex items-center mb-4">
-                <input onclick="change_setting('show_midi_events', this.checked)" id="midi_events_checkbox" type="checkbox" value=""
-                       class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                <label for="midi_events_checkbox" class="pl-2 block text-xs font-semibold text-gray-600 dark:text-gray-400"
-                data-translate="show_midi_events">
-                    Show midi events (might degrade performance)
-                </label>
+            <div class="flex flex-wrap items-center gap-3 mb-3">
+                <div class="flex items-center">
+                    <input onclick="change_setting('show_midi_events', this.checked)" id="midi_events_checkbox" type="checkbox" value=""
+                           class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    <label for="midi_events_checkbox" class="pl-2 block text-xs font-semibold text-gray-600 dark:text-gray-400"
+                    data-translate="show_midi_events">
+                        Show midi events (might degrade performance)
+                    </label>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label for="midi_events_filter" class="text-xs font-semibold text-gray-600 dark:text-gray-400"
+                           data-translate="midi_events_filter">Filter</label>
+                    <select id="midi_events_filter" onchange="set_midi_event_log_filter(this.value)"
+                            class="h-8 glass-light rounded-glass text-xs px-2 pr-6">
+                        <option value="all" data-translate="midi_events_filter_all">All devices</option>
+                        <option value="piano" data-translate="midi_events_filter_piano">Piano</option>
+                        <option value="computer" data-translate="midi_events_filter_computer">Computer</option>
+                    </select>
+                </div>
+                <button type="button" onclick="clear_midi_event_log()"
+                        class="h-8 outline-none glass-light hover:glass font-bold px-3 rounded-glass text-xs transition-smooth-fast"
+                        data-translate="clear_midi_events">
+                    Clear
+                </button>
             </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-2" data-translate="midi_events_copy_hint">
+                Select text in the log to copy. Lines are tagged [piano] or [computer].
+            </p>
 
             <textarea readonly id="midi_events_textarea"
-                      class="w-full px-3 py-2 glass-light rounded-glass focus:outline-none"
+                      class="w-full px-3 py-2 glass-light rounded-glass focus:outline-none select-text font-mono text-xs"
                       rows="20"></textarea>
         </div>
     </div>
 </div>
-

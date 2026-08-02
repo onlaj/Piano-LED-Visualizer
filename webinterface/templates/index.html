@@ -72,15 +72,65 @@
                  }; 
             }
             if (typeof window.handleMidiEvent !== 'function') {
-                window.handleMidiEvent = function(rawData) {
-                     let textarea = document.getElementById('midi_events_textarea');
-                     if (typeof (textarea) != 'undefined' && textarea != null) {
-                        const d = new Date();
-                        var t = "\r\n" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "." + d.getMilliseconds() + " "
-                        textarea.value += t + rawData.replace("midi_event", ""); 
+                window.midiEventLog = window.midiEventLog || [];
+                window.midiEventLogFilter = window.midiEventLogFilter || 'all';
+
+                window.renderMidiEventLog = function() {
+                    const textarea = document.getElementById('midi_events_textarea');
+                    if (!textarea) return;
+                    const filter = window.midiEventLogFilter || 'all';
+                    const lines = window.midiEventLog
+                        .filter(function (entry) {
+                            return filter === 'all' || entry.source === filter;
+                        })
+                        .map(function (entry) { return entry.line; });
+                    const nearBottom = textarea.scrollTop + textarea.clientHeight >= textarea.scrollHeight - 40;
+                    textarea.value = lines.join('\n');
+                    if (nearBottom) {
                         textarea.scrollTop = textarea.scrollHeight;
                     }
-                 };
+                };
+
+                window.set_midi_event_log_filter = function(filter) {
+                    window.midiEventLogFilter = filter || 'all';
+                    window.renderMidiEventLog();
+                };
+
+                window.clear_midi_event_log = function() {
+                    window.midiEventLog = [];
+                    window.renderMidiEventLog();
+                };
+
+                window.handleMidiEvent = function(rawData) {
+                    const textarea = document.getElementById('midi_events_textarea');
+                    if (!textarea) return;
+
+                    let source = 'unknown';
+                    let body = rawData;
+                    if (typeof rawData === 'string' && rawData.startsWith('midi_event[')) {
+                        const end = rawData.indexOf(']');
+                        if (end > 0) {
+                            source = rawData.slice('midi_event['.length, end);
+                            body = rawData.slice(end + 1).trim();
+                        }
+                    } else if (typeof rawData === 'string' && rawData.startsWith('midi_event')) {
+                        body = rawData.slice('midi_event'.length);
+                    }
+
+                    const d = new Date();
+                    const pad = function (n, w) {
+                        return String(n).padStart(w || 2, '0');
+                    };
+                    const t = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' +
+                        pad(d.getSeconds()) + '.' + pad(d.getMilliseconds(), 3);
+                    const line = t + ' [' + source + '] ' + body;
+
+                    window.midiEventLog.push({ source: source, line: line });
+                    if (window.midiEventLog.length > 2000) {
+                        window.midiEventLog.splice(0, 1000);
+                    }
+                    window.renderMidiEventLog();
+                };
             }
 
             let data;
@@ -185,7 +235,7 @@
                 x-ref="loading"
                 class="fixed inset-0 z-50 flex items-center justify-center text-white bg-black bg-opacity-50"
                 style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px)"
-                data-translate="loading..."
+                data-translate="loading"
         >
             Loading.....
         </div>
@@ -420,28 +470,18 @@
             </nav>
             <!-- Sidebar footer -->
             <div class="flex-shrink-0 p-2 max-h-20">
-                <button id="switch_ports_sidebar" class="flex items-center justify-center w-full px-4 py-2 space-x-1 font-medium
+                <button id="toggle_midi_mode_sidebar" class="flex items-center justify-center w-full px-4 py-2 space-x-1 font-medium
               tracking-wider uppercase glass hover:glass-light rounded-glass transition-smooth-fast focus:outline-none focus:ring-2 focus:ring-cyan-500/50">
                 <span class="flex">
-                    <svg class="fill-current text-gray-800 dark:text-gray-200" xmlns="http://www.w3.org/2000/svg"
-                         width="24" height="24"
-                         style="-ms-transform:rotate(360deg);-webkit-transform:rotate(360deg)"
-                         transform="rotate(360)"><path d="M12 2a10 10 0 0110 10 10 10 0 01-10 10A10 10 0 012 12 10
-                         10 0 0112 2m8.2 10c0-3.8-2.6-7-6.2-8v2h-4V4a8.2 8.2 0 00-6.2 8 8.2 8.2 0 008.2 8.2 8.2 8.2
-                         0 008.2-8.2M7 10.6A1.4 1.4 0 018.4 12 1.4 1.4 0 017 13.4a1.4 1.4 0 010-2.8m10 0a1.4 1.4 0
-                         011.4 1.4 1.4 1.4 0 01-1.4 1.4 1.4 1.4 0 01-1.4-1.4 1.4 1.4 0 011.4-1.4m-8.6 3.7a1.4 1.4 0
-                         011.3 1.3c0 .8-.6 1.4-1.3 1.4A1.4 1.4 0 017 15.6c0-.7.6-1.3 1.4-1.3m7.2 0c.8 0 1.4.6 1.4
-                         1.3a1.4 1.4 0 01-1.4 1.4c-.7 0-1.3-.6-1.3-1.4a1.4 1.4 0 011.3-1.3M12 15.6a1.4 1.4 0 011.4
-                         1.4 1.4 1.4 0 01-1.4 1.4 1.4 1.4 0 01-1.4-1.4 1.4 1.4 0 011.4-1.4z"/><path
-                            fill="rgba(0, 0, 0, 0)" d="M0 0h24v24H0z"/></svg>
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                        stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                     </svg>
                 </span>
-                    <span :class="{'lg:hidden': !isSidebarOpen}" data-translate="switch_ports">
-                        Switch Ports
+                    <span id="toggle_midi_mode_sidebar_label" :class="{'lg:hidden': !isSidebarOpen}"
+                          data-translate="midi_mode_sidebar_light_show">
+                        Mode: Light show
                     </span>
                 </button>
             </div>
@@ -720,12 +760,28 @@
     // Initialize toggle checkbox state to match dark mode
     document.getElementById("toggleDark").checked = document.documentElement.classList.contains("dark");
 
-    document.getElementById('switch_ports_sidebar').onclick = function () {
-        document.getElementById('switch_ports_sidebar').disabled = true;
-        if (document.getElementById('switch_ports') != null) {
-            document.getElementById('switch_ports').disabled = true;
-        }
-        switch_ports()
+    document.getElementById('toggle_midi_mode_sidebar').onclick = function () {
+        const btn = document.getElementById('toggle_midi_mode_sidebar');
+        btn.disabled = true;
+        const xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                btn.disabled = false;
+                if (this.status === 200) {
+                    try {
+                        const response = JSON.parse(this.responseText);
+                        if (typeof set_midi_mode_ui === 'function' && response.midi_mode) {
+                            set_midi_mode_ui(response.midi_mode);
+                        }
+                        if (typeof get_ports === 'function') {
+                            get_ports();
+                        }
+                    } catch (e) {}
+                }
+            }
+        };
+        xhttp.open("GET", "/api/switch_ports", true);
+        xhttp.send();
     }
 
     let touchstartX = 0;
@@ -1001,7 +1057,7 @@
 <div id="port_setup_popup_overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px)" onclick="handle_port_setup_overlay_click(event)">
     <div id="port_setup_popup" class="glass-strong shadow-glass-lg rounded-glass p-6 max-w-md min-w-80 w-auto mx-4 transform transition-all" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-200" data-translate="input_port_setup">Input Port Setup</h3>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-200" data-translate="piano_port_setup">Piano Port Setup</h3>
             <button onclick="hide_port_setup_popup()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1010,11 +1066,8 @@
         </div>
         
         <div class="mb-4">
-            <p class="text-sm text-gray-700 dark:text-gray-300 mb-2" data-translate="no_input_port_message">
-                No input port is currently set. Please select your piano from the list below.
-            </p>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4" data-translate="port_will_be_set_both">
-                The selected port will be set as both input port and playback port.
+            <p class="text-sm text-gray-700 dark:text-gray-300 mb-2" data-translate="no_piano_port_message">
+                No piano port is currently set. Please select your piano from the list below.
             </p>
         </div>
         

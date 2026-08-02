@@ -95,11 +95,11 @@ class GPIOHandler:
             if self.ledsettings.sequence_active:
                 self.ledsettings.set_sequence(0, 1)
             else:
-                active_input = self.usersettings.get_setting_value("input_port")
-                secondary_input = self.usersettings.get_setting_value("secondary_input_port")
-                self.midiports.change_port("inport", secondary_input)
-                self.usersettings.change_setting_value("secondary_input_port", active_input)
-                self.usersettings.change_setting_value("input_port", secondary_input)
+                current = self.usersettings.get_setting_value("midi_mode") or "light_show"
+                new_mode = "learning" if current != "learning" else "light_show"
+                self.midiports.set_midi_mode(new_mode)
+                label = "Learning" if new_mode == "learning" else "Light show"
+                self.menu.render_message("MIDI Mode", label, 1000)
                 fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
             while GPIO.input(self.KEY3) == 0:
                 time.sleep(0.01)

@@ -230,11 +230,13 @@
         <Learn_MIDI text="Max mistakes"></Learn_MIDI>
     </menu>
     <menu text="Ports Settings">
-        <Ports_Settings text="Input"></Ports_Settings>
-        <Ports_Settings text="Playback"></Ports_Settings>
+        <Ports_Settings text="Piano"></Ports_Settings>
+        <Ports_Settings text="Computer"></Ports_Settings>
+        <Ports_Settings text="Mode">
+            <Mode text="Light show"></Mode>
+            <Mode text="Learning"></Mode>
+        </Ports_Settings>
         <Ports_Settings text="Refresh ports"></Ports_Settings>
-        <Ports_Settings text="Connect ports"></Ports_Settings>
-        <Ports_Settings text="Disconnect ports"></Ports_Settings>
         <Ports_Settings text="Restart RTPMidi service">
             <Restart_RTPMidi_service text="Confirm"></Restart_RTPMidi_service>
             <Restart_RTPMidi_service text="Cancel"></Restart_RTPMidi_service>

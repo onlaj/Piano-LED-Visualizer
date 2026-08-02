@@ -97,51 +97,6 @@ disable_audio_output() {
   sudo sed -i 's/dtparam=audio=on/#dtparam=audio=on/' /boot/firmware/config.txt
 }
 
-# Function to create and configure the autoconnect script
-configure_autoconnect_script() {
-  cat <<'EOF' | sudo tee /usr/local/bin/connectall.py > /dev/null
-#!/usr/bin/python3
-import subprocess
-
-ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
-port_list = []
-client = "0"
-for line in str(ports).splitlines():
-    if line.startswith("client "):
-        client = line[7:].split(":", 2)[0]
-        if client == "0" or "Through" in line:
-            client = "0"
-    else:
-        if client == "0" or line.startswith("\t"):
-            continue
-        port = line.split()[0]
-        port_list.append(client + ":" + port)
-for source in port_list:
-    for target in port_list:
-        if source != target:
-            subprocess.call("aconnect %s %s" % (source, target), shell=True)
-EOF
-  execute_command "sudo chmod +x /usr/local/bin/connectall.py"
-
-  echo 'ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/local/bin/connectall.py"' \
-    | sudo tee /etc/udev/rules.d/33-midiusb.rules > /dev/null
-
-  cat <<EOF | sudo tee /lib/systemd/system/midi.service > /dev/null
-[Unit]
-Description=Initial USB MIDI connect
-
-[Service]
-ExecStart=/usr/local/bin/connectall.py
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  execute_command "sudo udevadm control --reload"
-  execute_command "sudo systemctl daemon-reload"
-  execute_command "sudo systemctl enable --now midi.service"
-}
-
 install_rtpmidi_arm64() {
   execute_command "cd /home"
   execute_command "sudo wget https://github.com/davidmoreno/rtpmidid/releases/download/v26.01/rtpmidid-debian-trixie-arm64-26.01.deb" "check_internet"
@@ -243,7 +198,6 @@ update_os
 enable_spi_interface
 install_packages
 disable_audio_output
-configure_autoconnect_script
 install_rtpmidi_server
 install_piano_led_visualizer
 finish_installation

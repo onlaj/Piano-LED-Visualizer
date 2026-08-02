@@ -71,58 +71,6 @@ update_os() {
   execute_command "sudo apt-get upgrade -y"
 }
 
-# Function to create and configure the autoconnect script
-configure_autoconnect_script() {
-  # Create connectall.py file
-  cat <<EOF | sudo tee /usr/local/bin/connectall.py > /dev/null
-#!/usr/bin/python3
-import subprocess
-
-ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
-port_list = []
-client = "0"
-for line in str(ports).splitlines():
-    if line.startswith("client "):
-        client = line[7:].split(":",2)[0]
-        if client == "0" or "Through" in line:
-            client = "0"
-    else:
-        if client == "0" or line.startswith('\t'):
-            continue
-        port = line.split()[0]
-        port_list.append(client+":"+port)
-for source in port_list:
-    for target in port_list:
-        if source != target:
-            subprocess.call("aconnect %s %s" % (source, target), shell=True)
-EOF
-  execute_command "sudo chmod +x /usr/local/bin/connectall.py"
-
-  # Create udev rules file
-  echo 'ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/local/bin/connectall.py"' | sudo tee -a /etc/udev/rules.d/33-midiusb.rules > /dev/null
-
-  # Reload services
-  execute_command "sudo udevadm control --reload"
-  execute_command "sudo service udev restart"
-
-  # Create midi.service file
-  cat <<EOF | sudo tee /lib/systemd/system/midi.service > /dev/null
-[Unit]
-Description=Initial USB MIDI connect
-
-[Service]
-ExecStart=/usr/local/bin/connectall.py
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  # Reload daemon and enable service
-  execute_command "sudo systemctl daemon-reload"
-  execute_command "sudo systemctl enable midi.service"
-  execute_command "sudo systemctl start midi.service"
-}
-
 # Function to enable SPI interface
 enable_spi_interface() {
   # Edit config.txt file to enable SPI interface
@@ -216,7 +164,6 @@ echo "
 # Main script execution
 refuse_if_trixie
 update_os
-configure_autoconnect_script
 enable_spi_interface
 install_packages
 disable_audio_output

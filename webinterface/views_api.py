@@ -338,16 +338,33 @@ def change_setting():
         app_state.ledsettings.adjacent_mode = value
         app_state.usersettings.change_setting_value("adjacent_mode", value)
 
+    if setting_name == "piano_port":
+        app_state.usersettings.change_setting_value("piano_port", value)
+        app_state.midiports.change_port("piano", value)
+
+    if setting_name == "computer_port":
+        app_state.usersettings.change_setting_value("computer_port", value)
+        app_state.midiports.change_port("computer", value)
+
+    if setting_name == "midi_mode":
+        app_state.midiports.set_midi_mode(value)
+
+    if setting_name == "suppress_computer_control":
+        enabled = value in ("1", "true", "True", True)
+        app_state.midiports.set_suppress_computer_control(enabled)
+
+    # old names
     if setting_name == "input_port":
-        app_state.usersettings.change_setting_value("input_port", value)
-        app_state.midiports.change_port("inport", value)
+        app_state.usersettings.change_setting_value("piano_port", value)
+        app_state.midiports.change_port("piano", value)
 
     if setting_name == "secondary_input_port":
-        app_state.usersettings.change_setting_value("secondary_input_port", value)
+        app_state.usersettings.change_setting_value("computer_port", value)
+        app_state.midiports.change_port("computer", value)
 
     if setting_name == "play_port":
-        app_state.usersettings.change_setting_value("play_port", value)
-        app_state.midiports.change_port("playport", value)
+        app_state.usersettings.change_setting_value("piano_port", value)
+        app_state.midiports.change_port("piano", value)
 
     if setting_name == "skipped_notes":
         app_state.usersettings.change_setting_value("skipped_notes", value)
@@ -1124,20 +1141,12 @@ def change_setting():
     if setting_name == "update_rpi":
         app_state.platform.update_visualizer()
 
-    if setting_name == "connect_ports":
-        app_state.midiports.connectall()
-        return jsonify(success=True, reload_ports=True)
-
-    if setting_name == "disconnect_ports":
-        call("sudo aconnect -x", shell=True)
-        return jsonify(success=True, reload_ports=True)
-
     if setting_name == "restart_rtp":
         app_state.platform.restart_rtpmidid()
 
     if setting_name == "show_midi_events":
-        value = int(value == 'true')
-        app_state.usersettings.change_setting_value("midi_logging", value)
+        enabled = value in ("1", "true", "True", True)
+        app_state.midiports.set_midi_logging(enabled)
 
     if setting_name == "multicolor_iteration":
         value = int(value == 'true')
@@ -1920,8 +1929,13 @@ def get_settings():
     response["sides_color_mode"] = app_state.usersettings.get_setting_value("adjacent_mode")
     response["sides_color"] = sides_color
 
-    response["input_port"] = app_state.usersettings.get_setting_value("input_port")
-    response["play_port"] = app_state.usersettings.get_setting_value("play_port")
+    response["piano_port"] = app_state.usersettings.get_setting_value("piano_port")
+    response["computer_port"] = app_state.usersettings.get_setting_value("computer_port")
+    response["midi_mode"] = app_state.usersettings.get_setting_value("midi_mode")
+    # old names still returned for compatibility
+    response["input_port"] = response["piano_port"]
+    response["play_port"] = response["piano_port"]
+    response["secondary_input_port"] = response["computer_port"]
 
     response["skipped_notes"] = app_state.usersettings.get_setting_value("skipped_notes")
     response["note_offsets"] = app_state.usersettings.get_setting_value("note_offsets")
@@ -1995,8 +2009,10 @@ def get_settings():
 
 @webinterface.route('/api/get_recording_status', methods=['GET'])
 def get_recording_status():
-    response = {"input_port": app_state.usersettings.get_setting_value("input_port"),
-                "play_port": app_state.usersettings.get_setting_value("play_port"),
+    piano_port = app_state.usersettings.get_setting_value("piano_port")
+    response = {"piano_port": piano_port,
+                "input_port": piano_port,
+                "play_port": piano_port,
                 "isrecording": app_state.saving.is_recording, "isplaying": app_state.saving.is_playing_midi}
 
     return jsonify(response)
@@ -2123,26 +2139,31 @@ def get_songs():
 def get_ports():
     ports = mido.get_input_names()
     ports = list(dict.fromkeys(ports))
-    response = {"ports_list": ports, "input_port": app_state.usersettings.get_setting_value("input_port"),
-                "secondary_input_port": app_state.usersettings.get_setting_value("secondary_input_port"),
-                "play_port": app_state.usersettings.get_setting_value("play_port"),
-                "connected_ports": str(subprocess.check_output(["aconnect", "-i", "-l"])),
-                "midi_logging": app_state.usersettings.get_setting_value("midi_logging")}
+    piano_port = app_state.usersettings.get_setting_value("piano_port")
+    computer_port = app_state.usersettings.get_setting_value("computer_port")
+    response = {
+        "ports_list": ports,
+        "piano_port": piano_port,
+        "computer_port": computer_port,
+        "midi_mode": app_state.usersettings.get_setting_value("midi_mode"),
+        "suppress_computer_control": app_state.usersettings.get_setting_value("suppress_computer_control"),
+        "input_port": piano_port,
+        "secondary_input_port": computer_port,
+        "play_port": piano_port,
+        "midi_logging": app_state.usersettings.get_setting_value("midi_logging"),
+    }
 
     return jsonify(response)
 
 
 @webinterface.route('/api/switch_ports', methods=['GET'])
 def switch_ports():
-    active_input = app_state.usersettings.get_setting_value("input_port")
-    secondary_input = app_state.usersettings.get_setting_value("secondary_input_port")
-    app_state.midiports.change_port("inport", secondary_input)
-    app_state.usersettings.change_setting_value("secondary_input_port", active_input)
-    app_state.usersettings.change_setting_value("input_port", secondary_input)
-
+    # flips light_show / learning (URL kept from the old switch-ports button)
+    current = app_state.usersettings.get_setting_value("midi_mode") or "light_show"
+    new_mode = "learning" if current != "learning" else "light_show"
+    app_state.midiports.set_midi_mode(new_mode)
     fastColorWipe(app_state.ledstrip.strip, True, app_state.ledsettings)
-
-    return jsonify(success=True)
+    return jsonify(success=True, midi_mode=new_mode)
 
 
 @webinterface.route('/api/get_sequences', methods=['GET'])
@@ -2316,213 +2337,6 @@ def api_update_highscore():
         return jsonify(success=False, error="Invalid payload"), 400
     changed = app_state.profile_manager.update_highscore(profile_id, song_name, new_score)
     return jsonify(success=True, updated=changed)
-
-# ========== Port Manager Helper Functions ==========
-
-def parse_aconnect_ports(output, port_type="input"):
-    """
-    Parse aconnect output to extract port information.
-    Returns a list of dicts with port info: {id, client_id, port_id, name, full_name}
-    """
-    ports = []
-    current_client = None
-    current_client_name = ""
-    
-    for line in output.split('\n'):
-        line = line.strip()
-        
-        # Match client lines: "client 20: 'Midi Through' [type=kernel]"
-        client_match = re.match(r"client (\d+):\s+'([^']+)'", line)
-        if client_match:
-            current_client = client_match.group(1)
-            current_client_name = client_match.group(2)
-            
-            # Skip special clients
-            if current_client == "0" or "Through" in current_client_name or "RtMidi" in current_client_name:
-                current_client = None
-            continue
-        
-        # Match port lines: "    0 'Midi Through Port-0'"
-        if current_client and line and not line.startswith('client'):
-            port_match = re.match(r"(\d+)\s+'([^']+)'", line)
-            if port_match:
-                port_id = port_match.group(1)
-                port_name = port_match.group(2)
-                full_id = f"{current_client}:{port_id}"
-                
-                ports.append({
-                    'id': full_id,
-                    'client_id': current_client,
-                    'port_id': port_id,
-                    'name': port_name,
-                    'client_name': current_client_name,
-                    'full_name': f"{current_client_name} - {port_name}"
-                })
-    
-    return ports
-
-
-def parse_aconnect_connections(output):
-    """
-    Parse aconnect -l output to extract current connections.
-    Returns a list of dicts: {source, destination, source_name, dest_name}
-    """
-    connections = []
-    current_client = None
-    current_port = None
-    current_client_name = ""
-    current_port_name = ""
-    
-    for line in output.split('\n'):
-        line_stripped = line.strip()
-        
-        # Match client lines
-        client_match = re.match(r"client (\d+):\s+'([^']+)'", line_stripped)
-        if client_match:
-            current_client = client_match.group(1)
-            current_client_name = client_match.group(2)
-            current_port = None
-            continue
-        
-        # Match port lines with connections: "    0 'port name'"
-        if current_client and line.startswith('    ') and not line.startswith('\t'):
-            port_match = re.match(r"\s+(\d+)\s+'([^']+)'", line)
-            if port_match:
-                current_port = port_match.group(1)
-                current_port_name = port_match.group(2)
-                continue
-        
-        # Match connection lines: "\tConnecting To: 130:0" or "\tConnecting To: 130:0, 131:0, 132:0"
-        if current_client and current_port and '\t' in line:
-            # Only process "Connecting To:" to avoid duplicates
-            if "Connecting To:" in line:
-                # Find all port connections in the line (handles multiple connections)
-                conn_matches = re.findall(r"(\d+):(\d+)", line_stripped)
-                source_id = f"{current_client}:{current_port}"
-                
-                for conn_match in conn_matches:
-                    dest_id = f"{conn_match[0]}:{conn_match[1]}"
-                    connections.append({
-                        'source': source_id,
-                        'destination': dest_id,
-                        'source_name': f"{current_client_name} - {current_port_name}",
-                    })
-    
-    return connections
-
-
-def get_all_available_ports():
-    """
-    Get all available MIDI input and output ports.
-    Returns dict with 'inputs' and 'outputs' lists.
-    """
-    try:
-        input_output = subprocess.check_output(["aconnect", "-l"], text=True)
-        input_ports = subprocess.check_output(["aconnect", "-i", "-l"], text=True)
-        output_ports = subprocess.check_output(["aconnect", "-o", "-l"], text=True)
-        
-        return {
-            'inputs': parse_aconnect_ports(input_ports, "input"),
-            'outputs': parse_aconnect_ports(output_ports, "output"),
-            'all': parse_aconnect_ports(input_output, "all")
-        }
-    except subprocess.CalledProcessError as e:
-        return {'inputs': [], 'outputs': [], 'all': []}
-
-
-def get_all_current_connections():
-    """
-    Get all current MIDI port connections.
-    Returns list of connection dicts.
-    """
-    try:
-        output = subprocess.check_output(["aconnect", "-l"], text=True)
-        return parse_aconnect_connections(output)
-    except subprocess.CalledProcessError:
-        return []
-
-
-def create_midi_port_connection(source, destination):
-    """
-    Create a connection between two MIDI ports.
-    Args:
-        source: Source port in format "client:port" (e.g., "20:0")
-        destination: Destination port in format "client:port"
-    Returns:
-        True if successful, False otherwise
-    """
-    try:
-        result = subprocess.call(["aconnect", source, destination])
-        return result == 0
-    except Exception as e:
-        print(f"Error creating connection: {e}")
-        return False
-
-
-def delete_midi_port_connection(source, destination):
-    """
-    Delete a connection between two MIDI ports.
-    Args:
-        source: Source port in format "client:port"
-        destination: Destination port in format "client:port"
-    Returns:
-        True if successful, False otherwise
-    """
-    try:
-        result = subprocess.call(["aconnect", "-d", source, destination])
-        return result == 0
-    except Exception as e:
-        print(f"Error deleting connection: {e}")
-        return False
-
-
-# ========== Port Connection API Endpoints ==========
-
-@webinterface.route('/api/get_available_ports', methods=['GET'])
-def get_available_ports():
-    """Get all available MIDI ports (inputs and outputs)"""
-    ports = get_all_available_ports()
-    return jsonify(ports)
-
-
-@webinterface.route('/api/get_port_connections', methods=['GET'])
-def get_port_connections():
-    """Get all current MIDI port connections"""
-    connections = get_all_current_connections()
-    return jsonify({'connections': connections})
-
-
-@webinterface.route('/api/create_port_connection', methods=['POST'])
-def create_port_connection():
-    """Create a connection between two MIDI ports"""
-    data = request.get_json()
-    source = data.get('source')
-    destination = data.get('destination')
-    
-    if not source or not destination:
-        return jsonify({'success': False, 'error': 'Missing source or destination'}), 400
-    
-    # Prevent self-connection
-    if source == destination:
-        return jsonify({'success': False, 'error': 'Cannot connect a port to itself'}), 400
-    
-    success = create_midi_port_connection(source, destination)
-    return jsonify({'success': success})
-
-
-@webinterface.route('/api/delete_port_connection', methods=['POST'])
-def delete_port_connection():
-    """Delete a connection between two MIDI ports"""
-    data = request.get_json()
-    source = data.get('source')
-    destination = data.get('destination')
-    
-    if not source or not destination:
-        return jsonify({'success': False, 'error': 'Missing source or destination'}), 400
-    
-    success = delete_midi_port_connection(source, destination)
-    return jsonify({'success': success})
-
 
 def pretty_print(dom):
     return '\n'.join([line for line in dom.toprettyxml(indent=' ' * 4).split('\n') if line.strip()])

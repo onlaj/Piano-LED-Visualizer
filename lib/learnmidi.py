@@ -505,8 +505,17 @@ class LearnMIDI:
                             while not set(notes_to_press).issubset(notes_pressed) and self.is_started_midi:
                                 if self.awaiting_restart_loop:
                                     break
+                                deferred = []
                                 while self.midiports.midi_queue:
-                                    msg_in, msg_timestamp = self.midiports.midi_queue.popleft()
+                                    queue_item = self.midiports.midi_queue.popleft()
+                                    msg_in = queue_item[0]
+                                    msg_timestamp = queue_item[1]
+                                    # non-piano msgs (guide lights etc.) go to midifile_queue below;
+                                    # while learning is running the processor doesn't drain midi_queue
+                                    source = queue_item[2] if len(queue_item) >= 3 else None
+                                    if source not in (None, "piano"):
+                                        deferred.append(queue_item)
+                                        continue
                                     if msg_in.type not in ("note_on", "note_off"):
                                         continue
 
@@ -577,6 +586,9 @@ class LearnMIDI:
                                             notes_pressed.remove(note)
                                         except ValueError:
                                             pass  # do nothing
+
+                                for item in deferred:
+                                    self.midiports.midifile_queue.append(item)
 
                                 self.handle_wrong_notes(wrong_notes, hand_hint_notesL, hand_hint_notesR)
                                 wrong_notes.clear()

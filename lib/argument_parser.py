@@ -19,7 +19,7 @@ class ArgumentParser:
         parser.add_argument('-f', '--fontdir', type=str, help="Use an alternate directory for fonts")
         parser.add_argument('-p', '--port', type=int, help="set port for webinterface (80 is default)")
         parser.add_argument('-s', '--skipupdate', action='store_true',
-                            help="Do not try to update /usr/local/bin/connectall.py")
+                            help="Do not remove old connectall.py / midi.service leftovers")
         parser.add_argument('-w', '--webinterface', help="disable webinterface: 'true' (default) | 'false'")
         parser.add_argument('-r', '--rotatescreen', default="false", help="rotate screen: 'false' (default) | 'true'")
         parser.add_argument('-a', '--appmode', default=appmode_default, help="appmode: 'platform' (default) | 'app'")

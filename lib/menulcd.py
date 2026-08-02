@@ -111,6 +111,7 @@ class MenuLCD:
         if pointer_color_str:
             self.theme.pointer_color = self._parse_color(pointer_color_str)
 
+        self._lcd_port_name_map = {}
         self.update_songs()
         self.update_ports()
         self.update_led_note_offsets()
@@ -413,10 +414,17 @@ class MenuLCD:
         return ret
 
     def update_ports(self):
-        ports = list(dict.fromkeys(mido.get_input_names()))
+        from lib.midiports import _get_cached_input_names, _refresh_port_cache
+
+        # cache scan once; mido port listing is slow
+        _refresh_port_cache()
+        ports = list(dict.fromkeys(_get_cached_input_names()))
         self.update_sequence_list()
 
-        port_texts = ["Input", "Playback"]
+        # short label -> full mido name
+        self._lcd_port_name_map = {}
+
+        port_texts = ["Piano", "Computer"]
         for index, port_text in enumerate(port_texts):
             element = self.DOMTree.createElement("Ports_Settings")
             element.appendChild(self.DOMTree.createTextNode(""))
@@ -425,12 +433,29 @@ class MenuLCD:
             mc.parentNode.replaceChild(element, mc)
 
         for port in ports:
+            short = self._short_port_label(port)
+            # disambiguate when shortened names collide
+            label = short
+            suffix = 2
+            while label in self._lcd_port_name_map:
+                label = "{} ({})".format(short, suffix)
+                suffix += 1
+            self._lcd_port_name_map[label] = port
+
             for index, port_text in enumerate(port_texts):
                 element = self.DOMTree.createElement(port_text)
                 element.appendChild(self.DOMTree.createTextNode(""))
-                element.setAttribute("text", port)
+                element.setAttribute("text", label)
                 mc = self.DOMTree.getElementsByTagName("Ports_Settings")[index]
                 mc.appendChild(element)
+
+    def _short_port_label(self, port_name):
+        # drop trailing client:port so it fits the LCD
+        if self.midiports is not None:
+            descriptive = self.midiports._extract_descriptive_port_name(port_name)
+            if descriptive:
+                return descriptive
+        return port_name
 
     def update_led_note_offsets(self):
         note_offsets = self.ledsettings.note_offsets
@@ -1117,13 +1142,21 @@ class MenuLCD:
             else:
                 # Just draw label centered vertically
                 label_max_width = item_x1 - item_x0 - scale(theme.item_padding_h * 2)
-                label_text = self._truncate_text(sid, label_max_width, self.font)
-                self._draw_label_with_legacy_scroll(sid, text_x, text_y, label_max_width, self.font, is_selected, refresh, window_len=18)
+                # no marquee on port lists - redrawing every tick feels laggy
+                if self.current_location in ("Piano", "Computer"):
+                    label_text = self._truncate_text(sid, label_max_width, self.font)
+                    draw.text((text_x, text_y), label_text, fill=self.text_color, font=self.font)
+                else:
+                    self._draw_label_with_legacy_scroll(
+                        sid, text_x, text_y, label_max_width, self.font, is_selected, refresh, window_len=18
+                    )
 
             current_y += total_item_height
         # Update scroll_needed flag based on actually selected item (legacy rule >18 chars)
         try:
-            if isinstance(selected_sid, str) and len(selected_sid) > 18 and self.screen_on == 1:
+            if self.current_location in ("Piano", "Computer"):
+                self.scroll_needed = False
+            elif isinstance(selected_sid, str) and len(selected_sid) > 18 and self.screen_on == 1:
                 self.scroll_needed = True
             else:
                 self.scroll_needed = False
@@ -1573,22 +1606,24 @@ class MenuLCD:
             self.usersettings.change_setting_value("mode", self.ledsettings.mode)
             fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
 
-        if location == "Input":
-            self.midiports.change_port("inport", choice)
-        if location == "Playback":
-            self.midiports.change_port("playport", choice)
+        if location == "Piano":
+            port_name = getattr(self, "_lcd_port_name_map", {}).get(choice, choice)
+            self.midiports.change_port("piano", port_name)
+        if location == "Computer":
+            port_name = getattr(self, "_lcd_port_name_map", {}).get(choice, choice)
+            self.midiports.change_port("computer", port_name)
 
-        if location == "Ports_Settings":
-            if choice == "Refresh ports" or choice == "Input" or choice == "Playback":
+        if location in ("Ports_Settings", "Mode"):
+            if choice == "Refresh ports" or choice == "Piano" or choice == "Computer":
                 self.update_ports()
 
-            if choice == "Connect ports":
-                self.render_message("Connecting ports", "", 2000)
-                self.midiports.connectall()
+            if choice == "Light show":
+                self.midiports.set_midi_mode("light_show")
+                self.render_message("MIDI Mode", "Light show", 1500)
 
-            if choice == "Disconnect ports":
-                self.render_message("Disconnecting ports", "", 1000)
-                call("sudo aconnect -x", shell=True)
+            if choice == "Learning":
+                self.midiports.set_midi_mode("learning")
+                self.render_message("MIDI Mode", "Learning", 1500)
 
         if location == "LED_animations":
             self.is_animation_running = True

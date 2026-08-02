@@ -175,11 +175,29 @@ If you still want to try, follow [this link](https://github.com/onlaj/Piano-LED-
 
 ### Configuring Synthesia
 
-You have to enable light support in Synthesia by setting "Key Light" option to "Finger-based channel".
-In Visualizer settings you have to change "input" to either *RPI Bluetooth* (for bluetooth connection), *rtpmidi raspberrypi* (for RTP connections) or *MIDI USB-USB* (for cable connection).
-After that when learning new song next-to-play keys will be illuminated in corresponding colors, blue for left hand and green for right hand.
+1. In Visualizer **Ports Settings**, set **Piano Port** to your piano and **Computer Port** to the peer device:
+   - *rtpmidi raspberrypi* (or similar) for RTP MIDI
+   - *MIDI USB-USB* for Sevilla USB-USB
+   - *RPI Bluetooth* for Bluetooth
+2. Set **MIDI Mode** to **Learning**.
+3. In Synthesia, set **Key Light** to **Finger-based channel**.
 
-If you are getting mixed colors, meaning that leds are lighting up with your predefined and next-to-play colors at the same time, you can use "Skipped notes" option in Visualizer to disable one of them.
+In Learning mode the Visualizer creates a transparent in-app link (no aconnect):
+- piano notes are forwarded to the computer
+- computer notes and guide lights are forwarded to the piano
+- guide lights (channels 11/12, or velocity 1) are intercepted to drive the LEDs with hand colors
+- by default, control changes from the computer (reverb, volume, All Notes Off, etc.) are blocked from reaching the piano; disable **Block control changes** in Ports Settings if you need them
+
+For normal LED light-ups while playing alone, set **MIDI Mode** to **Light show** (computer port is ignored).
+
+### Switching MIDI Mode quickly
+
+You can flip between **Light show** and **Learning** without opening Ports Settings:
+
+- Web sidebar button (shows the current mode, e.g. *Mode: Learning*)
+- Hardware **KEY3** on the LCD board (LCD briefly shows the new mode)
+
+The active mode is also shown on the Home page (**MIDI Mode** tile) and highlighted on the Ports Settings mode buttons.
 
 
 ## Managing songs <a name="managing_songs"></a>

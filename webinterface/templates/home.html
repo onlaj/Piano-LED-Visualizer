@@ -326,19 +326,6 @@
                     </button>
                 </div>
                 <div>
-                    <label data-translate="connect_ports" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Connect ports</label>
-                    <button onclick="this.classList.add('hidden');handle_confirmation_button(this.nextElementSibling);"
-                            class="w-full h-10 outline-none glass-light hover:glass font-bold py-2 px-2 rounded-glass transition-smooth-fast inline-flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                        </svg>
-                    </button>
-                    <button onclick="change_setting('connect_ports', '0');temporary_disable_button(this, 5000);"
-                            class="w-full h-10 outline-none glass-light font-bold py-2 px-2 rounded-glass inline-flex items-center justify-center hidden">
-                        <span class="uppercase text-xs" data-translate="confirm">Confirm</span>
-                    </button>
-                </div>
-                <div>
                     <label data-translate="clean_led_strip" class="block text-xs font-semibold mb-2 text-gray-600 dark:text-gray-400">Clean led strip</label>
                     <button onclick="change_setting('clean_ledstrip', '0');
                     element = this;
@@ -450,20 +437,30 @@
                 </div>
             </div>
             <div class="status-item cursor-pointer hover:glass-light rounded-glass p-3 transition-smooth-fast"
-                 onclick="history.pushState({}, '', '#ports'); loadAjax('ports'); setTimeout(() => { const el = document.getElementById('active_input'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 500);">
-                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="input_port">Input Port</div>
+                 onclick="history.pushState({}, '', '#ports'); loadAjax('ports'); setTimeout(() => { const el = document.getElementById('piano_input'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 500);">
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="piano_port">Piano Port</div>
                 <div class="flex items-center space-x-2">
-                    <div id="input_port" class="text-xl font-bold truncate"></div>
+                    <div id="piano_port" class="text-xl font-bold truncate"></div>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </div>
             </div>
             <div class="status-item cursor-pointer hover:glass-light rounded-glass p-3 transition-smooth-fast"
-                 onclick="history.pushState({}, '', '#ports'); loadAjax('ports'); setTimeout(() => { const el = document.getElementById('playback_input'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 500);">
-                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="playback_port">Playback Port</div>
+                 onclick="history.pushState({}, '', '#ports'); loadAjax('ports'); setTimeout(() => { const el = document.getElementById('computer_input'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 500);">
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="computer_port">Computer Port</div>
                 <div class="flex items-center space-x-2">
-                    <div id="playback_port" class="text-xl font-bold truncate"></div>
+                    <div id="computer_port" class="text-xl font-bold truncate"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+            <div class="status-item cursor-pointer hover:glass-light rounded-glass p-3 transition-smooth-fast"
+                 onclick="history.pushState({}, '', '#ports'); loadAjax('ports');">
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-1" data-translate="midi_mode">MIDI Mode</div>
+                <div class="flex items-center space-x-2">
+                    <div id="midi_mode" class="text-xl font-bold truncate"></div>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>

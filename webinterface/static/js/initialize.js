@@ -513,23 +513,17 @@ function initialize_sequences() {
 
 function initialize_ports_settings() {
     get_ports();
-    // Initialize the visual port connection manager if it exists
-    if (typeof initialize_port_connection_manager === 'function') {
-        initialize_port_connection_manager();
+    const pianoInput = document.getElementById('piano_input');
+    if (pianoInput) {
+        pianoInput.onchange = function () {
+            change_setting("piano_port", this.value)
+        }
     }
-    document.getElementById('switch_ports').onclick = function () {
-        document.getElementById('switch_ports').disabled = true;
-        document.getElementById('switch_ports_sidebar').disabled = true;
-        switch_ports()
-    }
-    document.getElementById('active_input').onchange = function () {
-        change_setting("input_port", this.value)
-    }
-    document.getElementById('secondary_input').onchange = function () {
-        change_setting("secondary_input_port", this.value)
-    }
-    document.getElementById('playback_input').onchange = function () {
-        change_setting("play_port", this.value)
+    const computerInput = document.getElementById('computer_input');
+    if (computerInput) {
+        computerInput.onchange = function () {
+            change_setting("computer_port", this.value)
+        }
     }
 }
 

@@ -62,30 +62,41 @@ class PlatformRasp(PlatformBase):
     
     @staticmethod
     def disable_system_midi_scripts():
-        """Disable udev rules and systemd service that run the old connectall script"""
+        """Clean up old connectall.py / udev / midi.service leftovers."""
         try:
-            # Disable the udev rule
-            udev_rule_path = '/etc/udev/rules.d/33-midiusb.rules'
-            if os.path.exists(udev_rule_path):
-                logger.info("Disabling udev MIDI rule...")
-                # Rename the file to disable it
-                os.rename(udev_rule_path, udev_rule_path + '.disabled')
+            udev_paths = [
+                '/etc/udev/rules.d/33-midiusb.rules',
+                '/etc/udev/rules.d/33-midiusb.rules.disabled',
+            ]
+            udev_removed = False
+            for udev_path in udev_paths:
+                if os.path.exists(udev_path):
+                    logger.info(f"Removing legacy udev MIDI rule: {udev_path}")
+                    subprocess.call(['sudo', 'rm', '-f', udev_path], check=False)
+                    udev_removed = True
+            if udev_removed:
                 subprocess.call(['sudo', 'udevadm', 'control', '--reload'], check=False)
-                logger.info("udev MIDI rule disabled")
-            
-            # Disable the systemd service
+
             service_name = 'midi.service'
+            service_unit = '/lib/systemd/system/midi.service'
             try:
-                # Stop the service
                 subprocess.call(['sudo', 'systemctl', 'stop', service_name], check=False)
-                # Disable the service
                 subprocess.call(['sudo', 'systemctl', 'disable', service_name], check=False)
-                logger.info(f"Systemd service {service_name} disabled")
-            except:
-                logger.info(f"Could not disable systemd service {service_name}")
-                
+                if os.path.exists(service_unit):
+                    logger.info(f"Removing systemd unit {service_unit}")
+                    subprocess.call(['sudo', 'rm', '-f', service_unit], check=False)
+                    subprocess.call(['sudo', 'systemctl', 'daemon-reload'], check=False)
+                logger.info(f"Legacy systemd service {service_name} cleaned up")
+            except Exception:
+                logger.info(f"Could not fully clean up systemd service {service_name}")
+
+            connectall_path = '/usr/local/bin/connectall.py'
+            if os.path.exists(connectall_path):
+                logger.info(f"Removing legacy {connectall_path}")
+                subprocess.call(['sudo', 'rm', '-f', connectall_path], check=False)
+
         except Exception as e:
-            logger.warning(f"Error disabling system MIDI scripts: {e}")
+            logger.warning(f"Error removing legacy system MIDI scripts: {e}")
 
     def install_midi2abc(self):
         if not self.is_package_installed("abcmidi"):

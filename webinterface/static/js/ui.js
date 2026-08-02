@@ -252,19 +252,46 @@ function populate_colormaps(select_ids) {
     }
 }
 
-function switch_ports() {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            get_ports()
-            if (document.getElementById('switch_ports') != null) {
-                document.getElementById('switch_ports').disabled = false;
+function set_midi_mode_ui(mode) {
+    const lightBtn = document.getElementById('mode_light_show');
+    const learningBtn = document.getElementById('mode_learning');
+    const help = document.getElementById('midi_mode_help');
+    const activeClass = ['ring-2', 'ring-sky-400', 'bg-sky-500/40', 'shadow-md', 'shadow-sky-500/30'];
+    const inactiveClass = ['opacity-50'];
+    const isLearning = mode === 'learning';
+    if (lightBtn && learningBtn) {
+        lightBtn.classList.remove(...activeClass, ...inactiveClass);
+        learningBtn.classList.remove(...activeClass, ...inactiveClass);
+        if (isLearning) {
+            learningBtn.classList.add(...activeClass);
+            lightBtn.classList.add(...inactiveClass);
+            if (help) {
+                help.setAttribute('data-translate', 'learning_mode_help');
+                help.textContent = translate('learning_mode_help');
             }
-            document.getElementById('switch_ports_sidebar').disabled = false;
+        } else {
+            lightBtn.classList.add(...activeClass);
+            learningBtn.classList.add(...inactiveClass);
+            if (help) {
+                help.setAttribute('data-translate', 'light_show_help');
+                help.textContent = translate('light_show_help');
+            }
         }
-    };
-    xhttp.open("GET", "/api/switch_ports", true);
-    xhttp.send();
+    }
+    const modeEl = document.getElementById('midi_mode');
+    if (modeEl) {
+        modeEl.innerHTML = isLearning ? translate('learning_mode') : translate('light_show');
+    }
+    const sidebarLabel = document.getElementById('toggle_midi_mode_sidebar_label');
+    if (sidebarLabel) {
+        const key = isLearning ? 'midi_mode_sidebar_learning' : 'midi_mode_sidebar_light_show';
+        sidebarLabel.setAttribute('data-translate', key);
+        sidebarLabel.textContent = translate(key);
+    }
+}
+
+function refresh_ports_list() {
+    get_ports();
 }
 
 function disable_wifi_refresh_button() {
@@ -678,13 +705,17 @@ function get_settings(home = true) {
                 if (brightnessPercentEl) brightnessPercentEl.innerHTML = response["brightness"] + "%";
                 const backlightBrightnessPercentEl = document.getElementById("backlight_brightness_percent");
                 if (backlightBrightnessPercentEl) backlightBrightnessPercentEl.innerHTML = response["backlight_brightness"] + "%";
-                const inputPortEl = document.getElementById("input_port");
-                if (inputPortEl) inputPortEl.innerHTML = response["input_port"];
-                const playbackPortEl = document.getElementById("playback_port");
-                if (playbackPortEl) playbackPortEl.innerHTML = response["play_port"];
-                
-                // Check if input port setup popup should be shown
-                check_and_show_port_setup_popup(response["input_port"]);
+                const pianoPort = response["piano_port"] || response["input_port"];
+                const computerPort = response["computer_port"] || response["secondary_input_port"];
+                const midiMode = response["midi_mode"] || "light_show";
+                const pianoPortEl = document.getElementById("piano_port");
+                if (pianoPortEl) pianoPortEl.innerHTML = pianoPort;
+                const computerPortEl = document.getElementById("computer_port");
+                if (computerPortEl) computerPortEl.innerHTML = computerPort;
+                set_midi_mode_ui(midiMode);
+
+                // Check if piano port setup popup should be shown
+                check_and_show_port_setup_popup(pianoPort);
             }
 
         }
@@ -857,7 +888,7 @@ function handle_port_setup_cancel() {
 }
 
 /**
- * Handle submit button click - set both input_port and play_port
+ * Handle submit button click - set piano_port
  */
 function handle_port_setup_submit() {
     const dropdown = document.getElementById('port_setup_dropdown');
@@ -874,25 +905,18 @@ function handle_port_setup_submit() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span>' + translate('setting_port') + '</span>';
     
-    // Set input_port first
-    change_setting('input_port', selectedPort);
+    change_setting('piano_port', selectedPort);
     
-    // Set play_port after a short delay to ensure input_port is set first
+    // Save preference if checkbox is checked
+    if (dontShowAgain && dontShowAgain.checked) {
+        setCookie('hide_port_setup_popup', 'true', 365);
+    }
+    
+    // Hide popup and refresh settings after a short delay
     setTimeout(function() {
-        change_setting('play_port', selectedPort);
-        
-        // Save preference if checkbox is checked
-        if (dontShowAgain && dontShowAgain.checked) {
-            setCookie('hide_port_setup_popup', 'true', 365);
-        }
-        
-        // Hide popup and refresh settings after a short delay
-        setTimeout(function() {
-            hide_port_setup_popup();
-            // Refresh settings to show updated port values
-            get_settings(false);
-        }, 500);
-    }, 300);
+        hide_port_setup_popup();
+        get_settings(false);
+    }, 500);
 }
 
 
@@ -1863,46 +1887,47 @@ function get_ports() {
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             let response = JSON.parse(this.responseText);
-            
-            // Update old dropdowns if they exist
-            if (document.getElementById('active_input') != null) {
-                const active_input_select = document.getElementById('active_input');
-                const secondary_input_select = document.getElementById('secondary_input');
-                const playback_select = document.getElementById('playback_input');
-                const length = active_input_select.options.length;
-                for (let i = length - 1; i >= 0; i--) {
-                    active_input_select.options[i] = null;
-                    secondary_input_select.options[i] = null;
-                    playback_select.options[i] = null;
+            const ports = response["ports_list"] || [];
+            const pianoPort = response["piano_port"] || response["input_port"];
+            const computerPort = response["computer_port"] || response["secondary_input_port"];
+            const midiMode = response["midi_mode"] || "light_show";
+
+            function fillSelect(selectId, selectedValue, includeEmpty) {
+                const select = document.getElementById(selectId);
+                if (!select) return;
+                while (select.options.length > 0) {
+                    select.remove(0);
                 }
-                response["ports_list"].forEach(function (item, index) {
+                if (includeEmpty) {
+                    const empty = document.createElement('option');
+                    empty.value = 'default';
+                    empty.textContent = translate('no_ports') || 'None';
+                    select.appendChild(empty);
+                }
+                ports.forEach(function (item) {
                     const opt = document.createElement('option');
-                    const opt2 = document.createElement('option');
-                    const opt3 = document.createElement('option');
-                    opt.appendChild(document.createTextNode(item));
-                    opt2.appendChild(document.createTextNode(item));
-                    opt3.appendChild(document.createTextNode(item));
                     opt.value = item;
-                    opt2.value = item;
-                    opt3.value = item;
-                    active_input_select.appendChild(opt);
-                    secondary_input_select.appendChild(opt2);
-                    playback_select.appendChild(opt3);
+                    opt.textContent = item;
+                    select.appendChild(opt);
                 });
-                active_input_select.value = response["input_port"];
-                secondary_input_select.value = response["secondary_input_port"];
-                playback_select.value = response["play_port"];
+                if (selectedValue && [...select.options].some(o => o.value === selectedValue)) {
+                    select.value = selectedValue;
+                } else if (includeEmpty) {
+                    select.value = 'default';
+                }
             }
-            
-            // Update raw textarea
-            if (document.getElementById('connect_all_textarea') != null) {
-                let connected_ports = response["connected_ports"];
-                connected_ports = connected_ports.replaceAll("\\n", "&#10;")
-                connected_ports = connected_ports.replaceAll("\\t", "        ")
-                connected_ports = connected_ports.replaceAll("b\"", "")
-                document.getElementById('connect_all_textarea').innerHTML = connected_ports;
+
+            fillSelect('piano_input', pianoPort, false);
+            fillSelect('computer_input', computerPort, true);
+            set_midi_mode_ui(midiMode);
+
+            const suppressCc = document.getElementById("suppress_computer_control_checkbox");
+            if (suppressCc) {
+                suppressCc.checked = response["suppress_computer_control"] === "1"
+                    || response["suppress_computer_control"] === 1
+                    || response["suppress_computer_control"] === true;
             }
-            
+
             if (response["midi_logging"] === "1") {
                 const checkbox = document.getElementById("midi_events_checkbox");
                 if (checkbox) checkbox.checked = true;
@@ -1945,8 +1970,12 @@ function get_recording_status() {
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             let response = JSON.parse(this.responseText);
-            document.getElementById("input_port").innerHTML = response["input_port"];
-            document.getElementById("play_port").innerHTML = response["play_port"];
+            const pianoPort = response["piano_port"] || response["input_port"];
+            const playPort = response["play_port"] || pianoPort;
+            const playPortEl = document.getElementById("play_port");
+            if (playPortEl) playPortEl.innerHTML = playPort;
+            const pianoPortEl = document.getElementById("piano_port");
+            if (pianoPortEl) pianoPortEl.innerHTML = pianoPort;
 
             if (response["isrecording"]) {
                 document.getElementById("recording_status").innerHTML = '<p class="animate-pulse text-red-400">recording</p>';
@@ -2682,7 +2711,7 @@ function handleSessionSummary(data, retries = 5) {
                                 label += `${translate('delay')} ${context.parsed.y.toFixed(3)}s`;
                             }
                             if (context.parsed.x !== null) {
-                                label += ` ${translate('at')} ${context.parsed.x.toFixed(2)}s`;
+                                label += ` ${translate('chart_tooltip_label_at_time')} ${context.parsed.x.toFixed(2)}s`;
                             }
                             return label;
                         }
