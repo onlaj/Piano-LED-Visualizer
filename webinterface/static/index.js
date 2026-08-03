@@ -36,7 +36,8 @@ function loadAjax(subpage) {
     }
 
     const mainElement = document.getElementById("main");
-    
+    clearInterval(window.led_power_interval);
+
     // Restore padding if leaving practice tab
     if (current_page === "practice" && subpage !== "practice") {
         mainElement.classList.add("p-5");
@@ -75,6 +76,8 @@ function loadAjax(subpage) {
                         initialize_led_settings();
                         get_current_sequence_setting();
                         clearInterval(homepage_interval);
+                        get_led_power_loop();
+                        window.led_power_interval = setInterval(get_led_power_loop, 1500);
                         setAdvancedMode(advancedMode);
                         if(typeof get_presets === 'function') {
                             get_presets();

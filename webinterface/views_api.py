@@ -34,6 +34,49 @@ if not HAT_DISABLED:
 pid = psutil.Process(os.getpid())
 
 
+def estimate_led_power():
+    """Estimate LED strip current/power from the live pixel buffer (no sensor).
+
+        current ≈ N·idle_ma + (Σ subpixel/255)·ma_per_channel·(brightness/255)
+
+    The per-LED figures are user-tunable (they vary by chip/strip). This reflects
+    the values PLV is driving — an estimate, not a measurement: it ignores per-LED
+    regulation variance, voltage droop and wiring losses.
+    """
+    us = app_state.usersettings
+    try:
+        ma_per_channel = float(us.get_setting_value("led_ma_per_channel") or 20)
+        idle_ma = float(us.get_setting_value("led_idle_ma") or 1)
+        voltage = float(us.get_setting_value("led_supply_voltage") or 5)
+    except (TypeError, ValueError):
+        ma_per_channel, idle_ma, voltage = 20.0, 1.0, 5.0
+
+    strip = app_state.ledstrip.strip
+    n = strip.numPixels()
+    brightness = getattr(app_state.ledstrip, "brightness", 255) or 0
+
+    subpixel_sum = 0
+    try:
+        pixels = strip.getPixels()
+        for i in range(n):
+            c = int(pixels[i])
+            subpixel_sum += ((c >> 16) & 0xFF) + ((c >> 8) & 0xFF) + (c & 0xFF)
+    except Exception:
+        subpixel_sum = 0
+
+    lit_ma = (subpixel_sum / 255.0) * ma_per_channel * (brightness / 255.0)
+    current_a = (n * idle_ma + lit_ma) / 1000.0
+    max_a = (n * idle_ma + n * 3 * ma_per_channel) / 1000.0
+    return {
+        "led_current_a": round(current_a, 2),
+        "led_power_w": round(current_a * voltage, 1),
+        "led_current_max_a": round(max_a, 2),
+        "led_ma_per_channel": ma_per_channel,
+        "led_idle_ma": idle_ma,
+        "led_supply_voltage": voltage,
+    }
+
+
 @webinterface.route('/api/start_animation', methods=['GET'])
 def start_animation():
     choice = request.args.get('name')
@@ -168,6 +211,12 @@ def get_homepage_data():
         'timezone': app_state.platform.get_current_timezone() if hasattr(app_state.platform, 'get_current_timezone') else 'UTC',
     }
     return jsonify(homepage_data)
+
+
+@webinterface.route('/api/get_led_power', methods=['GET'])
+def get_led_power():
+    """Live estimated LED strip current/power (polled by the LED settings page)."""
+    return jsonify(estimate_led_power())
 
 
 @webinterface.route('/api/get_timezones', methods=['GET'])
@@ -1689,6 +1738,14 @@ def change_setting():
         app_state.usersettings.change_setting_value("led_gamma", value)
         app_state.ledstrip.change_gamma(float(value))
 
+        return jsonify(success=True)
+
+    if setting_name in ("led_ma_per_channel", "led_idle_ma", "led_supply_voltage"):
+        try:
+            float(value)
+        except (TypeError, ValueError):
+            return jsonify(success=False, error="value must be a number")
+        app_state.usersettings.change_setting_value(setting_name, value)
         return jsonify(success=True)
 
     if setting_name == "hotspot_password":
