@@ -247,12 +247,29 @@ class MIDIEventProcessor:
         """
         velocity = msg.velocity
 
-        # Get color from color mode handler
-        color = self.color_mode.NoteOn(msg, msg_timestamp, None, note_position)
-        if color is not None:
-            red, green, blue = color
+        # Parse channel first so Synthesia left/right guides (11/12) use hand
+        # colors as the stored color of record, not the LED color mode.
+        channel = find_between(str(msg), "channel=", " ")
+        # Strip trailing commas (mido message format: "channel=12, note=60...")
+        channel = channel.rstrip(',') if channel else False
+        is_hand_guide = channel in ("11", "12")
+        use_hand_color = is_hand_guide and self.ledsettings.skipped_notes != "Finger-based"
+
+        if use_hand_color:
+            hand_color = self.learning.hand_colorR if channel == "12" else self.learning.hand_colorL
+            red, green, blue = map(int, self.learning.hand_colorList[hand_color])
+            self.ledstrip.keylist_external_software[note_position] = 1
         else:
-            red, green, blue = (0, 0, 0)
+            color = self.color_mode.NoteOn(msg, msg_timestamp, None, note_position)
+            if color is not None:
+                red, green, blue = color
+            else:
+                red, green, blue = (0, 0, 0)
+
+            if is_hand_guide:
+                self.ledstrip.keylist_external_software[note_position] = 1
+            elif self.ledstrip.keylist_external_software[note_position] == 1:
+                self.ledstrip.keylist_external_software[note_position] = 0
 
         # Store the note color
         self.ledstrip.keylist_color[note_position] = [red, green, blue]
@@ -292,35 +309,16 @@ class MIDIEventProcessor:
             })
             self.ledstrip.keylist[note_position] = 0  # Pulse handles lighting
 
-        # Handle special channels for hand coloring (channels 11 and 12)
-        channel = find_between(str(msg), "channel=", " ")
-        # Strip trailing commas (mido message format: "channel=12, note=60...")
-        channel = channel.rstrip(',') if channel else False
-        if channel == "12" or channel == "11":
-            # Mark this LED as externally controlled by external software
-            self.ledstrip.keylist_external_software[note_position] = 1
-            if self.ledsettings.skipped_notes != "Finger-based":
-                # Apply right hand or left hand color
-                if channel == "12":
-                    hand_color = self.learning.hand_colorR
-                else:
-                    hand_color = self.learning.hand_colorL
-
-                red, green, blue = map(int, self.learning.hand_colorList[hand_color])
-                s_color = Color(red, green, blue)
-                self.ledstrip.strip.setPixelColor(note_position, s_color)
-                self.ledstrip.set_adjacent_colors(note_position, s_color, False)
-        else:
-            # Normal channel is taking control - clear external software flag
-            if self.ledstrip.keylist_external_software[note_position] == 1:
-                self.ledstrip.keylist_external_software[note_position] = 0
-            
-            if self.ledsettings.skipped_notes != "Normal":
-                # Apply standard note color with velocity-based brightness
-                s_color = Color(int(int(red) / float(brightness)), int(int(green) / float(brightness)),
-                                int(int(blue) / float(brightness)))
-                self.ledstrip.strip.setPixelColor(note_position, s_color)
-                self.ledstrip.set_adjacent_colors(note_position, s_color, False)
+        if use_hand_color:
+            s_color = Color(red, green, blue)
+            self.ledstrip.strip.setPixelColor(note_position, s_color)
+            self.ledstrip.set_adjacent_colors(note_position, s_color, False)
+        elif not is_hand_guide and self.ledsettings.skipped_notes != "Normal":
+            # Apply standard note color with velocity-based brightness
+            s_color = Color(int(int(red) / float(brightness)), int(int(green) / float(brightness)),
+                            int(int(blue) / float(brightness)))
+            self.ledstrip.strip.setPixelColor(note_position, s_color)
+            self.ledstrip.set_adjacent_colors(note_position, s_color, False)
 
         # Record the note-on event if recording is active
         if self.saving.is_recording:

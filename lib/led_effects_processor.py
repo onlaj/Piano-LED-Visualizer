@@ -25,10 +25,13 @@ class LEDEffectsProcessor:
                 red, green, blue = (0, 0, 0)
 
             led_changed = False
-            new_color = self.color_mode.ColorUpdate(None, n, (red, green, blue))
-            if new_color is not None:
-                red, green, blue = new_color
-                led_changed = True
+            # Synthesia left/right guides keep their assigned hand color; Rainbow
+            # ColorUpdate would otherwise repaint them from the colormap each frame.
+            if self.ledstrip.keylist_external_software[n] != 1:
+                new_color = self.color_mode.ColorUpdate(None, n, (red, green, blue))
+                if new_color is not None:
+                    red, green, blue = new_color
+                    led_changed = True
 
             fading = 1
 
