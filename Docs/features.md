@@ -185,7 +185,7 @@ If you still want to try, follow [this link](https://github.com/onlaj/Piano-LED-
 In Learning mode the Visualizer creates a transparent in-app link (no aconnect):
 - piano notes are forwarded to the computer
 - computer notes and guide lights are forwarded to the piano
-- guide lights (channels 11/12, or velocity 1) are intercepted to drive the LEDs with hand colors
+- guide lights (channels 1-12, or velocity 1) are intercepted to drive the LEDs with hand colors
 - by default, control changes from the computer (reverb, volume, All Notes Off, etc.) are blocked from reaching the piano; disable **Block control changes** in Ports Settings if you need them
 
 For normal LED light-ups while playing alone, set **MIDI Mode** to **Light show** (computer port is ignored).

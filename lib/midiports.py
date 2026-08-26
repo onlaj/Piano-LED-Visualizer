@@ -539,7 +539,7 @@ class MidiPorts:
         if msg_type not in ("note_on", "note_off"):
             return False
         channel = getattr(msg, "channel", None)
-        if channel in (11, 12):
+        if channel is not None and 1 <= channel <= 12:
             return True
         if msg_type == "note_on" and getattr(msg, "velocity", 0) == 1:
             return True

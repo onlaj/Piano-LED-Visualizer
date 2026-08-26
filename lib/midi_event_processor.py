@@ -2,7 +2,7 @@ import time
 
 from rpi_ws281x import Color
 
-from lib.functions import get_note_position, find_between
+from lib.functions import get_note_position
 from lib.log_setup import logger
 
 # Import app_state to check practice_active flag
@@ -180,7 +180,7 @@ class MIDIEventProcessor:
             note_position: Position on the LED strip corresponding to the note
             source: Origin of the message ("piano", "computer", or None)
         """
-        # Synthesia lights guides on channels 11/12 but sends note_off on channel 0.
+        # Synthesia lights guides on channels 1-12 but sends note_off on channel 0.
         # Clear the tracking flag for any computer-side release so ColorUpdate
         # does not keep treating a dead key as a Synthesia guide.
         if source == "computer" and self.ledstrip.keylist_external_software[note_position] == 1:
@@ -240,16 +240,15 @@ class MIDIEventProcessor:
         """
         velocity = msg.velocity
 
-        # Parse channel first so Synthesia left/right guides (11/12) use hand
-        # colors as the stored color of record, not the LED color mode.
-        channel = find_between(str(msg), "channel=", " ")
-        # Strip trailing commas (mido message format: "channel=12, note=60...")
-        channel = channel.rstrip(',') if channel else False
-        is_hand_guide = channel in ("11", "12")
+        # Parse channel first so Synthesia left/right guides (1-5/11 left,
+        # 6-10/12 right) use hand colors as the stored color of record,
+        # not the LED color mode.
+        channel = getattr(msg, "channel", None)
+        is_hand_guide = channel is not None and 1 <= channel <= 12
         use_hand_color = is_hand_guide and self.ledsettings.skipped_notes != "Finger-based"
 
         if use_hand_color:
-            hand_color = self.learning.hand_colorR if channel == "12" else self.learning.hand_colorL
+            hand_color = self.learning.hand_colorR if channel in (6, 7, 8, 9, 10, 12) else self.learning.hand_colorL
             red, green, blue = map(int, self.learning.hand_colorList[hand_color])
             self.ledstrip.keylist_external_software[note_position] = 1
         else:
