@@ -58,7 +58,7 @@ After the hardware/network connection is in place:
 3. Set **Computer Port** to the RTP / USB-USB / Bluetooth / Android MIDI peer.
 4. Choose **MIDI Mode**:
    - **Light show** - piano keys light the LEDs; computer traffic is ignored.
-   - **Learning** - transparent piano ↔ computer link in software. Guide lights (channels 1-12 or velocity 1) drive the LEDs; notes pass both ways. Control changes from the computer can be blocked (enabled by default).
+   - **Learning** - transparent piano ↔ computer link in software. Only Synthesia guide-on (note_on velocity 1) and guide-off (note_off channel 0) drive the LEDs; notes pass both ways. Channel 1-12 on guide-on notes selects hand/finger color. Control changes from the computer can be blocked (enabled by default).
 
 You can also toggle MIDI Mode from the web sidebar button or with hardware **KEY3**.
 

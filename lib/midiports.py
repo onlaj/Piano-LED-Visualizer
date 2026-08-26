@@ -533,33 +533,18 @@ class MidiPorts:
                 elif destination == "piano":
                     self._forward_to_port(self.piano_out, msg)
 
-    def _is_light_cue(self, msg):
-        # synthesia finger channels, or velocity=1 silent guide notes
-        msg_type = getattr(msg, "type", None)
-        if msg_type not in ("note_on", "note_off"):
-            return False
-        channel = getattr(msg, "channel", None)
-        if channel is not None and 1 <= channel <= 12:
-            return True
-        if msg_type == "note_on" and getattr(msg, "velocity", 0) == 1:
-            return True
-        return False
+    def _is_guide_on(self, msg):
+        # Synthesia lights a key with a silent note_on (velocity 1)
+        return getattr(msg, "type", None) == "note_on" and getattr(msg, "velocity", 0) == 1
 
-    def _is_guide_release(self, msg):
-        # Synthesia sends note_off / note_on vel=0 on channel 0 regardless of
-        # which channel the matching guide note_on used (Watch and Listen, seek)
-        if getattr(msg, "channel", None) != 0:
-            return False
-        msg_type = getattr(msg, "type", None)
-        if msg_type == "note_off":
-            return True
-        if msg_type == "note_on" and getattr(msg, "velocity", 0) == 0:
-            return True
-        return False
+    def _is_guide_off(self, msg):
+        # Synthesia releases guides with note_off on channel 0, regardless of
+        # which finger channel the matching guide-on used
+        return getattr(msg, "type", None) == "note_off" and getattr(msg, "channel", None) == 0
 
     def _is_likely_echo_from_computer(self, msg):
         # our own piano note coming back from the computer side
-        if self._is_light_cue(msg):
+        if self._is_guide_on(msg):
             return False
         msg_type = getattr(msg, "type", None)
         if msg_type not in ("note_on", "note_off"):
@@ -584,7 +569,7 @@ class MidiPorts:
                 if note is not None and getattr(msg, "type", None) in ("note_on", "note_off"):
                     self._recent_piano_notes[note] = time.perf_counter()
                 self._queue_thru("computer", msg)
-                # still needed for LearnMIDI matching / note-off
+                # still needed for LearnMIDI matching / recording
                 self._enqueue_for_leds(msg, "piano")
             else:
                 self._enqueue_for_leds(msg, "piano")
@@ -596,7 +581,7 @@ class MidiPorts:
             if mode != "learning":
                 return
 
-            if self._is_light_cue(msg) or self._is_guide_release(msg):
+            if self._is_guide_on(msg) or self._is_guide_off(msg):
                 self._enqueue_for_leds(msg, "computer")
 
             # all-notes-off should clear LEDs even if CC thru is blocked

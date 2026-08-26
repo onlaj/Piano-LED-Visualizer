@@ -107,30 +107,27 @@ class MIDIEventProcessor:
             msg_type = getattr(msg, "type", None)
             velocity = getattr(msg, "velocity", 0)
 
-            # in learning, piano note_ons don't light LEDs (computer guide notes do)
-            skip_note_on_lighting = (
-                midi_mode == "learning"
-                and source == "piano"
-                and msg_type == "note_on"
-                and velocity > 0
-            )
+            # in learning, only computer guide notes drive LEDs; piano still
+            # records and is queued for LearnMIDI matching
+            skip_piano_leds = midi_mode == "learning" and source == "piano"
 
-            if ledsettings.mode != "Disabled" and msg_type in ("note_on", "note_off"):
+            if skip_piano_leds:
+                if saving.is_recording and msg_type in ("note_on", "note_off"):
+                    if msg_type == "note_off" or velocity == 0:
+                        saving.add_track("note_off", msg.note, 0, msg_timestamp)
+                    elif velocity > 0:
+                        saving.add_track("note_on", msg.note, velocity, msg_timestamp)
+            elif ledsettings.mode != "Disabled" and msg_type in ("note_on", "note_off"):
                 note_position = get_position(msg.note, ledstrip, ledsettings)
                 if 0 <= note_position < led_count:
                     if msg_type == "note_off" or velocity == 0:
                         handle_note_off(msg, msg_timestamp, note_position, source)
                     elif velocity > 0:
-                        if skip_note_on_lighting:
-                            # still record, just don't light
-                            if saving.is_recording:
-                                saving.add_track("note_on", msg.note, velocity, msg_timestamp)
-                        else:
-                            handle_note_on(msg, msg_timestamp, note_position)
+                        handle_note_on(msg, msg_timestamp, note_position)
             elif msg_type == "control_change":
                 handle_control_change(msg, msg_timestamp)
 
-            if not skip_note_on_lighting:
+            if not skip_piano_leds:
                 color_mode.MidiEvent(msg, None, ledstrip)
             saving.restart_time()
 
