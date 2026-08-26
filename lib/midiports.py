@@ -545,6 +545,18 @@ class MidiPorts:
             return True
         return False
 
+    def _is_guide_release(self, msg):
+        # Synthesia sends note_off / note_on vel=0 on channel 0 regardless of
+        # which channel the matching guide note_on used (Watch and Listen, seek)
+        if getattr(msg, "channel", None) != 0:
+            return False
+        msg_type = getattr(msg, "type", None)
+        if msg_type == "note_off":
+            return True
+        if msg_type == "note_on" and getattr(msg, "velocity", 0) == 0:
+            return True
+        return False
+
     def _is_likely_echo_from_computer(self, msg):
         # our own piano note coming back from the computer side
         if self._is_light_cue(msg):
@@ -584,7 +596,7 @@ class MidiPorts:
             if mode != "learning":
                 return
 
-            if self._is_light_cue(msg):
+            if self._is_light_cue(msg) or self._is_guide_release(msg):
                 self._enqueue_for_leds(msg, "computer")
 
             # all-notes-off should clear LEDs even if CC thru is blocked

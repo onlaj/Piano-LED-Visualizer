@@ -119,7 +119,7 @@ class MIDIEventProcessor:
                 note_position = get_position(msg.note, ledstrip, ledsettings)
                 if 0 <= note_position < led_count:
                     if msg_type == "note_off" or velocity == 0:
-                        handle_note_off(msg, msg_timestamp, note_position)
+                        handle_note_off(msg, msg_timestamp, note_position, source)
                     elif velocity > 0:
                         if skip_note_on_lighting:
                             # still record, just don't light
@@ -168,7 +168,7 @@ class MIDIEventProcessor:
                             break
         return processed > 0
     
-    def handle_note_off(self, msg, msg_timestamp, note_position):
+    def handle_note_off(self, msg, msg_timestamp, note_position, source=None):
         """
         Handle note-off MIDI events.
         
@@ -178,20 +178,13 @@ class MIDIEventProcessor:
             msg: The MIDI message object
             msg_timestamp: Timestamp when the message was received
             note_position: Position on the LED strip corresponding to the note
+            source: Origin of the message ("piano", "computer", or None)
         """
-        # Extract channel from message to check if it's from external software
-        channel = find_between(str(msg), "channel=", " ")
-        # Strip trailing commas (mido message format: "channel=12, note=60...")
-        channel = channel.rstrip(',') if channel else False
-        
-        # Clear external software tracking flag if external software turns off the LED
-        # Allow local piano input to also turn off LEDs even if they were lit by external software
-        # This is essential for learning mode where Synthesia lights the LED (channels 11/12)
-        # but the user's piano (channel 0) should be able to turn it off
-        if self.ledstrip.keylist_external_software[note_position] == 1:
-            if channel == "12" or channel == "11":
-                # External software is turning off the LED - clear tracking
-                self.ledstrip.keylist_external_software[note_position] = 0
+        # Synthesia lights guides on channels 11/12 but sends note_off on channel 0.
+        # Clear the tracking flag for any computer-side release so ColorUpdate
+        # does not keep treating a dead key as a Synthesia guide.
+        if source == "computer" and self.ledstrip.keylist_external_software[note_position] == 1:
+            self.ledstrip.keylist_external_software[note_position] = 0
         
         velocity = 0
         self.ledstrip.keylist_status[note_position] = 0
