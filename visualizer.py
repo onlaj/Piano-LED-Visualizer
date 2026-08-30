@@ -249,6 +249,7 @@ class VisualizerApp:
 
         if usersettings.pending_reset:
             usersettings.pending_reset = False
+            ci.midiports.reload_settings()
             ci.ledsettings = LedSettings(usersettings)
             ci.ledstrip = LedStrip(usersettings, ci.ledsettings)
             ci.menu = MenuLCD("config/menu.xml", self.args,

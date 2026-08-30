@@ -122,6 +122,7 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
                         midiports.playport.send(message)
                     else:
                         logger.debug("Skipping playport send: no output port configured")
+                    midiports.log_midi(message, "file")
                     midiports.midifile_queue.append((message.copy(time=0), msg_timestamp))
 
             else:

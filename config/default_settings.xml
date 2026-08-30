@@ -117,7 +117,8 @@
 	<piano_port>default</piano_port>
 	<computer_port>default</computer_port>
 	<midi_mode>light_show</midi_mode>
-	<!-- Block control_change from computer->piano in Learning mode (reverb/volume/etc.) -->
+	<!-- Block control_change (reverb/volume/etc.) and program_change (instrument)
+	     from computer->piano in Learning mode -->
 	<suppress_computer_control>1</suppress_computer_control>
 	<!-- Legacy port keys kept for migration fallback -->
 	<input_port>default</input_port>

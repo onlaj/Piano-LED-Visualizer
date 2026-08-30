@@ -1,7 +1,9 @@
 import mido
+import queue
 import time
 import threading
 from collections import deque
+from lib.learning_router import TO_LEDS, TO_PIANO, LearningRouter
 from lib.log_setup import logger
 
 # Cache for MIDI port names to avoid repeated slow scans
@@ -62,9 +64,6 @@ def _close_port(port):
 
 
 class MidiPorts:
-    # suppress quick echoes of notes we just forwarded piano -> computer
-    _ECHO_SUPPRESS_SEC = 0.08
-
     def __init__(self, usersettings):
         self.usersettings = usersettings
         # queue items: (msg, timestamp, source)
@@ -90,13 +89,12 @@ class MidiPorts:
 
         # never port.send() from the RtMidi callback - stalls ALSA
         # (note_on only shows up when note_off arrives)
-        self._thru_queue = deque(maxlen=2000)
-        self._thru_event = threading.Event()
+        self._thru_queue = queue.Queue(maxsize=2000)
         self._thru_running = True
         self._thru_thread = threading.Thread(
             target=self._thru_loop, name="midi-thru", daemon=True
         )
-        self._recent_piano_notes = {}  # note -> perf_counter when forwarded to computer
+        self._router = LearningRouter()
         self._midi_mode_cache = "light_show"
         self._suppress_computer_control = True
         self._midi_logging = False
@@ -149,6 +147,11 @@ class MidiPorts:
         if not mode or mode == "default":
             self.usersettings.change_setting_value("midi_mode", "light_show")
 
+    @property
+    def midi_mode(self):
+        """Current mode without touching settings; kept in sync by set_midi_mode."""
+        return self._midi_mode_cache
+
     def get_midi_mode(self):
         mode = self.usersettings.get_setting_value("midi_mode") or "light_show"
         if mode not in ("light_show", "learning"):
@@ -163,6 +166,10 @@ class MidiPorts:
     def open_piano_ports(self, portname=None):
         if portname is None:
             portname = self.usersettings.get_setting_value("piano_port")
+
+        # silence notes on the current piano before we swap or drop the port
+        self.release_forwarded_notes(self.piano_out)
+        self._router.reset()
 
         opened_in = False
         opened_out = False
@@ -181,6 +188,9 @@ class MidiPorts:
     def open_computer_ports(self, portname=None):
         if portname is None:
             portname = self.usersettings.get_setting_value("computer_port")
+
+        self.release_forwarded_notes()
+        self._router.reset()
 
         _close_port(self.computer_in)
         _close_port(self.computer_out)
@@ -432,13 +442,24 @@ class MidiPorts:
     def set_midi_mode(self, mode):
         if mode not in ("light_show", "learning"):
             mode = "light_show"
-        self.usersettings.change_setting_value("midi_mode", mode)
+        previous = self._midi_mode_cache
+        # cache first so the MIDI callback thread never sees a new setting
+        # with the old routing mode
         self._midi_mode_cache = mode
-        # learning needs the computer port open
+        self.usersettings.change_setting_value("midi_mode", mode)
         if mode == "learning":
             self.open_computer_ports()
+        elif previous == "learning":
+            self.release_forwarded_notes()
+            self._router.reset()
         logger.info("MIDI mode set to " + mode)
         return mode
+
+    def reload_settings(self):
+        """Re-read the cached settings after they were changed behind our back."""
+        self._refresh_suppress_computer_control()
+        self._refresh_midi_logging()
+        self.set_midi_mode(self.get_midi_mode())
 
     def _refresh_suppress_computer_control(self):
         value = self.usersettings.get_setting_value("suppress_computer_control")
@@ -460,7 +481,8 @@ class MidiPorts:
         self._midi_logging = bool(enabled)
         return self._midi_logging
 
-    def _log_midi_message(self, msg, source):
+    def log_midi(self, msg, source):
+        """Publish a message to the web MIDI monitor, when it is switched on."""
         if not self._midi_logging:
             return
         if getattr(msg, "is_meta", False):
@@ -475,7 +497,7 @@ class MidiPorts:
             # trim if nobody is reading
             if len(sink) > 500:
                 del sink[:250]
-            sink.append("midi_event[{}] {}".format(source, msg))
+            sink.append("midi_event[{}] {}".format(source or "other", msg))
         except Exception:
             pass
 
@@ -510,93 +532,67 @@ class MidiPorts:
             payload = msg.copy()
         except Exception:
             payload = msg
-        if self._thru_queue.maxlen and len(self._thru_queue) >= self._thru_queue.maxlen:
-            try:
-                self._thru_queue.popleft()
-            except Exception:
-                pass
-        self._thru_queue.append((destination, payload))
-        self._thru_event.set()
+        try:
+            self._thru_queue.put_nowait((destination, payload))
+        except queue.Full:
+            self.drop_counter += 1
 
     def _thru_loop(self):
         # runs outside the RtMidi callback so send() can't stall input
         while self._thru_running:
-            self._thru_event.wait(timeout=0.05)
-            self._thru_event.clear()
-            while self._thru_queue:
-                try:
-                    destination, msg = self._thru_queue.popleft()
-                except IndexError:
-                    break
-                if destination == "computer":
-                    self._forward_to_port(self.computer_out, msg)
-                elif destination == "piano":
-                    self._forward_to_port(self.piano_out, msg)
+            try:
+                destination, msg = self._thru_queue.get(timeout=0.2)
+            except queue.Empty:
+                continue
+            if destination == "computer":
+                self._forward_to_port(self.computer_out, msg)
+            else:
+                self._forward_to_port(self.piano_out, msg)
 
-    def _is_guide_on(self, msg):
-        # Synthesia lights a key with a silent note_on (velocity 1)
-        return getattr(msg, "type", None) == "note_on" and getattr(msg, "velocity", 0) == 1
+    def release_forwarded_notes(self, port=None):
+        """Silence notes we started on the piano so none of them can hang.
 
-    def _is_guide_off(self, msg):
-        # Synthesia releases guides with note_off on channel 0, regardless of
-        # which finger channel the matching guide-on used
-        return getattr(msg, "type", None) == "note_off" and getattr(msg, "channel", None) == 0
-
-    def _is_likely_echo_from_computer(self, msg):
-        # our own piano note coming back from the computer side
-        if self._is_guide_on(msg):
-            return False
-        msg_type = getattr(msg, "type", None)
-        if msg_type not in ("note_on", "note_off"):
-            return False
-        note = getattr(msg, "note", None)
-        if note is None:
-            return False
-        sent_at = self._recent_piano_notes.get(note)
-        if sent_at is None:
-            return False
-        return (time.perf_counter() - sent_at) < self._ECHO_SUPPRESS_SEC
+        Pass the current piano port to send immediately. The thru thread
+        reads piano_out at send time, so a queued off would hit the new
+        device after a port swap and the old one would keep sounding.
+        """
+        for note in self._router.release_forwarded():
+            msg = mido.Message("note_off", note=note, velocity=0)
+            if port is not None:
+                self._forward_to_port(port, msg)
+            else:
+                self._queue_thru("piano", msg)
 
     def route_midi_message(self, msg, source):
         # light_show: piano -> LEDs
-        # learning: soft thru between piano and computer, guide lights -> LEDs
-        mode = self._midi_mode_cache
-        self._log_midi_message(msg, source)
+        # learning: piano <-> computer thru, with the computer's light stream
+        # split off to the LEDs (see lib/learning_router.py)
+        learning = self.midi_mode == "learning"
+        self.log_midi(msg, source)
 
         if source == "piano":
-            if mode == "learning":
-                note = getattr(msg, "note", None)
-                if note is not None and getattr(msg, "type", None) in ("note_on", "note_off"):
-                    self._recent_piano_notes[note] = time.perf_counter()
+            if learning:
+                self._router.from_piano(msg)
                 self._queue_thru("computer", msg)
-                # still needed for LearnMIDI matching / recording
-                self._enqueue_for_leds(msg, "piano")
-            else:
-                self._enqueue_for_leds(msg, "piano")
-
+            # in learning mode the LED queue is still needed for LearnMIDI
+            # matching and recording; the processor skips the LEDs itself
+            self._enqueue_for_leds(msg, "piano")
             self._maybe_forward_to_websocket(msg)
             return
 
-        if source == "computer":
-            if mode != "learning":
-                return
-
-            if self._is_guide_on(msg) or self._is_guide_off(msg):
+        if source == "computer" and learning:
+            route = self._router.from_computer(msg, self._suppress_computer_control)
+            if route & TO_LEDS:
                 self._enqueue_for_leds(msg, "computer")
-
-            # all-notes-off should clear LEDs even if CC thru is blocked
-            is_all_notes_off = (
-                getattr(msg, "type", None) == "control_change"
-                and getattr(msg, "control", None) == 123
-            )
-            if is_all_notes_off:
-                self._enqueue_for_leds(msg, "computer")
-
-            if self._suppress_computer_control and getattr(msg, "type", None) == "control_change":
-                return
-            if not self._is_likely_echo_from_computer(msg):
+                for note in self._router.take_led_offs():
+                    self._enqueue_for_leds(
+                        mido.Message("note_off", note=note, velocity=0),
+                        "computer",
+                    )
+                if getattr(msg, "type", None) == "control_change":
+                    self.release_forwarded_notes()
+            if route & TO_PIANO:
                 self._queue_thru("piano", msg)
-            return
 
     def _maybe_forward_to_websocket(self, msg):
         try:
@@ -671,6 +667,8 @@ class MidiPorts:
                 msg = mido.Message(
                     "note_off", channel=channel, note=note, velocity=velocity, time=time_val
                 )
+
+            self.log_midi(msg, "websocket")
 
             ts = time.perf_counter()
             q = self.websocket_midi_queue

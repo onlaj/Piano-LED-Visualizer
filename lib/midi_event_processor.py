@@ -3,6 +3,7 @@ import time
 from rpi_ws281x import Color
 
 from lib.functions import get_note_position
+from lib.learning_router import GUIDE_CHANNELS, is_right_hand
 from lib.log_setup import logger
 
 # Import app_state to check practice_active flag
@@ -55,8 +56,6 @@ class MIDIEventProcessor:
             # Process MIDI file playback
             self.midiports.midipending = self.midiports.midifile_queue
 
-        midi_logging_enabled = int(self.usersettings.get_setting_value("midi_logging")) == 1
-        log_sink = self.learning.socket_send if midi_logging_enabled else None
         midiports = self.midiports
         ledstrip = self.ledstrip
         ledsettings = self.ledsettings
@@ -69,36 +68,12 @@ class MIDIEventProcessor:
         led_count = ledstrip.led_number
 
         # Process a bounded slice per frame to avoid jitter and keep FPS stable
-        # group near-identical timestamps and process notes first
         t0 = time.perf_counter()
         processed = 0
 
-        midi_mode = "light_show"
-        try:
-            midi_mode = midiports.get_midi_mode()
-        except Exception:
-            midi_mode = self.usersettings.get_setting_value("midi_mode") or "light_show"
-
-        def _unpack_queue_item(item):
-            # (msg, ts) or (msg, ts, source)
-            if len(item) >= 3:
-                return item[0], item[1], item[2]
-            return item[0], item[1], None
+        midi_mode = midiports.midi_mode
 
         def _process_one(msg, msg_timestamp, source=None):
-            # piano/computer already logged in MidiPorts
-            if (
-                midi_logging_enabled
-                and log_sink is not None
-                and not getattr(msg, "is_meta", False)
-                and source not in ("piano", "computer")
-            ):
-                try:
-                    tag = source if source else "other"
-                    log_sink.append("midi_event[{}] {}".format(tag, msg))
-                except Exception as e:
-                    logger.warning(f"[process midi events] Unexpected exception occurred: {e}")
-
             midiports.last_activity = time.time()
             # Update state manager for MIDI activity
             if self.state_manager:
@@ -131,40 +106,17 @@ class MIDIEventProcessor:
                 color_mode.MidiEvent(msg, None, ledstrip)
             saving.restart_time()
 
-        # Bounded drain with bursts grouped by timestamp (~1.5ms window)
-        BURST_WINDOW = 0.0015  # 1.5 ms
-        BURST_LIMIT  = 64      # avoid starving under continuous streams
-
+        # Bounded FIFO drain. strip.show() runs once per frame, so processing in
+        # arrival order costs no latency and keeps notes and control changes
+        # (all notes off in particular) in the order the sender meant.
         midipending = midiports.midipending
         while midipending and processed < 512 and (time.perf_counter() - t0) < 0.003:
-            head_msg, head_ts, head_source = _unpack_queue_item(midipending.popleft())
-            burst = [(head_msg, head_ts, head_source)]
-            # Coalesce a small burst of messages with almost the same timestamp
-            while midipending and len(burst) < BURST_LIMIT:
-                nxt_msg, nxt_ts, nxt_source = _unpack_queue_item(midipending[0])
-                if abs(nxt_ts - head_ts) <= BURST_WINDOW:
-                    midipending.popleft()
-                    burst.append((nxt_msg, nxt_ts, nxt_source))
-                else:
-                    break
-
-            # Notes first (reduce visual latency for chords), then others
-            for m, ts, src in burst:
-                if getattr(m, "type", None) in ("note_on", "note_off"):
-                    _process_one(m, ts, src)
-                    processed += 1
-                    if processed >= 512:
-                        break
-
-            if processed < 512:
-                for m, ts, src in burst:
-                    if getattr(m, "type", None) not in ("note_on", "note_off"):
-                        _process_one(m, ts, src)
-                        processed += 1
-                        if processed >= 512:
-                            break
+            item = midipending.popleft()
+            # (msg, ts) from file playback, (msg, ts, source) from live input
+            _process_one(item[0], item[1], item[2] if len(item) >= 3 else None)
+            processed += 1
         return processed > 0
-    
+
     def handle_note_off(self, msg, msg_timestamp, note_position, source=None):
         """
         Handle note-off MIDI events.
@@ -177,9 +129,9 @@ class MIDIEventProcessor:
             note_position: Position on the LED strip corresponding to the note
             source: Origin of the message ("piano", "computer", or None)
         """
-        # Synthesia lights guides on channels 1-12 but sends note_off on channel 0.
-        # Clear the tracking flag for any computer-side release so ColorUpdate
-        # does not keep treating a dead key as a Synthesia guide.
+        # A note_off from the computer only reaches the LEDs when it released a
+        # guide, so clear the tracking flag or ColorUpdate would keep treating a
+        # dead key as a Synthesia guide.
         if source == "computer" and self.ledstrip.keylist_external_software[note_position] == 1:
             self.ledstrip.keylist_external_software[note_position] = 0
         
@@ -237,15 +189,14 @@ class MIDIEventProcessor:
         """
         velocity = msg.velocity
 
-        # Parse channel first so Synthesia left/right guides (1-5/11 left,
-        # 6-10/12 right) use hand colors as the stored color of record,
-        # not the LED color mode.
+        # Parse channel first so Synthesia left/right guides use hand colors as
+        # the stored color of record, not the LED color mode.
         channel = getattr(msg, "channel", None)
-        is_hand_guide = channel is not None and 1 <= channel <= 12
+        is_hand_guide = channel in GUIDE_CHANNELS
         use_hand_color = is_hand_guide and self.ledsettings.skipped_notes != "Finger-based"
 
         if use_hand_color:
-            hand_color = self.learning.hand_colorR if channel in (6, 7, 8, 9, 10, 12) else self.learning.hand_colorL
+            hand_color = self.learning.hand_colorR if is_right_hand(channel) else self.learning.hand_colorL
             red, green, blue = map(int, self.learning.hand_colorList[hand_color])
             self.ledstrip.keylist_external_software[note_position] = 1
         else:

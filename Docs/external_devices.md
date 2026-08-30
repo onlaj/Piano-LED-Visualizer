@@ -58,8 +58,41 @@ After the hardware/network connection is in place:
 3. Set **Computer Port** to the RTP / USB-USB / Bluetooth / Android MIDI peer.
 4. Choose **MIDI Mode**:
    - **Light show** - piano keys light the LEDs; computer traffic is ignored.
-   - **Learning** - transparent piano ↔ computer link in software. Only Synthesia guide-on (note_on velocity 1) and guide-off (note_off channel 0) drive the LEDs; notes pass both ways. Channel 1-12 on guide-on notes selects hand/finger color. Control changes from the computer can be blocked (enabled by default).
+   - **Learning** - piano ↔ computer link in software, with the computer's key lights split off to the LEDs. See below.
 
 You can also toggle MIDI Mode from the web sidebar button or with hardware **KEY3**.
 
 No Connect/Disconnect ports step is required. The Visualizer reconnects the piano/computer ports automatically when a device is plugged back in.
+
+## How Learning mode routes messages
+
+Synthesia (and similar teaching apps) send two independent streams down the same
+port, so the Visualizer keeps them apart:
+
+| Stream | Messages | Goes to |
+| --- | --- | --- |
+| Key lights | `note_on` velocity 1 turns a guide on, `note_off` turns it off | LEDs only |
+| Sound | `note_on` velocity > 1 starts a note, `note_on` velocity 0 ends it | Piano only |
+
+On a guide-on note, channel 1-12 selects the hand/finger color (1-5 and 11 are
+left hand, 6-10 and 12 are right hand).
+
+Two details follow from this split:
+
+- A `note_off` from the computer for a note whose guide is currently lit belongs
+  to the key-light stream and is never forwarded to the piano. The light stream
+  lags the sound stream, so forwarding it used to cut repeated notes short in
+  Watch and Listen ([issue #618](https://github.com/onlaj/Piano-LED-Visualizer/issues/618)).
+  If only some notes of a chord are pressed, Synthesia still sends `note_off`
+  for those notes; every guide LED stays on until the whole chord is released
+  together. In Watch and Listen there is no player press, so a `note_off` for
+  one guide turns that LED off even if other guides stay lit. Software that
+  sends no key lights at all is unaffected: with no guide lit, its `note_off`
+  is forwarded normally.
+- A `note_on` from the computer for a key you are physically holding is your own
+  playing coming back, so it is dropped instead of retriggering the note.
+
+Piano notes are always forwarded to the computer. Control changes and program
+changes from the computer are blocked by default (see **Block control and
+program changes** in Ports Settings); All Notes Off still clears the LEDs and
+releases anything the Visualizer started on the piano.

@@ -182,11 +182,17 @@ If you still want to try, follow [this link](https://github.com/onlaj/Piano-LED-
 2. Set **MIDI Mode** to **Learning**.
 3. In Synthesia, set **Key Light** to **Finger-based channel**.
 
-In Learning mode the Visualizer creates a transparent in-app link (no aconnect):
-- piano notes are forwarded to the computer
-- computer notes and guide lights are forwarded to the piano
-- Synthesia guide-on (note_on velocity 1) and guide-off (note_off channel 0) are intercepted to drive the LEDs; channel 1-12 on guide-on notes selects hand/finger color
-- by default, control changes from the computer (reverb, volume, All Notes Off, etc.) are blocked from reaching the piano; disable **Block control changes** in Ports Settings if you need them
+In Learning mode the Visualizer links the two ports in software (no aconnect).
+Synthesia sends two separate streams on the computer port, and they are routed
+differently:
+- **key lights** - `note_on` velocity 1 lights a guide, `note_off` clears it. These drive the LEDs and are never sent to the piano. Channel 1-12 selects the hand/finger color. If only some notes of a chord are pressed, every guide LED stays on until the whole chord is released together. In Watch and Listen, a guide `note_off` turns that LED off even if other guides stay lit.
+- **sound** - `note_on` velocity above 1 starts a note, `note_on` velocity 0 ends it. These are sent to the piano, which is what plays the hand you are not practising and the whole song in Watch and Listen.
+- piano notes are always forwarded to the computer; if the computer echoes back a key you are still holding, the echo is dropped instead of retriggering the note
+- by default, control changes (reverb, volume, etc.) and program changes (instrument) from the computer are blocked from reaching the piano; disable **Block control and program changes** in Ports Settings if you need them. All Notes Off still clears the LEDs.
+
+Software that sends no key lights keeps working as a plain MIDI thru: with no
+guide lit, its `note_off` messages are forwarded to the piano as usual.
+See [external_devices.md](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/external_devices.md) for the full routing table.
 
 For normal LED light-ups while playing alone, set **MIDI Mode** to **Light show** (computer port is ignored).
 
