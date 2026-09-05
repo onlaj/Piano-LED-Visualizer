@@ -285,6 +285,38 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Playback speed: applies to "Play on piano", takes effect mid-song -->
+            <div class="flex flex-col items-center w-full max-w-md m-auto mb-2">
+                <label for="playback_speed_slider"
+                       class="block uppercase tracking-wide text-xs font-bold text-gray-600 dark:text-gray-400 text-center">
+                    <span data-translate="playback_speed">Playback speed</span>
+                    (<b id="playback_speed">100</b>%)
+                </label>
+                <div class="flex items-center justify-center w-full">
+                    <svg onclick="nudge_playback_speed(-5)" class="h-8 w-6 cursor-pointer shrink-0"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="flex items-center justify-center w-full text-sm text-gray-600 dark:text-gray-400">
+                        10<input id="playback_speed_slider" class="w-1/2 mx-2" type="range"
+                                 value="100" min="10" max="200" step="5"
+                                 oninput="preview_playback_speed(this.value)"
+                                 onchange="set_playback_speed(this.value)">200
+                    </div>
+                    <svg onclick="nudge_playback_speed(5)" class="h-8 w-6 cursor-pointer shrink-0"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <button onclick="set_playback_speed(100)"
+                        class="mt-1 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 underline hover:text-teal-500 transition-smooth-fast"
+                        data-translate="reset_to_normal_speed">
+                    Reset to normal speed
+                </button>
+            </div>
         </div>
 
         <div class="hidden" id="midi_visualizer_wrapper">

@@ -1,6 +1,6 @@
 import time
 
-from rpi_ws281x import Color
+from lib.rpi_drivers import Color
 
 from lib.functions import get_note_position
 from lib.learning_router import GUIDE_CHANNELS, is_right_hand

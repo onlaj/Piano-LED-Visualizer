@@ -1561,8 +1561,8 @@ function get_current_sequence_setting(home = true, is_loading_step = false) {
                     document.getElementById("speed_fast_color").dispatchEvent(new Event('input'));
 
 
-                    change_setting("speed_slow_color", response["speed_slowest_color"], "no_reload", true);
-                    change_setting("speed_fast_color", response["speed_fastest_color"], "no_reload", true);
+                    change_setting("speed_slowest_color", response["speed_slowest_color"], "no_reload", true);
+                    change_setting("speed_fastest_color", response["speed_fastest_color"], "no_reload", true);
                 }
             }
 
@@ -1964,6 +1964,32 @@ function get_logs() {
     xhttp.send();
 }
 
+// --- Playback speed ("Play on piano") ---
+
+function apply_playback_speed_to_ui(value) {
+    const slider = document.getElementById("playback_speed_slider");
+    const label = document.getElementById("playback_speed");
+    if (slider) slider.value = value;
+    if (label) label.innerHTML = value;
+}
+
+function preview_playback_speed(value) {
+    const label = document.getElementById("playback_speed");
+    if (label) label.innerHTML = value;
+}
+
+function set_playback_speed(value) {
+    const speed = Math.min(200, Math.max(10, parseInt(value, 10) || 100));
+    apply_playback_speed_to_ui(speed);
+    change_setting("change_playback_speed", speed);
+}
+
+function nudge_playback_speed(step) {
+    const slider = document.getElementById("playback_speed_slider");
+    const current = slider ? parseInt(slider.value, 10) : 100;
+    set_playback_speed(current + step);
+}
+
 function get_recording_status() {
     const xhttp = new XMLHttpRequest();
     xhttp.timeout = 5000;
@@ -1987,6 +2013,9 @@ function get_recording_status() {
                 document.getElementById("start_recording_button").classList.remove('pointer-events-none', 'animate-pulse');
                 document.getElementById("save_recording_button").classList.add('pointer-events-none', 'opacity-50');
                 document.getElementById("cancel_recording_button").classList.add('pointer-events-none', 'opacity-50');
+            }
+            if (response["playback_speed"] !== undefined) {
+                apply_playback_speed_to_ui(response["playback_speed"]);
             }
             if (Object.keys(response["isplaying"]).length > 0) {
                 document.getElementById("midi_player_wrapper").classList.remove("hidden");

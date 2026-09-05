@@ -25,21 +25,21 @@ class ComponentInitializer:
                 lambda: PlatformRasp() if self.args.appmode == "platform" else PlatformNull()
             )
             usersettings_future = executor.submit(UserSettings)
-            saving_future = executor.submit(SaveMIDI)
             
             # Wait for all phase 1 components
             self.platform = platform_future.result()
             self.usersettings = usersettings_future.result()
-            self.saving = saving_future.result()
         
         # Phase 2: Initialize components that depend on UserSettings in parallel
-        with ThreadPoolExecutor(max_workers=2) as executor:
+        with ThreadPoolExecutor(max_workers=3) as executor:
             midiports_future = executor.submit(MidiPorts, self.usersettings)
             ledsettings_future = executor.submit(LedSettings, self.usersettings)
+            saving_future = executor.submit(SaveMIDI, self.usersettings)
             
             # Wait for phase 2 components
             self.midiports = midiports_future.result()
             self.ledsettings = ledsettings_future.result()
+            self.saving = saving_future.result()
         
         # Phase 3: Initialize LedStrip (depends on LedSettings)
         self.ledstrip = LedStrip(self.usersettings, self.ledsettings, self.args.leddriver)

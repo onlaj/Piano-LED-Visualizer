@@ -83,6 +83,8 @@ You can install via a preconfigured system image, autoinstall, or manual setup.
 
 **Note:** Prebuilt images in Releases may still be based on **Bookworm** until a new Trixie image is published. Check the release notes / asset description for the OS version before flashing. For a fresh Trixie install today, prefer autoinstall or manual install on a stock Trixie Lite image.
 
+Want to build your own `.img` (for example from a fork)? See [Docs/building_image.md](https://github.com/onlaj/Piano-LED-Visualizer/blob/master/Docs/building_image.md) — `sudo tools/build_image.sh --arch armhf` on any Linux host, or run the **Build Piano LED Visualizer Image** GitHub Actions workflow.
+
 If you don't need to connect your RPi to Wi-Fi you can eject the SD card from your PC and put it in the Raspberry Pi. After 3-8 minutes *(depending on how fast your SD card is)* you should see the Visualizer menu on the RPi screen.
 
 For version 1.5 and above:

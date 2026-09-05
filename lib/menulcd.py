@@ -880,6 +880,12 @@ class MenuLCD:
                 }
                 value = color_dict.get(choice)
 
+            elif location == "Play_MIDI":
+                play_values = {
+                    "Playback speed": f"{self.saving.playback_speed}%",
+                }
+                value = play_values.get(choice)
+
             elif location == "Learn_MIDI":
                 learn_values = {
                     "Load song": self.learning.loadingList[self.learning.loading],
@@ -2058,6 +2064,10 @@ class MenuLCD:
                 led_setting[self.current_choice.lower()] = 0
             self.usersettings.change_setting_value(self.current_location.lower() + "_" + self.current_choice.lower(),
                                                    led_setting[self.current_choice.lower()])
+
+        # Play MIDI
+        if self.current_location == "Play_MIDI" and self.current_choice == "Playback speed":
+            self.saving.change_playback_speed(value)
 
         # Learn MIDI
         learning_operations = {

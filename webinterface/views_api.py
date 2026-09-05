@@ -1274,6 +1274,14 @@ def change_setting():
 
         return jsonify(success=True, reload_songs=True)
 
+    if setting_name == "change_playback_speed":
+        try:
+            speed = app_state.saving.set_playback_speed(int(float(value)))
+        except (TypeError, ValueError):
+            return jsonify(success=False, error="invalid playback speed"), 400
+
+        return jsonify(success=True, playback_speed=speed)
+
     if setting_name == "learning_load_song":
         app_state.learning.t = threading.Thread(target=app_state.learning.load_midi, args=(value,))
         app_state.learning.t.start()
@@ -2013,7 +2021,8 @@ def get_recording_status():
     response = {"piano_port": piano_port,
                 "input_port": piano_port,
                 "play_port": piano_port,
-                "isrecording": app_state.saving.is_recording, "isplaying": app_state.saving.is_playing_midi}
+                "isrecording": app_state.saving.is_recording, "isplaying": app_state.saving.is_playing_midi,
+                "playback_speed": getattr(app_state.saving, "playback_speed", 100)}
 
     return jsonify(response)
 
@@ -2137,7 +2146,12 @@ def get_songs():
 
 @webinterface.route('/api/get_ports', methods=['GET'])
 def get_ports():
-    ports = mido.get_input_names()
+    try:
+        ports = mido.get_input_names()
+    except Exception as e:
+        # A missing/broken ALSA backend must not take the whole Ports page down.
+        logger.warning(f"Failed to list MIDI input ports: {e}")
+        ports = []
     ports = list(dict.fromkeys(ports))
     piano_port = app_state.usersettings.get_setting_value("piano_port")
     computer_port = app_state.usersettings.get_setting_value("computer_port")
@@ -2218,8 +2232,13 @@ def set_step_properties():
 
 @webinterface.route('/api/get_wifi_list', methods=['GET'])
 def get_wifi_list():
-    wifi_list = app_state.platform.get_wifi_networks()
-    success, wifi_ssid, address = app_state.platform.get_current_connections()
+    wifi_list = app_state.platform.get_wifi_networks() or []
+    connections = app_state.platform.get_current_connections()
+    if isinstance(connections, (tuple, list)) and len(connections) == 3:
+        _success, wifi_ssid, address = connections
+    else:
+        # PlatformNull (app mode) has no implementation and returns None.
+        wifi_ssid, address = None, None
 
     response = {"wifi_list": wifi_list,
                 "connected_wifi": wifi_ssid,
@@ -2229,6 +2248,9 @@ def get_wifi_list():
 @webinterface.route('/api/get_local_address', methods=['GET'])
 def get_local_address():
     result = app_state.platform.get_local_address()
+    if not isinstance(result, dict):
+        # PlatformNull (app mode) has no implementation and returns None.
+        return jsonify({"success": False, "error": "not supported on this platform"}), 501
     if result["success"]:
         return jsonify({
             "success": True,

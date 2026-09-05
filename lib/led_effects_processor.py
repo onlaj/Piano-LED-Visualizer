@@ -1,5 +1,5 @@
 import time
-from rpi_ws281x import Color
+from lib.rpi_drivers import Color
 
 
 class LEDEffectsProcessor:

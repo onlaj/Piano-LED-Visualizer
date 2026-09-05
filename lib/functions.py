@@ -103,14 +103,20 @@ def play_midi(song_path, midiports, saving, menu, ledsettings, ledstrip):
                 if not t0:
                     t0 = time.perf_counter()
 
-                total_delay += message.time
-                current_time = (time.perf_counter() - t0) + message.time
+                # Read the speed per message so the slider takes effect mid-song.
+                # total_delay accumulates already-scaled time, so the drift
+                # correction below stays valid across a speed change.
+                speed = clamp(getattr(saving, "playback_speed", 100), 10, 200) / 100.0
+                scaled_time = message.time / speed
+
+                total_delay += scaled_time
+                current_time = (time.perf_counter() - t0) + scaled_time
                 drift = total_delay - current_time
 
                 if drift < 0:
-                    delay = message.time + drift
+                    delay = scaled_time + drift
                 else:
-                    delay = message.time
+                    delay = scaled_time
                 if delay < 0:
                     delay = 0
 

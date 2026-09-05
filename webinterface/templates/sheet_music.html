@@ -31,7 +31,10 @@
         </div>
     </div>
     <div id="medbts" class="w-full flex-wrap">
-        <button class="flex h-12 items-center outline-none glass-light rounded-2xl inline-flex items-center">
+        <!-- A <label> wrapping a file input cannot live inside a <button>: nested
+             interactive content is invalid, and the button swallows the click
+             that should open the file picker. The label is the control here. -->
+        <div class="flex h-12 items-center outline-none glass-light rounded-2xl inline-flex items-center transition-smooth-fast hover:glass">
             <label class="w-40 flex flex-col items-center px-2 py-2 rounded-lg tracking-wide uppercase cursor-pointer">
                 <svg class="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                     <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z"/>
@@ -41,7 +44,7 @@
                 </span>
                 <input type="file" id="fknp" accept=".abc,.xml,.js,.musicxml" tabindex="1" class="hidden"/>
             </label>
-        </button>
+        </div>
 
         <div class="has-tooltip inline-flex h-12 items-center">
                         <span class="inline-block tooltip rounded shadow-lg p-1 glass-light text-gray-600 dark:text-gray-400">

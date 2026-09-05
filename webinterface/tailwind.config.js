@@ -1,7 +1,13 @@
 const colors = require('tailwindcss/colors');
 
 module.exports = {
-  content: ['./templates/*.html', './static/*.{html,js}'],
+  // ui.js and friends build markup at runtime, so their classes have to be
+  // scanned too or they get purged out of the bundle.
+  content: [
+    './templates/*.html',
+    './static/*.{html,js}',
+    './static/js/*.js',
+  ],
   safelist: [
     'animate-spin',
     'top-1/2',
@@ -13,20 +19,21 @@ module.exports = {
   ],
   darkMode: 'class', // or 'media' or 'class'
   theme: {
+    // These are aliases on top of the default palette, not a replacement for
+    // it: setting `theme.colors` directly used to drop white, black, teal and
+    // cyan, which the markup relies on for buttons, borders and focus rings.
+    extend: {
       colors: {
-        // Build your palette here
-        transparent: 'transparent',
-        current: 'currentColor',
         gray: colors.zinc,
-        red: colors.red,
         green: colors.emerald,
         blue: colors.sky,
         yellow: colors.amber,
       }
-    },
+    }
+  },
   variants: {
     extend: {},
   },
   plugins: [],
 }
-// npx tailwindcss build static/styles.css -o static/tailwind.css --minify
+// npm run build   (from the webinterface/ directory)

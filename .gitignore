@@ -5,4 +5,8 @@
 config/settings.xml
 webinterface/node_modules
 visualizer.log
-
+# Runtime state created by visualizer.py
+data/
+score_log.txt
+Songs/cache/
+build/

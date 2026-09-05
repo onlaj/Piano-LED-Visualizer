@@ -2,21 +2,55 @@ import time
 
 from mido import MidiFile, MidiTrack, Message
 
+# Playback speed is a percentage of the file's own tempo, matching the range the
+# learning-mode tempo control uses.
+PLAYBACK_SPEED_MIN = 10
+PLAYBACK_SPEED_MAX = 200
+PLAYBACK_SPEED_DEFAULT = 100
+
 
 class SaveMIDI:
-    def __init__(self):
+    def __init__(self, usersettings=None):
         self.last_note_time = None
         self.track = None
         self.mid = None
         self.first_note_time = None
         self.messages_to_save = None
         self.menu = None
+        self.usersettings = None
         self.is_recording = False
         self.is_playing_midi = {}
         self.start_time = time.perf_counter()
+        self.playback_speed = PLAYBACK_SPEED_DEFAULT
+        if usersettings is not None:
+            self.attach_settings(usersettings)
 
     def add_instance(self, menu):
         self.menu = menu
+
+    def attach_settings(self, usersettings):
+        """Bind user settings so the playback speed survives a restart."""
+        self.usersettings = usersettings
+        try:
+            self.playback_speed = int(usersettings.get_setting_value("playback_speed"))
+        except (TypeError, ValueError):
+            self.playback_speed = PLAYBACK_SPEED_DEFAULT
+        self.playback_speed = self._clamp_speed(self.playback_speed)
+
+    @staticmethod
+    def _clamp_speed(value):
+        return max(PLAYBACK_SPEED_MIN, min(int(value), PLAYBACK_SPEED_MAX))
+
+    def set_playback_speed(self, value):
+        """Set absolute playback speed in percent. Takes effect mid-playback."""
+        self.playback_speed = self._clamp_speed(value)
+        if self.usersettings is not None:
+            self.usersettings.change_setting_value("playback_speed", self.playback_speed)
+        return self.playback_speed
+
+    def change_playback_speed(self, value):
+        """Step the playback speed by 5% per unit (LCD menu encoder)."""
+        return self.set_playback_speed(self.playback_speed + 5 * value)
 
     def start_recording(self):
         self.messages_to_save = dict()

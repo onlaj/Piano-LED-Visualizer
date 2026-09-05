@@ -59,6 +59,11 @@ function loadAjax(subpage) {
             if (this.readyState === 4 && this.status === 200) {
                 current_page = subpage;
                 mainElement.innerHTML = this.responseText;
+                // Each nav link carries the page name as its id, so loading a
+                // URL like /#songs makes the browser jump to that link in the
+                // sidebar. Put both the shell and the new page back at the top.
+                mainElement.scrollTop = 0;
+                window.scrollTo(0, 0);
                 setTimeout(() => {
                     mainElement.classList.add("show");
                 }, 100);
