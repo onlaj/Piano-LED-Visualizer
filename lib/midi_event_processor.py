@@ -85,6 +85,9 @@ class MIDIEventProcessor:
             # in learning, only computer guide notes drive LEDs; piano still
             # records and is queued for LearnMIDI matching
             skip_piano_leds = midi_mode == "learning" and source == "piano"
+            # the router only lets Synthesia's light stream through, so every
+            # computer note here is a guide light, not a played note
+            is_guide = midi_mode == "learning" and source == "computer"
 
             if skip_piano_leds:
                 if saving.is_recording and msg_type in ("note_on", "note_off"):
@@ -98,7 +101,7 @@ class MIDIEventProcessor:
                     if msg_type == "note_off" or velocity == 0:
                         handle_note_off(msg, msg_timestamp, note_position, source)
                     elif velocity > 0:
-                        handle_note_on(msg, msg_timestamp, note_position)
+                        handle_note_on(msg, msg_timestamp, note_position, is_guide)
             elif msg_type == "control_change":
                 handle_control_change(msg, msg_timestamp)
 
@@ -138,6 +141,19 @@ class MIDIEventProcessor:
         velocity = 0
         self.ledstrip.keylist_status[note_position] = 0
 
+        # Guide lights go off with the guide; only Fading keeps its fade-out.
+        # Sustain and pedal note drop are performance effects and do not apply.
+        if self.ledstrip.keylist_guide[note_position] == 1:
+            self.ledstrip.keylist_guide[note_position] = 0
+            if self.ledsettings.mode != "Fading":
+                self.ledstrip.keylist[note_position] = 0
+                self.ledstrip.keylist_sustained[note_position] = 0
+                idle_color, use_backlight = self._resolve_idle_color()
+                self._apply_idle_color(note_position, idle_color, use_backlight)
+                if self.saving.is_recording:
+                    self.saving.add_track("note_off", msg.note, velocity, msg_timestamp)
+                return
+
         # Check if sustain pedal is active for Velocity and Pedal modes
         pedal_deadzone = 10  # Standard MIDI deadzone for sustain pedal
         sustain_active = (self.ledsettings.mode in ["Velocity", "Pedal"] and 
@@ -175,7 +191,7 @@ class MIDIEventProcessor:
         if self.saving.is_recording:
             self.saving.add_track("note_off", msg.note, velocity, msg_timestamp)
 
-    def handle_note_on(self, msg, msg_timestamp, note_position):
+    def handle_note_on(self, msg, msg_timestamp, note_position, is_guide=False):
         """
         Handle note-on MIDI events.
         
@@ -186,8 +202,17 @@ class MIDIEventProcessor:
             msg: The MIDI message object
             msg_timestamp: Timestamp when the message was received
             note_position: Position on the LED strip corresponding to the note
+            is_guide: True for a Learning mode guide light from the computer
         """
         velocity = msg.velocity
+
+        # Synthesia guides are on/off lights sent with velocity 1, so velocity
+        # brightness, pedal decay and pulses would leave them dark (issue #620).
+        # Show them like Normal mode; Fading still fades them out on release.
+        mode = self.ledsettings.mode
+        if is_guide and mode != "Fading":
+            mode = "Normal"
+        self.ledstrip.keylist_guide[note_position] = 1 if is_guide else 0
 
         # Parse channel first so Synthesia left/right guides use hand colors as
         # the stored color of record, not the LED color mode.
@@ -219,25 +244,25 @@ class MIDIEventProcessor:
         self.ledstrip.keylist_sustained[note_position] = 0
         
         # Calculate brightness based on velocity if in velocity mode
-        if self.ledsettings.mode == "Velocity":
+        if mode == "Velocity":
             brightness = velocity / 127.0  # Linear mapping: 0-127 velocity -> 0-1 brightness
         else:
             brightness = 1
 
         # Apply different effects based on the current LED mode
-        if self.ledsettings.mode == "Fading":
+        if mode == "Fading":
             # 1001 indicates the key is active and will start fading when released
             self.ledstrip.keylist[note_position] = 1001
-        elif self.ledsettings.mode == "Velocity":
+        elif mode == "Velocity":
             # Brightness varies with velocity (999 * brightness for linear scaling)
             self.ledstrip.keylist[note_position] = 999 * brightness
-        elif self.ledsettings.mode == "Normal":
+        elif mode == "Normal":
             # Standard mode - full brightness while key is pressed
             self.ledstrip.keylist[note_position] = 1000
-        elif self.ledsettings.mode == "Pedal":
+        elif mode == "Pedal":
             # For pedal mode, start at 999 (will be affected by pedal status)
             self.ledstrip.keylist[note_position] = 999
-        elif self.ledsettings.mode == "Pulse":
+        elif mode == "Pulse":
             # Create a new pulse effect
             self.ledstrip.active_pulses.append({
                 "position": note_position,
@@ -335,6 +360,7 @@ class MIDIEventProcessor:
         self.ledstrip.keylist_status = [0] * led_count
         self.ledstrip.keylist_sustained = [0] * led_count
         self.ledstrip.keylist_external_software = [0] * led_count
+        self.ledstrip.keylist_guide = [0] * led_count
         if hasattr(self.ledstrip, "keylist_color") and self.ledstrip.keylist_color is not None:
             self.ledstrip.keylist_color = [0] * led_count
         if hasattr(self.ledstrip, "active_pulses") and self.ledstrip.active_pulses is not None:

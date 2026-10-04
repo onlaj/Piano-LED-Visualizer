@@ -53,6 +53,7 @@ class LedStrip:
         self.keylist_color = [0] * self.led_number
         self.keylist_sustained = [0] * self.led_number  # Track notes sustained by pedal
         self.keylist_external_software = [0] * self.led_number  # Track LEDs lit by external software (channels 1-12)
+        self.keylist_guide = [0] * self.led_number  # Learning mode guide lights, shown without mode effects
         self.active_pulses = [] # For Pulse mode
 
 

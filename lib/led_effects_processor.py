@@ -34,9 +34,11 @@ class LEDEffectsProcessor:
                     led_changed = True
 
             fading = 1
+            # lit Learning mode guides stay at full brightness until released
+            is_guide = self.ledstrip.keylist_guide[n] == 1
 
-            if self.ledsettings.mode == "Velocity" or self.ledsettings.mode == "Pedal" or (
-                    self.ledsettings.mode == "Fading" and self.ledstrip.keylist_status[n] == 0):
+            if not is_guide and (self.ledsettings.mode == "Velocity" or self.ledsettings.mode == "Pedal" or (
+                    self.ledsettings.mode == "Fading" and self.ledstrip.keylist_status[n] == 0)):
                 fading = (strength / float(100)) / 10
                 red = int(red * fading)
                 green = int(green * fading)
@@ -56,7 +58,7 @@ class LEDEffectsProcessor:
                 self.ledstrip.keylist[n] = max(0, self.ledstrip.keylist[n] - decrease_amount)
                 led_changed = True
 
-            if self.ledsettings.mode == "Velocity" or self.ledsettings.mode == "Pedal":
+            if not is_guide and (self.ledsettings.mode == "Velocity" or self.ledsettings.mode == "Pedal"):
                 # Check if key is pressed or sustained
                 key_active = self.ledstrip.keylist_status[n] == 1 or self.ledstrip.keylist_sustained[n] == 1
                 
