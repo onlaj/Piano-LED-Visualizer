@@ -226,6 +226,28 @@ function get_homepage_data_loop() {
     xhttp.open("GET", "/api/get_homepage_data", true);
     xhttp.send();
 }
+
+// Live estimated LED power draw for the LED settings page
+function get_led_power_loop() {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            const d = JSON.parse(this.responseText);
+            const cur = document.getElementById("led_current_a");
+            if (cur && d.led_current_a !== undefined) cur.innerHTML = Number(d.led_current_a).toFixed(2);
+            const pw = document.getElementById("led_power_w");
+            if (pw && d.led_power_w !== undefined) pw.innerHTML = Number(d.led_power_w).toFixed(1);
+            const mx = document.getElementById("led_current_max_a");
+            if (mx && d.led_current_max_a !== undefined) mx.innerHTML = Number(d.led_current_max_a).toFixed(1);
+            ["led_ma_per_channel", "led_idle_ma", "led_supply_voltage"].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el && el !== document.activeElement && d[id] !== undefined) el.value = d[id];
+            });
+        }
+    };
+    xhttp.open("GET", "/api/get_led_power", true);
+    xhttp.send();
+}
 function get_colormap_gradients() {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
