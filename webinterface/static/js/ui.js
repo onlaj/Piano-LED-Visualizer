@@ -227,8 +227,18 @@ function get_homepage_data_loop() {
     xhttp.send();
 }
 
-// Live estimated LED power draw for the LED settings page
+// Live estimated LED power draw for the LED settings page.
+// The card starts collapsed and this only runs while it is open.
+function stop_led_power_loop() {
+    clearInterval(window.led_power_interval);
+    window.led_power_interval = null;
+}
+
 function get_led_power_loop() {
+    const body = document.getElementById("led_power_body");
+    if (!body || body.classList.contains("hidden")) {
+        return;
+    }
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
@@ -247,6 +257,25 @@ function get_led_power_loop() {
     };
     xhttp.open("GET", "/api/get_led_power", true);
     xhttp.send();
+}
+
+function toggle_led_power() {
+    const body = document.getElementById("led_power_body");
+    const arrow = document.getElementById("led_power_arrow");
+    if (!body) {
+        return;
+    }
+    const expanding = body.classList.contains("hidden");
+    body.classList.toggle("hidden", !expanding);
+    if (arrow) {
+        arrow.classList.toggle("rotate-0", !expanding);
+        arrow.classList.toggle("rotate-180", expanding);
+    }
+    stop_led_power_loop();
+    if (expanding) {
+        get_led_power_loop();
+        window.led_power_interval = setInterval(get_led_power_loop, 1500);
+    }
 }
 function get_colormap_gradients() {
     const xhttp = new XMLHttpRequest();

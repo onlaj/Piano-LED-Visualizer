@@ -1044,6 +1044,22 @@ main {
 }
 
 /* Collapsible Section Headers */
+/* Flat disclosure row: the global button hover lift/shadow reads as a glitch inside the card. */
+#led_power_toggle {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    box-shadow: none;
+}
+
+#led_power_toggle:hover,
+#led_power_toggle:active,
+.dark #led_power_toggle:hover,
+.dark #led_power_toggle:active {
+    transform: none;
+    box-shadow: none;
+}
+
 button[class*="hover:glass-light"] {
     transition: all 0.2s ease;
 }

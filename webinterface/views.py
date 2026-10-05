@@ -13,7 +13,7 @@ def allowed_file(filename):
 
 @webinterface.before_request
 def before_request():
-    excluded_routes = ['/api/get_homepage_data', '/api/get_system_time']
+    excluded_routes = ['/api/get_homepage_data', '/api/get_system_time', '/api/get_led_power']
 
     # Check if the current request path is in the excluded_routes list
     if request.path not in excluded_routes:

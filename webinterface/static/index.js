@@ -76,8 +76,6 @@ function loadAjax(subpage) {
                         initialize_led_settings();
                         get_current_sequence_setting();
                         clearInterval(homepage_interval);
-                        get_led_power_loop();
-                        window.led_power_interval = setInterval(get_led_power_loop, 1500);
                         setAdvancedMode(advancedMode);
                         if(typeof get_presets === 'function') {
                             get_presets();
