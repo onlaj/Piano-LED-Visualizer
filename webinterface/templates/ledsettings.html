@@ -167,17 +167,17 @@
                             <span class="text-sm font-bold"><span id="led_current_a">-.--</span> A
                                 <span class="text-xs font-normal text-gray-500 dark:text-gray-400">(<span id="led_power_w">--</span> W)</span></span>
                         </div>
-                        <div class="text-[10px] text-gray-500 dark:text-gray-400 mb-2">max <span id="led_current_max_a">--</span> A (all LEDs full white)</div>
+                        <div class="text-[10px] text-gray-500 dark:text-gray-400 mb-2"><span data-translate="led_power_max">max</span> <span id="led_current_max_a">--</span> A <span data-translate="led_power_full_white">(all LEDs full white)</span></div>
                         <div class="grid grid-cols-3 gap-1">
-                            <label class="text-[10px] text-gray-500 dark:text-gray-400">mA/ch
+                            <label class="text-[10px] text-gray-500 dark:text-gray-400"><span data-translate="led_ma_per_channel">mA/ch</span>
                                 <input id="led_ma_per_channel" type="number" min="0" step="0.5"
                                        onchange="change_setting('led_ma_per_channel', this.value)"
                                        class="w-full glass-light rounded px-1 py-0.5 text-xs"></label>
-                            <label class="text-[10px] text-gray-500 dark:text-gray-400">idle mA
+                            <label class="text-[10px] text-gray-500 dark:text-gray-400"><span data-translate="led_idle_ma">idle mA</span>
                                 <input id="led_idle_ma" type="number" min="0" step="0.1"
                                        onchange="change_setting('led_idle_ma', this.value)"
                                        class="w-full glass-light rounded px-1 py-0.5 text-xs"></label>
-                            <label class="text-[10px] text-gray-500 dark:text-gray-400">Volts
+                            <label class="text-[10px] text-gray-500 dark:text-gray-400"><span data-translate="led_supply_voltage">Volts</span>
                                 <input id="led_supply_voltage" type="number" min="0" step="0.1"
                                        onchange="change_setting('led_supply_voltage', this.value)"
                                        class="w-full glass-light rounded px-1 py-0.5 text-xs"></label>
