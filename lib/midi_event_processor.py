@@ -1,7 +1,7 @@
 import time
 import inspect
 
-from rpi_ws281x import Color
+from lib.rpi_drivers import Color
 
 from lib.functions import get_note_position
 from lib.log_setup import logger

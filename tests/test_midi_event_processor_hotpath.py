@@ -15,6 +15,11 @@ rpi_ws281x.ws = types.SimpleNamespace()
 sys.modules["rpi_ws281x"] = rpi_ws281x
 
 from lib.midi_event_processor import MIDIEventProcessor
+import lib.midi_event_processor as _midi_event_processor_module
+
+# Le module importe Color via lib.rpi_drivers : on lui injecte le Color factice (tuples) attendu par ces tests,
+# quel que soit l'ordre d'import des autres tests.
+_midi_event_processor_module.Color = rpi_ws281x.Color
 
 
 class FakeMessage:

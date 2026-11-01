@@ -225,8 +225,12 @@ class SpeedColor(ColorMode):
                 self.notes_in_last_period.remove(note_time)
 
         notes_count = len(self.notes_in_last_period)
-        max_notes = self.speed_max_notes
-        speed_percent = notes_count / float(max_notes)
+        # Garde-fou : 0 (ou valeur invalide) provoquerait une ZeroDivisionError dans la boucle MIDI
+        try:
+            max_notes = max(1.0, float(self.speed_max_notes))
+        except (TypeError, ValueError):
+            max_notes = 1.0
+        speed_percent = notes_count / max_notes
 
         if notes_count > max_notes:
             red = self.speed_fastest["red"]

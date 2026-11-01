@@ -13,6 +13,18 @@ from pathlib import Path
 from collections import defaultdict
 
 
+def _strip_local_suffix(name):
+    """Retire le suffixe ".local" d'un nom d'hôte.
+
+    str.rstrip('.local') retire des *caractères* (ex. 'piano' -> 'pian') : on retire
+    donc uniquement le suffixe exact.
+    """
+    name = name.strip()
+    if name.lower().endswith(".local"):
+        name = name[: -len(".local")]
+    return name
+
+
 class Hotspot:
     def __init__(self, hotspot):
         self.hotspot_script_time = 0
@@ -516,7 +528,7 @@ class PlatformRasp(PlatformBase):
 
     @staticmethod
     def change_local_address(new_name):
-        new_name = new_name.rstrip('.local')
+        new_name = _strip_local_suffix(new_name)
         logger.info("Changing local address to " + new_name)
         # Validate the new name
         if not re.match(r'^[a-zA-Z0-9-]+$', new_name):

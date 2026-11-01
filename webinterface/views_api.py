@@ -680,8 +680,9 @@ def change_setting():
         return jsonify(success=True, reload_sequence=reload_sequence)
 
     if setting_name == "speed_max_notes":
-        app_state.ledsettings.speed_max_notes = int(value)
-        app_state.usersettings.change_setting_value("speed_max_notes", int(value))
+        speed_max_notes = max(1, int(value))
+        app_state.ledsettings.speed_max_notes = speed_max_notes
+        app_state.usersettings.change_setting_value("speed_max_notes", speed_max_notes)
 
         return jsonify(success=True, reload_sequence=reload_sequence)
 
@@ -1316,7 +1317,19 @@ def change_setting():
         else:
             if new_path.exists():
                 return jsonify(success=False, reload_songs=True, error=new_name + " already exists")
+            # Partitions associées (même nom, extension différente) : on vérifie les collisions
+            # avant de renommer quoi que ce soit.
+            sidecar_renames = [
+                (old_sidecar, new_path.with_suffix(old_sidecar.suffix))
+                for old_sidecar in _sidecar_paths(current_name)
+                if old_sidecar.exists()
+            ]
+            for _old_sidecar, planned_sidecar in sidecar_renames:
+                if planned_sidecar.exists():
+                    return jsonify(success=False, reload_songs=True, error=planned_sidecar.name + " already exists")
             current_path.rename(new_path)
+            for old_sidecar, planned_sidecar in sidecar_renames:
+                old_sidecar.rename(planned_sidecar)
             _rename_song_cache_if_exists(current_name, new_name)
 
         return jsonify(success=True, reload_songs=True)
@@ -1561,6 +1574,8 @@ def change_setting():
         return jsonify(success=True)
 
     if setting_name == "set_current_time_as_start_point":
+        if not app_state.learning.song_tracks:
+            return jsonify(success=False, error="No song loaded")
         app_state.learning.start_point = round(
             float(app_state.learning.current_idx * 100 / float(len(app_state.learning.song_tracks))), 3)
         app_state.learning.start_point = clamp(app_state.learning.start_point, 0,
@@ -1582,6 +1597,8 @@ def change_setting():
         return jsonify(success=True, reload_learning_settings=True)
 
     if setting_name == "set_current_time_as_end_point":
+        if not app_state.learning.song_tracks:
+            return jsonify(success=False, error="No song loaded")
         app_state.learning.end_point = round(
             float(app_state.learning.current_idx * 100 / float(len(app_state.learning.song_tracks))), 3)
         app_state.learning.end_point = clamp(app_state.learning.end_point, app_state.learning.start_point + 1,

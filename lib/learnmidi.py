@@ -24,6 +24,24 @@ from itertools import chain, islice, pairwise
 
 from lib.broadcast_outbox import BroadcastOutbox
 
+# Incrémenter quand le calcul de notes_time change (invalide les caches .p existants)
+NOTES_TIME_CACHE_VERSION = 2
+
+
+def compute_notes_time(mid):
+    """Temps absolu (secondes) de chaque message non-meta d'un MidiFile.
+
+    Les messages meta (marqueurs, tempo...) portent aussi un delta : il doit être
+    cumulé, sinon les temps des notes suivantes dérivent.
+    """
+    time_passed = 0
+    notes_time = []
+    for msg in mid:
+        time_passed += msg.time
+        if not msg.is_meta:
+            notes_time.append(time_passed)
+    return notes_time
+
 # Create a score logger
 score_logger = logging.getLogger("score_logger")
 score_logger.setLevel(logging.INFO)
@@ -243,6 +261,10 @@ class LearnMIDI:
                 logger.info("Loading song from cache")
                 with open('Songs/cache/' + song_path + '.p', 'rb') as handle:
                     cache = pickle.load(handle)
+                    # Caches générés avant la correction de notes_time : à régénérer
+                    if cache.get('notes_time_version') != NOTES_TIME_CACHE_VERSION:
+                        logger.info("Cache obsolète (notes_time), régénération")
+                        return False
                     self.song_tempo = cache['song_tempo']
                     self.ticks_per_beat = cache['ticks_per_beat']
                     self.song_tracks = cache['song_tracks']
@@ -330,19 +352,16 @@ class LearnMIDI:
             # Merge tracks
             self.loading = 3  # 3 = Merge
             self.song_tracks = mido.merge_tracks(mid.tracks)
-            time_passed = 0
             self.notes_time.clear()
-            for msg in mid:
-                if not msg.is_meta:
-                    time_passed += msg.time
-                    self.notes_time.append(time_passed)
+            self.notes_time.extend(compute_notes_time(mid))
 
             fastColorWipe(self.ledstrip.strip, True, self.ledsettings)
 
             # Save to cache
             with open('Songs/cache/' + song_path + '.p', 'wb') as handle:
                 cache = {'song_tempo': self.song_tempo, 'ticks_per_beat': self.ticks_per_beat,
-                         'notes_time': self.notes_time, 'song_tracks': self.song_tracks, }
+                         'notes_time': self.notes_time, 'song_tracks': self.song_tracks,
+                         'notes_time_version': NOTES_TIME_CACHE_VERSION, }
                 pickle.dump(cache, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
             self.loading = 4  # 4 = Done

@@ -56,7 +56,10 @@ class SaveMIDI:
         self.messages_to_save["main"].append(["control_change", time_value, status, channel, control, value])
 
     def save(self, filename):
-        for key, multicolor_track in self.messages_to_save.items():
+        # Rien à sauvegarder si aucun enregistrement n'est en cours (double clic, appel tardif)
+        if not self.messages_to_save:
+            return
+        for key, multicolor_track in list(self.messages_to_save.items()):
             self.mid = MidiFile(None, None, 0, 20000)  # 20000 is a ticks_per_beat value
             self.track = MidiTrack()
             self.mid.tracks.append(self.track)

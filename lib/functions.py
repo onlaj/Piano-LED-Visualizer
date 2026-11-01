@@ -127,29 +127,32 @@ def is_within_schedule(schedule_list):
     if not enabled_schedules:
         return True
 
+    previous_weekday = (current_weekday - 1) % 7
+
     for schedule in enabled_schedules:
-        # Check day of week
-        if current_weekday not in schedule.get('days', []):
-            continue
+        days = schedule.get('days', [])
 
         # Parse start and end times
         try:
             start_hour, start_minute = map(int, schedule.get('startTime', '00:00').split(':'))
             end_hour, end_minute = map(int, schedule.get('endTime', '23:59').split(':'))
-            
+
             start_time = datetime.time(start_hour, start_minute)
             end_time = datetime.time(end_hour, end_minute)
-
-            # Check time range
-            if start_time <= end_time:
-                if start_time <= current_time <= end_time:
-                    return True
-            else:
-                # Crosses midnight
-                if current_time >= start_time or current_time <= end_time:
-                    return True
         except ValueError:
             continue
+
+        # Les jours désignent le jour de DÉBUT de la plage.
+        if start_time <= end_time:
+            if current_weekday in days and start_time <= current_time <= end_time:
+                return True
+        else:
+            # Plage passant minuit : la partie du soir appartient au jour courant,
+            # la partie après minuit appartient à la plage commencée la veille.
+            if current_time >= start_time and current_weekday in days:
+                return True
+            if current_time <= end_time and previous_weekday in days:
+                return True
 
     return False
 
@@ -409,7 +412,7 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings, state_manager=No
         if i >= (int(interval) - 1):
             i = 0
             try:
-                cpu_average = sum(cpu_history) / (float(len(cpu_history) + 1))
+                cpu_average = sum(cpu_history) / float(len(cpu_history))
                 last_cpu_average = cpu_average
             except:
                 cpu_average = last_cpu_average

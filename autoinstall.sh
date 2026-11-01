@@ -28,8 +28,10 @@ execute_command() {
       # Check for internet connectivity
       if ping -q -c 1 -W 1 google.com &>/dev/null; then
         # Internet is available, execute the command
-        eval "$1"
-        local exit_code=$?
+        # "|| exit_code=$?" : sous "set -e", un eval qui échoue arrêterait le script
+        # avant la boucle de retry.
+        local exit_code=0
+        eval "$1" || exit_code=$?
 
         if [ $exit_code -eq 0 ]; then
           return 0  # Command executed successfully
@@ -46,8 +48,8 @@ execute_command() {
     echo "Command failed after $((max_retries * retry_interval)) seconds of retries."
     exit 1  # Exit the script after multiple unsuccessful retries
   else
-    eval "$1"  # Execute the command without internet connectivity check
-    local exit_code=$?
+    local exit_code=0
+    eval "$1" || exit_code=$?  # Execute the command without internet connectivity check
     if [ $exit_code -ne 0 ]; then
       echo "Command failed with exit code $exit_code."
       exit $exit_code

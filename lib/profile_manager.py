@@ -203,7 +203,8 @@ class ProfileManager:
                 "SELECT loop, practice, tempo, hands, mute_hands, wrong_notes, future_notes, mistakes, start, end, lh_color, rh_color, prev_lh_color, prev_rh_color, lh_active, rh_active FROM learning_settings WHERE profile_id=? AND song_name=?",
                 (profile_id, song_name)
             )
-        row = cur.fetchone()
+            # fetchone() doit être appelé tant que la connexion est ouverte
+            row = cur.fetchone()
         if row:
             ret_dict = {"loop": row[0], "practice": row[1], "tempo": row[2], "hands": row[3], "mute_hands": row[4], "wrong_notes": row[5], "future_notes": row[6], "mistakes": row[7], "start": row[8], "end": row[9], "lh_color": row[10], "rh_color": row[11], "prev_lh_color": row[12], "prev_rh_color": row[13], "lh_active": row[14], "rh_active": row[15]}
         else:

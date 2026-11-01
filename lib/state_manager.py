@@ -47,12 +47,14 @@ class StateManager:
         self.last_screen_update = 0.0
         
         # Load configuration
+        self._config_stamp = None
         self.reload_config()
         
         logger.info(f"StateManager initialized in {self.current_state.value} mode")
     
     def reload_config(self):
         """Reload configuration from settings"""
+        self._config_stamp = getattr(self.usersettings, "last_save", None)
         try:
             # IDLE delay in minutes (default 10 minutes)
             idle_timeout_value = self.usersettings.get_setting_value("idle_timeout_minutes")
@@ -109,6 +111,11 @@ class StateManager:
         """
         if current_time is None:
             current_time = time.time()
+
+        # Recharger les délais si les réglages ont été sauvegardés depuis le dernier chargement
+        # (ex. changement de "Idle_timeout" depuis le LCD ou le web).
+        if getattr(self.usersettings, "last_save", None) != self._config_stamp:
+            self.reload_config()
         
         # Sync with existing activity trackers if provided
         if midiports is not None:
