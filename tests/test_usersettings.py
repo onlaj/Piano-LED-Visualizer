@@ -4,6 +4,8 @@ import sys
 sys.path.append('./')
 sys.path.append('../')
 import os
+import shutil
+import tempfile
 import unittest
 from lib.usersettings import UserSettings
 
@@ -14,7 +16,11 @@ class TestUserSettings(unittest.TestCase):
 
     def setUp(self):
         abspath = os.path.abspath(__file__)
-        self.config_path = os.path.dirname(abspath) + "/config-test/"
+        # work on a copy so the test does not write into the source tree
+        tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(tmpdir.cleanup)
+        shutil.copytree(os.path.dirname(abspath) + "/config-test/", tmpdir.name, dirs_exist_ok=True)
+        self.config_path = tmpdir.name + "/"
 
         self.load_usersettings()
         self.us.reset_to_default()
