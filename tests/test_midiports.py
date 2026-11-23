@@ -3,11 +3,11 @@
 import sys
 import os
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from lib.midiports import MidiPorts
+from lib.midiports import MidiPorts, _close_input_safely
 
 
 class FakeSettings:
@@ -217,6 +217,227 @@ class TestPianoReopen(unittest.TestCase):
         instance.piano_in_name = None
 
         self.assertFalse(instance._piano_needs_reopen(["rtpmidid:Network Export 128:0"]))
+
+
+class OrderedPort:
+    """Fake input that records a close() before cancel_callback() or close_port().
+
+    Recorded rather than raised, because _close_port() swallows exceptions.
+    """
+
+    def __init__(self, calls, closed=False):
+        self.calls = calls
+        self.closed = closed
+        self.violation = False
+        self._rt = self
+
+    def cancel_callback(self):
+        self.calls.append("cancel")
+
+    def close_port(self):
+        if "cancel" not in self.calls:
+            self.violation = True
+        self.calls.append("close_port")
+
+    def close(self):
+        if "cancel" not in self.calls or "close_port" not in self.calls:
+            self.violation = True
+        self.calls.append("close")
+        self.closed = True
+
+
+class TestCloseInputSafely(unittest.TestCase):
+    def setUp(self):
+        sleep_patch = patch("lib.midiports.time.sleep")
+        self.sleep = sleep_patch.start()
+        self.addCleanup(sleep_patch.stop)
+
+    def test_callback_is_cancelled_before_close(self):
+        calls = []
+        port = OrderedPort(calls)
+        _close_input_safely(port)
+        self.assertEqual(calls, ["cancel", "close_port", "close"])
+        self.assertFalse(port.violation)
+
+    def test_sleeps_between_cancel_and_close(self):
+        calls = []
+        self.sleep.side_effect = lambda *_: calls.append("sleep")
+        _close_input_safely(OrderedPort(calls))
+        self.assertEqual(calls, ["cancel", "sleep", "close_port", "close"])
+
+    def test_none_is_ignored(self):
+        _close_input_safely(None)
+        self.sleep.assert_not_called()
+
+    def test_port_without_rt_is_still_closed(self):
+        port = FakePort()
+        closed = []
+        port.close = lambda: closed.append(True)
+        _close_input_safely(port)
+        self.assertEqual(closed, [True])
+
+    def test_already_closed_port_is_skipped(self):
+        calls = []
+        _close_input_safely(OrderedPort(calls, closed=True))
+        self.assertEqual(calls, [])
+        self.sleep.assert_not_called()
+
+    def test_cancel_error_does_not_prevent_close(self):
+        calls = []
+        port = OrderedPort(calls)
+
+        def fail():
+            raise RuntimeError("cancel failed")
+
+        port.cancel_callback = fail
+        _close_input_safely(port)
+        self.assertTrue(port.closed)
+
+
+class TestReconnectPorts(unittest.TestCase):
+    PORT = "rtpmidid:Roland Digital Piano-Roland Digital Piano MIDI 1 128:6"
+    RENUMBERED = "rtpmidid:Roland Digital Piano-Roland Digital Piano MIDI 1 128:9"
+
+    def setUp(self):
+        self.patches = [
+            patch("lib.midiports._refresh_port_cache", lambda: None),
+            patch("lib.midiports.time.sleep", lambda *_: None),
+        ]
+        for p in self.patches:
+            p.start()
+
+    def tearDown(self):
+        for p in self.patches:
+            p.stop()
+
+    def _make_instance(self, available_inputs, piano_in_name, piano_in, configured=PORT):
+        instance = MidiPorts.__new__(MidiPorts)
+        instance.usersettings = FakeSettings({"piano_port": configured})
+        instance.piano_in = piano_in
+        instance.piano_in_name = piano_in_name
+        instance.piano_out = FakePort()
+        instance.open_piano_ports = MagicMock()
+        instance.open_computer_ports = MagicMock()
+        instance._open_piano_output_for_input = MagicMock()
+
+        inputs_patch = patch(
+            "lib.midiports._get_cached_input_names", return_value=list(available_inputs)
+        )
+        inputs_patch.start()
+        self.addCleanup(inputs_patch.stop)
+        return instance
+
+    def test_healthy_piano_is_not_reopened(self):
+        instance = self._make_instance([self.PORT], self.PORT, OrderedPort([]))
+        instance.reconnect_ports()
+        instance.open_piano_ports.assert_not_called()
+        instance.open_computer_ports.assert_called_once()
+
+    def test_renumbered_port_is_reopened(self):
+        instance = self._make_instance([self.RENUMBERED], self.PORT, OrderedPort([]))
+        instance.reconnect_ports()
+        instance.open_piano_ports.assert_called_once()
+
+    def test_missing_input_is_reopened(self):
+        instance = self._make_instance([self.PORT], None, None)
+        instance.reconnect_ports()
+        instance.open_piano_ports.assert_called_once()
+
+    def test_closed_input_is_reopened(self):
+        instance = self._make_instance([self.PORT], self.PORT, OrderedPort([], closed=True))
+        instance.reconnect_ports()
+        instance.open_piano_ports.assert_called_once()
+
+    def test_absent_configured_port_is_reopened(self):
+        instance = self._make_instance([], self.PORT, OrderedPort([]))
+        instance.reconnect_ports()
+        instance.open_piano_ports.assert_called_once()
+
+    def test_fallback_is_kept_while_configured_port_is_absent(self):
+        instance = self._make_instance(["Other Piano 20:0"], "Other Piano 20:0", OrderedPort([]))
+        instance.reconnect_ports()
+        instance.open_piano_ports.assert_not_called()
+
+    def test_configured_port_replaces_fallback_when_it_returns(self):
+        instance = self._make_instance(
+            ["Other Piano 20:0", self.PORT], "Other Piano 20:0", OrderedPort([])
+        )
+        instance.reconnect_ports()
+        instance.open_piano_ports.assert_called_once()
+
+    def test_missing_output_is_retried_without_reopening_input(self):
+        instance = self._make_instance([self.PORT], self.PORT, OrderedPort([]))
+        instance.piano_out = None
+        instance.reconnect_ports()
+        instance.open_piano_ports.assert_not_called()
+        instance._open_piano_output_for_input.assert_called_once_with(self.PORT)
+
+    def test_default_setting_keeps_healthy_discovered_port(self):
+        instance = self._make_instance(
+            ["Some Piano 20:0"], "Some Piano 20:0", OrderedPort([]), configured="default"
+        )
+        instance.reconnect_ports()
+        instance.open_piano_ports.assert_not_called()
+
+    def test_default_setting_reopens_when_discovered_port_is_gone(self):
+        instance = self._make_instance(
+            ["Other Piano 20:0"], "Some Piano 20:0", OrderedPort([]), configured="default"
+        )
+        instance.reconnect_ports()
+        instance.open_piano_ports.assert_called_once()
+
+
+class TestInputPortsCloseSafely(unittest.TestCase):
+    PORT = "rtpmidid:Roland Digital Piano-Roland Digital Piano MIDI 1 128:6"
+
+    def setUp(self):
+        self.patches = [
+            patch("lib.midiports._refresh_port_cache", lambda: None),
+            patch("lib.midiports._get_cached_input_names", return_value=[self.PORT]),
+            patch("lib.midiports.time.sleep", lambda *_: None),
+        ]
+        for p in self.patches:
+            p.start()
+
+    def tearDown(self):
+        for p in self.patches:
+            p.stop()
+
+    def test_piano_reopen_closes_old_input_safely(self):
+        calls = []
+        old = OrderedPort(calls)
+        new = OrderedPort([])
+        instance = MidiPorts.__new__(MidiPorts)
+        instance.usersettings = FakeSettings({"piano_port": self.PORT})
+        instance.piano_in = old
+        instance.piano_in_name = "old"
+        instance.inport = old
+        instance.route_midi_message = lambda msg, source: None
+
+        with patch("lib.midiports.mido.open_input", return_value=new):
+            self.assertTrue(instance._open_piano_input(self.PORT, sync_settings=False))
+
+        self.assertEqual(calls, ["cancel", "close_port", "close"])
+        self.assertFalse(old.violation)
+        self.assertIs(instance.piano_in, new)
+        self.assertIs(instance.inport, new)
+        self.assertEqual(instance.piano_in_name, self.PORT)
+
+    def test_computer_reopen_closes_old_input_safely(self):
+        calls = []
+        old = OrderedPort(calls)
+        instance = MidiPorts.__new__(MidiPorts)
+        instance.usersettings = FakeSettings({"computer_port": "default"})
+        instance.computer_in = old
+        instance.computer_out = None
+        instance.release_forwarded_notes = lambda *args, **kwargs: None
+        instance._router = MagicMock()
+
+        instance.open_computer_ports()
+
+        self.assertEqual(calls, ["cancel", "close_port", "close"])
+        self.assertFalse(old.violation)
+        self.assertIsNone(instance.computer_in)
 
 
 if __name__ == "__main__":

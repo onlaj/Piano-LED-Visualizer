@@ -54,6 +54,32 @@ def _refresh_port_cache():
             _cached_output_names = []
 
 
+def _close_input_safely(port):
+    """Close an rtmidi input without deadlocking on a running callback.
+
+    close() joins the ALSA input thread while holding the GIL, so a callback
+    that is still running can never finish and the process hangs. Cancel the
+    callback first and sleep (which releases the GIL) so it can drain, then
+    close the rtmidi port directly: mido's close() registers its callback
+    wrapper again before closing, so with input still arriving a new callback
+    could be running during the join. A callback blocked for longer than the
+    sleep can still hang the close.
+    """
+    if port is None or getattr(port, "closed", False):
+        return
+    try:
+        # not "port.callback = None": mido re-registers its wrapper there
+        port._rt.cancel_callback()
+    except Exception:
+        pass
+    time.sleep(0.05)
+    try:
+        port._rt.close_port()
+    except Exception:
+        pass
+    _close_port(port)
+
+
 def _close_port(port):
     if port is None:
         return
@@ -193,7 +219,7 @@ class MidiPorts:
         self.release_forwarded_notes()
         self._router.reset()
 
-        _close_port(self.computer_in)
+        _close_input_safely(self.computer_in)
         _close_port(self.computer_out)
         self.computer_in = None
         self.computer_out = None
@@ -249,7 +275,7 @@ class MidiPorts:
             self.piano_in_name = resolved
             self.inport = self.piano_in
             time.sleep(0.002)
-            _close_port(old)
+            _close_input_safely(old)
             if sync_settings:
                 self._sync_legacy_port_settings(resolved)
             logger.info("Piano input loaded: " + resolved)
@@ -575,8 +601,33 @@ class MidiPorts:
         except Exception:
             pass
 
+    def _piano_input_healthy(self):
+        """Whether the open piano input is still the port a reopen would pick.
+
+        Reopening closes the old input while its callback may be running, so
+        reconnect_ports() skips it unless the port is gone or renumbered.
+        """
+        try:
+            if self.piano_in is None or getattr(self.piano_in, "closed", True):
+                return False
+            input_names = _get_cached_input_names()
+            if self.piano_in_name not in input_names:
+                _refresh_port_cache()
+                input_names = _get_cached_input_names()
+            resolved = self._resolved_piano_port(input_names)
+            if resolved is None:
+                # nothing configured, or the configured port is missing and
+                # a fallback is open: keep it while it is still listed
+                return self.piano_in_name in input_names
+            return resolved == self.piano_in_name
+        except Exception:
+            return False
+
     def reconnect_ports(self):
-        self.open_piano_ports()
+        if not self._piano_input_healthy():
+            self.open_piano_ports()
+        elif self.piano_out is None:
+            self._open_piano_output_for_input(self.piano_in_name)
         self.open_computer_ports()
 
     def _enqueue_for_leds(self, msg, source):
