@@ -74,6 +74,7 @@ class MidiPorts:
         self.last_activity = 0
 
         self.piano_in = None
+        self.piano_in_name = None
         self.piano_out = None
         self.computer_in = None
         self.computer_out = None
@@ -227,8 +228,16 @@ class MidiPorts:
                 logger.info("Can't load computer output '{}': {}".format(resolved_out, e))
                 self.computer_out = None
 
-    def _open_piano_input(self, portname):
-        resolved = self._resolve_port_name(portname, _get_cached_input_names())
+    def _open_piano_input(self, portname, sync_settings=True):
+        # Refresh the ALSA cache only when the configured name is missing.
+        # Normal opens stay cheap, while stale caches and rtpmidid port
+        # changes can still be recovered.
+        available = _get_cached_input_names()
+        resolved = self._resolve_port_name(portname, available)
+        if resolved is None:
+            _refresh_port_cache()
+            available = _get_cached_input_names()
+            resolved = self._resolve_port_name(portname, available)
         if not resolved:
             return False
         try:
@@ -237,10 +246,12 @@ class MidiPorts:
             )
             old = self.piano_in
             self.piano_in = new_in
+            self.piano_in_name = resolved
             self.inport = self.piano_in
             time.sleep(0.002)
             _close_port(old)
-            self._sync_legacy_port_settings(resolved)
+            if sync_settings:
+                self._sync_legacy_port_settings(resolved)
             logger.info("Piano input loaded: " + resolved)
             return True
         except Exception as e:
@@ -248,7 +259,12 @@ class MidiPorts:
             return False
 
     def _open_piano_output(self, portname):
-        resolved = self._resolve_port_name(portname, _get_cached_output_names())
+        available = _get_cached_output_names()
+        resolved = self._resolve_port_name(portname, available)
+        if resolved is None:
+            _refresh_port_cache()
+            available = _get_cached_output_names()
+            resolved = self._resolve_port_name(portname, available)
         if not resolved:
             return False
         try:
@@ -292,56 +308,114 @@ class MidiPorts:
         return self.piano_out is not None
 
     def find_and_set_piano(self):
-        """Pick an available piano port, preferring the configured device name."""
+        """Pick an available piano port.
+
+        Ports matching the configured endpoint are preferred and persisted,
+        including when rtpmidid has assigned a new client:port number.  If
+        that endpoint is temporarily unavailable, another port may be used for
+        this session without overwriting the saved setting, so the monitor can
+        switch back when the configured endpoint returns.
+        """
         try:
+            _refresh_port_cache()
             names = _get_cached_input_names()
             logger.info("Available inputs: {}".format(names))
 
             configured_port = self.usersettings.get_setting_value("piano_port")
+            preferred_descriptive = (
+                self._extract_descriptive_port_name(configured_port)
+                if configured_port and configured_port != "default"
+                else None
+            )
             preferred_device = (
                 self._extract_device_name(configured_port)
                 if configured_port and configured_port != "default"
                 else None
             )
 
+            # Prefer the configured endpoint, even if its client:port number
+            # changed after an rtpmidid restart.
             candidates = []
-            if preferred_device:
-                candidates.extend([n for n in names if preferred_device in n])
-            candidates.extend(
-                [
+            if preferred_descriptive:
+                candidates.extend(n for n in names if preferred_descriptive in n)
+
+            # A device name like "rtpmidid" is shared by all of its ports, so
+            # a match on it alone is only used as a session fallback.
+            device_candidates = []
+            if not candidates and preferred_device:
+                device_candidates = [
                     n
                     for n in names
-                    if n not in candidates
+                    if preferred_device in n
                     and "Through" not in n
                     and "RPi" not in n
                     and "RtMidi" not in n
                     and "USB-USB" not in n
                 ]
-            )
 
-            for pname in candidates:
-                if self._open_piano_input(pname):
-                    self.usersettings.change_setting_value("piano_port", pname)
-                    if not self._open_piano_output(pname):
-                        # look for another output name on the same device
-                        descriptive = self._extract_descriptive_port_name(pname)
-                        device = self._extract_device_name(pname)
-                        for out_name in _get_cached_output_names():
-                            if out_name == pname:
-                                continue
-                            if descriptive and (
-                                descriptive in out_name
-                                or self._extract_descriptive_port_name(out_name) == descriptive
-                            ):
-                                if self._open_piano_output(out_name):
-                                    break
-                            elif device and device in out_name:
-                                if self._open_piano_output(out_name):
-                                    break
-                    self._sync_legacy_port_settings(pname)
+            # An unconfigured/default setup discovers and persists a port.
+            # A configured but temporarily absent setup uses a fallback only
+            # for this session and leaves the saved setting untouched.
+            persist_fallback = not configured_port or configured_port == "default"
+
+            if candidates:
+                for pname in candidates:
+                    if self._open_piano_input(pname, sync_settings=True):
+                        self.usersettings.change_setting_value("piano_port", pname)
+                        self._open_piano_output_for_input(pname)
+                        self._sync_legacy_port_settings(pname)
+                        return
+
+            fallback_candidates = []
+            fallback_candidates.extend(device_candidates)
+            fallback_candidates.extend(
+                n
+                for n in names
+                if n not in candidates
+                and n not in device_candidates
+                and "Through" not in n
+                and "RPi" not in n
+                and "RtMidi" not in n
+                and "USB-USB" not in n
+            )
+            for pname in fallback_candidates:
+                if self._open_piano_input(pname, sync_settings=persist_fallback):
+                    if persist_fallback:
+                        logger.info("Discovered piano port: " + pname)
+                    else:
+                        logger.warning(
+                            "Configured piano port {!r} is unavailable; "
+                            "using {!r} for this session without changing "
+                            "saved settings".format(configured_port, pname)
+                        )
+                    self._open_piano_output_for_input(pname)
+                    if persist_fallback:
+                        self.usersettings.change_setting_value("piano_port", pname)
+                        self._sync_legacy_port_settings(pname)
                     return
+
+            logger.info("No piano port found")
         except Exception as e:
             logger.info("No piano port found: {}".format(e))
+
+    def _open_piano_output_for_input(self, pname):
+        if self._open_piano_output(pname):
+            return
+        # look for another output name on the same device
+        descriptive = self._extract_descriptive_port_name(pname)
+        device = self._extract_device_name(pname)
+        for out_name in _get_cached_output_names():
+            if out_name == pname:
+                continue
+            if descriptive and (
+                descriptive in out_name
+                or self._extract_descriptive_port_name(out_name) == descriptive
+            ):
+                if self._open_piano_output(out_name):
+                    break
+            elif device and device in out_name:
+                if self._open_piano_output(out_name):
+                    break
 
     def _sync_legacy_port_settings(self, portname):
         """Also write the old input_port / play_port keys."""
@@ -706,6 +780,20 @@ class MidiPorts:
             self.midi_monitor_thread.join(timeout=1)
         logger.info("MIDI device monitor stopped")
 
+    def _resolved_piano_port(self, available_names):
+        """Return the available port name the configured endpoint maps to."""
+        configured = self.usersettings.get_setting_value("piano_port")
+        if not configured or configured == "default":
+            return None
+        return self._resolve_port_name(configured, available_names)
+
+    def _piano_needs_reopen(self, available_names):
+        """Whether the configured endpoint is available under a new client:port."""
+        resolved = self._resolved_piano_port(available_names)
+        if resolved is None:
+            return False
+        return resolved != self.piano_in_name
+
     def auto_reconnect_loop(self):
         # reopen ports when a configured device reappears
         last_piano_present = None
@@ -738,11 +826,22 @@ class MidiPorts:
                 if computer_descriptive:
                     computer_present = any(computer_descriptive in n for n in input_names)
 
+                # also reopen when the configured endpoint got a new client:port
+                piano_resolved = self._resolved_piano_port(input_names)
+                port_changed = self._piano_needs_reopen(input_names)
+
                 piano_restored = piano_present and (last_piano_present is False)
                 computer_restored = computer_present and (last_computer_present is False)
 
-                if piano_restored:
-                    logger.info("Piano MIDI port restored. Reopening piano ports.")
+                if piano_restored or port_changed:
+                    if port_changed and not piano_restored:
+                        logger.info(
+                            "Piano MIDI port changed ({} -> {}); reopening.".format(
+                                self.piano_in_name, piano_resolved
+                            )
+                        )
+                    else:
+                        logger.info("Piano MIDI port restored. Reopening piano ports.")
                     try:
                         self.open_piano_ports()
                     except Exception as e:
