@@ -72,6 +72,7 @@ class MidiPorts:
         self.websocket_midi_queue = deque(maxlen=1000)
         self.drop_counter = 0
         self.last_activity = 0
+        self.midi_activity_event = threading.Event()
 
         self.piano_in = None
         self.piano_out = None
@@ -563,6 +564,10 @@ class MidiPorts:
             else:
                 self._queue_thru("piano", msg)
 
+    def _record_midi_activity(self):
+        self.last_activity = time.time()
+        self.midi_activity_event.set()
+
     def route_midi_message(self, msg, source):
         # light_show: piano -> LEDs
         # learning: piano <-> computer thru, with the computer's light stream
@@ -578,6 +583,8 @@ class MidiPorts:
             # matching and recording; the processor skips the LEDs itself
             self._enqueue_for_leds(msg, "piano")
             self._maybe_forward_to_websocket(msg)
+            # after queueing, so a woken loop finds the message
+            self._record_midi_activity()
             return
 
         if source == "computer" and learning:

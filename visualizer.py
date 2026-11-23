@@ -154,6 +154,13 @@ class VisualizerApp:
             fade_processed = self.led_effects_processor.process_fade_effects(event_loop_time)
             midi_processed = self.midi_event_processor.process_midi_events()
 
+            if midi_processed:
+                # leave idle and restore the backlight without waiting a loop
+                now_wall = time.time()
+                self.state_manager.update_state(midiports, menu, now_wall)
+                self.check_activity_backlight(ledstrip, ledsettings, midiports, now_wall)
+                sleep_interval = self.state_manager.get_loop_delay()
+
             # Only update LEDs if effects changed them or MIDI events occurred
             should_update = fade_processed or midi_processed
             
@@ -163,7 +170,14 @@ class VisualizerApp:
             else:
                 # In IDLE with no activity, set FPS to reflect actual state
                 ledstrip.current_fps = 1.0 / max(sleep_interval, 0.001) if sleep_interval > 0 else 0
-            time.sleep(sleep_interval)  # Dynamic delay based on system state
+
+            # Dynamic delay based on system state; the long idle delay is cut
+            # short when the piano is played
+            if sleep_interval > 0.1:
+                midiports.midi_activity_event.wait(timeout=sleep_interval)
+            else:
+                time.sleep(sleep_interval)
+            midiports.midi_activity_event.clear()
 
     def update_fps_stats(self):
         self.frame_count += 1

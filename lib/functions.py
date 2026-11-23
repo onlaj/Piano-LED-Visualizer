@@ -499,7 +499,11 @@ def screensaver(menu, midiports, saving, ledstrip, ledsettings, state_manager=No
 
         menu.render_screensaver(hour, date, cpu_usage, round(cpu_average, 1), ram_usage, temp, cpu_chart, upload,
                                 download, card_space, local_ip)
-        time.sleep(delay)
+        # wake early when the piano is played
+        midiports.midi_activity_event.wait(timeout=delay)
+        midiports.midi_activity_event.clear()
+        if state_manager:
+            state_manager.update_state(midiports, menu)
         i += 1
         try:
             # Exit screensaver if MIDI activity or state changed to active use
