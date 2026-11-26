@@ -655,11 +655,6 @@ function get_settings(home = true) {
             config_settings = response;
 
             if (home) {
-                const practiceToolUrlEl = document.getElementById("practice_tool_url");
-                if (practiceToolUrlEl) {
-                    practiceToolUrlEl.value = response["practice_tool_url"] || "";
-                }
-
                 if (document.getElementById("backlight_color")) {
                     document.getElementById("backlight_color").value = response["backlight_color"];
                     document.getElementById("sides_color").value = response["sides_color"];
@@ -764,6 +759,11 @@ function get_settings(home = true) {
                 const computerPortEl = document.getElementById("computer_port");
                 if (computerPortEl) computerPortEl.innerHTML = computerPort;
                 set_midi_mode_ui(midiMode);
+
+                const practiceToolUrlEl = document.getElementById("practice_tool_url");
+                if (practiceToolUrlEl) {
+                    practiceToolUrlEl.value = response["practice_tool_url"] || "https://piano-visualizer.pages.dev";
+                }
 
                 // Check if piano port setup popup should be shown
                 check_and_show_port_setup_popup(pianoPort);
