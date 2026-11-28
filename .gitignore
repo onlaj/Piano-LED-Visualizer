@@ -5,4 +5,8 @@
 config/settings.xml
 webinterface/node_modules
 visualizer.log
+visualizer.log.*
+data/
+score_log.txt
+score_log.txt.*
 
