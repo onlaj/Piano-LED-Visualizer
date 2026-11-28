@@ -400,9 +400,22 @@ class PlatformRasp(PlatformBase):
                         return False, "Not connected to any Wi-Fi network.", ""
                     return False, "Not connected to any Wi-Fi network.", ""
 
-            return False, "No Wi-Fi interface found.", ""
+        except FileNotFoundError:
+            # iwconfig is not installed on every distribution
+            pass
         except subprocess.CalledProcessError:
             return False, "Error occurred while getting Wi-Fi information.", ""
+
+        # No Wi-Fi interface: a wired connection still counts as online, so
+        # the hotspot is not enabled on Ethernet-only setups.
+        try:
+            output = subprocess.check_output(['ip', 'route', 'show', 'default'],
+                                             text=True, stderr=subprocess.DEVNULL)
+            if output.strip():
+                return True, "Connected", ""
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            pass
+        return False, "No Wi-Fi interface found.", ""
 
     def is_hotspot_running(self):
         try:
