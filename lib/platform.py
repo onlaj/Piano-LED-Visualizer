@@ -215,7 +215,7 @@ class PlatformRasp(PlatformBase):
         call(
             "sudo git clean -fdx -e Songs/ -e "
             "config/settings.xml -e config/wpa_disable_ap.conf -e visualizer.log "
-            "-e .venv -e .venv/",
+            "-e .venv -e .venv/ -e data/",
             shell=True,
         )
         call("sudo git clean -fdx Songs/cache", shell=True)
