@@ -528,6 +528,19 @@ class PlatformRasp(PlatformBase):
             if result.returncode == 0:
                 logger.info(f"Successfully connected to {ssid}")
                 usersettings.change_setting_value("is_hotspot_active", 0)
+
+                # avahi can falsely detect a hostname conflict after leaving the hotspot
+                # and rename us to <name>-2.local; restart it once addresses have settled.
+                def restart_avahi():
+                    time.sleep(5)
+                    try:
+                        subprocess.run(['sudo', 'systemctl', 'restart', 'avahi-daemon'],
+                                       check=True, capture_output=True, timeout=30)
+                    except Exception as e:
+                        logger.warning(f"Failed to restart avahi-daemon after connecting to {ssid}: {e}")
+
+                import threading
+                threading.Thread(target=restart_avahi, daemon=True).start()
                 return True
 
             err = (result.stderr or result.stdout or "").strip()
